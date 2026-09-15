@@ -17,22 +17,22 @@ I dati di riferimento si rigenerano con il comando del README. Per distribuire
 in seguito un dataset o una release scientifica, indicarne separatamente
 provenienza, parametri e versioni dell'ambiente.
 
-## Primo commit e pubblicazione
+## Stato e pubblicazione
 
-Dopo aver verificato i file e configurato la propria identità Git:
+Il primo commit è già stato creato su `main`:
+`1a62bd0` — `Prepare SHARP BL v8.3 repository`.
+I commit successivi sono consultabili con `git log --oneline`.
+L'identità autore è configurata localmente; non serve ripetere l'inizializzazione.
 
-```bash
-git add .
-git diff --cached --stat
-git commit -m "Prepare SHARP BL v8.3 repository"
-```
-
-Creare un repository remoto vuoto sul servizio scelto, poi sostituire l'URL:
+La destinazione concordata è GitHub, in attesa dell'URL fornito da Paolo e
+dell'autenticazione locale. Il push è autorizzato quando questi dati saranno
+pronti. Per un remoto vuoto, sostituire l'URL:
 
 ```bash
 git remote add origin <URL-del-repository>
 git push -u origin main
 ```
 
-Nome, servizio, visibilità del remoto e licenza sono scelte del proprietario.
-Non è stata assegnata automaticamente una licenza al codice.
+Controllare prima `git remote -v` e l'eventuale storia remota; non usare force
+push. Visibilità e licenza devono ancora essere scelte dal proprietario.
+Vedi [passaggio di consegne](HANDOFF.md) per riprendere in una nuova sessione.

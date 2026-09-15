@@ -5,6 +5,11 @@ Babcock–Leighton (BL) dalle mappe SHARP CEA `hmi.sharp_cea_720s`.
 Scarica `Br` e `bitmap` da JSOC, produce un CSV per istante/giorno e genera
 immagini diagnostiche dei casi segnalati.
 
+## Riprendere il lavoro
+
+Per una nuova sessione o LLM, leggere [AGENTS.md](AGENTS.md) e il
+[passaggio di consegne](docs/HANDOFF.md), che include un prompt pronto.
+
 ## Installazione
 
 Richiede Python 3.10+, Bash, IDL con licenza e SolarSoft configurato.

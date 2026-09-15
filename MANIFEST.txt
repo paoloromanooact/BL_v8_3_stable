@@ -1,11 +1,13 @@
 .gitattributes
 .gitignore
+AGENTS.md
 CHANGELOG.md
 INSTALL.md
 MANIFEST.txt
 README.md
 README_V8_2_SSW.txt
 data/.gitkeep
+docs/HANDOFF.md
 docs/PROJECT_STATUS.md
 docs/REPOSITORY.md
 idl/plot_sharp_diagnostics_from_csv.pro
