@@ -419,26 +419,44 @@ def synthetic_catalog(beta_t_frac, beta_eta_frac, n=6000, seed=1, rho=0.0):
     return cat
 
 
-def p2b_calibration(n_cat=40, rhos=(0.0, 0.5, 0.8)):
-    """P2b §4: frazione di verdetti != 'non deciso' senza quenching, con residui AR(1) tra CR."""
+def p2b_calibration(n_cat=100, rhos=(0.0, 0.5, 0.8)):
+    """P2b §4: senza quenching (beta vero = 0), con residui AR(1) tra CR.
+
+    Per ogni rho, test (T3, T5) e schema (P2 = CR intere; L3, L6, L13 = blocchi
+    mobili): frazione di falsi positivi (IC 97,5% che esclude 0) e copertura
+    degli IC 95% e 97,5% (contengono 0), con errore Monte Carlo sqrt(p(1-p)/n).
+    In piu' la frazione di falsi positivi della regola verdict_p2b.
+    """
     silso = load_silso()
-    rows = []
+    rec = []
     for rho in rhos:
-        fp = {"T3": [0, 0], "T5": [0, 0]}
         for k in range(n_cat):
             cat = synthetic_catalog(0.0, 0.0, seed=1000 + k, rho=rho)
             d = add_activity(samples(cat)["S"], silso)
-            r3 = t3(d, "S", "A_monthly", True)[0]
-            r5 = t5(d, "S", "A_monthly", "d_star", True, "D*")[0]
+            main = {"T3": t3(d, "S", "A_monthly", True)[0], "T5": t5(d, "S", "A_monthly", "d_star", True, "D*")[0]}
             mb = p2b_moving_blocks(d)
-            for test, r in (("T3", r3), ("T5", r5)):
-                fp[test][0] += r["verdict"] != "non deciso"
-                fp[test][1] += verdict_p2b(r, mb, test) != "non deciso (dipendenza temporale)" and \
-                    verdict_p2b(r, mb, test) != "non deciso"
-        for test, (a, b) in fp.items():
-            rows.append(dict(rho=rho, test=test, n_catalogues=n_cat, false_positive_p2=a / n_cat,
-                             false_positive_p2b=b / n_cat))
-    return pd.DataFrame(rows)
+            for test, r in main.items():
+                rows = [("P2", r)]
+                sub = mb[mb["test"] == test]
+                if test == "T5":
+                    sub = sub[sub["quantity"] == "D*"]
+                rows += [(f"L{int(x['block_length'])}", x) for _, x in sub.iterrows()]
+                for scheme, x in rows:
+                    rec.append(dict(rho=rho, k=k, test=test, scheme=scheme,
+                                    fp=int(not (x["ci975_lo"] <= 0 <= x["ci975_hi"])),
+                                    cover95=int(x["ci95_lo"] <= 0 <= x["ci95_hi"]),
+                                    cover975=int(x["ci975_lo"] <= 0 <= x["ci975_hi"])))
+                vb = verdict_p2b(r, mb, test)
+                rec.append(dict(rho=rho, k=k, test=test, scheme="verdict_p2b",
+                                fp=int(vb not in ("non deciso", "non deciso (dipendenza temporale)")),
+                                cover95=np.nan, cover975=np.nan))
+    df = pd.DataFrame(rec)
+    out = df.groupby(["rho", "test", "scheme"]).agg(
+        n=("fp", "size"), false_positive=("fp", "mean"), coverage95=("cover95", "mean"),
+        coverage975=("cover975", "mean")).reset_index()
+    for c in ("false_positive", "coverage95", "coverage975"):
+        out[f"{c}_mc_se"] = np.sqrt(out[c] * (1 - out[c]) / out["n"])
+    return out
 
 
 # ---------------------------------------------------------------- esecuzione
@@ -508,7 +526,7 @@ def summary(tabs):
     return pd.DataFrame(out)
 
 
-def gate_problems(cat):
+def gate_problems(cat, checks=None):
     """Condizioni per eseguire P2 sui dati veri; lista vuota se tutto e' in ordine.
 
     I flag devono esistere, valere 1 su tutte le righe, e gli SHA-256 dei
@@ -522,20 +540,29 @@ def gate_problems(cat):
         elif not (pd.to_numeric(cat[flag], errors="coerce") == 1).all():
             out.append(f"flag {flag} diverso da 1 in almeno una riga")
     from sharpbl.provenance import PROTOCOLS, sha256
+    from sharpbl.provenance import ROOT as PROOT
     for name in ("P1", "P1b", "P1c", "P1d"):
         col = f"sha256_{name}"
         if col not in cat:
             out.append(f"{col} assente nel catalogo P1")
-        elif cat[col].nunique() != 1 or cat[col].iloc[0] != sha256(ROOT / PROTOCOLS[name]):
+        elif cat[col].nunique() != 1 or cat[col].iloc[0] != sha256(PROOT / PROTOCOLS[name]):
             out.append(f"{col} del catalogo non coincide con il protocollo attuale")
-    chk_path = ROOT / "results/P1/P1_CHECKS.csv"
-    if not chk_path.exists():
+    if checks is None:
+        chk_path = ROOT / "results/P1/P1_CHECKS.csv"
+        checks = pd.read_csv(chk_path) if chk_path.exists() else None
+    if checks is None:
         out.append("P1_CHECKS.csv assente")
     else:
-        chk = pd.read_csv(chk_path)
-        mand = chk[chk.get("mandatory", 0) == 1]
-        if len(mand) == 0 or not (pd.to_numeric(mand["value"], errors="coerce") == 1).all():
-            out.append("controlli obbligatori di P1 non eseguiti o non superati")
+        from sharpbl.run_p1 import MANDATORY_CHECKS
+        if "mandatory" not in checks:
+            out.append("P1_CHECKS.csv senza la colonna mandatory")
+        else:
+            mand = checks[checks["mandatory"] == 1]
+            missing = sorted(set(MANDATORY_CHECKS) - set(mand["check"]))
+            if missing:
+                out.append(f"controlli obbligatori non eseguiti: {missing}")
+            if not (pd.to_numeric(mand["value"], errors="coerce") == 1).all():
+                out.append("controlli obbligatori falliti")
     return out
 
 
