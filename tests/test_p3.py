@@ -126,3 +126,16 @@ def test_selection_counts_runs_on_constructed_data():
     tab = run_p3.selection_counts(b, meta, pairs, m, None, "test").set_index("step")["count"]
     assert tab["regioni BARD"] == len(b)
     assert tab["a parte: regioni con D > 90° (convenzione Carrington)"] == 0
+
+
+def test_c2_merge_with_catalogue_family_columns():
+    """Regressione: il catalogo P1 ha gia' family_id; l'unione per C2 non deve duplicarla."""
+    pairs = pd.DataFrame({"row": [0], "HARPNUM": [5], "QUALITY": [0], "t": [pd.Timestamp("2012-01-01")],
+                          "BMRLatitude": [15.0], "b_leading_geom": [1]})
+    cat = pd.DataFrame({"HARPNUM": [5], "role": ["control"], "T_REC": ["2012.01.02_00:00:00_TAI"],
+                        "family_id": [3], "family_rank": [0], "lat_mean_deg": [15.0], "sintilt": [0.1],
+                        "d_cm": [5e9], "leading_sign": [1]})
+    sub = cat.drop(columns=["T_REC", "family_id", "family_rank", "recurrence_of"], errors="ignore")
+    df = run_p3.our_side(pairs, sub, None, on=("HARPNUM",)).merge(
+        pd.DataFrame({"HARPNUM": [5], "family_id": [3]}), on="HARPNUM", how="left")
+    assert "family_id" in df and df["family_id"].iloc[0] == 3

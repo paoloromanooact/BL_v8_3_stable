@@ -385,7 +385,8 @@ def run_level(kind, meta, boundary, fam, skip_download, p1_cat):
         out_sets["C1"] = df
     if p1_cat is not None:
         for role in ("control", "primary"):
-            sub = p1_cat[p1_cat["role"].isin([role, "both"])].drop(columns=["T_REC"]).copy()
+            sub = p1_cat[p1_cat["role"].isin([role, "both"])].drop(
+                columns=["T_REC", "family_id", "family_rank", "recurrence_of"], errors="ignore").copy()
             sub["T_REC_record"] = p1_cat.loc[sub.index, "T_REC"]
             df = our_side(ok.drop(columns=["T_REC"]), sub, boundary, on=("HARPNUM",))
             t_rec = pd.to_datetime(df["T_REC_record"].str.replace("_TAI", ""), format="%Y.%m.%d_%H:%M:%S")
