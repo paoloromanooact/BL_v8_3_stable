@@ -30,33 +30,61 @@ geometria complessiva e ciclo, **non** i singoli componenti di G.
 validi in v8.3 diventano non validi in v8.4 (nessuno nel verso opposto);
 2496 non sono validi in nessuna combinazione.
 
-**Effetti per record** sul campione valido in tutte le 8 combinazioni (9997
-record; `FACTORIAL_EFFECTS_BY_RECORD_SUMMARY.csv`; effetto = media(+) −
-media(−) del disegno 2³; mediana del valore assoluto):
+**Effetti per record.** Campione: i **9997 record** (primari e di controllo)
+validi in tutte le 8 combinazioni. Per ogni record e grandezza, l'effetto di
+un termine è il contrasto del disegno 2³: media sulle 4 combinazioni con il
+fattore al livello v8.4 meno media sulle 4 al livello v8.3 (per le
+interazioni, il contrasto prodotto). Si riporta la **mediana del valore
+assoluto** del contrasto e il 90° percentile, con queste unità:
+- tilt: differenza **assoluta assiale** in gradi (differenze modulo 180°);
+- latitudine: differenza assoluta in gradi;
+- Φ e d: differenza divisa per il valore v8.4 dello stesso record
+  (scarto relativo);
+- S_BL: differenza **assoluta** in Mx·cm, espressa anche in unità della
+  mediana di |S_BL| v8.4 sul campione (1,5·10³⁰ Mx·cm). Lo scarto relativo
+  record per record (diviso per |S_BL| del record) è riportato nella tabella
+  ma è **instabile** per S_BL vicino a zero e non va usato come sintesi.
 
-| Grandezza | M | G | C | interazioni |
-|---|---|---|---|---|
-| Φ (relativo) | 0,30 (mediana −30%) | 0,001 | 0 | ≤ 0,0001 |
-| d (relativo) | 0,15 | 0,0007 | 0 | ≤ 0,0002 |
-| latitudine media | 0,13° | 0,011° | 0 | ≤ 0,003° |
-| tilt (assiale) | 5,6° (90° percentile 49°) | 0,13° | 0 | ≤ 0,04° |
-| S_BL (relativo) | 0,57 | 0,012 | 0 (in mediana) | ≤ 0,004 |
+| Termine | Φ (relativo) | d (relativo) | latitudine | tilt (assiale) | S_BL (in mediane di \|S_BL\|) |
+|---|---|---|---|---|---|
+| M | 0,30 | 0,15 | 0,13° | 5,6° (p90 49°) | 0,59 (p90 12,3) |
+| G | 0,0010 | 0,0007 | 0,011° | 0,13° (p90 0,59°) | 0,011 (p90 0,83) |
+| C | 0 | 0 | 0 | 0 | 0 (diverso da zero nello 0,2% dei record) |
+| M×G | 0,0001 | 0,0002 | 0,003° | 0,04° (p90 0,30°) | 0,003 (p90 0,27) |
+| M×C, G×C, M×G×C | 0 | 0 | 0 | 0 | 0 (diversi da zero nello 0,2% dei record) |
+
+Il 90° percentile mostra code pesanti: per S_BL l'effetto di G supera 0,8
+volte la mediana di |S_BL| nel 10% dei record (regioni grandi), quindi la
+geometria non è irrilevante per le regioni più intense anche se lo è in
+mediana. Lo stesso vale per l'interazione M×G (p90 0,27).
+
+**Effetto del ciclo.** C non cambia Φ, d, latitudine o tilt, ma cambia
+`hale_sign` e quindi **il segno di S_BL**. Nella configurazione v8.4
+(M = 33, G = v8.4) cambia `hale_sign` in **20 record** del campione comune
+(0,2%), che portano lo 0,015% della somma di |S_BL|; sommando le 4 coppie del
+disegno, 80 cambi. L'effetto aggregato quasi nullo deriva da pochi casi di
+piccolo peso, non da cancellazioni.
 
 **Somme per CR ed emisfero** (`FACTORIAL_SBL_SUMS.csv`, 424 celle): mediana di
 |effetto| sulle celle rispetto alla mediana di |somma| per cella: M 0,20, G
-0,03, C 0, interazioni ≤ 0,004 (campione comune); 0,21, 0,03, 0, ≤ 0,004 con
-la validità propria di ogni combinazione.
+0,030, C 0, M×G 0,003, M×C 0, G×C 0, M×G×C 0 (campione comune); con la
+validità propria di ogni combinazione 0,21, 0,031, 0, 0,0035, 0, 0, 0. Le
+somme nette possono nascondere differenze individuali, riportate sopra.
 
 Lettura: per la misura la correzione che conta è la **maschera**; la
-geometria complessiva cambia le grandezze di circa l'1% o meno in mediana; il
-ciclo non cambia le grandezze ma solo la classificazione Hale nelle finestre
-di sovrapposizione (§2). Le interazioni sono trascurabili.
+geometria complessiva cambia le grandezze di circa l'1% in mediana ma molto di
+più nelle regioni più intense; il ciclo cambia il segno di S_BL in pochi
+record nelle sovrapposizioni.
 
 ## 2. Transizioni Hale (`HALE_TRANSITIONS.csv`, `..._BY_RECORD.csv`)
 
-- Denominatore: **4189** record primari validi con Hale definito sia in v8.3
-  sia in v8.4. Hale cambiato: **404** (9,6%), **simmetrico**: 202 Hale →
-  anti-Hale e 202 anti-Hale → Hale.
+- Denominatore: **4189** record **primari** validi con Hale definito sia in
+  v8.3 sia in v8.4; ogni HARP ha un solo record primario, quindi sono 4189
+  HARP. Hale cambiato: **404 record = 404 HARP** (9,6%): 202 Hale →
+  anti-Hale e 202 anti-Hale → Hale. La simmetria è **descrittiva** e non
+  prova l'assenza di effetti sistematici.
+- Includendo anche i record di controllo (9997 record validi in entrambi i
+  metodi): 1130 record con Hale cambiato, in 1025 HARP distinte.
 - Attribuzione dal fattoriale (la classificazione dipende solo da quel
   fattore): **M 391**, **C 10**, **M e G insieme 3**; nessuna solo da G.
 - Peso: le regioni con Hale cambiato portano il 3,4% della somma di |S_BL|
