@@ -15,6 +15,8 @@
 - Metodo `legacy` che riproduce la v8.3 (verificato sul caso 2024-05-08 03:12 TAI)
   e confronto v8.3/v8.4 (`python/sharpbl/compare_test_case.py`).
 - Test su bipoli sintetici: `.venv/bin/python -m pytest -q tests`.
+- Protocollo `docs/PROTOCOL_P2_QUENCHING.md` (test del quenching) congelato prima della serie P1;
+  numero di macchie emisferico SILSO in `ancillary/SILSO_HEMI/` (con provenienza e SHA-256).
 
 ## Preparazione del repository
 

@@ -6,10 +6,15 @@ INSTALL.md
 MANIFEST.txt
 README.md
 README_V8_2_SSW.txt
+ancillary/SILSO_HEMI/PROVENANCE.json
+ancillary/SILSO_HEMI/SHA256.txt
+ancillary/SILSO_HEMI/SN_d_hem_V2.0.csv
+ancillary/SILSO_HEMI/SN_m_hem_V2.0.csv
 data/.gitkeep
 docs/HANDOFF.md
 docs/PROJECT_STATUS.md
 docs/PROTOCOL_P1_SBL_SERIES.md
+docs/PROTOCOL_P2_QUENCHING.md
 docs/REPOSITORY.md
 idl/plot_sharp_diagnostics_from_csv.pro
 idl/process_sharp_day.pro

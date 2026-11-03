@@ -1,0 +1,7 @@
+{
+ "urls": ["https://www.sidc.be/SILSO/DATA/SN_d_hem_V2.0.csv", "https://www.sidc.be/SILSO/DATA/SN_m_hem_V2.0.csv"],
+ "downloaded_utc": "2026-10-23T09:37:07",
+ "content": "Daily and monthly hemispheric sunspot numbers V2.0 (total, north, south, with standard deviations), 1992-01 onward. Columns of the daily file: year;month;day;decimal year;total;north;south;sd total;sd north;sd south;N obs total;N obs north;N obs south;definitive(1)/provisional(0).",
+ "credit": "Source: WDC-SILSO, Royal Observatory of Belgium, Brussels",
+ "sha256": "see SHA256.txt"
+}
