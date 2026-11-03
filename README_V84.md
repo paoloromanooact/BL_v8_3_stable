@@ -99,8 +99,11 @@ I dati non sono in Git. `data/sharp` può essere un link a un disco capiente
 - [x] Protocolli P1, P1b, P1c e P2 congelati.
 - [x] Metadati di tutte le HARP: 8296 HARP, 2010-05 → 2026-09; 7133 con record primario, 14195 record da scaricare (~4,5 GB).
 - [ ] Selezione dei record e scaricamento dei FITS.
-- [ ] Serie P1 (v8.4 e legacy) e controlli.
-- [ ] Test P2.
+- [x] Validazione esterna P3 C1 con BARD: coerente al livello 1 (`docs/P3_RESULTS_C1.md`).
+- [x] Validazione della procedura P2d/P2e: criterio **non** soddisfatto; T3 e T5 solo descrittivi
+  (`docs/P2_DECISION_DESCRIPTIVE_FALLBACK.md`).
+- [ ] Serie P1 completa (v8.4 e legacy), controlli, figure; P3 C2.
+- [ ] P2 descrittivo sui dati reali.
 
 ## Ancillari
 

@@ -209,3 +209,13 @@ def test_hemispheres_of_a_cr_resampled_together():
         row_counts = m.counts[:, m.g]  # peso di ogni riga = conteggio della sua CR
         assert np.array_equal(row_counts[:, 0], row_counts[:, 1])
         assert np.array_equal(row_counts[:, 4], row_counts[:, 5])
+
+
+def test_fallback_removes_verdicts(with_quenching):
+    tabs = {k: v.copy() for k, v in with_quenching.items()}
+    cat = run_p2.synthetic_catalog(-0.3, -0.3)
+    smp = {k: run_p2.add_activity(v, run_p2.load_silso()) for k, v in run_p2.samples(cat).items()}
+    out = run_p2.apply_fallback(tabs, smp, {"T3": False, "T5": False}).get("SUMMARY").set_index("test")
+    assert out.loc["T3", "verdict_final"] == "descrittivo (ripiego P2d §6)"
+    assert out.loc["T5", "verdict_final"] == "descrittivo (ripiego P2d §6)"
+    assert set(tabs["P2D_TESTS"]["test"]) == {"T3", "T5"}

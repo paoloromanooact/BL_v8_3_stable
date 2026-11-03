@@ -461,6 +461,27 @@ def p2b_calibration(n_cat=100, rhos=(0.0, 0.5, 0.8)):
 
 # ---------------------------------------------------------------- esecuzione
 
+def apply_fallback(tabs, smp, acceptance):
+    """P2d §6 con P2e: per i test non accettati nessun verdetto; p-value P2d/P2e solo descrittivi."""
+    from sharpbl import p2d
+    old_est = p2d.ESTIMATOR
+    p2d.ESTIMATOR = "p2e"
+    try:
+        tests = [p2d.p2d_test(smp["S"], t) for t in ("T3", "T5")]
+    finally:
+        p2d.ESTIMATOR = old_est
+    tabs["P2D_TESTS"] = pd.DataFrame(tests).assign(
+        note="p-value Monte Carlo (stimatore P2e): solo descrittivo se il test non e' accettato")
+    s = tabs["SUMMARY"]
+    s["verdict_final"] = s["verdict"]
+    for t in ("T3", "T5"):
+        if not acceptance.get(t, False):
+            s.loc[s["test"] == t, "verdict_final"] = "descrittivo (ripiego P2d §6)"
+            s.loc[s["test"] == t, "note"] = ("verdetti P2/P2b/P2d solo informativi: la procedura non ha "
+                                             "superato il criterio di calibrazione (P2E_ACCEPTANCE.csv)")
+    return tabs
+
+
 def run(cat, sel=None, silso=None, do_t0=True):
     silso = silso or load_silso()
     smp = {k: add_activity(v, silso, sel) for k, v in samples(cat).items()}
@@ -576,13 +597,20 @@ def main() -> int:
     sel = pd.read_csv(ROOT / "results/P1/P1_RECORD_SELECTION.csv")
     sel = sel.merge(cat[["HARPNUM", "T_REC", "CR"]], on=["HARPNUM", "T_REC"], how="left")
     tabs = run(cat, sel)
+    acc_path = OUT / "P2E_ACCEPTANCE.csv"
+    if not acc_path.exists():
+        print("P2E_ACCEPTANCE.csv assente: la validazione di P2d/P2e non e' stata eseguita; P2 non si esegue")
+        return 1
+    acceptance = dict(zip(*pd.read_csv(acc_path)[["test", "accepted"]].T.values))
+    smp = {k: add_activity(v, load_silso(), sel) for k, v in samples(cat).items()}
+    tabs = apply_fallback(tabs, smp, acceptance)
     OUT.mkdir(parents=True, exist_ok=True)
     tabs["P2B_CALIBRATION"] = p2b_calibration()
-    st = stamp(("P1", "P1b", "P1c", "P1d", "P2", "P2b"))
+    st = stamp(("P1", "P1b", "P1c", "P1d", "P1e", "P2", "P2b", "P2c", "P2d", "P2e"))
     names = {"T0": "P2_T0_POWER", "T1": "P2_T1_JOY", "T2": "P2_T2_INTERCYCLE", "T3": "P2_T3_TILT_QUENCHING",
              "T4": "P2_T4_LATITUDE_QUENCHING", "T5": "P2_T5_EFFICIENCY", "SUMMARY": "P2_SUMMARY",
              "P2B_MOVING_BLOCKS": "P2B_MOVING_BLOCKS", "P2B_RESIDUAL_ACF": "P2B_RESIDUAL_ACF",
-             "P2B_CALIBRATION": "P2B_CALIBRATION"}
+             "P2B_CALIBRATION": "P2B_CALIBRATION", "P2D_TESTS": "P2D_TESTS"}
     for k, n in names.items():
         tabs[k].assign(**st).to_csv(OUT / f"{n}.csv", index=False)
     print(tabs["SUMMARY"].to_string(index=False))
