@@ -14,6 +14,7 @@ ancillary/SILSO_HEMI/SN_m_hem_V2.0.csv
 data/.gitkeep
 docs/CATALOGUE_DICTIONARY.md
 docs/EXPLORATORY_PLAN.md
+docs/EXPLORATORY_RESULTS.md
 docs/HANDOFF.md
 docs/P2_DECISION_DESCRIPTIVE_FALLBACK.md
 docs/P2_RESULTS_DESCRIPTIVE.md
@@ -34,6 +35,8 @@ docs/PROTOCOL_P3C_BARD_TILT_CONVENTION.md
 docs/PROTOCOL_P3_EXTERNAL_VALIDATION.md
 docs/REPOSITORY.md
 docs/SEEN_BEFORE_FREEZE_2026-11-03.md
+figures/EXPLORATORY/data/hale_transition_cases.csv
+figures/EXPLORATORY/hale_transition_cases.png
 figures/P1/data/fig1_butterfly.csv
 figures/P1/data/fig2_cumulative_d_bal.csv
 figures/P1/data/fig2_series_by_cr.csv
@@ -85,6 +88,7 @@ python/sharpbl/factorial.py
 python/sharpbl/fetch_metadata.py
 python/sharpbl/figures_p1.py
 python/sharpbl/geometry.py
+python/sharpbl/hale_case_figures.py
 python/sharpbl/measure.py
 python/sharpbl/p2d.py
 python/sharpbl/provenance.py
@@ -95,7 +99,17 @@ python/sharpbl/run_p3.py
 python/sharpbl/select_records.py
 requirements-v84.txt
 requirements.txt
+results/EXPLORATORY/FACTORIAL_BY_RECORD.csv.gz
+results/EXPLORATORY/FACTORIAL_EFFECTS_BY_RECORD_SUMMARY.csv
 results/EXPLORATORY/FACTORIAL_REPRODUCTION.csv
+results/EXPLORATORY/FACTORIAL_SBL_SUMS.csv
+results/EXPLORATORY/FACTORIAL_VALIDITY.csv
+results/EXPLORATORY/HALE_TRANSITIONS.csv
+results/EXPLORATORY/HALE_TRANSITIONS_BY_RECORD.csv
+results/EXPLORATORY/P3_C1_C2_COMMON_SUBSET.csv
+results/EXPLORATORY/PRIMARY_VS_CONTROL.csv
+results/EXPLORATORY/PRIMARY_VS_CONTROL_BY_HARP.csv
+results/EXPLORATORY/SBL_CONCENTRATION.csv
 results/P1/CYCLE_BOUNDARY_FITS.csv
 results/P1/P1E_METADATA_VERIFICATION_BY_YEAR.csv
 results/P1/P1_CHECKS.csv

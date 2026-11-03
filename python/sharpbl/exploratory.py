@@ -214,6 +214,9 @@ def primary_vs_control(cat):
     rows = [dict(item="HARP con primario e controllo distinti, entrambi validi", value=len(d)),
             dict(item="HARP in cui i due record coincidono (role = both)", value=len(both))]
     for col in d.columns:
+        if col in ("hale_same", "s_bl_same_sign"):
+            rows.append(dict(item=f"{col} (frazione)", value=f"{d[col].mean():.4f}"))
+            continue
         q = np.nanpercentile(d[col], [16, 50, 84])
         rows.append(dict(item=f"{col} p16/p50/p84", value=f"{q[0]:.4g} / {q[1]:.4g} / {q[2]:.4g}"))
     return pd.DataFrame(rows), d.reset_index()
