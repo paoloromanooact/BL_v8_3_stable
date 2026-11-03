@@ -13,6 +13,7 @@ ancillary/SILSO_HEMI/SN_d_hem_V2.0.csv
 ancillary/SILSO_HEMI/SN_m_hem_V2.0.csv
 data/.gitkeep
 docs/HANDOFF.md
+docs/P3_RESULTS_C1.md
 docs/PROJECT_STATUS.md
 docs/PROTOCOL_P1B_QUALITY_0x80.md
 docs/PROTOCOL_P1C_CYCLE_RULE.md
@@ -95,6 +96,8 @@ results/P3/P3_BARD_CRITERIA.csv
 results/P3/P3_BARD_MATCHES.csv
 results/P3/P3_BARD_SELECTION.csv
 results/P3/P3_BARD_SUMMARY.csv
+results/P3/P3_C1_DISCORDANT_DESCRIPTIVE.csv
+results/P3/P3_C1_DISCORDANT_SUMMARY.csv
 results/P3/P3_RANDOM_CONTROL.csv
 scripts/check_repo.sh
 scripts/download_test_20240508.sh
