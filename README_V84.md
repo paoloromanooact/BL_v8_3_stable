@@ -36,6 +36,9 @@ riproduce esattamente i risultati v8.3 di Paolo.
 - [`docs/PROTOCOL_P1B_QUALITY_0x80.md`](docs/PROTOCOL_P1B_QUALITY_0x80.md) — emendamento
   di P1: accetta anche QUALITY = 0x80 (difetto di calibrazione noto, 2016-04 →
   2017-03), con flag e varianti senza quei record.
+- [`docs/PROTOCOL_P1C_CYCLE_RULE.md`](docs/PROTOCOL_P1C_CYCLE_RULE.md) — emendamento
+  di P1 §5 (non cieco, solo latitudini): due cicli in un gruppo solo se media vecchia
+  ≤ 12°, nuova ≥ 18°, distanza ≥ 8°.
 - [`docs/PROTOCOL_P2_QUENCHING.md`](docs/PROTOCOL_P2_QUENCHING.md) — test del
   quenching del tilt, in latitudine e dell'efficienza della sorgente; due test
   principali (T3, T5) con intervalli al 97,5%; attività emisferica da SILSO.
@@ -74,12 +77,16 @@ I dati non sono in Git. `data/sharp` può essere un link a un disco capiente
 | `cycle.py` | ciclo per data e per latitudine, polarità leading attesa |
 | `measure.py` | `measure_v84` (corretto) e `measure_legacy` (riproduzione v8.3) |
 | `fetch_metadata.py` | scaricamento dei metadati, riprendibile |
+| `select_records.py` | record primario e di controllo per HARP (P1 §4, P1b) |
+| `download_records.py` | download diretto (as-is) di Br e bitmap, keyword in `.keys.json`, riprendibile |
+| `cycle_boundary.py` | regola del ciclo nelle sovrapposizioni (P1 §5, P1c) |
+| `provenance.py` | SHA-256 dei protocolli e commit negli output |
 | `compare_test_case.py` | confronto v8.3/v8.4 sul caso di prova |
 
 ## Stato
 
 - [x] Porting, correzioni e test sintetici; legacy verificato sul caso di prova.
-- [x] Protocolli P1, P1b e P2 congelati.
+- [x] Protocolli P1, P1b, P1c e P2 congelati.
 - [x] Metadati di tutte le HARP: 8296 HARP, 2010-05 → 2026-09; 7133 con record primario, 14195 record da scaricare (~4,5 GB).
 - [ ] Selezione dei record e scaricamento dei FITS.
 - [ ] Serie P1 (v8.4 e legacy) e controlli.

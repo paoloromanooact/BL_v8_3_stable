@@ -39,7 +39,7 @@ def assign_cycle(t: datetime, lat_deg: float, boundary=None):
 
     boundary: funzione (t, |lat|) -> probabilita' che la regione appartenga al
     ciclo nuovo, ricavata dalle latitudini (protocollo P1). stato e' "DATE"
-    fuori dalle finestre, "LATITUDE" o "AMBIGUOUS" dentro, "UNRESOLVED" se manca
+    fuori dalle finestre, "LATITUDE", "AMBIGUOUS" o "DATE_IN_WINDOW" dentro, "UNRESOLVED" se manca
     la tabella.
     """
     w = overlap_window(t)
@@ -49,6 +49,8 @@ def assign_cycle(t: datetime, lat_deg: float, boundary=None):
     if boundary is None or not np.isfinite(lat_deg):
         return cycle_by_date(t), np.nan, "UNRESOLVED"
     p = float(boundary(t, abs(lat_deg)))
+    if not np.isfinite(p):  # gruppo di un solo ciclo (P1 §5, punto 4): decide la data
+        return cycle_by_date(t), np.nan, "DATE_IN_WINDOW"
     cyc = new if p >= 0.5 else old
     state = "AMBIGUOUS" if 0.2 < p < 0.8 else "LATITUDE"
     return cyc, p, state

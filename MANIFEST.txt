@@ -15,6 +15,7 @@ data/.gitkeep
 docs/HANDOFF.md
 docs/PROJECT_STATUS.md
 docs/PROTOCOL_P1B_QUALITY_0x80.md
+docs/PROTOCOL_P1C_CYCLE_RULE.md
 docs/PROTOCOL_P1_SBL_SERIES.md
 docs/PROTOCOL_P2_QUENCHING.md
 docs/REPOSITORY.md
@@ -54,9 +55,13 @@ python/download_sharp_day.py
 python/sharpbl/__init__.py
 python/sharpbl/compare_test_case.py
 python/sharpbl/cycle.py
+python/sharpbl/cycle_boundary.py
+python/sharpbl/download_records.py
 python/sharpbl/fetch_metadata.py
 python/sharpbl/geometry.py
 python/sharpbl/measure.py
+python/sharpbl/provenance.py
+python/sharpbl/select_records.py
 requirements-v84.txt
 requirements.txt
 scripts/check_repo.sh

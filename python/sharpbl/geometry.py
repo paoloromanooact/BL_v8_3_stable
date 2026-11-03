@@ -8,7 +8,9 @@ sfera con vettori unitari, senza una scala unica in pixel.
 """
 from __future__ import annotations
 
+import json
 import warnings
+from pathlib import Path
 
 import numpy as np
 from astropy.io import fits
@@ -18,10 +20,27 @@ RSUN_CM_DEFAULT = 6.96e10  # RSUN_REF delle mappe SHARP, in cm
 
 
 def read_sharp(path):
-    """Restituisce (data, header) dall'ultima HDU del file (CompImageHDU)."""
+    """Restituisce (data, header) dall'ultima HDU del file (CompImageHDU).
+
+    Per i file scaricati "as-is" (download_records.py) le keyword DRMS stanno in
+    <nome>.keys.json accanto al FITS e vengono aggiunte all'header.
+    """
+    path = Path(path)
     with fits.open(path) as hl:
         hdu = hl[-1]
-        return np.asarray(hdu.data, dtype=float), hdu.header.copy()
+        data, header = np.asarray(hdu.data, dtype=float), hdu.header.copy()
+    stem = path.name.rsplit(".", 2)[0]  # toglie .<segmento>.fits
+    kpath = path.with_name(stem + ".keys.json")
+    if kpath.exists():
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")  # keyword lunghe -> HIERARCH
+            for k, v in json.loads(kpath.read_text()).items():
+                if v is None or k in header or len(k) > 68:
+                    continue
+                if isinstance(v, str) and len(v) > 60:
+                    continue
+                header[k] = v
+    return data, header
 
 
 def rsun_cm(header) -> float:
