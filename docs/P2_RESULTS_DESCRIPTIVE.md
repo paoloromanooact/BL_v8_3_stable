@@ -29,7 +29,8 @@ emisfero: c24N 25,5° [17,1; 34,3], c24S 20,3° [14,5; 26,3], c25N 29,2°
 
 ## T2 — tilt tra cicli a pari fase (descrittivo per P2)
 
-γ0(ciclo 25) − γ0(ciclo 24) = **+3,3°** [−4,1; 10,1] (2238 regioni).
+γ0(ciclo 25) − γ0(ciclo 24) = **+3,3°** [−4,1; 10,1] (2238 regioni): differenza
+stimata positiva ma incerta.
 
 ## T3 — tilt contro attività dentro il ciclo (descrittivo)
 
@@ -44,8 +45,10 @@ informativo, procedura non accettata): p_basso = 0,21.
 ## T4 — latitudine contro attività dentro il ciclo (descrittivo per P2)
 
 β_L (gradi per unità di Â) = **−0,63** [−1,10; −0,12]; A_smooth13 −1,00
-[−1,99; 0,02]; A_usflux −0,42 [−0,70; −0,002]. Il segno è **opposto** a
-quello previsto dal quenching in latitudine (β_L > 0).
+[−1,99; 0,02]; A_usflux −0,42 [−0,70; −0,002]. Pendenza descrittiva
+**negativa**, opposta alla previsione considerata (β_L > 0). Un intervallo che
+esclude zero, con copertura non garantita, non basta a stabilire una
+contraddizione fisica.
 
 ## T5 — efficienza della sorgente contro attività (descrittivo)
 
@@ -68,16 +71,19 @@ stabilisce un "ρ vero".
 ## T0 — potenza sul disegno reale (informativo, procedura di P2 non validata)
 
 Rilevamento con la regola di P2 per β_T = −0,1/−0,2/−0,3·γ0: 0,04 / 0,13 /
-0,35; falsi positivi senza effetto iniettato 0,035. Riguarda la procedura di
-P2, non un test validato al 2,5%.
+0,35; falsi positivi senza effetto iniettato 0,035. Sono frequenze di
+rilevamento della procedura di P2, **non validata**, sul disegno reale: non
+sono potenze di un test validato al 2,5% e non dimostrano da sole che due
+cicli HMI siano intrinsecamente insufficienti.
 
 ## Sintesi descrittiva
 
 Sui cicli 24–25 la legge di Joy è chiaramente presente. Dentro il ciclo, la
-pendenza del tilt rispetto all'attività è negativa in tutte le varianti
-(come atteso da un quenching del tilt) ma con intervalli che in genere
-comprendono zero; l'efficienza della sorgente non mostra una dipendenza
-apprezzabile dall'attività; la latitudine di emersione ha una pendenza
-negativa, opposta alla previsione del quenching in latitudine. Nessuna di
-queste osservazioni costituisce un verdetto: la questione inferenziale sul
-quenching resta aperta.
+pendenza del tilt rispetto all'attività è stimata negativa in tutte le
+varianti (il verso atteso da un quenching del tilt), con intervalli che in
+genere comprendono zero. Per l'efficienza della sorgente la pendenza stimata è
+vicina a zero, con ampia incertezza: non è dimostrata l'assenza di un effetto.
+La latitudine di emersione ha una pendenza descrittiva negativa, opposta alla
+previsione considerata. Tra i cicli, la differenza del coefficiente di Joy è
+stimata positiva ma incerta. Nessuna di queste osservazioni costituisce un
+verdetto: la questione inferenziale sul quenching resta aperta.

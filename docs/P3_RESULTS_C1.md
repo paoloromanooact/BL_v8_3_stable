@@ -81,11 +81,15 @@ non hanno record primario e mancano in C2.
 | C2 controllo | 962 (842) | 0,5 giorni | 4,5° | 0,68 | 96,9% | 0,73 | 0,27° | 1,82 |
 | C2 primario | 829 (722) | 4,1 giorni | 7,4° | 0,53 | 96,4% | 0,58 | 0,46° | 0,95 |
 
-Lettura: l'accordo peggiora con la distanza in tempo dalla misura di BARD,
-come atteso per regioni che evolvono (P1d §3 sull'evoluzione tra record
-primario e di controllo). La polarità leading resta concorde al 96–97%. Il
-rapporto dei flussi cambia molto tra C1/C2-controllo (circa 1,7–1,8) e
-C2-primario (circa 0,95), perché BARD misura al massimo del flusso e il record
-primario no: conferma che il rapporto dei flussi non è interpretabile come
-calibrazione. Livello 2 (MDI): C2 controllo 66 regioni, δ 3,5°; C2 primario
+Lettura: l'accordo è peggiore quando la nostra misura è più lontana in tempo
+da quella di BARD, il che è compatibile con l'evoluzione delle regioni (P1d §3).
+I tre campioni però hanno numerosità e selezioni diverse (999, 962, 829
+regioni; il record primario richiede |lon| ≤ 30° e il campione principale
+Φ ≥ 10²¹ Mx nell'istante del record), quindi la tabella da sola **non**
+attribuisce il peggioramento esclusivamente alla distanza temporale. Lo stesso
+vale per il rapporto dei flussi (circa 1,7–1,8 in C1 e C2-controllo, circa
+0,95 in C2-primario): una spiegazione compatibile è che BARD misuri al massimo
+del flusso e il record primario no, ma la selezione diversa può contribuire.
+In ogni caso il rapporto dei flussi non è interpretabile come calibrazione.
+La polarità leading resta concorde al 96–97%. Livello 2 (MDI): C2 controllo 66 regioni, δ 3,5°; C2 primario
 61 regioni, δ 4,7°. Nessun esito formale per C2 (P3 §3).

@@ -38,7 +38,8 @@ Prompt da incollare:
   (`complete_series` = `validation_passed` = 1), figure in `figures/P1/`.
 - P3: C1 "coerente con BARD (livello 1)" e C2 riportato (`docs/P3_RESULTS_C1.md`).
 - P2: la validazione della procedura calibrata (P2d/P2e) non ha superato il
-  criterio; T3 e T5 sono **solo descrittivi** (`docs/P2_DECISION_DESCRIPTIVE_FALLBACK.md`,
+  criterio; T3 e T5 sono **solo descrittivi** (formulazioni prudenti: T5
+  "pendenza vicina a zero con ampia incertezza", non "nullo") (`docs/P2_DECISION_DESCRIPTIVE_FALLBACK.md`,
   `docs/P2_RESULTS_DESCRIPTIVE.md`). Non riformulare come verdetti.
 - Tutto ciò che è stato visto prima di ogni congelamento: `docs/SEEN_BEFORE_FREEZE_2026-11-03.md`.
 
