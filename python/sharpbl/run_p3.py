@@ -1,4 +1,4 @@
-"""Protocolli P3 e P3b: validazione esterna con BARD (coerenza delle misure).
+"""Protocolli P3, P3b e P3c: validazione esterna con BARD (coerenza delle misure).
 
 Uso: .venv/bin/python python/sharpbl/run_p3.py [--skip-download]
 
@@ -93,16 +93,39 @@ def conventions(b, meta_times):
     f_car = float((d <= 90).mean())
     rows.append(dict(convention="riferimento longitudini", statistic=f"F_car (n={int(has.sum())})", value=f_car,
                      result="Carrington" if f_car >= 0.95 else "indeterminata"))
-    neg = float((np.abs(b["Tilt_rel"] + b["b_asin"]) < 0.01).mean())
-    pos = float((np.abs(b["Tilt_rel"] - b["b_asin"]) < 0.01).mean())
-    rows.append(dict(convention="segno Tilt_rel", statistic="accordo con -asin / +asin", value=max(neg, pos),
-                     result="Tilt_rel = -asin(sin a)" if neg >= 0.99 else
-                     ("Tilt_rel = +asin(sin a)" if pos >= 0.99 else "indeterminata")))
+    # P3c §1: verifica A, Tilt_rel riproduce la formula piana
+    lp = b["LeadingPolarity"] > 0
+    lat_l = np.where(lp, b["PLatitude"], b["NLatitude"])
+    lat_f = np.where(lp, b["NLatitude"], b["PLatitude"])
+    dlon = np.abs(wrap(lead_lon - foll_lon))
+    planar = np.degrees(np.arctan2(lat_l - lat_f, dlon * np.cos(np.radians(b["BMRLatitude"]))))
+    f_a = float((np.abs(b["Tilt_rel"] - planar) <= 0.01).mean())
+    rows.append(dict(convention="Tilt_rel formula piana (verifica A)", statistic="frazione entro 0,01°", value=f_a,
+                     result="formula piana confermata" if f_a >= 0.99 else "non confermata"))
+    # P3c §2: verifica B, compatibilita' con la formula sferica (non cieca, non validazione)
+    d = np.abs(b["Tilt_rel"] + b["b_asin"])
+    nonnull = np.abs(b["b_asin"]) >= 0.5
+    f_sign = float((np.sign(b.loc[nonnull, "Tilt_rel"]) == -np.sign(b.loc[nonnull, "b_asin"])).mean()) if nonnull.any() else np.nan
+    f_1deg = float((d <= 1.0).mean())
+    q = np.percentile(d, [50, 90, 99, 100])
+    rows.append(dict(convention="Tilt_rel compatibilita' sferica (verifica B)",
+                     statistic=f"segno {f_sign:.4f}; entro 1° {f_1deg:.4f}; |diff| p50/p90/p99/max "
+                               f"{q[0]:.3f}/{q[1]:.3f}/{q[2]:.3f}/{q[3]:.3f}",
+                     value=min(f_sign, f_1deg),
+                     result="compatibile" if (f_sign >= 0.99 and f_1deg >= 0.99) else "non compatibile"))
     exp24 = np.where(b["BMRLatitude"] > 0, -1, 1)
     f_hale = float((b["Hale"] == (b["LeadingPolarity"] == exp24)).mean())
     rows.append(dict(convention="significato Hale", statistic="accordo con leading attesa ciclo 24", value=f_hale,
                      result="Hale = leading attesa ciclo 24" if f_hale >= 0.99 else "indeterminata"))
     return pd.DataFrame(rows)
+
+
+def suspensions(conv):
+    """P3c §3: quali confronti sono sospesi, dagli esiti delle verifiche di un livello."""
+    res = conv.set_index("convention")["result"]
+    all_off = (res.get("direzione longitudini") == "indeterminata"
+               or res.get("riferimento longitudini") == "indeterminata")
+    return {"all": bool(all_off), "hale_published": bool(res.get("significato Hale") == "indeterminata")}
 
 
 # ---------------------------------------------------------------- abbinamento
@@ -344,7 +367,8 @@ def run_level(kind, meta, boundary, fam, skip_download, p1_cat):
         b["row"] = np.arange(len(b))
     meta_times = meta[["t", "CRLN_OBS"]].drop_duplicates("t").sort_values("t")
     conv = conventions(b, meta_times).assign(set=kind)
-    if (conv["result"] == "indeterminata").any():
+    susp = suspensions(conv)
+    if susp["all"]:
         return dict(conv=conv, suspended=True)
     pairs = candidates(b, meta)
     m = assign_one_to_one(pairs).merge(b, on="row")
@@ -374,6 +398,9 @@ def run_level(kind, meta, boundary, fam, skip_download, p1_cat):
         main = df[(df["valid_bl"] == 1) & (df["phi_mx"] >= PHI_MIN)]
         ind = indicators(main)
         boot = family_bootstrap(main) if len(main) else {}
+        if susp["hale_published"]:  # P3c §3: sospeso solo "Hale pubblicato"
+            ind["frac_hale_published_equal"] = np.nan
+            boot = {k: (np.nan if k.startswith("frac_hale_published_equal") else v) for k, v in boot.items()}
         row = dict(set=kind, comparison=name, **ind, **boot)
         if kind == "HMI" and name == "C1":
             tab, verdict, deg = outcome(ind, boot)
@@ -407,11 +434,14 @@ def main() -> int:
     if p1_cat is None:
         print("C2 non eseguito: catalogo P1 completo e validato non disponibile")
     OUT.mkdir(parents=True, exist_ok=True)
-    st = stamp(("P1", "P1b", "P1c", "P1d", "P1e", "P3", "P3b"))
+    st = stamp(("P1", "P1b", "P1c", "P1d", "P1e", "P3", "P3b", "P3c"))
     results = {k: run_level(k, meta, boundary, fam, args.skip_download, p1_cat) for k in ("HMI", "MDI")}
     pd.concat([r["conv"] for r in results.values()]).assign(**st).to_csv(OUT / "P3_BARD_CONVENTIONS.csv", index=False)
-    if any(r["suspended"] for r in results.values()):
-        print("convenzione indeterminata: confronti sospesi (P3 §2)")
+    for k, r in results.items():
+        if r["suspended"]:
+            print(f"livello {k}: direzione o riferimento delle longitudini indeterminati, confronti sospesi (P3c §3)")
+    results = {k: r for k, r in results.items() if not r["suspended"]}
+    if not results:
         return 3
     pd.concat([r["ctrl"] for r in results.values()]).assign(**st).to_csv(OUT / "P3_RANDOM_CONTROL.csv", index=False)
     pd.concat([r["selection"] for r in results.values()]).assign(**st).to_csv(OUT / "P3_BARD_SELECTION.csv", index=False)

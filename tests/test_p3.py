@@ -72,5 +72,45 @@ def test_conventions_on_constructed_catalogue():
     conv = run_p3.conventions(b, meta_times).set_index("convention")["result"]
     assert conv["direzione longitudini"] == "ovest"
     assert conv["riferimento longitudini"] == "Carrington"
-    assert conv["segno Tilt_rel"] == "Tilt_rel = -asin(sin a)"
+    assert conv["Tilt_rel compatibilita' sferica (verifica B)"] == "compatibile"
     assert conv["significato Hale"] == "Hale = leading attesa ciclo 24"
+
+
+def _constructed(tilt_rel_wrong=False, hale_wrong=False):
+    t = pd.date_range("2012-01-01", periods=50, freq="7D")
+    lat = np.where(np.arange(50) % 2, 15.0, -15.0)
+    lon_c = (np.arange(50) * 37.0) % 360
+    b = pd.DataFrame({"t": t, "BMRLatitude": lat, "BMRLongitude": lon_c,
+                      "PLatitude": lat, "NLatitude": lat + np.sign(lat) * 2,
+                      "PLongitude": lon_c + np.where(lat > 0, -3, 3), "NLongitude": lon_c + np.where(lat > 0, 3, -3),
+                      "LeadingPolarity": np.where(lat > 0, -1, 1)})
+    b["Hale"] = ~np.zeros(50, bool) if not hale_wrong else (np.arange(50) % 3 == 0)
+    b = run_p3.bard_geometry(b)
+    lp = b["LeadingPolarity"] > 0
+    dl = np.abs(run_p3.wrap(np.where(lp, b.PLongitude, b.NLongitude) - np.where(lp, b.NLongitude, b.PLongitude)))
+    b["Tilt_rel"] = np.degrees(np.arctan2(np.where(lp, b.PLatitude - b.NLatitude, b.NLatitude - b.PLatitude),
+                                          dl * np.cos(np.radians(b.BMRLatitude))))
+    if tilt_rel_wrong:
+        b["Tilt_rel"] = np.random.default_rng(0).uniform(-90, 90, len(b))
+    return b, pd.DataFrame({"t": t, "CRLN_OBS": lon_c + 20})
+
+
+def test_planar_formula_recognised():
+    b, mt = _constructed()
+    conv = run_p3.conventions(b, mt).set_index("convention")["result"]
+    assert conv["Tilt_rel formula piana (verifica A)"] == "formula piana confermata"
+
+
+def test_failed_tilt_rel_checks_do_not_suspend_recomputed_comparisons():
+    b, mt = _constructed(tilt_rel_wrong=True)
+    conv = run_p3.conventions(b, mt)
+    res = conv.set_index("convention")["result"]
+    assert res["Tilt_rel formula piana (verifica A)"] == "non confermata"
+    assert res["Tilt_rel compatibilita' sferica (verifica B)"] == "non compatibile"
+    assert run_p3.suspensions(conv) == {"all": False, "hale_published": False}
+
+
+def test_incoherent_hale_suspends_only_published_hale():
+    b, mt = _constructed(hale_wrong=True)
+    conv = run_p3.conventions(b, mt)
+    assert run_p3.suspensions(conv) == {"all": False, "hale_published": True}

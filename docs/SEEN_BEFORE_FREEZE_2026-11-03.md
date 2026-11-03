@@ -46,3 +46,14 @@ questo elenco non era stato calcolato o guardato.
 Dalle 12:33 circa l'aggiornamento orario della serie parziale è sospeso: il
 download prosegue, ma nessun nuovo risultato parziale viene consultato fino
 al congelamento.
+
+## Aggiunte prima del congelamento di P3c e P2d (2026-11-03, ~13:10)
+
+11. **Calibrazione P2b RUN2** completa (100 cataloghi sintetici per ρ):
+    falsi positivi e copertura per schema; solo dati sintetici.
+12. **Prima esecuzione di `run_p3.py`** (circa 12:50), fermata prima di
+    qualunque abbinamento: tabella delle convenzioni BARD (direzione 100%,
+    Carrington 98,8% HMI e 98,9% MDI, Hale 100%, accordo di Tilt_rel entro
+    0,01° 79,6% HMI e 61,1% MDI) e distribuzione di |Tilt_rel + asin(sin α)|
+    (percentili in P3c §0). Solo dati BARD ed effemeridi; nessuna misura SHARP
+    confrontata.
