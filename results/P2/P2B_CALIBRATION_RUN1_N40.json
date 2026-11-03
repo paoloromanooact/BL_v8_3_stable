@@ -1,0 +1,17 @@
+{
+ "run": "P2b calibration, run 1 (reduced)",
+ "started": "2026-11-03 12:23:09 CET (creation time of the background task output file)",
+ "finished": "2026-11-03 12:27:49 CET (last modification of that file)",
+ "duration_s": 280,
+ "code": "run_p2.py as committed in 2134f86; the git_commit column (143ff02) is HEAD at the END of the run",
+ "function": "p2b_calibration(n_cat=40, rhos=(0.0, 0.5, 0.8)) - false positives only, no coverage",
+ "synthetic_catalogue": "synthetic_catalog(0, 0, n=6000, seed=1000+k, rho), k = 0..39; AR(1) CR-level component sd = 0.5 x per-region noise",
+ "bootstrap": "P2: whole CRs, seed 20261104; P2b: moving blocks L = 3, 6, 13, seed 20261105; 2000 resamples",
+ "status": "superseded by run 2 (100 catalogues per rho, with coverage and Monte Carlo errors); kept for the record",
+ "seen_before_freeze": "first data row (rho=0, T3) seen at 12:40 while checking file versions, after P1e/P2c/P3 were frozen",
+ "evidence_for_code_version": [
+  "the run was launched at 12:23:09; commit 2134f86 is at 12:23:23, made by the next command without edits in between, so it records the working-tree file used by the run",
+  "git diff 2134f86 143ff02 -- python/sharpbl/run_p2.py changes only one hunk (@@ -508,14 +508,43 @@, the gate in main), after summary()",
+  "the source of the 18 functions and classes used by the calibration (BlockWLS, boot_counts, synthetic_catalog, p2b_calibration, p2b_moving_blocks, verdict_p2b, t3, t5, cells, ch_columns, t3_design, samples, prepare, add_activity, load_silso, verdict, ci, row) has the same SHA-256 prefix 34a17f4dece209b3 in 2134f86 and 143ff02 (computed with ast.get_source_segment)"
+ ]
+}
