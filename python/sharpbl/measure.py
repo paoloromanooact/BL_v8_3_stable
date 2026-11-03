@@ -84,8 +84,13 @@ def empty_geometry():
                 expected_leading_sign=0, hale_sign=0)
 
 
-def measure_legacy(br, bitmap, header, threshold=THRESHOLD_G, max_abs_br=MAX_ABS_BR_G, bmap_min=1):
-    """Riproduzione della v8.3 IDL (process_sharp_day con LEADING_SIDE='XMAX')."""
+def measure_legacy(br, bitmap, header, threshold=THRESHOLD_G, max_abs_br=MAX_ABS_BR_G, bmap_min=1,
+                   cycle_mode="date", boundary=None):
+    """Riproduzione della v8.3 IDL (process_sharp_day con LEADING_SIDE='XMAX').
+
+    cycle_mode="date" (predefinito, v8.3) o "p1c" (regola del ciclo di P1/P1c, solo per il
+    fattoriale esplorativo; usa la latitudine media di questa geometria).
+    """
     ny, nx = br.shape
     m = base_mask(br, bitmap, bmap_min, max_abs_br)
     nmask = int(m.sum())
@@ -114,6 +119,9 @@ def measure_legacy(br, bitmap, header, threshold=THRESHOLD_G, max_abs_br=MAX_ABS
         w = np.abs(br[strong])
         lat_mean = float((lat_map[strong] * w).sum() / w.sum())
         leading = 1 if cp[0] > cn[0] else -1
+        if cycle_mode == "p1c":
+            c_, p_, st_ = cyc.assign_cycle(t, lat_mean, boundary)
+            out.update(cycle=c_, p_new=p_, cycle_state=st_)
         exp_lead = cyc.expected_leading_sign(out["cycle"], lat_mean)
         hale = 1 if leading == exp_lead else -1
         lead, follow = (cp, cn) if leading == 1 else (cn, cp)
@@ -130,7 +138,7 @@ def measure_legacy(br, bitmap, header, threshold=THRESHOLD_G, max_abs_br=MAX_ABS
 
 
 def measure_v84(br, bitmap, header, threshold=THRESHOLD_G, max_abs_br=MAX_ABS_BR_G,
-                bmap_min=33, boundary=None):
+                bmap_min=33, boundary=None, cycle_mode="p1c"):
     """Metodo corretto: geometria sferica, ciclo per latitudine nelle sovrapposizioni."""
     m = base_mask(br, bitmap, bmap_min, max_abs_br)
     nmask = int(m.sum())
@@ -158,7 +166,10 @@ def measure_v84(br, bitmap, header, threshold=THRESHOLD_G, max_abs_br=MAX_ABS_BR
         crln = header.get("CRLN_OBS")
         if crln is not None:
             out["lon_mean_stony"] = float((lon_m - float(crln) + 180.0) % 360.0 - 180.0)
-        c, p, state = cyc.assign_cycle(t, lat_m, boundary)
+        if cycle_mode == "date":  # solo per il fattoriale esplorativo
+            c, p, state = cyc.cycle_by_date(t), np.nan, "DATE"
+        else:
+            c, p, state = cyc.assign_cycle(t, lat_m, boundary)
         out.update(cycle=c, p_new=p, cycle_state=state)
         sinlat = np.sin(np.radians(lat[strong]))
         k = 3.0 / (4.0 * np.pi * r * r)
