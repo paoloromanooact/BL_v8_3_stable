@@ -1,5 +1,8 @@
 # SHARP BL — v8.3
 
+> Branch `v8.4-python-gianluca`: porting in Python con correzioni e serie
+> per tutta l'era HMI. Vedi [README_V84.md](README_V84.md).
+
 Pipeline Python + IDL/SolarSoft per calcolare un proxy della sorgente
 Babcock–Leighton (BL) dalle mappe SHARP CEA `hmi.sharp_cea_720s`.
 Scarica `Br` e `bitmap` da JSOC, produce un CSV per istante/giorno e genera

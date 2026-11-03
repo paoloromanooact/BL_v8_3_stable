@@ -4,6 +4,11 @@ Prima di lavorare leggere `docs/HANDOFF.md`, poi `README.md` e
 `docs/PROJECT_STATUS.md`. Questi documenti descrivono lo stato registrato:
 verificare sempre lo stato effettivo con Git prima di agire.
 
+Sul branch `v8.4-python-gianluca` leggere prima `README_V84.md` e i protocolli
+`docs/PROTOCOL_P1_SBL_SERIES.md` e `docs/PROTOCOL_P2_QUENCHING.md`: sono
+congelati e non si modificano; una regola nuova richiede un nuovo protocollo,
+scritto prima di eseguirlo.
+
 - Comunicare con Paolo in italiano, con aggiornamenti brevi e concreti.
 - Non modificare convenzioni scientifiche, soglie, segni o geometria per una
   semplice attività di manutenzione del repository.
