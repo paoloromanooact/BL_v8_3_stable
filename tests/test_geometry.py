@@ -103,3 +103,23 @@ def test_reduce_tilt():
     assert geo.reduce_tilt_deg(170.0) == pytest.approx(-10.0)
     assert geo.reduce_tilt_deg(-170.0) == pytest.approx(10.0)
     assert geo.reduce_tilt_deg(45.0) == pytest.approx(45.0)
+
+
+def test_recurrence_with_differential_rotation():
+    """Regione a 25 gradi che ricompare dopo 27 giorni, spostata dalla rotazione differenziale."""
+    import pandas as pd
+    from sharpbl import recurrence as rec
+    dt = 27.0
+    shift = (rec.omega(25.0) - rec.OMEGA_CARR) * dt
+    meta = pd.DataFrame({
+        "HARPNUM": [1, 2, 3, 4],
+        "T_REC": ["2014.01.01_00:00:00_TAI", "2014.01.28_00:00:00_TAI",
+                  "2014.02.24_00:00:00_TAI", "2014.01.28_00:00:00_TAI"],
+        "LAT_FWT": [25.0, 25.5, 24.8, -25.0],
+        "LON_FWT": [0.0, 0.0, 0.0, 0.0],
+        "CRLN_OBS": [100.0, 100.0 + shift, 100.0 + 2 * shift, 100.0 + shift],
+    })
+    r = rec.recurrences(meta).set_index("HARPNUM")
+    assert r.loc[2, "recurrence_of"] == 1 and r.loc[3, "recurrence_of"] == 2
+    assert r.loc[3, "family_id"] == 1 and r.loc[3, "family_rank"] == 2
+    assert np.isnan(r.loc[4, "recurrence_of"])  # altro emisfero

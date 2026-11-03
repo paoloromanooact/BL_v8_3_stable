@@ -1,4 +1,4 @@
-"""Esecuzione del protocollo P2: test osservativi del quenching BL.
+"""Esecuzione dei protocolli P2 e P2b: test osservativi del quenching BL.
 
 Uso: .venv/bin/python python/sharpbl/run_p2.py
 Legge results/P1/P1_SBL_CATALOG_BY_HARP.csv (solo se complete_series = 1 e
@@ -118,6 +118,8 @@ def samples(cat):
         "S6": v[prim & base & (v["phi"] >= PHI_MIN)],
         "S7": v[prim & base & (v["phi"] >= PHI_MIN) & noamb & (v["qual_0x80"] == 0)],
     }
+    if "family_rank" in v:  # P1d: senza ricomparse (riportata, fuori dalla regola di robustezza)
+        out["S8"] = v[prim & base & (v["phi"] >= PHI_MIN) & noamb & (v["family_rank"] == 0)]
     lg = prepare(cat, legacy=True)
     lg = lg[lg["cyc"].isin([24, 25])]
     out["L"] = lg[(lg["role"] != "control") & (lg["leg_valid_bl"] == 1) & (lg["phi"] >= PHI_MIN)]
@@ -126,22 +128,50 @@ def samples(cat):
 
 # ---------------------------------------------------------------- WLS con bootstrap a blocchi sulle CR
 
+# schema di bootstrap: ("cr",) = CR intere indipendenti (P2); ("moving", L) = blocchi
+# mobili di L CR consecutive (P2b). Modificato solo da p2b_moving_blocks().
+SCHEME = ("cr",)
+SEED_P2B = 20261105
+BLOCK_LENGTHS = (3, 6, 13)
+
+
+def boot_counts(u, scheme, seed, nboot):
+    """Matrice (nboot, len(u)) di quante volte ogni CR (numeri u, ordinati) entra in un ricampionamento."""
+    rng = np.random.default_rng(seed)
+    if scheme[0] == "cr":
+        draws = rng.integers(0, len(u), size=(nboot, len(u)))
+        return np.stack([np.bincount(d, minlength=len(u)) for d in draws]).astype(float)
+    L = int(scheme[1])
+    lo, hi = int(u.min()), int(u.max())
+    nb = int(np.ceil((hi - lo + 1) / L))
+    starts = rng.integers(lo, max(lo, hi - L + 1) + 1, size=(nboot, nb))
+    uu = np.asarray(u, float)
+    return ((starts[:, :, None] <= uu) & (starts[:, :, None] + L - 1 >= uu)).sum(axis=1).astype(float)
+
+
 class BlockWLS:
     """WLS con bootstrap a blocchi: statistiche sufficienti X'WX, X'Wy per CR."""
 
-    def __init__(self, X, w, cr, seed=SEED, nboot=NBOOT):
+    def __init__(self, X, w, cr, seed=None, nboot=NBOOT):
         X = np.asarray(X, float)
         w = np.asarray(w, float)
-        u, g = np.unique(np.asarray(cr), return_inverse=True)
-        self.k, self.ng, self.g, self.X, self.w = X.shape[1], len(u), g, X, w
+        u, g = np.unique(np.asarray(cr, float), return_inverse=True)
+        self.k, self.ng, self.g, self.X, self.w, self.u = X.shape[1], len(u), g, X, w, u
         A = np.zeros((self.ng, self.k, self.k))
         np.add.at(A, g, w[:, None, None] * X[:, :, None] * X[:, None, :])
         self.A = A
-        rng = np.random.default_rng(seed)
-        draws = rng.integers(0, self.ng, size=(nboot, self.ng))
-        self.counts = np.stack([np.bincount(d, minlength=self.ng) for d in draws]).astype(float)
+        if seed is None:
+            seed = SEED if SCHEME[0] == "cr" else SEED_P2B
+        self.counts = boot_counts(u, SCHEME, seed, nboot)
         self.Ab = np.linalg.pinv((self.counts @ A.reshape(self.ng, -1)).reshape(nboot, self.k, self.k))
         self.Ainv = np.linalg.pinv(A.sum(axis=0))
+
+    def cr_residual_means(self, y, est):
+        """Media pesata dei residui per CR (P2b §3), con i numeri di CR."""
+        r = np.asarray(y, float) - self.X @ est
+        num = np.bincount(self.g, weights=self.w * r, minlength=self.ng)
+        den = np.bincount(self.g, weights=self.w, minlength=self.ng)
+        return self.u, num / den
 
     def fit(self, y):
         y = np.asarray(y, float)
@@ -281,6 +311,136 @@ def t0(d, act="A_monthly", seed=SEED + 1):
     return pd.DataFrame(rows)
 
 
+# ---------------------------------------------------------------- P2b
+
+def p2b_moving_blocks(d):
+    """P2b §1: T1-T5 sul campione S con bootstrap a blocchi mobili di L CR consecutive."""
+    global SCHEME
+    rows = []
+    try:
+        for L in BLOCK_LENGTHS:
+            SCHEME = ("moving", L)
+            part = (t1(d, "S") + t2(d, "S") + t3(d, "S", "A_monthly", True) + t4(d, "S", "A_monthly")
+                    + t5(d, "S", "A_monthly", "d_star", True, "D*"))
+            for r in part:
+                r["block_length"] = L
+            rows += part
+    finally:
+        SCHEME = ("cr",)
+    return pd.DataFrame(rows)
+
+
+def acf_by_cr(u, x, max_lag=13):
+    """Autocorrelazione di una serie per numero di CR (CR mancanti esclusi dalle coppie)."""
+    s = pd.Series(x, index=np.asarray(u, int)).reindex(range(int(u.min()), int(u.max()) + 1))
+    s = s - s.mean()
+    out = []
+    for lag in range(1, max_lag + 1):
+        a, b = s.to_numpy()[:-lag], s.to_numpy()[lag:]
+        ok = np.isfinite(a) & np.isfinite(b)
+        out.append((lag, float((a[ok] * b[ok]).sum() / np.nansum(s.to_numpy() ** 2)), int(ok.sum())))
+    return out
+
+
+def p2b_residual_acf(d):
+    """P2b §3: ACF delle medie per CR dei residui di T3 e T5."""
+    rows = []
+    dd = d[np.isfinite(d["A_monthly"])]
+    m = BlockWLS(t3_design(dd, "A_monthly"), dd["phi"], dd["CR"])
+    est, _ = m.fit(dd["gamma"])
+    u, r = m.cr_residual_means(dd["gamma"], est)
+    for lag, a, n in acf_by_cr(u, r):
+        rows.append(dict(test="T3", lag=lag, acf=a, n_pairs=n, band=1.96 / np.sqrt(len(u))))
+    c = cells(d, "A_monthly", "d_star")
+    X = np.column_stack([ch_columns(c, 1.0), c["abar"].to_numpy() - 1.0])
+    m = BlockWLS(X, c["phi"], c["CR"])
+    est, _ = m.fit(c["eta"])
+    u, r = m.cr_residual_means(c["eta"], est)
+    for lag, a, n in acf_by_cr(u, r):
+        rows.append(dict(test="T5", lag=lag, acf=a, n_pairs=n, band=1.96 / np.sqrt(len(u))))
+    return pd.DataFrame(rows)
+
+
+def verdict_p2b(main_row, mb, test):
+    """P2b §2: stesso verdetto per tutte le lunghezze di blocco, altrimenti non deciso."""
+    sub = mb[mb["test"] == test]
+    if test == "T5":
+        sub = sub[sub["quantity"] == "D*"]
+    vs = {verdict(r["ci975_lo"], r["ci975_hi"], -1) for _, r in sub.iterrows()}
+    if len(sub) == len(BLOCK_LENGTHS) and vs == {main_row["verdict"]}:
+        return main_row["verdict"]
+    return "non deciso (dipendenza temporale)"
+
+
+def synthetic_catalog(beta_t_frac, beta_eta_frac, n=6000, seed=1, rho=0.0):
+    """Catalogo sintetico (attivita' SILSO vera; tilt, latitudini, flussi, dipolo sintetici).
+
+    rho > 0 aggiunge a tilt e D* una componente comune per CR con AR(1) tra CR
+    consecutive (P2b §4), con deviazione standard meta' del rumore per regione.
+    """
+    gamma0, eta0, sd_t = 30.0, 2.0e-24, 15.0
+    rng = np.random.default_rng(seed)
+    silso = load_silso()["monthly"]
+    t = pd.to_datetime("2010-06-01") + pd.to_timedelta(rng.uniform(0, 16 * 365.25, n), unit="D")
+    cyc = np.where(t < pd.Timestamp("2020-01-01"), 24, 25)
+    tmin = np.where(cyc == 24, np.datetime64("2008-12-01"), np.datetime64("2019-12-01"))
+    phase = (t.values - tmin).astype("timedelta64[D]").astype(float) / 365.25 / 11
+    hem = rng.choice([1, -1], n)
+    lat = hem * np.clip(28 - 20 * phase + rng.normal(0, 4, n), 2, 45)
+    a = np.array([silso.at[m, "N" if h > 0 else "S"] for m, h in zip(t.strftime("%Y-%m"), hem)])
+    s = np.sin(np.radians(np.abs(lat)))
+    cr = (2096 + (t - pd.Timestamp("2010-06-01")).days / 27.2753).astype(int)
+    e_t = np.zeros(n)
+    e_d = np.zeros(n)
+    if rho > 0:
+        crs = np.arange(cr.min(), cr.max() + 1)
+        z = np.zeros((len(crs), 2))
+        innov = rng.normal(0, 1, (len(crs), 2)) * np.sqrt(1 - rho ** 2)
+        z[0] = rng.normal(0, 1, 2)
+        for k in range(1, len(crs)):
+            z[k] = rho * z[k - 1] + innov[k]
+        idx = cr - crs[0]
+        e_t = 0.5 * sd_t * z[idx, 0]
+        e_d = 0.5 * z[idx, 1]
+    gamma = (gamma0 + beta_t_frac * gamma0 * (a - 1)) * s + rng.normal(0, sd_t, n) + e_t
+    phi = 10 ** rng.normal(21.7, 0.4, n)
+    dstar = phi * eta0 * (1 + beta_eta_frac * (a - 1) + rng.normal(0, 1, n) + e_d)
+    sc = np.where(cyc == 24, 1.0, -1.0)
+    sintilt = np.sin(np.radians(gamma)) * np.sign(lat)
+    cat = pd.DataFrame({
+        "HARPNUM": np.arange(n), "T_REC": t.strftime("%Y.%m.%d_%H:%M:%S_TAI"), "role": "both",
+        "qual_0x80": 0, "NOAA_NUM": 1, "USFLUX": phi, "LAT_FWT": lat, "CR": cr,
+        "valid_bl": 1, "npos": 100, "nneg": 100, "phi_mx": phi, "lat_mean_deg": lat, "cycle": cyc,
+        "cycle_state": "DATE", "sintilt": sintilt, "d_axial_bal_g": dstar / sc,
+        "s_bl": np.sign(lat) * dstar * 1e40, "diagnostic_reason": "NONE",
+    })
+    for c in ("valid_bl", "phi_mx", "lat_mean_deg", "cycle", "sintilt", "s_bl"):
+        cat[f"leg_{c}"] = cat[c]
+    return cat
+
+
+def p2b_calibration(n_cat=40, rhos=(0.0, 0.5, 0.8)):
+    """P2b §4: frazione di verdetti != 'non deciso' senza quenching, con residui AR(1) tra CR."""
+    silso = load_silso()
+    rows = []
+    for rho in rhos:
+        fp = {"T3": [0, 0], "T5": [0, 0]}
+        for k in range(n_cat):
+            cat = synthetic_catalog(0.0, 0.0, seed=1000 + k, rho=rho)
+            d = add_activity(samples(cat)["S"], silso)
+            r3 = t3(d, "S", "A_monthly", True)[0]
+            r5 = t5(d, "S", "A_monthly", "d_star", True, "D*")[0]
+            mb = p2b_moving_blocks(d)
+            for test, r in (("T3", r3), ("T5", r5)):
+                fp[test][0] += r["verdict"] != "non deciso"
+                fp[test][1] += verdict_p2b(r, mb, test) != "non deciso (dipendenza temporale)" and \
+                    verdict_p2b(r, mb, test) != "non deciso"
+        for test, (a, b) in fp.items():
+            rows.append(dict(rho=rho, test=test, n_catalogues=n_cat, false_positive_p2=a / n_cat,
+                             false_positive_p2b=b / n_cat))
+    return pd.DataFrame(rows)
+
+
 # ---------------------------------------------------------------- esecuzione
 
 def run(cat, sel=None, silso=None, do_t0=True):
@@ -311,6 +471,8 @@ def run(cat, sel=None, silso=None, do_t0=True):
                         res["T5"] += t5(d2, name, act, "d_lr", False, f"D*·exp(-λ²/2·{lr:.0f}²)")
     tabs = {k: pd.DataFrame(v) for k, v in res.items()}
     tabs["T0"] = t0(smp["S"]) if do_t0 else pd.DataFrame()
+    tabs["P2B_MOVING_BLOCKS"] = p2b_moving_blocks(smp["S"])
+    tabs["P2B_RESIDUAL_ACF"] = p2b_residual_acf(smp["S"])
     tabs["SUMMARY"] = summary(tabs)
     return tabs
 
@@ -334,8 +496,9 @@ def summary(tabs):
         side = sens["ci95_hi"] < 0 if m["estimate"] < 0 else sens["ci95_lo"] > 0
         robust = bool(same and side.sum() >= 4)
         v = m["verdict"] if joy_ok else "non interpretato (T1)"
+        vb = verdict_p2b(m, tabs["P2B_MOVING_BLOCKS"], test) if joy_ok else "non interpretato (T1)"
         out.append(dict(test=test, estimate=m["estimate"], ci975_lo=m["ci975_lo"], ci975_hi=m["ci975_hi"],
-                        verdict=v, robust=int(robust), n_sens_same_sign=int((np.sign(sens["estimate"]) == np.sign(m["estimate"])).sum()),
+                        verdict=v, verdict_p2b=vb, robust=int(robust), n_sens_same_sign=int((np.sign(sens["estimate"]) == np.sign(m["estimate"])).sum()),
                         n_sens_ci95_excluding0=int(side.sum())))
     for test in ("T2", "T4"):
         t = tabs[test]
@@ -358,9 +521,12 @@ def main() -> int:
     sel = sel.merge(cat[["HARPNUM", "T_REC", "CR"]], on=["HARPNUM", "T_REC"], how="left")
     tabs = run(cat, sel)
     OUT.mkdir(parents=True, exist_ok=True)
-    st = stamp(("P1", "P1b", "P1c", "P2"))
+    tabs["P2B_CALIBRATION"] = p2b_calibration()
+    st = stamp(("P1", "P1b", "P1c", "P1d", "P2", "P2b"))
     names = {"T0": "P2_T0_POWER", "T1": "P2_T1_JOY", "T2": "P2_T2_INTERCYCLE", "T3": "P2_T3_TILT_QUENCHING",
-             "T4": "P2_T4_LATITUDE_QUENCHING", "T5": "P2_T5_EFFICIENCY", "SUMMARY": "P2_SUMMARY"}
+             "T4": "P2_T4_LATITUDE_QUENCHING", "T5": "P2_T5_EFFICIENCY", "SUMMARY": "P2_SUMMARY",
+             "P2B_MOVING_BLOCKS": "P2B_MOVING_BLOCKS", "P2B_RESIDUAL_ACF": "P2B_RESIDUAL_ACF",
+             "P2B_CALIBRATION": "P2B_CALIBRATION"}
     for k, n in names.items():
         tabs[k].assign(**st).to_csv(OUT / f"{n}.csv", index=False)
     print(tabs["SUMMARY"].to_string(index=False))

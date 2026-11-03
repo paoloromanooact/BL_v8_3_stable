@@ -10,6 +10,8 @@ PROTOCOLS = {
     "P1": "docs/PROTOCOL_P1_SBL_SERIES.md",
     "P1b": "docs/PROTOCOL_P1B_QUALITY_0x80.md",
     "P1c": "docs/PROTOCOL_P1C_CYCLE_RULE.md",
+    "P1d": "docs/PROTOCOL_P1D_RECURRENCE_EVOLUTION.md",
+    "P2b": "docs/PROTOCOL_P2B_TEMPORAL_DEPENDENCE.md",
     "P2": "docs/PROTOCOL_P2_QUENCHING.md",
 }
 

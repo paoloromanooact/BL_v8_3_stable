@@ -17,32 +17,7 @@ ETA0 = 2.0e-24  # G/Mx
 
 
 def synthetic_catalog(beta_t_frac, beta_eta_frac, n=6000, seed=1):
-    rng = np.random.default_rng(seed)
-    silso = run_p2.load_silso()["monthly"]
-    t = pd.to_datetime("2010-06-01") + pd.to_timedelta(rng.uniform(0, 16 * 365.25, n), unit="D")
-    cyc = np.where(t < pd.Timestamp("2020-01-01"), 24, 25)
-    tmin = np.where(cyc == 24, np.datetime64("2008-12-01"), np.datetime64("2019-12-01"))
-    phase = (t.values - tmin).astype("timedelta64[D]").astype(float) / 365.25 / 11
-    hem = rng.choice([1, -1], n)
-    lat = hem * np.clip(28 - 20 * phase + rng.normal(0, 4, n), 2, 45)
-    a = np.array([silso.at[m, "N" if h > 0 else "S"] for m, h in zip(t.strftime("%Y-%m"), hem)])
-    s = np.sin(np.radians(np.abs(lat)))
-    gamma = (GAMMA0 + beta_t_frac * GAMMA0 * (a - 1)) * s + rng.normal(0, 15, n)
-    phi = 10 ** rng.normal(21.7, 0.4, n)
-    dstar = phi * ETA0 * (1 + beta_eta_frac * (a - 1)) + rng.normal(0, 1, n) * phi * ETA0
-    sc = np.where(cyc == 24, 1.0, -1.0)
-    cr = (2096 + (t - pd.Timestamp("2010-06-01")).days / 27.2753).astype(int)
-    sintilt = np.sin(np.radians(gamma)) * np.sign(lat)
-    cat = pd.DataFrame({
-        "HARPNUM": np.arange(n), "T_REC": t.strftime("%Y.%m.%d_%H:%M:%S_TAI"), "role": "both",
-        "qual_0x80": 0, "NOAA_NUM": 1, "USFLUX": phi, "LAT_FWT": lat, "CR": cr,
-        "valid_bl": 1, "npos": 100, "nneg": 100, "phi_mx": phi, "lat_mean_deg": lat, "cycle": cyc,
-        "cycle_state": "DATE", "sintilt": sintilt, "d_axial_bal_g": dstar / sc,
-        "s_bl": np.sign(lat) * dstar * 1e40, "diagnostic_reason": "NONE",
-    })
-    for c in ("valid_bl", "phi_mx", "lat_mean_deg", "cycle", "sintilt", "s_bl"):
-        cat[f"leg_{c}"] = cat[c]
-    return cat
+    return run_p2.synthetic_catalog(beta_t_frac, beta_eta_frac, n=n, seed=seed)
 
 
 @pytest.fixture(scope="module")
@@ -100,3 +75,20 @@ def test_t0_power(monkeypatch):
     t0 = run_p2.t0(d).set_index("beta_over_gamma0")
     assert t0.loc[-0.3, "detection_fraction"] >= t0.loc[-0.1, "detection_fraction"]
     assert abs(t0.loc[-0.3, "bias"]) < 0.1 * GAMMA0
+
+
+def test_p2b_moving_blocks_and_acf(with_quenching):
+    mb = with_quenching["P2B_MOVING_BLOCKS"]
+    assert sorted(mb["block_length"].unique()) == [3, 6, 13]
+    s = with_quenching["SUMMARY"].set_index("test")
+    assert s.loc["T3", "verdict_p2b"] == "quenching supportato"
+    acf = with_quenching["P2B_RESIDUAL_ACF"]
+    assert set(acf["test"]) == {"T3", "T5"} and acf["lag"].max() == 13
+
+
+def test_ar1_residuals_show_in_acf():
+    cat = run_p2.synthetic_catalog(0.0, 0.0, seed=7, rho=0.8)
+    d = run_p2.add_activity(run_p2.samples(cat)["S"], run_p2.load_silso())
+    acf = run_p2.p2b_residual_acf(d)
+    lag1 = acf[(acf["test"] == "T3") & (acf["lag"] == 1)].iloc[0]
+    assert lag1["acf"] > lag1["band"]

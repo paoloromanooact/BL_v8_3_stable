@@ -1,4 +1,4 @@
-"""Esecuzione del protocollo P1 (con P1b e P1c): catalogo S_BL per HARP e somme per CR.
+"""Esecuzione del protocollo P1 (con P1b, P1c e P1d): catalogo S_BL per HARP e somme per CR.
 
 Uso: .venv/bin/python python/sharpbl/run_p1.py [--workers 4] [--allow-missing]
 
@@ -6,9 +6,9 @@ Legge results/P1/P1_RECORD_SELECTION.csv, CYCLE_BOUNDARY_FITS.csv e i FITS in
 data/sharp/fits/. Per ogni record calcola il metodo v84 e il metodo legacy
 (v8.3). Scrive in results/P1/:
   P1_SBL_CATALOG_BY_HARP.csv   una riga per record (primario e controllo)
-  P1_SBL_BY_CR_HEMISPHERE.csv  somme per CR, emisfero e variante (A, B, C, D, L)
+  P1_SBL_BY_CR_HEMISPHERE.csv  somme per CR, emisfero e variante (A, B, C, D, E, L)
   P1_LEGACY_VS_V84.csv         confronto per regione e per CR (P1 §7b)
-  P1_CHECKS.csv                controlli (P1 §8, P1b §3, P1c §3)
+  P1_CHECKS.csv                controlli (P1 §8, P1b §3, P1c §3, P1d §3-4)
 Senza --allow-missing si ferma se manca qualche record (serie definitiva);
 con --allow-missing usa i record presenti (solo per provare lo script).
 Ogni output porta due flag: complete_series (tutti i record presenti) e
@@ -33,6 +33,8 @@ from sharpbl import measure  # noqa: E402
 from sharpbl.cycle_boundary import load_boundary  # noqa: E402
 from sharpbl.download_records import complete, file_stem, record_dir  # noqa: E402
 from sharpbl.provenance import ROOT, stamp  # noqa: E402
+from sharpbl.recurrence import recurrences  # noqa: E402
+from sharpbl.select_records import load_metadata  # noqa: E402
 
 OUT = ROOT / "results/P1"
 FITS = ROOT / "data/sharp/fits"
@@ -71,12 +73,22 @@ def measure_record(args):
     return row
 
 
+def recurrence_table(sel):
+    """P1d §1: ricomparse dai metadati dei record primari (tutti, anche quelli non scaricati)."""
+    full = pd.read_csv(OUT / "P1_RECORD_SELECTION.csv")
+    prim = full[full["role"] != "control"][["HARPNUM", "T_REC"]]
+    meta = load_metadata(ROOT / "data/sharp/metadata")[["HARPNUM", "T_REC", "LAT_FWT", "LON_FWT", "CRLN_OBS"]]
+    prim = prim.merge(meta, on=["HARPNUM", "T_REC"], how="left")
+    return recurrences(prim)
+
+
 def build_catalog(sel, workers):
     jobs = list(zip(sel["HARPNUM"].astype(int), sel["T_REC"]))
     with ProcessPoolExecutor(max_workers=workers, initializer=_init) as pool:
         rows = list(pool.map(measure_record, jobs, chunksize=20))
     cat = sel.drop(columns=[c for c in sel.columns if c.startswith(("sha256_", "git_"))]).merge(
         pd.DataFrame(rows), on=["HARPNUM", "T_REC"])
+    cat = cat.merge(recurrence_table(sel), on="HARPNUM", how="left")
     cat["CR"] = np.floor(pd.to_numeric(cat["key_CAR_ROT"], errors="coerce")).astype("Int64")
     cat["hemisphere"] = np.where(cat["lat_mean_deg"] >= 0, "N", "S")
     cat.loc[~np.isfinite(cat["lat_mean_deg"]), "hemisphere"] = ""
@@ -93,6 +105,7 @@ def variants(cat):
         "B": a[a["cycle_state"] != "AMBIGUOUS"],
         "C": a[a["NOAA_NUM"] == 1],
         "D": a[a["qual_0x80"] == 0],
+        "E": a[a["family_rank"] == 0],
     }
     leg = prim[prim["leg_valid_bl"] == 1].copy()
     for c in ("s_bl", "phi_mx"):
@@ -215,6 +228,34 @@ def checks(cat, sel):
         add(f"P1b_phi_over_usflux_median_qual0x80={flag}",
             float((g["phi_mx"] / pd.to_numeric(g["key_USFLUX"], errors="coerce")).median()))
         add(f"P1b_abs_tilt_reduced_median_qual0x80={flag}", float(g["tilt_reduced_deg"].abs().median()))
+    # P1d §4: ricomparse
+    add("P1d_recurrences", int((prim["family_rank"] > 0).sum()))
+    add("P1d_families_with_recurrence", int(prim.loc[prim["family_rank"] > 0, "family_id"].nunique()))
+    for r, n in prim["family_rank"].value_counts().sort_index().items():
+        add(f"P1d_family_rank_{int(r)}", int(n))
+    a = prim[prim["valid_bl"] == 1].copy()
+    a["year"] = a["T_REC"].str[:4]
+    for y, g in a.groupby("year"):
+        add(f"P1d_flux_fraction_recurrent_{y}", float(g.loc[g["family_rank"] > 0, "phi_mx"].sum() / g["phi_mx"].sum()))
+    # P1d §3: evoluzione tra record primario e di controllo
+    pr = cat[cat["role"] == "primary"].set_index("HARPNUM")
+    co = cat[cat["role"] == "control"].set_index("HARPNUM")
+    both = pr.join(co, lsuffix="_p", rsuffix="_c", how="inner")
+    both = both[(both["valid_bl_p"] == 1) & (both["valid_bl_c"] == 1)]
+    if len(both):
+        dtilt = ((both["tilt_reduced_deg_c"] - both["tilt_reduced_deg_p"] + 90) % 180) - 90
+        ratio = both["s_bl_c"] / both["s_bl_p"]
+        dstar_p = both["cycle_p"].map({24: 1, 25: -1}) * both["d_axial_bal_g_p"]
+        dstar_c = both["cycle_c"].map({24: 1, 25: -1}) * both["d_axial_bal_g_c"]
+        tp = pd.to_datetime(both["T_REC_p"].str.replace("_TAI", ""), format="%Y.%m.%d_%H:%M:%S")
+        tc = pd.to_datetime(both["T_REC_c"].str.replace("_TAI", ""), format="%Y.%m.%d_%H:%M:%S")
+        dt = (tc - tp).abs().dt.total_seconds() / 86400
+        add("P1d_evolution_n", int(len(both)))
+        for nm, x in (("dtilt_deg", dtilt), ("s_bl_ratio_control_over_primary", ratio), ("abs_dt_days", dt)):
+            for q in (16, 50, 84):
+                add(f"P1d_evolution_{nm}_p{q}", float(np.nanpercentile(x, q)))
+        add("P1d_evolution_same_sign_dstar", float((np.sign(dstar_p) == np.sign(dstar_c)).mean()))
+        add("P1d_evolution_same_hale_sign", float((both["hale_sign_p"] == both["hale_sign_c"]).mean()))
     # P1c §3
     tab = pd.read_csv(OUT / "CYCLE_BOUNDARY_FITS.csv")
     add("P1c_groups_latitude", int((tab["state"] == "LATITUDE").sum()))
@@ -236,7 +277,7 @@ def main() -> int:
     sel = sel[have].reset_index(drop=True)
     print(f"record da misurare {len(sel)}", flush=True)
 
-    st = stamp(("P1", "P1b", "P1c"))
+    st = stamp(("P1", "P1b", "P1c", "P1d"))
     st["complete_series"] = int(not args.allow_missing or bool(have.all()))
     cat = build_catalog(sel, args.workers)
     agg = aggregate(cat)
