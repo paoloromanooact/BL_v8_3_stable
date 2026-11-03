@@ -33,6 +33,9 @@ riproduce esattamente i risultati v8.3 di Paolo.
 - [`docs/PROTOCOL_P1_SBL_SERIES.md`](docs/PROTOCOL_P1_SBL_SERIES.md) — misura,
   selezione dei record, regola del ciclo, somme per rotazione di Carrington ed
   emisfero, e la stessa serie con il metodo v8.3 per confronto (§7b).
+- [`docs/PROTOCOL_P1B_QUALITY_0x80.md`](docs/PROTOCOL_P1B_QUALITY_0x80.md) — emendamento
+  di P1: accetta anche QUALITY = 0x80 (difetto di calibrazione noto, 2016-04 →
+  2017-03), con flag e varianti senza quei record.
 - [`docs/PROTOCOL_P2_QUENCHING.md`](docs/PROTOCOL_P2_QUENCHING.md) — test del
   quenching del tilt, in latitudine e dell'efficienza della sorgente; due test
   principali (T3, T5) con intervalli al 97,5%; attività emisferica da SILSO.
@@ -76,8 +79,8 @@ I dati non sono in Git. `data/sharp` può essere un link a un disco capiente
 ## Stato
 
 - [x] Porting, correzioni e test sintetici; legacy verificato sul caso di prova.
-- [x] Protocolli P1 e P2 congelati.
-- [ ] Metadati di tutte le HARP (in corso).
+- [x] Protocolli P1, P1b e P2 congelati.
+- [x] Metadati di tutte le HARP: 8296 HARP, 2010-05 → 2026-09; 7133 con record primario, 14195 record da scaricare (~4,5 GB).
 - [ ] Selezione dei record e scaricamento dei FITS.
 - [ ] Serie P1 (v8.4 e legacy) e controlli.
 - [ ] Test P2.

@@ -17,6 +17,8 @@
 - Test su bipoli sintetici: `.venv/bin/python -m pytest -q tests`.
 - Protocollo `docs/PROTOCOL_P2_QUENCHING.md` (test del quenching) congelato prima della serie P1;
   numero di macchie emisferico SILSO in `ancillary/SILSO_HEMI/` (con provenienza e SHA-256).
+- Protocollo `docs/PROTOCOL_P1B_QUALITY_0x80.md`: i record con QUALITY = 0x80
+  (QUAL_TEMPERROR, 2016-04 -> 2017-03) sono accettati con flag e varianti di controllo.
 
 ## Preparazione del repository
 

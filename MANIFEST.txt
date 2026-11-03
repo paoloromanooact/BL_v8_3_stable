@@ -14,6 +14,7 @@ ancillary/SILSO_HEMI/SN_m_hem_V2.0.csv
 data/.gitkeep
 docs/HANDOFF.md
 docs/PROJECT_STATUS.md
+docs/PROTOCOL_P1B_QUALITY_0x80.md
 docs/PROTOCOL_P1_SBL_SERIES.md
 docs/PROTOCOL_P2_QUENCHING.md
 docs/REPOSITORY.md
