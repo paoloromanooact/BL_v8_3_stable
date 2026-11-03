@@ -70,6 +70,7 @@ python/sharpbl/fetch_metadata.py
 python/sharpbl/figures_p1.py
 python/sharpbl/geometry.py
 python/sharpbl/measure.py
+python/sharpbl/p2d.py
 python/sharpbl/provenance.py
 python/sharpbl/recurrence.py
 python/sharpbl/run_p1.py
@@ -94,4 +95,5 @@ test/test_process_day.pro
 test/test_sharp_bl_source_single.pro
 tests/test_geometry.py
 tests/test_p2_synthetic.py
+tests/test_p2d.py
 tests/test_p3.py
