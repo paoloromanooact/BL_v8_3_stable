@@ -17,10 +17,14 @@ docs/PROJECT_STATUS.md
 docs/PROTOCOL_P1B_QUALITY_0x80.md
 docs/PROTOCOL_P1C_CYCLE_RULE.md
 docs/PROTOCOL_P1D_RECURRENCE_EVOLUTION.md
+docs/PROTOCOL_P1E_CANDIDATE_RECURRENCES.md
 docs/PROTOCOL_P1_SBL_SERIES.md
 docs/PROTOCOL_P2B_TEMPORAL_DEPENDENCE.md
+docs/PROTOCOL_P2C_P2B_CLARIFICATIONS.md
 docs/PROTOCOL_P2_QUENCHING.md
+docs/PROTOCOL_P3_EXTERNAL_VALIDATION.md
 docs/REPOSITORY.md
+docs/SEEN_BEFORE_FREEZE_2026-11-03.md
 idl/plot_sharp_diagnostics_from_csv.pro
 idl/process_sharp_day.pro
 idl/sharp_auto_leading_hale.pro
@@ -71,6 +75,7 @@ python/sharpbl/select_records.py
 requirements-v84.txt
 requirements.txt
 results/P1/CYCLE_BOUNDARY_FITS.csv
+results/P1/P1E_METADATA_VERIFICATION_BY_YEAR.csv
 results/P1/P1_NO_CM_RECORD.csv
 results/P1/P1_RECORD_SELECTION.csv
 scripts/check_repo.sh
