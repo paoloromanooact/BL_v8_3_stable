@@ -125,6 +125,57 @@ def sbl_sums(fac, cat, common):
     return pd.concat(out, ignore_index=True)
 
 
+def tilt_simple_effects(fac):
+    """Effetti semplici assiali sul tilt: differenza modulo 180° tra due combinazioni che
+    differiscono per un solo fattore (gli altri fissi). Evita medie di angoli assiali per livello."""
+    combos, _ = contrasts()
+    valid = wide(fac, "valid_bl")[combos]
+    common = valid.index[(valid == 1).all(axis=1)]
+    T = wide(fac, "tilt_reduced_deg")[combos].loc[common]
+    lv = {0: (1, 33), 1: ("legacy", "v84"), 2: ("date", "p1c")}
+    rows = []
+    for idx, f in enumerate("MGC"):
+        for c in combos:
+            if c[idx] != lv[idx][0]:
+                continue
+            c2 = list(c)
+            c2[idx] = lv[idx][1]
+            d = np.abs(axial(T[tuple(c2)], T[c]))
+            fixed = ", ".join(f"{'MGC'[k]}={c[k]}" for k in range(3) if k != idx)
+            rows.append(dict(factor=f, fixed=fixed, n=len(d), median_abs_deg=float(np.median(d)),
+                             p90_abs_deg=float(np.percentile(d, 90)), frac_gt_10deg=float(np.mean(d > 10))))
+    return pd.DataFrame(rows)
+
+
+def geometry_effect_vs_intensity(fac):
+    """Effetto di G su S_BL per decile di |S_BL| v8.4: in mediane globali e relativo alla propria |S_BL|."""
+    from scipy.stats import spearmanr
+    combos, coef = contrasts()
+    valid = wide(fac, "valid_bl")[combos]
+    common = valid.index[(valid == 1).all(axis=1)]
+    S = wide(fac, "s_bl")[combos].loc[common].to_numpy(float)
+    P = wide(fac, "phi_mx")[combos].loc[common].to_numpy(float)
+    new = combos.index(EXTREME_NEW)
+    eG = np.abs(S @ coef["G"])
+    absS, phi = np.abs(S[:, new]), P[:, new]
+    med = np.median(absS)
+    dec = pd.qcut(absS, 10, labels=False)
+    t = pd.DataFrame({"decile_abs_sbl": dec, "eG_global": eG / med,
+                      "eG_rel_own": eG / np.where(absS > 0, absS, np.nan)})
+    out = t.groupby("decile_abs_sbl").agg(median_eG_in_global_medians=("eG_global", "median"),
+                                          p90_eG_in_global_medians=("eG_global", lambda x: np.percentile(x, 90)),
+                                          median_eG_relative_to_own=("eG_rel_own", "median")).reset_index()
+    tail = eG / med > np.percentile(eG / med, 90)
+    out.attrs = {}
+    extra = pd.DataFrame([dict(decile_abs_sbl="riepilogo",
+                               median_eG_in_global_medians=float(spearmanr(eG, absS).statistic),
+                               p90_eG_in_global_medians=float(spearmanr(eG, phi).statistic),
+                               median_eG_relative_to_own=float(np.mean(dec[tail] == 9)))])
+    extra["note"] = ("colonne del riepilogo: Spearman(|eff G|, |S_BL|); Spearman(|eff G|, Phi); "
+                     "frazione della coda (eff G > p90) nel decile piu' alto di |S_BL|")
+    return pd.concat([out, extra], ignore_index=True)
+
+
 # ---------------------------------------------------------------- 2. transizioni Hale
 
 def hale_transitions(fac, cat):
@@ -262,6 +313,8 @@ def main() -> int:
         "FACTORIAL_EFFECTS_BY_RECORD_SUMMARY": eff,
         "FACTORIAL_VALIDITY": validity_effects(fac),
         "FACTORIAL_SBL_SUMS": sbl_sums(fac, cat, common),
+        "FACTORIAL_TILT_SIMPLE_EFFECTS": tilt_simple_effects(fac),
+        "FACTORIAL_G_EFFECT_BY_INTENSITY": geometry_effect_vs_intensity(fac),
     }
     ht, per = hale_transitions(fac, cat)
     out["HALE_TRANSITIONS"] = ht

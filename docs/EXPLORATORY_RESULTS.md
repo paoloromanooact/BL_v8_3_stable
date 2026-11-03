@@ -47,16 +47,40 @@ assoluto** del contrasto e il 90° percentile, con queste unità:
 
 | Termine | Φ (relativo) | d (relativo) | latitudine | tilt (assiale) | S_BL (in mediane di \|S_BL\|) |
 |---|---|---|---|---|---|
-| M | 0,30 | 0,15 | 0,13° | 5,6° (p90 49°) | 0,59 (p90 12,3) |
-| G | 0,0010 | 0,0007 | 0,011° | 0,13° (p90 0,59°) | 0,011 (p90 0,83) |
+| M | 0,30 | 0,15 | 0,13° | 5,6° (p90 49°)* | 0,59 (p90 12,3) |
+| G | 0,0010 | 0,0007 | 0,011° | 0,13° (p90 0,59°)* | 0,011 (p90 0,83) |
 | C | 0 | 0 | 0 | 0 | 0 (diverso da zero nello 0,2% dei record) |
 | M×G | 0,0001 | 0,0002 | 0,003° | 0,04° (p90 0,30°) | 0,003 (p90 0,27) |
 | M×C, G×C, M×G×C | 0 | 0 | 0 | 0 | 0 (diversi da zero nello 0,2% dei record) |
 
-Il 90° percentile mostra code pesanti: per S_BL l'effetto di G supera 0,8
-volte la mediana di |S_BL| nel 10% dei record (regioni grandi), quindi la
-geometria non è irrilevante per le regioni più intense anche se lo è in
-mediana. Lo stesso vale per l'interazione M×G (p90 0,27).
+\* Per il tilt vedi gli effetti semplici assiali più sotto.
+
+Per S_BL, "0,59" significa **0,59 volte la mediana globale di |S_BL|**, non
+una variazione tipica del 59% della singola regione; la stessa dicitura vale
+per le altre colonne di S_BL e per le figure.
+
+**Coda dell'effetto di G e intensità** (`FACTORIAL_G_EFFECT_BY_INTENSITY.csv`).
+Confronto esplicito per decile di |S_BL| v8.4: la mediana di |effetto G| va da
+0,0005 (decile più basso) a 1,28 (decile più alto) mediane globali; Spearman
+tra |effetto G| e |S_BL| 0,82, e con Φ 0,88; il 61% dei record nella coda
+(sopra il 90° percentile) sta nel decile più alto di |S_BL|. In rapporto alla
+**propria** |S_BL| l'effetto di G resta piccolo in ogni decile (mediana tra
+0,6% e 3,3%; 2,3% nel decile più alto). Quindi la coda in unità globali
+riflette soprattutto la scala delle regioni più intense, non un effetto
+relativo grande.
+
+**Tilt come dato assiale** (`FACTORIAL_TILT_SIMPLE_EFFECTS.csv`). I contrasti
+del disegno fanno medie di angoli per livello. Le medie circolari degli angoli
+raddoppiati per livello di G o C risultano poco definite in circa 700 record
+(risultante < 0,5), perché ogni livello mescola le due maschere. Per questo il
+tilt si riporta con gli **effetti semplici**: la differenza assiale (modulo
+180°) tra due combinazioni che differiscono per un solo fattore, con gli altri
+fissi. Risultati (9997 record): M 5,6° in mediana (p90 49°, 38% sopra 10°) con
+qualunque G e C; G 0,13° con maschera ≥ 1 e 0,16° con maschera ≥ 33 (p90
+0,58–0,74°); C 0. I contrasti principali in tabella, calcolati sulla
+rappresentazione allineata alla combinazione v8.4, danno gli stessi valori
+(differenze sopra 1° in 1 record per M e 5 per G); sono da leggere con questa
+avvertenza.
 
 **Effetto del ciclo.** C non cambia Φ, d, latitudine o tilt, ma cambia
 `hale_sign` e quindi **il segno di S_BL**. Nella configurazione v8.4
@@ -72,8 +96,9 @@ validità propria di ogni combinazione 0,21, 0,031, 0, 0,0035, 0, 0, 0. Le
 somme nette possono nascondere differenze individuali, riportate sopra.
 
 Lettura: per la misura la correzione che conta è la **maschera**; la
-geometria complessiva cambia le grandezze di circa l'1% in mediana ma molto di
-più nelle regioni più intense; il ciclo cambia il segno di S_BL in pochi
+geometria complessiva cambia le grandezze di circa l'1% in mediana, e anche
+in rapporto alla propria |S_BL| resta di pochi per cento nelle regioni più
+intense (dove però gli effetti assoluti sono i più grandi); il ciclo cambia il segno di S_BL in pochi
 record nelle sovrapposizioni.
 
 ## 2. Transizioni Hale (`HALE_TRANSITIONS.csv`, `..._BY_RECORD.csv`)
