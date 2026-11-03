@@ -1,0 +1,15 @@
+{
+ "run": "P2b calibration, run 2 (100 synthetic catalogues per rho)",
+ "started": "2026-11-03 12:29:19 CET (creation time of the background task output file)",
+ "finished": "2026-11-03 12:40:44 CET",
+ "duration_s": 685,
+ "code": "calibration code equivalent to commit 637c482 (launched at 12:29:19, commit at 12:29:38 by the next command without edits in between); the git_commit column is only HEAD at the end of the run",
+ "evidence_for_code_version": [
+  "source of the 18 functions and classes used by the calibration has SHA-256 prefix 7ec6c1e8d5379405 in 637c482 and in 05355e2 (no change since)"
+ ],
+ "function": "p2b_calibration(n_cat=100, rhos=(0.0, 0.5, 0.8))",
+ "synthetic_catalogue": "synthetic_catalog(0, 0, n=6000, seed=1000+k, rho), k = 0..99; no quenching injected (true beta = 0); AR(1) CR-level component with sd = 0.5 x per-region noise, added to tilts and to D*",
+ "bootstrap": "P2: whole CRs, seed 20261104; P2b: moving blocks of L = 3, 6, 13 consecutive calendar CRs, seed 20261105; 2000 resamples",
+ "columns": "false_positive = fraction with the 97.5% interval excluding 0 (any decided verdict is false since beta = 0); fp_count and not_decided_count are raw counts out of n; coverage95/975 = fraction of 95%/97.5% intervals containing 0; *_mc_se = sqrt(p(1-p)/n)",
+ "note": "with zero events out of n independent simulations the one-sided 95% upper bound is about 3/n; no scenario here has zero events"
+}

@@ -81,6 +81,8 @@ results/P1/P1_NO_CM_RECORD.csv
 results/P1/P1_RECORD_SELECTION.csv
 results/P2/P2B_CALIBRATION_RUN1_N40.csv
 results/P2/P2B_CALIBRATION_RUN1_N40.json
+results/P2/P2B_CALIBRATION_RUN2_N100.csv
+results/P2/P2B_CALIBRATION_RUN2_N100.json
 scripts/check_repo.sh
 scripts/download_test_20240508.sh
 scripts/process_test_20240508_idl_commands.pro
