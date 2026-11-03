@@ -64,6 +64,9 @@ python/sharpbl/provenance.py
 python/sharpbl/select_records.py
 requirements-v84.txt
 requirements.txt
+results/P1/CYCLE_BOUNDARY_FITS.csv
+results/P1/P1_NO_CM_RECORD.csv
+results/P1/P1_RECORD_SELECTION.csv
 scripts/check_repo.sh
 scripts/download_test_20240508.sh
 scripts/process_test_20240508_idl_commands.pro
