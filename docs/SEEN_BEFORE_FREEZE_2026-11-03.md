@@ -47,7 +47,7 @@ Dalle 12:33 circa l'aggiornamento orario della serie parziale è sospeso: il
 download prosegue, ma nessun nuovo risultato parziale viene consultato fino
 al congelamento.
 
-## Aggiunte prima del congelamento di P3c e P2d (2026-11-03, ~12:55; commit 065d6c0)
+## Aggiunte prima del congelamento di P3c e P2d (commit 065d6c0, 2026-11-03 12:55)
 
 11. **Calibrazione P2b RUN2** completa (100 cataloghi sintetici per ρ):
     falsi positivi e copertura per schema; solo dati sintetici.
@@ -58,9 +58,20 @@ al congelamento.
     (percentili in P3c §0). Solo dati BARD ed effemeridi; nessuna misura SHARP
     confrontata.
 
-## Aggiunte prima del congelamento di P2e (2026-11-03, ~13:06; commit 3fcd702)
+## Aggiunte prima del congelamento di P2e (commit 3fcd702, 2026-11-03 13:06)
 
 13. **Prova di tempistica di P2d** (un catalogo V2, M = 20 000): φ̂ = 0,52 (T3)
     e 0,37 (T5). I verdetti di quella prova non sono stati letti.
 14. **Sviluppo del metodo P2e** (semi 70000 + k, nessun test di decisione):
     stime di φ, κ e varianze sui cataloghi sintetici descritti in P2e §0.
+
+## Nota sulla cronologia
+
+Gli orari nelle intestazioni sono quelli dei **commit** che hanno congelato i
+protocolli: documentano il congelamento, non l'istante in cui ciascuna
+informazione è stata vista. Ogni voce è stata vista **prima** del commit
+indicato; dove non c'è un log diretto (per esempio l'ora di creazione di un
+file di output o di un processo) l'istante esatto è incerto e non viene
+assegnato. Gli orari "~12:30" e "dalle 12:33" in testa a questo file sono
+stime da orologio di sistema durante la sessione, con incertezza di qualche
+minuto.
