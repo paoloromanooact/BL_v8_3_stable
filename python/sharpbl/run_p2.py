@@ -1,7 +1,8 @@
 """Esecuzione del protocollo P2: test osservativi del quenching BL.
 
 Uso: .venv/bin/python python/sharpbl/run_p2.py
-Legge results/P1/P1_SBL_CATALOG_BY_HARP.csv (solo se complete_series = 1) e
+Legge results/P1/P1_SBL_CATALOG_BY_HARP.csv (solo se complete_series = 1 e
+validation_passed = 1) e
 ancillary/SILSO_HEMI/SN_m_hem_V2.0.csv; scrive results/P2/.
 
 Le funzioni lavorano su un catalogo qualsiasi con le colonne di P1: i test in
@@ -349,6 +350,9 @@ def main() -> int:
     cat = pd.read_csv(cat_path, low_memory=False)
     if int(cat["complete_series"].iloc[0]) != 1:
         print("il catalogo P1 non e' la serie completa (complete_series = 0): P2 non si esegue")
+        return 1
+    if "validation_passed" not in cat or int(cat["validation_passed"].iloc[0]) != 1:
+        print("i controlli obbligatori di P1 non sono superati (validation_passed != 1): P2 non si esegue")
         return 1
     sel = pd.read_csv(ROOT / "results/P1/P1_RECORD_SELECTION.csv")
     sel = sel.merge(cat[["HARPNUM", "T_REC", "CR"]], on=["HARPNUM", "T_REC"], how="left")

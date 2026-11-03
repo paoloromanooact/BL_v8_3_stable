@@ -54,7 +54,14 @@ python3 -m virtualenv .venv
 .venv/bin/python -m pytest -q tests             # 20 test: bipoli sintetici e P2 su cataloghi sintetici
 ```
 
-Non servono IDL né SolarSoft.
+Non servono IDL né SolarSoft. `bash scripts/check_repo.sh` controlla la sintassi di tutti i
+file Python e Bash e, se pytest è installato (è in `requirements-v84.txt`), esegue i test;
+senza pytest lo dice esplicitamente.
+
+`run_p1.py` scrive due flag in ogni output: `complete_series` (tutti i record presenti) e
+`validation_passed` (controlli obbligatori superati: il legacy riproduce il caso di prova,
+i test passano). Se un controllo obbligatorio fallisce esce con codice 2, e `run_p2.py`
+non parte senza entrambi i flag a 1.
 
 ## Dati
 

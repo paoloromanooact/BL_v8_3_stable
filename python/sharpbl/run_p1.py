@@ -11,6 +11,10 @@ data/sharp/fits/. Per ogni record calcola il metodo v84 e il metodo legacy
   P1_CHECKS.csv                controlli (P1 §8, P1b §3, P1c §3)
 Senza --allow-missing si ferma se manca qualche record (serie definitiva);
 con --allow-missing usa i record presenti (solo per provare lo script).
+Ogni output porta due flag: complete_series (tutti i record presenti) e
+validation_passed (controlli obbligatori superati: il metodo legacy riproduce il
+caso di prova di Paolo, i test sintetici passano). Se un controllo obbligatorio
+fallisce lo script esce con codice 2; run_p2.py richiede entrambi i flag a 1.
 """
 from __future__ import annotations
 
@@ -34,6 +38,7 @@ OUT = ROOT / "results/P1"
 FITS = ROOT / "data/sharp/fits"
 SEED = 20261103
 NBOOT = 2000
+MANDATORY_CHECKS = ["1_legacy_reproduces_test_case", "2_synthetic_tests_pass"]
 V84_COLS = ["phi_mx", "phi_pos_mx", "phi_neg_mx", "d_cm", "lat_mean_deg", "coslat", "lon_mean_stony",
             "lon_pos", "lat_pos", "lon_neg", "lat_neg", "tilt_deg", "tilt_reduced_deg", "sintilt",
             "leading_sign", "expected_leading_sign", "hale_sign", "cycle", "cycle_state", "p_new",
@@ -234,15 +239,23 @@ def main() -> int:
     st = stamp(("P1", "P1b", "P1c"))
     st["complete_series"] = int(not args.allow_missing or bool(have.all()))
     cat = build_catalog(sel, args.workers)
-    cat.assign(**st).to_csv(OUT / "P1_SBL_CATALOG_BY_HARP.csv", index=False)
     agg = aggregate(cat)
-    agg.assign(**st).to_csv(OUT / "P1_SBL_BY_CR_HEMISPHERE.csv", index=False)
-    legacy_vs_v84(cat, agg).assign(**st).to_csv(OUT / "P1_LEGACY_VS_V84.csv", index=False)
+    cmp_ = legacy_vs_v84(cat, agg)
     chk = checks(cat, sel)
+    # controlli obbligatori (esito si'/no); gli altri di P1 §8 sono descrittivi
+    mand = chk[chk["check"].isin(MANDATORY_CHECKS)]
+    chk["mandatory"] = chk["check"].isin(MANDATORY_CHECKS).astype(int)
+    st["validation_passed"] = int(len(mand) == len(MANDATORY_CHECKS) and (mand["value"] == 1).all())
+    cat.assign(**st).to_csv(OUT / "P1_SBL_CATALOG_BY_HARP.csv", index=False)
+    agg.assign(**st).to_csv(OUT / "P1_SBL_BY_CR_HEMISPHERE.csv", index=False)
+    cmp_.assign(**st).to_csv(OUT / "P1_LEGACY_VS_V84.csv", index=False)
     chk.assign(**st).to_csv(OUT / "P1_CHECKS.csv", index=False)
-    print(chk[["check", "value", "note"]].to_string(index=False))
+    print(chk[["check", "value", "mandatory", "note"]].to_string(index=False))
+    print(f"complete_series={st['complete_series']} validation_passed={st['validation_passed']}")
+    if not st["validation_passed"]:
+        print("CONTROLLI OBBLIGATORI FALLITI: la serie non e' validata e P2 non si esegue")
+        return 2
     return 0
-
 
 if __name__ == "__main__":
     sys.exit(main())
