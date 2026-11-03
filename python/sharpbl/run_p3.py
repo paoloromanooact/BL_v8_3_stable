@@ -337,7 +337,7 @@ def selection_counts(b, meta, pairs, m, df, label):
     mt = meta[["t", "CRLN_OBS"]].drop_duplicates("t").sort_values("t")
     mm = pd.merge_asof(b[["row", "t", "BMRLongitude"]].sort_values("t"), mt, on="t", direction="nearest",
                        tolerance=pd.Timedelta(hours=2)).set_index("row").loc[b["row"]]
-    far = (np.abs(wrap(mm["BMRLongitude"] - mm["CRLN_OBS"])) > 90).to_numpy() & mm["CRLN_OBS"].notna().to_numpy()
+    far = (np.abs(wrap(mm["BMRLongitude"].to_numpy() - mm["CRLN_OBS"].to_numpy())) > 90) & mm["CRLN_OBS"].notna().to_numpy()
     no_crln = mm["CRLN_OBS"].isna().to_numpy()
     matched_rows = set(m["row"])
     ok_q = m[m["QUALITY"].isin(QUAL_OK)]

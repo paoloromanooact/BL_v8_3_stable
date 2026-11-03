@@ -114,3 +114,15 @@ def test_incoherent_hale_suspends_only_published_hale():
     b, mt = _constructed(hale_wrong=True)
     conv = run_p3.conventions(b, mt)
     assert run_p3.suspensions(conv) == {"all": False, "hale_published": True}
+
+
+def test_selection_counts_runs_on_constructed_data():
+    """Regressione: il conteggio delle esclusioni non deve fallire (bug di wrap su Series)."""
+    b, mt = _constructed()
+    b["row"] = np.arange(len(b))
+    meta = mt.assign(HARPNUM=1, T_REC="x", LAT_FWT=15.0, LON_FWT=0.0, QUALITY=0)
+    pairs = pd.DataFrame(columns=["row", "HARPNUM", "T_REC", "QUALITY", "dt_h", "dlat", "dlon", "d"])
+    m = pairs.copy()
+    tab = run_p3.selection_counts(b, meta, pairs, m, None, "test").set_index("step")["count"]
+    assert tab["regioni BARD"] == len(b)
+    assert tab["a parte: regioni con D > 90° (convenzione Carrington)"] == 0
