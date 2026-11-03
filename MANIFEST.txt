@@ -61,6 +61,7 @@ python/sharpbl/fetch_metadata.py
 python/sharpbl/geometry.py
 python/sharpbl/measure.py
 python/sharpbl/provenance.py
+python/sharpbl/run_p1.py
 python/sharpbl/select_records.py
 requirements-v84.txt
 requirements.txt
