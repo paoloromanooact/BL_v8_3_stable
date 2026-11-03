@@ -190,10 +190,15 @@ def checks(cat, sel):
         ok = anti == [11150, 11152, 11192] and invalid == [11182, 11186, 11187, 11189] and abs(t11152 - 74.9) <= 0.1
         add("1_legacy_reproduces_test_case", int(ok), f"anti_hale={anti} invalid={invalid} tilt_11152={t11152:.2f}")
     else:
-        add("1_legacy_reproduces_test_case", -1, "caso di prova non presente")
+        add("1_legacy_reproduces_test_case", 0, "caso di prova non presente: controllo NON eseguito")
     # 2. test sintetici
-    r = subprocess.run([sys.executable, "-m", "pytest", "-q", "--color=no", "-p", "no:cacheprovider", str(ROOT / "tests")], capture_output=True, text=True)
-    add("2_synthetic_tests_pass", int(r.returncode == 0), r.stdout.strip().splitlines()[-1] if r.stdout else "")
+    try:
+        import pytest  # noqa: F401
+        r = subprocess.run([sys.executable, "-m", "pytest", "-q", "--color=no", "-p", "no:cacheprovider",
+                            str(ROOT / "tests")], capture_output=True, text=True)
+        add("2_synthetic_tests_pass", int(r.returncode == 0), r.stdout.strip().splitlines()[-1] if r.stdout else "")
+    except ImportError:  # test non eseguiti: il controllo obbligatorio non e' superato
+        add("2_synthetic_tests_pass", 0, "pytest non disponibile: test NON eseguiti")
     # 3. centroidi contro JSOC (LAT/LON_FWTPOS/NEG, longitudini di Stonyhurst)
     v = cat[cat["valid_bl"] == 1]
     crln = pd.to_numeric(v["key_CRLN_OBS"], errors="coerce")

@@ -92,3 +92,11 @@ def test_ar1_residuals_show_in_acf():
     acf = run_p2.p2b_residual_acf(d)
     lag1 = acf[(acf["test"] == "T3") & (acf["lag"] == 1)].iloc[0]
     assert lag1["acf"] > lag1["band"]
+
+
+def test_gate_blocks_incomplete_or_unvalidated():
+    cat = pd.DataFrame({"complete_series": [1, 1], "validation_passed": [1, 0]})
+    probs = run_p2.gate_problems(cat)
+    assert any("validation_passed" in p for p in probs)
+    assert any("sha256_P1" in p for p in probs)
+    assert run_p2.gate_problems(pd.DataFrame({"x": [1]}))  # flag assenti

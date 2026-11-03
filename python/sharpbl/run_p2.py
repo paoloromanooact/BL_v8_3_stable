@@ -508,14 +508,43 @@ def summary(tabs):
     return pd.DataFrame(out)
 
 
+def gate_problems(cat):
+    """Condizioni per eseguire P2 sui dati veri; lista vuota se tutto e' in ordine.
+
+    I flag devono esistere, valere 1 su tutte le righe, e gli SHA-256 dei
+    protocolli registrati nel catalogo devono coincidere con i file attuali.
+    Anche P1_CHECKS.csv deve esistere e avere i controlli obbligatori a 1.
+    """
+    out = []
+    for flag in ("complete_series", "validation_passed"):
+        if flag not in cat:
+            out.append(f"flag {flag} assente nel catalogo P1")
+        elif not (pd.to_numeric(cat[flag], errors="coerce") == 1).all():
+            out.append(f"flag {flag} diverso da 1 in almeno una riga")
+    from sharpbl.provenance import PROTOCOLS, sha256
+    for name in ("P1", "P1b", "P1c", "P1d"):
+        col = f"sha256_{name}"
+        if col not in cat:
+            out.append(f"{col} assente nel catalogo P1")
+        elif cat[col].nunique() != 1 or cat[col].iloc[0] != sha256(ROOT / PROTOCOLS[name]):
+            out.append(f"{col} del catalogo non coincide con il protocollo attuale")
+    chk_path = ROOT / "results/P1/P1_CHECKS.csv"
+    if not chk_path.exists():
+        out.append("P1_CHECKS.csv assente")
+    else:
+        chk = pd.read_csv(chk_path)
+        mand = chk[chk.get("mandatory", 0) == 1]
+        if len(mand) == 0 or not (pd.to_numeric(mand["value"], errors="coerce") == 1).all():
+            out.append("controlli obbligatori di P1 non eseguiti o non superati")
+    return out
+
+
 def main() -> int:
     cat_path = ROOT / "results/P1/P1_SBL_CATALOG_BY_HARP.csv"
     cat = pd.read_csv(cat_path, low_memory=False)
-    if int(cat["complete_series"].iloc[0]) != 1:
-        print("il catalogo P1 non e' la serie completa (complete_series = 0): P2 non si esegue")
-        return 1
-    if "validation_passed" not in cat or int(cat["validation_passed"].iloc[0]) != 1:
-        print("i controlli obbligatori di P1 non sono superati (validation_passed != 1): P2 non si esegue")
+    problems = gate_problems(cat)
+    if problems:
+        print("P2 non si esegue:\n  " + "\n  ".join(problems))
         return 1
     sel = pd.read_csv(ROOT / "results/P1/P1_RECORD_SELECTION.csv")
     sel = sel.merge(cat[["HARPNUM", "T_REC", "CR"]], on=["HARPNUM", "T_REC"], how="left")
