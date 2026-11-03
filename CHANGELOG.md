@@ -1,5 +1,21 @@
 # Cronologia
 
+## v8.4 (Python, branch `v8.4-python-gianluca`) — in corso
+
+- Porting in Python (`python/sharpbl/`); il codice IDL v8.3 resta come riferimento.
+- Geometria: longitudine e latitudine dalla WCS completa (le mappe SHARP CEA sono
+  oblique, centrate sulla patch); centroidi, distanza e tilt sulla sfera.
+  La latitudine della v8.3 (sin(CRVAL2) + (j - CRPIX2) dmu) sbaglia fino a ~1 grado.
+- Bitmap >= 33 (solo pixel interni alla HARP) invece di >= 1.
+- Soglia 100 G ovunque.
+- Ciclo assegnato per latitudine nelle finestre di sovrapposizione 2010-2011 e 2017-2021.
+- Una misura per HARP (record piu' vicino al meridiano centrale), protocollo
+  `docs/PROTOCOL_P1_SBL_SERIES.md`.
+- Contributo al dipolo assiale D e D_bal, indipendente da Hale e ciclo.
+- Metodo `legacy` che riproduce la v8.3 (verificato sul caso 2024-05-08 03:12 TAI)
+  e confronto v8.3/v8.4 (`python/sharpbl/compare_test_case.py`).
+- Test su bipoli sintetici: `.venv/bin/python -m pytest -q tests`.
+
 ## Preparazione del repository
 
 - Documentazione riallineata alla v8.3 e configurazione portabile dei percorsi.

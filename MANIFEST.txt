@@ -9,6 +9,7 @@ README_V8_2_SSW.txt
 data/.gitkeep
 docs/HANDOFF.md
 docs/PROJECT_STATUS.md
+docs/PROTOCOL_P1_SBL_SERIES.md
 docs/REPOSITORY.md
 idl/plot_sharp_diagnostics_from_csv.pro
 idl/process_sharp_day.pro
@@ -43,6 +44,13 @@ idl/sharp_valid_mask_1ar.pro
 logs/.gitkeep
 output/.gitkeep
 python/download_sharp_day.py
+python/sharpbl/__init__.py
+python/sharpbl/compare_test_case.py
+python/sharpbl/cycle.py
+python/sharpbl/fetch_metadata.py
+python/sharpbl/geometry.py
+python/sharpbl/measure.py
+requirements-v84.txt
 requirements.txt
 scripts/check_repo.sh
 scripts/download_test_20240508.sh
@@ -50,3 +58,4 @@ scripts/process_test_20240508_idl_commands.pro
 scripts/run_pipeline.sh
 test/test_process_day.pro
 test/test_sharp_bl_source_single.pro
+tests/test_geometry.py
