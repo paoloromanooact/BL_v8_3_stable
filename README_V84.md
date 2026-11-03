@@ -102,8 +102,9 @@ I dati non sono in Git. `data/sharp` può essere un link a un disco capiente
 - [x] Validazione esterna P3 C1 con BARD: coerente al livello 1 (`docs/P3_RESULTS_C1.md`).
 - [x] Validazione della procedura P2d/P2e: criterio **non** soddisfatto; T3 e T5 solo descrittivi
   (`docs/P2_DECISION_DESCRIPTIVE_FALLBACK.md`).
-- [ ] Serie P1 completa (v8.4 e legacy), controlli, figure; P3 C2.
-- [ ] P2 descrittivo sui dati reali.
+- [x] Serie P1 completa (14195 record, 7133 HARP), controlli obbligatori superati, figure; P3 C2.
+- [x] P2 descrittivo sui dati reali (`docs/P2_RESULTS_DESCRIPTIVE.md`): Joy presente; T3 e T5 senza verdetto.
+- [ ] Discussione con Paolo e articolo.
 
 ## Ancillari
 

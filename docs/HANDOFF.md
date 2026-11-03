@@ -33,19 +33,20 @@ Prompt da incollare:
 - Script della serie (`run_p1.py`, provato su 926 record) e dei test
   (`run_p2.py`, verificato solo su cataloghi sintetici); 20 test in `tests/`.
 
-**In corso**
-- Download di Br e bitmap dei 14195 record, avviato il 2026-11-03 alle 11:37,
-  stimato 4–5 ore: `python/sharpbl/download_records.py`, log
-  `logs/download_fits.log`. Si può rilanciare: salta i record completi (quelli
-  con `.keys.json`).
+**Stato al 2026-11-03 sera**
+- Download completo (14195/14195), serie P1 completa e validata
+  (`complete_series` = `validation_passed` = 1), figure in `figures/P1/`.
+- P3: C1 "coerente con BARD (livello 1)" e C2 riportato (`docs/P3_RESULTS_C1.md`).
+- P2: la validazione della procedura calibrata (P2d/P2e) non ha superato il
+  criterio; T3 e T5 sono **solo descrittivi** (`docs/P2_DECISION_DESCRIPTIVE_FALLBACK.md`,
+  `docs/P2_RESULTS_DESCRIPTIVE.md`). Non riformulare come verdetti.
+- Tutto ciò che è stato visto prima di ogni congelamento: `docs/SEEN_BEFORE_FREEZE_2026-11-03.md`.
 
 **Prossimi passi**
-1. A download finito: verificare che manchino 0 record (ultima riga del log).
-2. `.venv/bin/python python/sharpbl/run_p1.py` (serie completa, senza
-   `--allow-missing`); controllare `P1_CHECKS.csv`; committare i risultati.
-3. Figure della serie e del confronto v8.3/v8.4.
-4. `.venv/bin/python python/sharpbl/run_p2.py`; committare i risultati.
-5. Discussione dei risultati con Paolo, poi l'articolo.
+1. Discussione dei risultati con Paolo.
+2. Eventuale nuovo protocollo inferenziale sul quenching (P2f), solo con
+   validazione nuova e semi nuovi; non avviato.
+3. Articolo.
 
 **Dati e ambiente**
 - `data/sharp` è un link a `/storage/shared/gianluca/SHARP_BL` (metadati

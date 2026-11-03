@@ -67,3 +67,25 @@ più regioni NOAA o senza NOAA. Questo è compatibile con differenze di
 segmentazione (che cosa entra nella maschera di ciascun metodo), regioni
 multipolari e abbinamenti meno certi, più che con un errore sistematico di
 segno; non lo dimostra.
+
+## C2 — confronto con i record già selezionati della serie (solo riportato)
+
+Eseguito dopo la serie P1 completa e validata. Per le stesse coppie di C1,
+misura della HARP nel catalogo P1: record di controllo (flusso massimo entro
+±60°) e record primario (più vicino al meridiano centrale). 40 HARP abbinate
+non hanno record primario e mancano in C2.
+
+| HMI | n (famiglie) | \|Δt\| da BARD, mediana | δ mediana | ρ_FL | leading | separazione ρ | \|Δλ\| mediana | flusso nostro/BARD |
+|---|---|---|---|---|---|---|---|---|
+| C1 (contemporaneo) | 999 (879) | ≤ 1 h | 3,4° | 0,72 | 97,1% | 0,80 | 0,21° | 1,67 |
+| C2 controllo | 962 (842) | 0,5 giorni | 4,5° | 0,68 | 96,9% | 0,73 | 0,27° | 1,82 |
+| C2 primario | 829 (722) | 4,1 giorni | 7,4° | 0,53 | 96,4% | 0,58 | 0,46° | 0,95 |
+
+Lettura: l'accordo peggiora con la distanza in tempo dalla misura di BARD,
+come atteso per regioni che evolvono (P1d §3 sull'evoluzione tra record
+primario e di controllo). La polarità leading resta concorde al 96–97%. Il
+rapporto dei flussi cambia molto tra C1/C2-controllo (circa 1,7–1,8) e
+C2-primario (circa 0,95), perché BARD misura al massimo del flusso e il record
+primario no: conferma che il rapporto dei flussi non è interpretabile come
+calibrazione. Livello 2 (MDI): C2 controllo 66 regioni, δ 3,5°; C2 primario
+61 regioni, δ 4,7°. Nessun esito formale per C2 (P3 §3).
