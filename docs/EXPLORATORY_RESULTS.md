@@ -53,7 +53,10 @@ assoluto** del contrasto e il 90° percentile, con queste unità:
 | M×G | 0,0001 | 0,0002 | 0,003° | 0,04° (p90 0,30°) | 0,003 (p90 0,27) |
 | M×C, G×C, M×G×C | 0 | 0 | 0 | 0 | 0 (diversi da zero nello 0,2% dei record) |
 
-\* Per il tilt vedi gli effetti semplici assiali più sotto.
+\* Per il tilt i valori in tabella (contrasti angolari sulla rappresentazione
+allineata) sono **sostituiti** dagli effetti semplici assiali più sotto, che
+sono quelli da usare nel testo e nelle figure; i contrasti restano solo come
+diagnostica supplementare.
 
 Per S_BL, "0,59" significa **0,59 volte la mediana globale di |S_BL|**, non
 una variazione tipica del 59% della singola regione; la stessa dicitura vale
@@ -65,7 +68,8 @@ Confronto esplicito per decile di |S_BL| v8.4: la mediana di |effetto G| va da
 tra |effetto G| e |S_BL| 0,82, e con Φ 0,88; il 61% dei record nella coda
 (sopra il 90° percentile) sta nel decile più alto di |S_BL|. In rapporto alla
 **propria** |S_BL| l'effetto di G resta piccolo in ogni decile (mediana tra
-0,6% e 3,3%; 2,3% nel decile più alto). Quindi la coda in unità globali
+0,6% e 3,3%; 2,3% nel decile più alto). Cautela: nel decile più basso |S_BL|
+è vicino a zero e il rapporto (3,3%) è poco stabile. Quindi la coda in unità globali
 riflette soprattutto la scala delle regioni più intense, non un effetto
 relativo grande.
 
@@ -100,6 +104,12 @@ geometria complessiva cambia le grandezze di circa l'1% in mediana, e anche
 in rapporto alla propria |S_BL| resta di pochi per cento nelle regioni più
 intense (dove però gli effetti assoluti sono i più grandi); il ciclo cambia il segno di S_BL in pochi
 record nelle sovrapposizioni.
+
+**Sintesi del fattoriale (per l'articolo).**
+- **Maschera:** modifica sostanzialmente validità, tilt e sorgente ricostruita.
+- **Geometria:** produce effetti assoluti maggiori nelle regioni intense, ma
+  variazioni relative mediane di pochi punti percentuali nei decili esaminati.
+- **Ciclo:** interessa pochi casi di piccolo peso nella serie analizzata.
 
 ## 2. Transizioni Hale (`HALE_TRANSITIONS.csv`, `..._BY_RECORD.csv`)
 
