@@ -89,6 +89,13 @@ results/P2/P2B_CALIBRATION_RUN1_N40.json
 results/P2/P2B_CALIBRATION_RUN2_N100.csv
 results/P2/P2B_CALIBRATION_RUN2_N100.json
 results/P2/P2E_DEVELOPMENT_ESTIMATORS.csv
+results/P3/P3_BARD_CONVENTIONS.csv
+results/P3/P3_BARD_CONVENTIONS_ATTEMPT1_STOPPED.csv
+results/P3/P3_BARD_CRITERIA.csv
+results/P3/P3_BARD_MATCHES.csv
+results/P3/P3_BARD_SELECTION.csv
+results/P3/P3_BARD_SUMMARY.csv
+results/P3/P3_RANDOM_CONTROL.csv
 scripts/check_repo.sh
 scripts/download_test_20240508.sh
 scripts/process_test_20240508_idl_commands.pro
