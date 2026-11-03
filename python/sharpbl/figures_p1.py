@@ -43,7 +43,7 @@ def cr_to_date(cr):
 def footer(fig, cat):
     full = int(cat["complete_series"].iloc[0]) if "complete_series" in cat else 0
     note = "" if full else "  —  PROVA PARZIALE (serie incompleta)"
-    fig.text(0.01, 0.005, f"SHARP BL v8.4, protocollo P1/P1b/P1c, commit {str(cat['git_commit'].iloc[0])[:7]}{note}",
+    fig.text(0.01, 0.005, f"SHARP BL v8.4, protocolli P1–P1e, commit {str(cat['git_commit'].iloc[0])[:7]}{note}",
              fontsize=6.5, color=TEXT2)
 
 
