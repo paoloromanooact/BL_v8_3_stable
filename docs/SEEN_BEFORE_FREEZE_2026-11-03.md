@@ -47,7 +47,7 @@ Dalle 12:33 circa l'aggiornamento orario della serie parziale è sospeso: il
 download prosegue, ma nessun nuovo risultato parziale viene consultato fino
 al congelamento.
 
-## Aggiunte prima del congelamento di P3c e P2d (2026-11-03, ~13:10)
+## Aggiunte prima del congelamento di P3c e P2d (2026-11-03, ~12:55; commit 065d6c0)
 
 11. **Calibrazione P2b RUN2** completa (100 cataloghi sintetici per ρ):
     falsi positivi e copertura per schema; solo dati sintetici.
@@ -58,7 +58,7 @@ al congelamento.
     (percentili in P3c §0). Solo dati BARD ed effemeridi; nessuna misura SHARP
     confrontata.
 
-## Aggiunte prima del congelamento di P2e (2026-11-03, ~13:45)
+## Aggiunte prima del congelamento di P2e (2026-11-03, ~13:06; commit 3fcd702)
 
 13. **Prova di tempistica di P2d** (un catalogo V2, M = 20 000): φ̂ = 0,52 (T3)
     e 0,37 (T5). I verdetti di quella prova non sono stati letti.
