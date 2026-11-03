@@ -1,4 +1,4 @@
-"""Esecuzione del protocollo P1 (con P1b, P1c e P1d): catalogo S_BL per HARP e somme per CR.
+"""Esecuzione del protocollo P1 (con P1b, P1c, P1d e P1e): catalogo S_BL per HARP e somme per CR.
 
 Uso: .venv/bin/python python/sharpbl/run_p1.py [--workers 4] [--allow-missing]
 
@@ -33,7 +33,7 @@ from sharpbl import measure  # noqa: E402
 from sharpbl.cycle_boundary import load_boundary  # noqa: E402
 from sharpbl.download_records import complete, file_stem, record_dir  # noqa: E402
 from sharpbl.provenance import ROOT, stamp  # noqa: E402
-from sharpbl.recurrence import recurrences  # noqa: E402
+from sharpbl.recurrence import random_control_p1e, recurrences, recurrences_p1e  # noqa: E402
 from sharpbl.select_records import load_metadata  # noqa: E402
 
 OUT = ROOT / "results/P1"
@@ -73,13 +73,25 @@ def measure_record(args):
     return row
 
 
-def recurrence_table(sel):
-    """P1d §1: ricomparse dai metadati dei record primari (tutti, anche quelli non scaricati)."""
+def primary_metadata():
+    """Record primari (tutte le HARP selezionate) con LAT_FWT, LON_FWT, CRLN_OBS, e vita delle HARP."""
     full = pd.read_csv(OUT / "P1_RECORD_SELECTION.csv")
     prim = full[full["role"] != "control"][["HARPNUM", "T_REC"]]
-    meta = load_metadata(ROOT / "data/sharp/metadata")[["HARPNUM", "T_REC", "LAT_FWT", "LON_FWT", "CRLN_OBS"]]
-    prim = prim.merge(meta, on=["HARPNUM", "T_REC"], how="left")
-    return recurrences(prim)
+    meta = load_metadata(ROOT / "data/sharp/metadata")
+    life = meta.sort_values("t").groupby("HARPNUM").agg(lon_first=("LON_FWT", "first"),
+                                                        lon_last=("LON_FWT", "last"))
+    pm = prim.merge(meta[["HARPNUM", "T_REC", "LAT_FWT", "LON_FWT", "CRLN_OBS"]],
+                    on=["HARPNUM", "T_REC"], how="left").drop_duplicates("HARPNUM")
+    return pm, life
+
+
+def recurrence_table(sel):
+    """P1e §1 (famiglie usate da E e S8); la regola P1d §1, sostituita, resta solo come colonna di confronto."""
+    pm, life = primary_metadata()
+    r = recurrences_p1e(pm, life)
+    r["first_seen_on_disk"] = (life.loc[r["HARPNUM"], "lon_first"].to_numpy() > -60.0).astype(int)
+    old = recurrences(pm)[["HARPNUM", "family_rank"]].rename(columns={"family_rank": "p1d_family_rank"})
+    return r.merge(old, on="HARPNUM", how="left")
 
 
 def build_catalog(sel, workers):
@@ -170,7 +182,7 @@ def wrap(x):
     return (x + 180.0) % 360.0 - 180.0
 
 
-def checks(cat, sel):
+def checks(cat, sel, p1e_control=None):
     rows = []
 
     def add(name, value, note=""):
@@ -233,7 +245,18 @@ def checks(cat, sel):
         add(f"P1b_phi_over_usflux_median_qual0x80={flag}",
             float((g["phi_mx"] / pd.to_numeric(g["key_USFLUX"], errors="coerce")).median()))
         add(f"P1b_abs_tilt_reduced_median_qual0x80={flag}", float(g["tilt_reduced_deg"].abs().median()))
-    # P1d §4: ricomparse
+    # P1e §2: frequenza di associazioni nel controllo con longitudini casuali (descrittiva)
+    add("P1e_candidate_recurrence_fraction", float((prim["family_rank"] > 0).mean()),
+        "candidate ricomparse tra le HARP del catalogo")
+    if p1e_control is not None:
+        freq = p1e_control.groupby("rep")["family_rank"].apply(lambda x: float((x > 0).mean()))
+        add("P1e_random_control_association_mean", float(freq.mean()), "descrittivo, non stima della contaminazione")
+        add("P1e_random_control_association_min", float(freq.min()))
+        add("P1e_random_control_association_max", float(freq.max()))
+    else:
+        add("P1e_random_control_association_mean", np.nan, "controllo casuale non calcolato")
+    add("P1e_first_seen_on_disk_fraction", float(prim["first_seen_on_disk"].mean()))
+    # P1d §4 (con le famiglie di P1e): ricomparse candidate
     add("P1d_recurrences", int((prim["family_rank"] > 0).sum()))
     add("P1d_families_with_recurrence", int(prim.loc[prim["family_rank"] > 0, "family_id"].nunique()))
     for r, n in prim["family_rank"].value_counts().sort_index().items():
@@ -282,12 +305,13 @@ def main() -> int:
     sel = sel[have].reset_index(drop=True)
     print(f"record da misurare {len(sel)}", flush=True)
 
-    st = stamp(("P1", "P1b", "P1c", "P1d"))
+    st = stamp(("P1", "P1b", "P1c", "P1d", "P1e"))
     st["complete_series"] = int(not args.allow_missing or bool(have.all()))
     cat = build_catalog(sel, args.workers)
     agg = aggregate(cat)
     cmp_ = legacy_vs_v84(cat, agg)
-    chk = checks(cat, sel)
+    pm, life = primary_metadata()
+    chk = checks(cat, sel, random_control_p1e(pm, life))
     # controlli obbligatori (esito si'/no); gli altri di P1 §8 sono descrittivi
     mand = chk[chk["check"].isin(MANDATORY_CHECKS)]
     chk["mandatory"] = chk["check"].isin(MANDATORY_CHECKS).astype(int)

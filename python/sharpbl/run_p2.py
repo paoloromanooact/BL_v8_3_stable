@@ -118,7 +118,7 @@ def samples(cat):
         "S6": v[prim & base & (v["phi"] >= PHI_MIN)],
         "S7": v[prim & base & (v["phi"] >= PHI_MIN) & noamb & (v["qual_0x80"] == 0)],
     }
-    if "family_rank" in v:  # P1d: senza ricomparse (riportata, fuori dalla regola di robustezza)
+    if "family_rank" in v:  # P1d/P1e: senza candidate ricomparse (riportata, fuori dalla regola di robustezza)
         out["S8"] = v[prim & base & (v["phi"] >= PHI_MIN) & noamb & (v["family_rank"] == 0)]
     lg = prepare(cat, legacy=True)
     lg = lg[lg["cyc"].isin([24, 25])]
@@ -541,7 +541,7 @@ def gate_problems(cat, checks=None):
             out.append(f"flag {flag} diverso da 1 in almeno una riga")
     from sharpbl.provenance import PROTOCOLS, sha256
     from sharpbl.provenance import ROOT as PROOT
-    for name in ("P1", "P1b", "P1c", "P1d"):
+    for name in ("P1", "P1b", "P1c", "P1d", "P1e"):
         col = f"sha256_{name}"
         if col not in cat:
             out.append(f"{col} assente nel catalogo P1")

@@ -97,7 +97,7 @@ def test_ar1_residuals_show_in_acf():
 def _good_catalog():
     from sharpbl.provenance import PROTOCOLS, ROOT, sha256
     cat = pd.DataFrame({"complete_series": [1, 1], "validation_passed": [1, 1]})
-    for n in ("P1", "P1b", "P1c", "P1d"):
+    for n in ("P1", "P1b", "P1c", "P1d", "P1e"):
         cat[f"sha256_{n}"] = sha256(ROOT / PROTOCOLS[n])
     return cat
 
@@ -164,7 +164,7 @@ def test_mandatory_checks_fail_when_not_executed(monkeypatch, tmp_path):
         return real_import(name, *a, **k)
     monkeypatch.setattr(builtins, "__import__", no_pytest)
     cat = run_p2.synthetic_catalog(0, 0, n=200).assign(
-        family_rank=0, family_id=0, tilt_reduced_deg=0.0, hale_sign=1, quality_string="OK",
+        family_rank=0, family_id=0, first_seen_on_disk=1, tilt_reduced_deg=0.0, hale_sign=1, quality_string="OK",
         key_CRLN_OBS=0.0, key_USFLUX=1e21, lon_pos=0.0, lat_pos=0.0, lon_neg=0.0, lat_neg=0.0,
         key_LAT_FWTPOS=0.0, key_LON_FWTPOS=0.0, key_LAT_FWTNEG=0.0, key_LON_FWTNEG=0.0)
     chk = run_p1.checks(cat, None).set_index("check")
