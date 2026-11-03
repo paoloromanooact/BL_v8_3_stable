@@ -46,8 +46,10 @@ dei flussi nostro/BARD 1,67. Livello 2 (BARD-MDI, 68 regioni, descrittivo):
 
 Tabelle: `results/P3/P3_C1_DISCORDANT_DESCRIPTIVE.csv` (righe per regione) e
 `P3_C1_DISCORDANT_SUMMARY.csv`. Gruppi: le 29 regioni con leading discordante,
-le 29 con lo scarto di tilt maggiore (13 in comune), il resto del campione
-(954). Mediane:
+le 29 con lo scarto di tilt maggiore, il resto del campione (954). I primi due
+gruppi **si sovrappongono** (13 regioni in comune, 45 regioni distinte in
+tutto) e non sono categorie disgiunte; il resto (999 − 45 = 954) è disgiunto
+da entrambi. Mediane:
 
 | | Leading discordante | Maggiori scarti di tilt | Resto |
 |---|---|---|---|
