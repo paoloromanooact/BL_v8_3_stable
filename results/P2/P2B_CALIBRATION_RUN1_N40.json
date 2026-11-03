@@ -3,7 +3,7 @@
  "started": "2026-11-03 12:23:09 CET (creation time of the background task output file)",
  "finished": "2026-11-03 12:27:49 CET (last modification of that file)",
  "duration_s": 280,
- "code": "run_p2.py as committed in 2134f86; the git_commit column (143ff02) is HEAD at the END of the run",
+ "code": "calibration code equivalent to commit 2134f86 (identical source of the functions used); the git_commit column (143ff02) is only HEAD at the end of the run",
  "function": "p2b_calibration(n_cat=40, rhos=(0.0, 0.5, 0.8)) - false positives only, no coverage",
  "synthetic_catalogue": "synthetic_catalog(0, 0, n=6000, seed=1000+k, rho), k = 0..39; AR(1) CR-level component sd = 0.5 x per-region noise",
  "bootstrap": "P2: whole CRs, seed 20261104; P2b: moving blocks L = 3, 6, 13, seed 20261105; 2000 resamples",
