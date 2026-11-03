@@ -84,3 +84,40 @@ def test_one_outer_smoke():
 
 def test_acceptance_rule_threshold():
     assert p2d.cp_upper(65, 2000) <= 0.04 < p2d.cp_upper(66, 2000)
+
+
+@pytest.fixture
+def p2e_mode():
+    old = p2d.ESTIMATOR
+    p2d.ESTIMATOR = "p2e"
+    yield
+    p2d.ESTIMATOR = old
+
+
+@pytest.mark.parametrize("test", ["T3", "T5"])
+def test_linear_shortcut_equals_direct_refit_p2e(sample, test, p2e_mode):
+    test_linear_shortcut_equals_direct_refit(sample, test)
+
+
+def test_p2e_records_raw_values_and_flags(sample, p2e_mode):
+    par = p2d.linear_pieces(p2d.design_t3(sample))["par"]
+    for k in ("c0", "c1", "nbar", "ratio", "phi_raw", "kappa_raw", "sw2_N", "sw2_S",
+              "phi_at_boundary", "sigma_u_at_boundary", "kappa_at_boundary", "applicable"):
+        assert k in par
+    assert par["nbar"] > 10
+
+
+def test_p2e_less_attenuated_than_p2d():
+    """Sviluppo del metodo come test: su un catalogo V2 il phi di P2e e' piu' vicino a 0,8 di quello di P2d."""
+    cat = p2d.synthetic_catalog_p2d("V2", seed=70001)
+    d = run_p2.add_activity(run_p2.samples(cat)["S"], run_p2.load_silso())
+    dz = p2d.design_t3(d)
+    old = p2d.ESTIMATOR
+    try:
+        p2d.ESTIMATOR = "p2d"
+        a = p2d.linear_pieces(dz)["par"]["phi"]
+        p2d.ESTIMATOR = "p2e"
+        b = p2d.linear_pieces(dz)["par"]["phi"]
+    finally:
+        p2d.ESTIMATOR = old
+    assert abs(b - 0.8) < abs(a - 0.8)

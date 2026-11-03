@@ -27,7 +27,8 @@ from sharpbl import run_p2  # noqa: E402
 
 M_MAIN = 20000
 M_SENS = 5000
-SEED_T3, SEED_T5 = 20261109, 20261110
+SEED_T3, SEED_T5 = 20261109, 20261110          # P2d
+SEED_T3_P2E, SEED_T5_P2E = 20261111, 20261112  # P2e §5
 PHI_MAX, KAPPA_MAX = 0.95, 0.95
 MIN_CR, MIN_PAIRS = 30, 20
 ALPHA_SIDE = 0.0125
@@ -127,6 +128,85 @@ def estimate_temporal(u, W, s2):
     return dict(phi=phi, sigma_u2=sigma_u2, kappa=kappa, lo=lo, grid_len=len(grid), **flags)
 
 
+def leverage_variance(r, w, cr, hem, u):
+    """P2e §1: leva h_i = w_i / W_cella e varianza di campionamento v corretta per la leva."""
+    key = pd.MultiIndex.from_arrays([cr, hem])
+    df = pd.DataFrame({"w": w}, index=key)
+    W = df.groupby(level=[0, 1])["w"].transform("sum").to_numpy()
+    h = w / W
+    e = r - u.reindex(key).to_numpy()
+    one_minus = np.maximum(1 - h, 0.05)
+    v = pd.Series((w ** 2) * (e ** 2) / one_minus, index=key).groupby(level=[0, 1]).sum()
+    Wc = df.groupby(level=[0, 1])["w"].sum()
+    return v / Wc ** 2, one_minus
+
+
+def estimate_temporal_p2e(u, W, v, n_groups):
+    """P2e §2: momenti corretti per rumore (v con leva) e per la media stimata (B(phi), n_bar)."""
+    from scipy.optimize import brentq
+    flags = {}
+    crs = np.array(sorted(set(u.index.get_level_values(0))))
+    lo, hi = int(crs.min()), int(crs.max())
+    G = hi - lo + 1
+    U = np.full((G, 2), np.nan)
+    Vv = np.full((G, 2), np.nan)
+    for (t, h), val in u.items():
+        j = 0 if h == "N" else 1
+        U[int(t) - lo, j] = val
+        Vv[int(t) - lo, j] = v[(t, h)]
+    ubar = np.nanmean(U)
+    Uc = U - ubar
+    flags["n_cr"] = int(len(crs))
+    c0 = float(np.nanmean(Uc ** 2) - np.nanmean(Vv))
+    a, b = Uc[1:], Uc[:-1]
+    ok = np.isfinite(a) & np.isfinite(b)
+    flags["n_pairs_phi"] = int(ok.sum())
+    c1 = float((a[ok] * b[ok]).mean()) if ok.any() else np.nan
+    nbar = float(np.isfinite(U).sum()) / max(n_groups, 1)
+    flags.update(c0=c0, c1=c1, nbar=nbar, ratio=(c1 / c0 if c0 > 0 else np.nan))
+    B = lambda f: (1 + f) / ((1 - f) * nbar)  # noqa: E731
+    phi, sigma_u2, kappa = np.nan, 0.0, np.nan
+    flags["sigma_u_at_boundary"] = int(c0 <= 0)
+    flags["phi_at_boundary"] = 0
+    flags["kappa_at_boundary"] = 0
+    flags["phi_raw"] = np.nan
+    flags["kappa_raw"] = np.nan
+    if c0 > 0 and np.isfinite(c1):
+        R = c1 / c0
+        g = lambda f: (f - B(f)) / (1 - B(f)) - R  # noqa: E731
+        try:
+            phi = float(brentq(g, 0.0, PHI_MAX))
+            flags["phi_raw"] = phi
+        except ValueError:
+            phi = 0.0 if g(0.0) > 0 else PHI_MAX
+            flags["phi_at_boundary"] = 1
+        sigma_u2 = c0 / (1 - B(phi))
+    both = np.zeros(G - 1, bool)
+    if c0 > 0 and np.isfinite(phi):
+        inn = Uc[1:] - phi * Uc[:-1]
+        both = np.isfinite(inn).all(axis=1)
+        if both.sum() >= 3:
+            vnoise = Vv[1:][both] + phi ** 2 * Vv[:-1][both]
+            sw2 = (inn[both] ** 2).mean(axis=0) - vnoise.mean(axis=0)
+            flags["sw2_N"], flags["sw2_S"] = float(sw2[0]), float(sw2[1])
+            if (sw2 > 0).all():
+                kr = float((inn[both, 0] * inn[both, 1]).mean() / np.sqrt(sw2[0] * sw2[1]))
+                flags["kappa_raw"] = kr
+                kappa = float(np.clip(kr, -KAPPA_MAX, KAPPA_MAX))
+                flags["kappa_at_boundary"] = int(abs(kr) >= KAPPA_MAX)
+    if c0 <= 0:   # componente temporale assente: phi e kappa non usati
+        phi, kappa = 0.0, 0.0
+    flags["n_cr_kappa"] = int(both.sum())
+    flags["phi_not_estimable"] = int(flags["n_pairs_phi"] < MIN_PAIRS)
+    flags["kappa_not_estimable"] = int(flags["n_cr_kappa"] < MIN_PAIRS or (c0 > 0 and not np.isfinite(kappa)))
+    flags["too_few_cr"] = int(flags["n_cr"] < MIN_CR)
+    flags["applicable"] = int(not (flags["phi_not_estimable"] or flags["kappa_not_estimable"] or flags["too_few_cr"]))
+    return dict(phi=phi, sigma_u2=sigma_u2, kappa=kappa, lo=lo, grid_len=G, **flags)
+
+
+ESTIMATOR = "p2d"   # "p2d" (congelato) o "p2e" (emendamento)
+
+
 def simulate_ar1(par, M, rng):
     """u* sulla griglia completa di CR: array (M, G, 2), partenza stazionaria."""
     G = par["grid_len"]
@@ -163,7 +243,17 @@ def linear_pieces(dz):
         r = z - mean
         u, W, e, s2 = cell_components(r, phi_i, dz["cr"], dz["hem"])
         coef_unit = g_c[k_of_i] * agg     # beta = sum_i g_{k(i)} phi_i/Phi_k z_i
-    par = estimate_temporal(u, W, s2)
+    if ESTIMATOR == "p2e":
+        wts = dz["w"] if dz["level"] == "region" else dz["phi"]
+        v, one_minus = leverage_variance(r, wts, dz["cr"], dz["hem"], u)
+        if dz["level"] == "region":
+            n_groups = int((np.abs(dz["Xn"]).sum(axis=0) > 0).sum())
+        else:
+            n_groups = len(set(zip(dz["cell_cyc"], dz["cell_hem"])))
+        par = estimate_temporal_p2e(u, W, v, n_groups)
+        e = e / np.sqrt(one_minus)        # P2e §1: residui corretti per la leva nel wild bootstrap
+    else:
+        par = estimate_temporal(u, W, s2)
     par["beta_obs"] = beta_obs
     t_idx = (dz["cr"].astype(int) - par["lo"])
     h_idx = (dz["hem"] == "S").astype(int)
@@ -205,7 +295,9 @@ def decide(beta_obs, sims):
 
 def p2d_test(d, test, M=M_MAIN, seed=None):
     dz = design_t3(d) if test == "T3" else design_t5(d)
-    seed = seed if seed is not None else (SEED_T3 if test == "T3" else SEED_T5)
+    if seed is None:
+        seed = ((SEED_T3_P2E if test == "T3" else SEED_T5_P2E) if ESTIMATOR == "p2e"
+                else (SEED_T3 if test == "T3" else SEED_T5))
     sims, par = null_distribution(dz, M, seed)
     if sims is None:
         return dict(test=test, verdict_p2d="non applicabile (P2d §3)", **par)
@@ -301,15 +393,19 @@ def one_outer(args):
     scenario, k, beta_frac, M = args
     if _SILSO is None:
         _SILSO = run_p2.load_silso()
-    cat = synthetic_catalog_p2d(scenario, 30000 + k, beta_frac, beta_frac)
+    p2e = ESTIMATOR == "p2e"
+    base = (40000 if p2e else 30000) if beta_frac == 0 else (140000 if p2e else 100000)
+    inner = 60000 if p2e else 50000
+    cat = synthetic_catalog_p2d(scenario, base + k, beta_frac, beta_frac)
     d = run_p2.add_activity(run_p2.samples(cat)["S"], _SILSO)
     out = []
-    for test, seed in (("T3", 50000 + 2 * k), ("T5", 50001 + 2 * k)):
+    for test, seed in (("T3", inner + 2 * k), ("T5", inner + 1 + 2 * k)):
         r = p2d_test(d, test, M=M, seed=seed)
         out.append(dict(scenario=scenario, k=k, beta_frac=beta_frac, test=test, verdict=r["verdict_p2d"],
                         applicable=r["applicable"], phi_at_boundary=r["phi_at_boundary"],
                         sigma_u_at_boundary=r["sigma_u_at_boundary"], kappa_at_boundary=r["kappa_at_boundary"],
-                        phi_hat=r["phi"], kappa_hat=r["kappa"]))
+                        phi_hat=r["phi"], kappa_hat=r["kappa"], sigma_u2_hat=r["sigma_u2"],
+                        estimator=ESTIMATOR))
     return out
 
 
@@ -354,7 +450,7 @@ def summarize_validation(raw):
 def run_validation(n_outer=2000, n_power=500, M=M_MAIN, workers=12):
     from multiprocessing import Pool
     jobs = [(sc, k, 0.0, M) for sc in SCENARIOS for k in range(n_outer)]
-    jobs += [(sc, 100000 + k, -0.2, M) for sc in ("V1", "V2") for k in range(n_power)]
+    jobs += [(sc, k, -0.2, M) for sc in ("V1", "V2") for k in range(n_power)]
     with Pool(workers) as pool:  # lanciare con OMP_NUM_THREADS=1 (un thread BLAS per processo)
         raw = [r for part in pool.imap_unordered(one_outer, jobs, chunksize=4) for r in part]
     return pd.DataFrame(raw)
@@ -368,23 +464,32 @@ def main() -> int:
     ap.add_argument("--n-outer", type=int, default=2000)
     ap.add_argument("--n-power", type=int, default=500)
     ap.add_argument("--workers", type=int, default=12)
+    ap.add_argument("--estimator", choices=["p2d", "p2e"], default="p2e")
     args = ap.parse_args()
+    global ESTIMATOR
+    ESTIMATOR = args.estimator
     if not args.validate:
         print("uso: --validate (P2d §5)")
         return 1
-    st = stamp(("P2", "P2b", "P2c", "P2d"))
+    st = stamp(("P2", "P2b", "P2c", "P2d", "P2e"))
+    st["estimator"] = ESTIMATOR
     if st.get("git_dirty"):
         print("modifiche non committate: la validazione registra il commit all'avvio e richiede un albero pulito")
         return 2
     out = ROOT / "results/P2"
     out.mkdir(parents=True, exist_ok=True)
     raw = run_validation(args.n_outer, args.n_power, workers=args.workers)
-    raw.assign(**st).to_csv(out / "P2D_VALIDATION_RAW.csv", index=False)
+    tag = "P2E" if ESTIMATOR == "p2e" else "P2D"
+    raw.assign(**st).to_csv(out / f"{tag}_VALIDATION_RAW.csv", index=False)
     tab, power, acc = summarize_validation(raw)
-    tab.assign(**st).to_csv(out / "P2D_VALIDATION.csv", index=False)
-    power.assign(**st).to_csv(out / "P2D_VALIDATION_POWER.csv", index=False)
+    tab.assign(**st).to_csv(out / f"{tag}_VALIDATION.csv", index=False)
+    power.assign(**st).to_csv(out / f"{tag}_VALIDATION_POWER.csv", index=False)
     pd.DataFrame([dict(test=t, accepted=v) for t, v in acc.items()]).assign(**st).to_csv(
-        out / "P2D_ACCEPTANCE.csv", index=False)
+        out / f"{tag}_ACCEPTANCE.csv", index=False)
+    params = raw[raw["beta_frac"] == 0].groupby(["scenario", "test"])[["phi_hat", "kappa_hat", "sigma_u2_hat"]].agg(
+        ["mean", "std"])
+    params.columns = ["_".join(c) for c in params.columns]
+    params.reset_index().assign(**st).to_csv(out / f"{tag}_VALIDATION_PARAMETERS.csv", index=False)
     print(tab.to_string(index=False))
     print(power.to_string(index=False))
     print(acc)

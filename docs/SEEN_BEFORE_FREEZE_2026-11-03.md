@@ -57,3 +57,10 @@ al congelamento.
     0,01° 79,6% HMI e 61,1% MDI) e distribuzione di |Tilt_rel + asin(sin α)|
     (percentili in P3c §0). Solo dati BARD ed effemeridi; nessuna misura SHARP
     confrontata.
+
+## Aggiunte prima del congelamento di P2e (2026-11-03, ~13:45)
+
+13. **Prova di tempistica di P2d** (un catalogo V2, M = 20 000): φ̂ = 0,52 (T3)
+    e 0,37 (T5). I verdetti di quella prova non sono stati letti.
+14. **Sviluppo del metodo P2e** (semi 70000 + k, nessun test di decisione):
+    stime di φ, κ e varianze sui cataloghi sintetici descritti in P2e §0.
