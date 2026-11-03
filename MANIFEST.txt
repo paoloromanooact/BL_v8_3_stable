@@ -12,6 +12,8 @@ ancillary/SILSO_HEMI/SHA256.txt
 ancillary/SILSO_HEMI/SN_d_hem_V2.0.csv
 ancillary/SILSO_HEMI/SN_m_hem_V2.0.csv
 data/.gitkeep
+docs/CATALOGUE_DICTIONARY.md
+docs/EXPLORATORY_PLAN.md
 docs/HANDOFF.md
 docs/P2_DECISION_DESCRIPTIVE_FALLBACK.md
 docs/P2_RESULTS_DESCRIPTIVE.md
@@ -78,6 +80,8 @@ python/sharpbl/compare_test_case.py
 python/sharpbl/cycle.py
 python/sharpbl/cycle_boundary.py
 python/sharpbl/download_records.py
+python/sharpbl/exploratory.py
+python/sharpbl/factorial.py
 python/sharpbl/fetch_metadata.py
 python/sharpbl/figures_p1.py
 python/sharpbl/geometry.py
@@ -91,6 +95,7 @@ python/sharpbl/run_p3.py
 python/sharpbl/select_records.py
 requirements-v84.txt
 requirements.txt
+results/EXPLORATORY/FACTORIAL_REPRODUCTION.csv
 results/P1/CYCLE_BOUNDARY_FITS.csv
 results/P1/P1E_METADATA_VERIFICATION_BY_YEAR.csv
 results/P1/P1_CHECKS.csv
