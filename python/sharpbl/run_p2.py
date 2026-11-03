@@ -479,6 +479,14 @@ def apply_fallback(tabs, smp, acceptance):
             s.loc[s["test"] == t, "verdict_final"] = "descrittivo (ripiego P2d §6)"
             s.loc[s["test"] == t, "note"] = ("verdetti P2/P2b/P2d solo informativi: la procedura non ha "
                                              "superato il criterio di calibrazione (P2E_ACCEPTANCE.csv)")
+    if not all(acceptance.get(t, False) for t in ("T3", "T5")):
+        # i vecchi verdetti non devono sembrare conclusioni: nomi espliciti e in fondo alla tabella
+        s = s.rename(columns={"verdict": "verdict_p2_informativo_non_valido",
+                              "verdict_p2b": "verdict_p2b_informativo_non_valido"})
+        first = ["test", "verdict_final", "estimate", "ci95_lo", "ci95_hi", "ci975_lo", "ci975_hi", "note"]
+        s = s[[c for c in first if c in s] + [c for c in s.columns if c not in first]]
+        tabs["P2D_TESTS"] = tabs["P2D_TESTS"].rename(columns={"verdict_p2d": "verdict_p2d_informativo_non_valido"})
+    tabs["SUMMARY"] = s
     return tabs
 
 
@@ -613,7 +621,8 @@ def main() -> int:
              "P2B_CALIBRATION": "P2B_CALIBRATION", "P2D_TESTS": "P2D_TESTS"}
     for k, n in names.items():
         tabs[k].assign(**st).to_csv(OUT / f"{n}.csv", index=False)
-    print(tabs["SUMMARY"].to_string(index=False))
+    show = [c for c in ("test", "verdict_final", "estimate", "ci95_lo", "ci95_hi") if c in tabs["SUMMARY"]]
+    print(tabs["SUMMARY"][show].to_string(index=False))
     return 0
 
 
