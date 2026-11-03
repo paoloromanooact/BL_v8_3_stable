@@ -82,6 +82,7 @@ I dati non sono in Git. `data/sharp` può essere un link a un disco capiente
 | `cycle_boundary.py` | regola del ciclo nelle sovrapposizioni (P1 §5, P1c) |
 | `provenance.py` | SHA-256 dei protocolli e commit negli output |
 | `run_p1.py` | serie P1: catalogo per HARP (v84 e legacy), somme per CR ed emisfero, confronto, controlli |
+| `figures_p1.py` | figure della serie (farfalla, somme per CR, confronto v8.3/v8.4) con i valori in `figures/P1/data/` |
 | `run_p2.py` | test P2 (T0–T5), bootstrap a blocchi sulle CR; parte solo con la serie P1 completa |
 | `compare_test_case.py` | confronto v8.3/v8.4 sul caso di prova |
 

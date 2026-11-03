@@ -1,3 +1,65 @@
+# Cold restart — SHARP BL
+
+## Branch `v8.4-python-gianluca` (stato del 2026-11-03)
+
+Questa sezione vale per il branch v8.4 (Gianluca Santagati); la sezione v8.3
+più sotto è il passaggio di consegne originale di Paolo, conservato com'è.
+
+**Riprendere in una nuova sessione**
+1. Leggere `AGENTS.md`, `README_V84.md` e i protocolli in `docs/PROTOCOL_P*.md`.
+2. `git status --short`, `git log --oneline -8`; i protocolli congelati non si
+   modificano: una regola nuova richiede un nuovo protocollo scritto prima.
+3. Controllare se il download è ancora in corso o finito:
+   `pgrep -af download_records` e `tail logs/download_fits.log`.
+4. Riprendere dal primo passo non fatto della lista sotto.
+
+Prompt da incollare:
+
+> Riprendi SHARP BL v8.4 sul branch v8.4-python-gianluca. Leggi AGENTS.md,
+> README_V84.md, docs/HANDOFF.md e i protocolli P1, P1b, P1c, P2. Verifica lo
+> stato di Git e del download dei FITS, poi continua dal prossimo passo.
+> Non modificare i protocolli congelati.
+
+**Fatto**
+- Porting Python (`python/sharpbl/`), correzioni (geometria sferica dalla WCS,
+  bitmap ≥ 33, soglia 100 G, ciclo per latitudine nelle sovrapposizioni, un
+  record per HARP), metodo legacy che riproduce la v8.3 sul caso 2024-05-08.
+- Protocolli congelati: P1 (serie), P1b (QUALITY = 0x80), P1c (soglie della
+  regola del ciclo, non cieco), P2 (test del quenching).
+- Metadati di tutte le HARP (2010-05 → 2026-09; ottobre 2026 non ancora su
+  JSOC): 8296 HARP; selezione di 14195 record per 7133 HARP
+  (`results/P1/P1_RECORD_SELECTION.csv`); regola del ciclo
+  (`results/P1/CYCLE_BOUNDARY_FITS.csv`).
+- Script della serie (`run_p1.py`, provato su 926 record) e dei test
+  (`run_p2.py`, verificato solo su cataloghi sintetici); 20 test in `tests/`.
+
+**In corso**
+- Download di Br e bitmap dei 14195 record, avviato il 2026-11-03 alle 11:37,
+  stimato 4–5 ore: `python/sharpbl/download_records.py`, log
+  `logs/download_fits.log`. Si può rilanciare: salta i record completi (quelli
+  con `.keys.json`).
+
+**Prossimi passi**
+1. A download finito: verificare che manchino 0 record (ultima riga del log).
+2. `.venv/bin/python python/sharpbl/run_p1.py` (serie completa, senza
+   `--allow-missing`); controllare `P1_CHECKS.csv`; committare i risultati.
+3. Figure della serie e del confronto v8.3/v8.4.
+4. `.venv/bin/python python/sharpbl/run_p2.py`; committare i risultati.
+5. Discussione dei risultati con Paolo, poi l'articolo.
+
+**Dati e ambiente**
+- `data/sharp` è un link a `/storage/shared/gianluca/SHARP_BL` (metadati
+  ~140 MB, FITS ~4,5 GB, caso di prova). Non sono in Git.
+- Ambiente: `python3 -m virtualenv .venv && .venv/bin/pip install -r requirements-v84.txt`.
+- Download dei FITS: metodo diretto dall'archivio JSOC (as-is) con le keyword
+  DRMS in `.keys.json`. L'export JSOC con più recordset uniti da virgole
+  fallisce ("Error status returned from DRMS session"); `**ALL**` non è
+  accettato da DRMS per più record insieme.
+- Push: richiede credenziali GitHub dell'utente; non salvare token nella
+  configurazione del repository.
+
+---
+
 # Cold restart — SHARP BL v8.3
 
 Stato registrato il **2026-09-15**. Questo documento permette a una nuova LLM

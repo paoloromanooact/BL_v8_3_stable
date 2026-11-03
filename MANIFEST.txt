@@ -58,6 +58,7 @@ python/sharpbl/cycle.py
 python/sharpbl/cycle_boundary.py
 python/sharpbl/download_records.py
 python/sharpbl/fetch_metadata.py
+python/sharpbl/figures_p1.py
 python/sharpbl/geometry.py
 python/sharpbl/measure.py
 python/sharpbl/provenance.py
