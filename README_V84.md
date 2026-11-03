@@ -51,7 +51,7 @@ eseguirlo; gli script registrano lo SHA-256 dei protocolli negli output.
 ```bash
 python3 -m virtualenv .venv
 .venv/bin/pip install -r requirements-v84.txt   # numpy 2.2.6, scipy 1.15.3, astropy 6.1.7, pandas 2.3.3, drms 0.9.0
-.venv/bin/python -m pytest -q tests             # 14 test su bipoli sintetici
+.venv/bin/python -m pytest -q tests             # 20 test: bipoli sintetici e P2 su cataloghi sintetici
 ```
 
 Non servono IDL né SolarSoft.
@@ -81,6 +81,8 @@ I dati non sono in Git. `data/sharp` può essere un link a un disco capiente
 | `download_records.py` | download diretto (as-is) di Br e bitmap, keyword in `.keys.json`, riprendibile |
 | `cycle_boundary.py` | regola del ciclo nelle sovrapposizioni (P1 §5, P1c) |
 | `provenance.py` | SHA-256 dei protocolli e commit negli output |
+| `run_p1.py` | serie P1: catalogo per HARP (v84 e legacy), somme per CR ed emisfero, confronto, controlli |
+| `run_p2.py` | test P2 (T0–T5), bootstrap a blocchi sulle CR; parte solo con la serie P1 completa |
 | `compare_test_case.py` | confronto v8.3/v8.4 sul caso di prova |
 
 ## Stato

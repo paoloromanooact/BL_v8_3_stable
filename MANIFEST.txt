@@ -62,6 +62,7 @@ python/sharpbl/geometry.py
 python/sharpbl/measure.py
 python/sharpbl/provenance.py
 python/sharpbl/run_p1.py
+python/sharpbl/run_p2.py
 python/sharpbl/select_records.py
 requirements-v84.txt
 requirements.txt
@@ -75,3 +76,4 @@ scripts/run_pipeline.sh
 test/test_process_day.pro
 test/test_sharp_bl_source_single.pro
 tests/test_geometry.py
+tests/test_p2_synthetic.py
