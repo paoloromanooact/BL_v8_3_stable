@@ -3,8 +3,20 @@
 Questo branch porta in Python la pipeline SHARP BL v8.3 di Paolo Romano,
 corregge geometria, maschera e assegnazione del ciclo, e la estende da un
 singolo istante a una **serie di tutta l'era HMI (2010–2026), con una misura
-per regione**. Obiettivo: la serie della sorgente Babcock–Leighton S_BL e i test
-osservativi del quenching, poi un articolo.
+per HARP**.
+
+**Obiettivo scientifico.** Costruire una serie osservativa della sorgente
+Babcock–Leighton (S_BL) e verificare come tilt, latitudine di emersione ed
+efficienza della sorgente variano rispetto all'attività.
+
+Note sulle definizioni:
+- *Una misura per HARP* non equivale necessariamente a una misura per regione
+  fisica: una regione può ricomparire con una nuova HARP (ricomparse candidate,
+  protocollo P1e) e una HARP può essere complessa o contenere più regioni NOAA.
+- *S_BL* è un proxy della sorgente **iniziale**, all'emersione. Non misura
+  direttamente quanto campo polare resterà al ciclo successivo: in mezzo
+  intervengono evoluzione, cancellazione e trasporto superficiale. Lo stesso
+  vale per il contributo al dipolo assiale D e D_bal.
 
 Il codice IDL v8.3 (`idl/`, `scripts/`) non è modificato e resta come
 riferimento; `main` non è toccato da questo branch.
@@ -96,15 +108,24 @@ I dati non sono in Git. `data/sharp` può essere un link a un disco capiente
 ## Stato
 
 - [x] Porting, correzioni e test sintetici; legacy verificato sul caso di prova.
-- [x] Protocolli P1, P1b, P1c e P2 congelati.
-- [x] Metadati di tutte le HARP: 8296 HARP, 2010-05 → 2026-09; 7133 con record primario, 14195 record da scaricare (~4,5 GB).
-- [ ] Selezione dei record e scaricamento dei FITS.
-- [x] Validazione esterna P3 C1 con BARD: coerente al livello 1 (`docs/P3_RESULTS_C1.md`).
+- [x] Protocolli P1, P1b–e, P2, P2b–e, P3, P3b–c congelati.
+- [x] Metadati di tutte le HARP: 8296 HARP, 2010-05 → 2026-09; 7133 con record primario.
+- [x] Selezione dei record e scaricamento dei FITS: 14195/14195 record (~4,5 GB).
+- [x] Elaborazione completa dei record selezionati (14195 record, 7133 HARP) e
+  controlli interni obbligatori superati (`complete_series` = `validation_passed` = 1); figure.
+- [x] Confronto esterno P3 C1 con BARD: accordo su geometria e convenzioni
+  magnetiche (tilt, polarità leading, separazione, latitudine) nel campione
+  confrontato (999 regioni, circa il 69% di BARD) (`docs/P3_RESULTS_C1.md`); C2 riportato.
+- [ ] L'**ampiezza** della sorgente (Φ, S_BL, D) non ha ancora una validazione
+  esterna equivalente: il rapporto dei flussi nostro/BARD è 1,67 in C1.
 - [x] Validazione della procedura P2d/P2e: criterio **non** soddisfatto; T3 e T5 solo descrittivi
-  (`docs/P2_DECISION_DESCRIPTIVE_FALLBACK.md`).
-- [x] Serie P1 completa (14195 record, 7133 HARP), controlli obbligatori superati, figure; P3 C2.
-- [x] P2 descrittivo sui dati reali (`docs/P2_RESULTS_DESCRIPTIVE.md`): Joy presente; T3 e T5 senza verdetto.
-- [ ] Discussione con Paolo e articolo.
+  (`docs/P2_DECISION_DESCRIPTIVE_FALLBACK.md`). Le cause del mancato superamento
+  non sono ancora state diagnosticate.
+- [x] P2 descrittivo sui dati reali (`docs/P2_RESULTS_DESCRIPTIVE.md`): legge di Joy presente;
+  T3 e T5 senza verdetto. Una pendenza negativa non dimostra il quenching; una
+  pendenza vicina a zero non dimostra un'efficienza costante.
+- [ ] Discussione con Paolo.
+- [ ] Prossimi controlli: `docs/HANDOFF.md`, "Prossimi passi".
 
 ## Ancillari
 

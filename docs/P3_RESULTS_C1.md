@@ -2,7 +2,8 @@
 
 Protocolli: P3, P3b, P3c. Esecuzione: `python/sharpbl/run_p3.py` (commit dei
 risultati `9824ac4`). Tabelle in `results/P3/`. C2 (record della serie P1)
-attende la serie completa e validata.
+è stato eseguito dopo l'elaborazione completa della serie: vedere la sezione
+C2 più sotto.
 
 ## Conclusione
 
@@ -70,7 +71,8 @@ segno; non lo dimostra.
 
 ## C2 — confronto con i record già selezionati della serie (solo riportato)
 
-Eseguito dopo la serie P1 completa e validata. Per le stesse coppie di C1,
+Eseguito dopo l'elaborazione completa della serie P1, con i controlli interni
+obbligatori superati. Per le stesse coppie di C1,
 misura della HARP nel catalogo P1: record di controllo (flusso massimo entro
 ±60°) e record primario (più vicino al meridiano centrale). 40 HARP abbinate
 non hanno record primario e mancano in C2.

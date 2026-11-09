@@ -1,6 +1,7 @@
 # Risultati di P2 sui dati reali — solo descrittivi
 
-Serie P1 completa e validata (commit dei risultati `120f852`, eseguita al
+Serie P1: elaborazione completa dei record selezionati, controlli interni
+obbligatori superati (commit dei risultati `120f852`, eseguita al
 commit `3947ee8`). Esecuzione di P2: `python/sharpbl/run_p2.py`; tabelle in
 `results/P2/P2_*.csv`, `P2B_*.csv`, `P2D_TESTS.csv`.
 

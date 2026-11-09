@@ -1,6 +1,6 @@
 # Cold restart — SHARP BL
 
-## Branch `v8.4-python-gianluca` (stato del 2026-11-03)
+## Branch `v8.4-python-gianluca` (stato del 2026-11-09)
 
 Questa sezione vale per il branch v8.4 (Gianluca Santagati); la sezione v8.3
 più sotto è il passaggio di consegne originale di Paolo, conservato com'è.
@@ -9,15 +9,14 @@ più sotto è il passaggio di consegne originale di Paolo, conservato com'è.
 1. Leggere `AGENTS.md`, `README_V84.md` e i protocolli in `docs/PROTOCOL_P*.md`.
 2. `git status --short`, `git log --oneline -8`; i protocolli congelati non si
    modificano: una regola nuova richiede un nuovo protocollo scritto prima.
-3. Controllare se il download è ancora in corso o finito:
-   `pgrep -af download_records` e `tail logs/download_fits.log`.
+3. Il download dei FITS è completo (14195/14195); non va ripetuto.
 4. Riprendere dal primo passo non fatto della lista sotto.
 
 Prompt da incollare:
 
 > Riprendi SHARP BL v8.4 sul branch v8.4-python-gianluca. Leggi AGENTS.md,
-> README_V84.md, docs/HANDOFF.md e i protocolli P1, P1b, P1c, P2. Verifica lo
-> stato di Git e del download dei FITS, poi continua dal prossimo passo.
+> README_V84.md, docs/HANDOFF.md, docs/PROJECT_STATUS.md e i protocolli P1–P3.
+> Verifica lo stato di Git, poi continua dal prossimo passo.
 > Non modificare i protocolli congelati.
 
 **Fatto**
@@ -33,21 +32,51 @@ Prompt da incollare:
 - Script della serie (`run_p1.py`, provato su 926 record) e dei test
   (`run_p2.py`, verificato solo su cataloghi sintetici); 20 test in `tests/`.
 
-**Stato al 2026-11-03 sera**
-- Download completo (14195/14195), serie P1 completa e validata
-  (`complete_series` = `validation_passed` = 1), figure in `figures/P1/`.
-- P3: C1 "coerente con BARD (livello 1)" e C2 riportato (`docs/P3_RESULTS_C1.md`).
+**Obiettivo scientifico**: serie osservativa della sorgente BL (una misura per
+HARP, non necessariamente per regione fisica) e verifica di tilt, latitudine ed
+efficienza rispetto all'attività. S_BL è un proxy della sorgente iniziale, non
+del campo polare del ciclo successivo.
+
+**Stato al 2026-11-03 sera** (formulazioni riviste il 2026-11-09)
+- Download completo (14195/14195); elaborazione completa dei record selezionati
+  e controlli interni obbligatori superati (`complete_series` =
+  `validation_passed` = 1), figure in `figures/P1/`.
+- P3: C1 "coerente con BARD (livello 1)" per geometria e convenzioni nel
+  campione confrontato (~69% di BARD); C2 riportato (`docs/P3_RESULTS_C1.md`).
+  L'ampiezza della sorgente non ha una validazione esterna equivalente
+  (flusso nostro/BARD 1,67).
 - P2: la validazione della procedura calibrata (P2d/P2e) non ha superato il
   criterio; T3 e T5 sono **solo descrittivi** (formulazioni prudenti: T5
-  "pendenza vicina a zero con ampia incertezza", non "nullo") (`docs/P2_DECISION_DESCRIPTIVE_FALLBACK.md`,
-  `docs/P2_RESULTS_DESCRIPTIVE.md`). Non riformulare come verdetti.
+  "pendenza vicina a zero con ampia incertezza", non "nullo"; una pendenza
+  negativa di T3 non dimostra il quenching) (`docs/P2_DECISION_DESCRIPTIVE_FALLBACK.md`,
+  `docs/P2_RESULTS_DESCRIPTIVE.md`). Non riformulare come verdetti. Il mancato
+  superamento non va attribuito al numero di cicli: il ruolo di numerosità,
+  dipendenza temporale e stima del rumore non è ancora chiarito.
 - Tutto ciò che è stato visto prima di ogni congelamento: `docs/SEEN_BEFORE_FREEZE_2026-11-03.md`.
 
-**Prossimi passi**
-1. Discussione dei risultati con Paolo.
-2. Eventuale nuovo protocollo inferenziale sul quenching (P2f), solo con
-   validazione nuova e semi nuovi; non avviato.
-3. Articolo.
+**Prossimi passi** (rivisti il 2026-11-09 dopo una revisione esterna; prima i
+punti 1–4, senza nuovi grandi calcoli; ogni regola nuova richiede un nuovo
+protocollo, quelli eseguiti si conservano)
+1. Riproducibilità: verificare che comandi, dipendenze, input e controlli
+   rigenerino catalogo, tabelle e figure; separare ciò che è verificabile dal
+   solo repository (o ZIP) da ciò che richiede i FITS esterni.
+2. Controllo delle regioni che dominano la sorgente (il 10% più intenso porta il
+   62–72% di |S_BL|): maschere, polarità, centroidi, associazioni NOAA.
+3. Sensibilità alle ricomparse e all'istante della misura: raccogliere
+   l'effetto su somme ed efficienza (variante E di P1e, sensibilità S8;
+   primario contro controllo, che mescola selezione, posizione sul disco ed
+   evoluzione; `docs/EXPLORATORY_RESULTS.md` §4).
+4. Diagnosi del fallimento di P2d/P2e: quali condizioni sintetiche producono
+   falsi verdetti eccessivi o parametri non stimabili (passano V0 e V4,
+   falliscono V1–V3 con residui AR(1); in V0 test non applicabile nel ~31%
+   dei cataloghi). Priorità per l'inferenza.
+5. Eventuale P2f solo dopo la diagnosi: nuovo protocollo, dichiaratamente non
+   cieco rispetto ai risultati precedenti, validato con simulazioni e semi
+   nuovi (falsi verdetti, copertura, capacità di rilevare effetti fisicamente
+   interessanti) prima dell'applicazione ai dati.
+6. MDI / ciclo 23 (SMARP) solo dopo uno studio di fattibilità: quali grandezze
+   sono confrontabili con SHARP e come trattare le differenze strumentali.
+7. Breve confronto con Paolo sulla sua domanda originaria, in parallelo.
 
 **Dati e ambiente**
 - `data/sharp` è un link a `/storage/shared/gianluca/SHARP_BL` (metadati

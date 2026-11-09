@@ -13,6 +13,19 @@ scenari V1 (69 e 66 falsi verdetti su 2000), V2 (80, 91) e V3 (93, 89). Gli
 scenari di robustezza confermano la cautela: AR(2) circa 9,5%, salti di
 livello 4,9–6,2%. Nessuna nuova procedura (P2f) viene avviata ora.
 
+## Che cosa è accertato e che cosa no (aggiunto il 2026-11-09)
+
+È accertato solo il mancato superamento della validazione statistica. Il
+mancato verdetto **non** va attribuito automaticamente al numero di cicli (due
+cicli HMI): il ruolo distinto di numerosità, dipendenza temporale e stima del
+rumore non è ancora chiarito. Elementi già presenti in `P2E_VALIDATION.csv`,
+da diagnosticare prima di un eventuale P2f:
+- il criterio è soddisfatto in V0 (senza persistenza) e in V4 (AR(1), φ = 0,8,
+  rumore eteroschedastico), non in V1–V3 (AR(1), φ = 0,5–0,8);
+- V2 e V4 hanno lo stesso φ ma esito diverso;
+- in V0 il test non è applicabile nel 31–32% dei cataloghi (ripiego), con φ̂
+  al bordo nel 55–58% dei casi.
+
 ## Formulazione da usare nel rapporto e nell'articolo
 
 > T3 e T5 sono presentati come analisi descrittive. La procedura inferenziale

@@ -5,23 +5,25 @@ aver visto la serie; **[descrittivo]** test senza verdetto.
 
 ## Titolo (proposte)
 
-- *A per-region Babcock–Leighton source series from SDO/HMI SHARP maps
-  (2010–2026): corrected geometry and masking, external validation, and the
+- *A per-HARP Babcock–Leighton source series from SDO/HMI SHARP maps
+  (2010–2026): corrected geometry and masking, external comparison, and the
   limits of inferring quenching*
-- *Measuring the Babcock–Leighton source region by region with HMI SHARP:
-  methods, validation and a calibrated look at quenching*
+- *Measuring the initial Babcock–Leighton source with HMI SHARP, one record
+  per HARP: methods, external comparison and a descriptive look at quenching*
+  (il titolo precedente, "a calibrated look at quenching", poteva suggerire
+  una calibrazione inferenziale riuscita)
 
 ## Domanda centrale
 
-Con le mappe SHARP di HMI si può misurare, regione per regione e in modo
-verificabile, il contributo di ogni regione attiva alla sorgente
-Babcock–Leighton su due cicli? E quanto di ciò che si può dire sul quenching
+Con le mappe SHARP di HMI si può misurare, una HARP alla volta e in modo
+verificabile, il contributo iniziale delle regioni attive alla sorgente
+Babcock–Leighton sui cicli 24–25? E quanto di ciò che si può dire sul quenching
 regge a un controllo della calibrazione inferenziale?
 
 ## Sezioni
 
 1. **Introduzione.** Sorgente BL, tilt e quenching (tilt, latitudine,
-   efficienza); perché una misura per regione; HMI SHARP; obiettivi.
+   efficienza); perché una misura per HARP (e perché non equivale a una per regione fisica); HMI SHARP; obiettivi.
 2. **Dati.** hmi.sharp_cea_720s (Br, bitmap), metadati, selezione di un
    record per HARP (primario al meridiano centrale, controllo al massimo del
    flusso), QUALITY 0x80, ricomparse candidate; download diretto e
@@ -56,9 +58,13 @@ regge a un controllo della calibrazione inferenziale?
    del 4% e il nominale del 2,5%); scenari mal specificati; potenza della
    procedura non validata. Perché questo conta per gli studi di quenching
    basati su serie brevi e autocorrelate.
-9. **Discussione.** Cosa è robusto (misura, maschera, validazione); cosa resta
-   aperto (inferenza sul quenching); estensioni: SMARP (ciclo 23) come
-   banco di prova confermativo cieco; confronto con il campo polare.
+9. **Discussione.** Cosa regge (elaborazione e controlli interni, effetto della maschera,
+   accordo con BARD su geometria e convenzioni; l'ampiezza non è validata
+   esternamente); cosa resta
+   aperto (inferenza sul quenching); possibili estensioni: diagnosi del fallimento della
+   validazione e un eventuale nuovo protocollo; MDI/SMARP (ciclo 23) solo dopo
+   uno studio di fattibilità sulla confrontabilità con SHARP; S_BL è la
+   sorgente iniziale, non il campo polare che resterà.
 10. **Conclusioni.**
 
 Appendici: dizionario del catalogo; elenco dei protocolli e degli

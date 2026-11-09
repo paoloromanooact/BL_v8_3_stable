@@ -23,6 +23,14 @@
   latitudini (vecchio <= 12 gradi, nuovo >= 18, distanza >= 8).
 - Selezione dei record, download diretto dall'archivio JSOC (as-is, keyword in
   `.keys.json`), regola del ciclo.
+- 2026-11-09, revisione della documentazione dopo una revisione esterna (nessun
+  risultato cambiato): obiettivo scientifico esplicito; "una misura per HARP"
+  invece di "per regione"; S_BL come proxy della sorgente iniziale; stato
+  distinto in elaborazione completa, controlli interni, accordo con BARD su
+  geometria e convenzioni, ampiezza non validata esternamente; mancato
+  superamento di P2d/P2e non attribuito al numero di cicli; `PROJECT_STATUS.md`,
+  README, `P3_RESULTS_C1.md`, schema dell'articolo e prossimi passi in `HANDOFF.md`
+  allineati.
 
 ## Preparazione del repository
 
