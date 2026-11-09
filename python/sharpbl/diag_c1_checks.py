@@ -6,7 +6,9 @@
    simulazioni tutte finite e verdetti uguali a quelli di C_RAW_RUN1.
 3. Esattezza di T3 rispetto alla trasformazione gamma -> sin(gamma) -> gamma (non vale per
    |gamma| > 90 gradi): per ogni catalogo di V0-V6, stima con gamma del generatore (senza
-   trasformazione) contro stima osservata, e decisione esatta |z| > 2,2414 con ciascuna.
+   trasformazione) contro stima osservata, e decisione |z| > z_0,0125 (soglia normale a precisione
+   completa) con ciascuna. Copertura: ingressi su tutti i cataloghi, simulazioni rigenerate solo sui
+   primi 100 per scenario (verifica campionaria).
 
     OMP_NUM_THREADS=1 .venv/bin/python python/sharpbl/diag_c1_checks.py [--workers 12]
 """
@@ -110,10 +112,18 @@ def main() -> int:
                                                    n_fail=int((~np.isclose(r3["beta_obs"], r3["beta_obs_A"], rtol=1e-9,
                                                                            atol=0)).sum()))])])
     checks.assign(**st).to_csv(out / "C1_CHECKS_DIRECT.csv", index=False)
+    r3["beta_diff"] = r3["beta_gen"] - r3["beta_obs"]
+    r3["beta_diff_over_sd"] = r3["beta_diff"] / np.sqrt(r3["v_true"])
+    r3.assign(**st).to_csv(out / "C1_T3_TRANSFORM_BY_CATALOGUE.csv.gz", index=False)
+    r1.assign(**st).to_csv(out / "C1_INPUTS_RESIM_BY_CATALOGUE.csv.gz", index=False)
     rows = []
     for sc, g in r3.groupby("scenario"):
         w = g["n_wrap"] > 0
+        dw = g.loc[w, "beta_diff_over_sd"].abs()
         rows.append(dict(scenario=sc, n=len(g), catalogues_with_wrap=int(w.sum()), regions_wrapped=int(g["n_wrap"].sum()),
+                         max_abs_beta_diff_deg=float(g["beta_diff"].abs().max()),
+                         median_abs_beta_diff_over_sd_if_wrap=float(dw.median()) if len(dw) else 0.0,
+                         max_abs_beta_diff_over_sd=float(g["beta_diff_over_sd"].abs().max()),
                          max_abs_z_gen_minus_obs=float((g["z_gen"] - g["z_obs"]).abs().max()),
                          false_exact_obs=int(g["false_obs"].sum()), false_exact_gen=int(g["false_gen"].sum()),
                          decisions_changed=int((g["false_obs"] != g["false_gen"]).sum()),
