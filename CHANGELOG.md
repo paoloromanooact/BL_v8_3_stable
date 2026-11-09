@@ -30,7 +30,9 @@
   geometria e convenzioni, ampiezza non validata esternamente; mancato
   superamento di P2d/P2e non attribuito al numero di cicli; `PROJECT_STATUS.md`,
   README, `P3_RESULTS_C1.md`, schema dell'articolo e prossimi passi in `HANDOFF.md`
-  allineati.
+  allineati. Precisazione successiva: S_BL e D sono misurati all'istante del
+  record selezionato (primario vicino al meridiano centrale), non
+  necessariamente all'emersione; tolto "sorgente iniziale".
 
 ## Preparazione del repository
 

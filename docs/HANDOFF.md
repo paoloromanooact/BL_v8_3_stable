@@ -34,7 +34,8 @@ Prompt da incollare:
 
 **Obiettivo scientifico**: serie osservativa della sorgente BL (una misura per
 HARP, non necessariamente per regione fisica) e verifica di tilt, latitudine ed
-efficienza rispetto all'attività. S_BL è un proxy della sorgente iniziale, non
+efficienza rispetto all'attività. S_BL è un proxy della sorgente BL misurato all'istante del
+record selezionato (non necessariamente all'emersione), non
 del campo polare del ciclo successivo.
 
 **Stato al 2026-11-03 sera** (formulazioni riviste il 2026-11-09)

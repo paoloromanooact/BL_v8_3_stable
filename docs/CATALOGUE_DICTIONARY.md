@@ -36,7 +36,7 @@ Valori mancanti: celle vuote (NaN); per i segni, 0 = non definito.
 | `hale_sign` | ±1 (0 non definito) | +1 se leading osservata = attesa |
 | `cycle`, `cycle_state`, `p_new` | intero; testo; — | ciclo assegnato; DATE / DATE_IN_WINDOW / LATITUDE / AMBIGUOUS; probabilità del ciclo nuovo (P1c) |
 | `s_bl` | Mx·cm | S_BL = hale_sign · Φ · d · cos λ · sin α |
-| `d_axial_g`, `d_axial_bal_g` | G | contributo al dipolo assiale iniziale: 3/(4πR²) Σ Br sin λ dA; versione bilanciata |
+| `d_axial_g`, `d_axial_bal_g` | G | contributo al dipolo assiale all'istante del record: 3/(4πR²) Σ Br sin λ dA; versione bilanciata |
 | `nmask`, `npos`, `nneg` | pixel | pixel della maschera; sopra soglia positivi e negativi |
 | `quality_flag`, `quality_string`, `valid_bl` | intero; testo; 0/1 | codici di qualità come v8.3; 1 = misura valida |
 | `diagnostic_reason`, `suspicious_flag` | testo; 0/1 | ANTI_HALE, LARGE_TILT (> 60°) o motivo di non validità |

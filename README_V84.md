@@ -6,14 +6,16 @@ singolo istante a una **serie di tutta l'era HMI (2010–2026), con una misura
 per HARP**.
 
 **Obiettivo scientifico.** Costruire una serie osservativa della sorgente
-Babcock–Leighton (S_BL) e verificare come tilt, latitudine di emersione ed
+Babcock–Leighton (S_BL) e verificare come tilt, latitudine ed
 efficienza della sorgente variano rispetto all'attività.
 
 Note sulle definizioni:
 - *Una misura per HARP* non equivale necessariamente a una misura per regione
   fisica: una regione può ricomparire con una nuova HARP (ricomparse candidate,
   protocollo P1e) e una HARP può essere complessa o contenere più regioni NOAA.
-- *S_BL* è un proxy della sorgente **iniziale**, all'emersione. Non misura
+- *S_BL* è un proxy della sorgente BL **misurato all'istante del record
+  selezionato** (il primario è il più vicino al meridiano centrale, non
+  necessariamente all'emersione). Non misura
   direttamente quanto campo polare resterà al ciclo successivo: in mezzo
   intervengono evoluzione, cancellazione e trasporto superficiale. Lo stesso
   vale per il contributo al dipolo assiale D e D_bal.

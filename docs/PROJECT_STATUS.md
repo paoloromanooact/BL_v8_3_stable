@@ -3,11 +3,13 @@
 ## Branch `v8.4-python-gianluca` (aggiornato il 2026-11-09)
 
 Obiettivo scientifico: costruire una serie osservativa della sorgente
-Babcock–Leighton (S_BL) per l'era HMI e verificare come tilt, latitudine di
-emersione ed efficienza della sorgente variano rispetto all'attività. Dettagli:
+Babcock–Leighton (S_BL) per l'era HMI e verificare come tilt, latitudine
+ed efficienza della sorgente variano rispetto all'attività. Dettagli:
 `README_V84.md`; passaggio di consegne e prossimi passi: `docs/HANDOFF.md`.
 
-S_BL è un proxy della sorgente iniziale, all'emersione; non misura
+S_BL è un proxy della sorgente BL misurato all'istante del record
+selezionato (il primario è il più vicino al meridiano centrale, non
+necessariamente all'emersione); non misura
 direttamente il campo polare che resterà al ciclo successivo (intervengono
 evoluzione, cancellazione e trasporto superficiale). La serie contiene una
 misura per HARP, che non equivale necessariamente a una misura per regione

@@ -8,7 +8,7 @@ aver visto la serie; **[descrittivo]** test senza verdetto.
 - *A per-HARP Babcock–Leighton source series from SDO/HMI SHARP maps
   (2010–2026): corrected geometry and masking, external comparison, and the
   limits of inferring quenching*
-- *Measuring the initial Babcock–Leighton source with HMI SHARP, one record
+- *Measuring a Babcock–Leighton source proxy with HMI SHARP, one record
   per HARP: methods, external comparison and a descriptive look at quenching*
   (il titolo precedente, "a calibrated look at quenching", poteva suggerire
   una calibrazione inferenziale riuscita)
@@ -16,7 +16,7 @@ aver visto la serie; **[descrittivo]** test senza verdetto.
 ## Domanda centrale
 
 Con le mappe SHARP di HMI si può misurare, una HARP alla volta e in modo
-verificabile, il contributo iniziale delle regioni attive alla sorgente
+verificabile, il contributo delle regioni attive alla sorgente
 Babcock–Leighton sui cicli 24–25? E quanto di ciò che si può dire sul quenching
 regge a un controllo della calibrazione inferenziale?
 
@@ -39,7 +39,7 @@ regge a un controllo della calibrazione inferenziale?
    sovrapposizioni; 404 su 4189 classificazioni Hale cambiate, simmetriche;
    casi diagnostici.
 5. **La serie [osservativo].** Catalogo di 7133 HARP, diagramma a farfalla,
-   somme per CR ed emisfero, dipolo cumulato iniziale (+4,3 G ciclo 24,
+   somme per CR ed emisfero, dipolo cumulato dai contributi all'istante dei record (+4,3 G ciclo 24,
    −2,4 G ciclo 25 finora; non è il dipolo polare); concentrazione della
    sorgente in poche regioni e cancellazione [esplorativo]; primario contro
    controllo [esplorativo].
@@ -64,7 +64,8 @@ regge a un controllo della calibrazione inferenziale?
    aperto (inferenza sul quenching); possibili estensioni: diagnosi del fallimento della
    validazione e un eventuale nuovo protocollo; MDI/SMARP (ciclo 23) solo dopo
    uno studio di fattibilità sulla confrontabilità con SHARP; S_BL è la
-   sorgente iniziale, non il campo polare che resterà.
+   sorgente misurata all'istante del record selezionato, non il campo polare
+   che resterà.
 10. **Conclusioni.**
 
 Appendici: dizionario del catalogo; elenco dei protocolli e degli
@@ -77,7 +78,8 @@ congelamento; riproduzione.
    (da `hale_case_figures.py`, uno o due casi).
 2. Effetti del fattoriale: per grandezza, effetto di M, G, C e interazioni.
 3. Diagramma a farfalla colorato per segno di D* (fig1).
-4. Somme per CR ed emisfero e dipolo cumulato iniziale (fig2).
+4. Somme per CR ed emisfero e dipolo cumulato dai contributi all'istante dei
+   record (fig2).
 5. Accordo con BARD: δ e separazione, C1 e C2 sul sottoinsieme comune.
 6. Validazione P2d/P2e: falsi verdetti per scenario con limite di Clopper–Pearson
    e soglia del 4%.
@@ -88,4 +90,5 @@ congelamento; riproduzione.
 
 Nessuna frase che presenti il quenching come rilevato o escluso; nessun
 "nullo" per T5; T4 come pendenza descrittiva negativa, non come
-contraddizione fisica; il dipolo cumulato è quello iniziale all'emersione.
+contraddizione fisica; il dipolo cumulato somma i contributi all'istante dei record selezionati
+(primario vicino al meridiano centrale), non all'emersione né il dipolo polare.
