@@ -62,6 +62,10 @@
   con realizzazioni del rumore distinte (stesso disegno) la frequenza analitica è 2,65%, errore
   raggruppato per catalogo 0,13 (correzione successiva: questi gruppi non sono detti
   indipendenti; `diag_c1_checks.py` restituisce un codice d'errore se un controllo fallisce).
+- 2026-11-09, controllo diagnostico D (piano e emendamento A1 registrati prima del codice;
+  esecuzione unica su 50 000 cataloghi nuovi, semi distinti per scenario): decisione al 2,5%
+  sotto il modello nullo del generatore compatibile con il 2,5% (D1, V1 e V4: 2,485%, SE 0,078
+  punti; D2, V0–V4: 2,506%); diagnosi di C1 chiusa, prossimo passo la progettazione di P2f.
 - 2026-11-09, controlli diretti su C1 richiesti dalla revisione (`diag_c1_checks.py`):
   ingressi finiti in tutti gli 8000 casi; verifica diretta delle simulazioni solo nei 400
   casi campionati (finite, verdetti identici); per T3, nel confronto analitico, la

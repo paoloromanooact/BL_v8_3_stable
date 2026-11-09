@@ -25,6 +25,7 @@ aggiunto o aggiornato il file nel repository.
 | Controllo diagnostico C (componente individuale e leva) | `results/DIAGNOSTIC/C_*_RUN1.*` (C2-T3 non valido), `C2_A1_*` | cataloghi sintetici V1–V4 della validazione P2e | `diag_c_individual.py`, `diag_c2_a1.py` | 2026-11-09 (codice `c56779f`, `555c973`) | **diagnostico** (`docs/DIAGNOSTIC_C_PLAN.md`, `..._A1.md`, `docs/DIAGNOSTIC_C_RESULTS.md`) |
 | Verifica di coerenza di C1 (post hoc) | `results/DIAGNOSTIC/AUDIT_C1_*.csv` | `A_BY_CATALOGUE.csv.gz`, `C_RAW_RUN1.csv.gz` | `diag_c1_audit.py` | 2026-11-09 | **verifica post hoc** (`docs/DIAGNOSTIC_C1_AUDIT.md`) |
 | Controlli diretti su C1 (finitezza, trasformazione di T3) | `results/DIAGNOSTIC/C1_CHECKS_DIRECT.csv`, `C1_INPUTS_RESIM_BY_CATALOGUE.csv.gz`, `C1_T3_TRANSFORM*.csv*`, `C1_T3_UNITS.csv` | cataloghi di sviluppo, `C_RAW_RUN1.csv.gz`, `A_BY_CATALOGUE.csv.gz` | `diag_c1_checks.py`, `diag_c1_t3_units.py` | 2026-11-09 | **verifica post hoc** (`docs/DIAGNOSTIC_C1_AUDIT.md` §4) |
+| Controllo diagnostico D (livello di C1 su cataloghi nuovi) | `results/DIAGNOSTIC/D_*` | cataloghi sintetici nuovi (semi 1 000 000 + 100 000·s + k) | `diag_d_new_seeds.py` | 2026-11-09 (codice `b1f8eaf`) | **diagnostico** (`docs/DIAGNOSTIC_D_PLAN.md`, `..._A1.md`, `docs/DIAGNOSTIC_D_RESULTS.md`) |
 
 Riproduzione: comandi in `docs/CATALOGUE_DICTIONARY.md`; analisi esplorative:
 `.venv/bin/python python/sharpbl/factorial.py` poi `exploratory.py` e

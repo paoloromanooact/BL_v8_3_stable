@@ -74,7 +74,9 @@ protocollo, quelli eseguiti si conservano)
    emendamento A1), `docs/DIAGNOSTIC_C_RESULTS.md`; verifica di coerenza di C1 in
    `docs/DIAGNOSTIC_C1_AUDIT.md`: nessuna discrepanza d'implementazione, il livello di circa
    il 3% riflette una realizzazione condivisa da V1–V4 (stessi semi in tutti gli scenari);
-   proposta: verifica analitica su cataloghi nuovi con piano registrato] Diagnosi del fallimento di P2d/P2e: quali condizioni sintetiche producono
+   controllo D su cataloghi nuovi (piano `docs/DIAGNOSTIC_D_PLAN.md` con A1, risultati
+   `docs/DIAGNOSTIC_D_RESULTS.md`): livello compatibile con il 2,5%, diagnosi di C1 chiusa;
+   prossimo passo: progettare P2f] Diagnosi del fallimento di P2d/P2e: quali condizioni sintetiche producono
    falsi verdetti eccessivi o parametri non stimabili (passano V0 e V4,
    falliscono V1–V3 con residui AR(1); in V0 test non applicabile nel ~31%
    dei cataloghi). Priorità per l'inferenza.

@@ -22,6 +22,9 @@ docs/DIAGNOSTIC_C1_AUDIT.md
 docs/DIAGNOSTIC_C_PLAN.md
 docs/DIAGNOSTIC_C_PLAN_A1.md
 docs/DIAGNOSTIC_C_RESULTS.md
+docs/DIAGNOSTIC_D_PLAN.md
+docs/DIAGNOSTIC_D_PLAN_A1.md
+docs/DIAGNOSTIC_D_RESULTS.md
 docs/DIAGNOSTIC_P2E.md
 docs/EXPLORATORY_PLAN.md
 docs/EXPLORATORY_RESULTS.md
@@ -102,6 +105,7 @@ python/sharpbl/diag_c1_checks.py
 python/sharpbl/diag_c1_t3_units.py
 python/sharpbl/diag_c2_a1.py
 python/sharpbl/diag_c_individual.py
+python/sharpbl/diag_d_new_seeds.py
 python/sharpbl/diag_summary.py
 python/sharpbl/download_records.py
 python/sharpbl/exploratory.py
@@ -148,6 +152,10 @@ results/DIAGNOSTIC/DIAG_P2E_PHI_TERCILES.csv
 results/DIAGNOSTIC/DIAG_P2E_SCENARIOS.csv
 results/DIAGNOSTIC/DIAG_P2E_T3_T5_PHI_CORR.csv
 results/DIAGNOSTIC/DIAG_P2_REAL_FLAGS.csv
+results/DIAGNOSTIC/D_BY_CATALOGUE.csv.gz
+results/DIAGNOSTIC/D_CHECKS.csv
+results/DIAGNOSTIC/D_CRITERIA.csv
+results/DIAGNOSTIC/D_SUMMARY.csv
 results/DIAGNOSTIC/SENS_SUMS.csv
 results/DIAGNOSTIC/SENS_SUMS_CELLS_E_VS_A.csv
 results/DIAGNOSTIC/SENS_SUMS_RATIOS.csv
