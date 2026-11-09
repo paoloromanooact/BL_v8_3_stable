@@ -30,6 +30,26 @@ unilaterale al 95% sui 2000 cataloghi; confronto appaiato con P2e originale.
 
 I falsi verdetti oracolo sono ripartiti tra i due versi senza asimmetria evidente.
 
+**Verdetti cambiati tra P2e e oracolo (stessi cataloghi, stessi semi).** Aggiunto dopo la
+prima stesura; conteggi da `B_RAW.csv.gz` e `P2E_VALIDATION_RAW.csv.gz`. "nd" = non deciso.
+Nessun catalogo passa direttamente da "quenching supportato" a "segno opposto" o viceversa.
+
+| Scenario, test | Verdetti cambiati | falso → nd | nd → falso | p esatto (McNemar, discordanti sui falsi) |
+|---|---|---|---|---|
+| V1 T3 | 21 | 10 | 11 | 1,00 |
+| V1 T5 | 29 | 14 | 15 | 1,00 |
+| V2 T3 | 46 | 31 | 15 | 0,026 |
+| V2 T5 | 63 | 45 | 18 | 0,0009 |
+| V3 T3 | 59 | 46 | 13 | < 0,0001 |
+| V3 T5 | 70 | 49 | 21 | 0,001 |
+| V4 T3 | 36 | 17 | 19 | 0,87 |
+| V4 T5 | 52 | 26 | 26 | 1,00 |
+
+Il p esatto è descrittivo (non fa parte delle interpretazioni registrate): misura se i
+cataloghi che cambiano esito si spostano in un verso preferito. In V2 e V3 i parametri veri
+tolgono più falsi verdetti di quanti ne aggiungano; in V1 e V4 i cambiamenti sono
+bilanciati, cioè i parametri cambiano quali cataloghi danno un falso verdetto ma non quanti.
+
 ## 3. Lettura secondo le interpretazioni registrate (piano §5)
 
 - **J1:** soddisfatta in **V2 e V3**: con i parametri temporali veri la frequenza scende da
@@ -48,6 +68,14 @@ I falsi verdetti oracolo sono ripartiti tra i due versi senza asimmetria evident
   Descrittivamente però la frequenza oracolo **supera** il p di A in tutti gli 8 casi
   (+1,1 / +1,9 errori).
 - **J5:** nessuna di queste condizioni stabilisce una causa.
+
+**Precisazioni.**
+- Rispettare il limite di Clopper–Pearson del 4% **non** dimostra che il livello vero sia il
+  2,5% nominale: il criterio certifica solo che, negli scenari verificati, il livello vero non
+  supera il 4% (P2d §6). Le frequenze oracolo (3,0–3,5%) sono sopra il 2,5%.
+- La scomparsa della differenza tra V2 e V4 con i parametri veri è **coerente** con H2, ma non
+  ne dimostra il meccanismo (il rumore di campionamento delle celle minore in V4 non è stato
+  misurato direttamente).
 
 ## 4. Che cosa resta aperto
 
