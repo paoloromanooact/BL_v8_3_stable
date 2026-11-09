@@ -21,6 +21,7 @@ aggiunto o aggiornato il file nel repository.
 | Fattoriale e analisi esplorative | `results/EXPLORATORY/*.csv` | `FACTORIAL_BY_RECORD.csv.gz` ← FITS; catalogo; coppie BARD | `factorial.py`, `exploratory.py` | `6439f5d` | **esplorativo** |
 | Diagnosi di P2d/P2e e quadro delle sensibilità | `results/DIAGNOSTIC/DIAG_*.csv`, `SENS_*.csv` | validazione P2e, test P2, catalogo, somme P1 | `diag_summary.py` | 2026-11-09 | **diagnostico/descrittivo** (`docs/DIAGNOSTIC_P2E.md`, `docs/SENSITIVITY_SUMMARY.md`) |
 | Controllo diagnostico A (varianza nulla contro vera) | `results/DIAGNOSTIC/A_*.csv*` | cataloghi sintetici della validazione P2e (semi 40000 + k) | `diag_a_variance.py` | 2026-11-09 (codice `5315103`) | **diagnostico** (`docs/DIAGNOSTIC_A_PLAN.md`, `docs/DIAGNOSTIC_A_RESULTS.md`) |
+| Controllo diagnostico B (oracolo, parametri temporali veri) | `results/DIAGNOSTIC/B_*.csv*` | cataloghi sintetici V1–V4 della validazione P2e, stessi semi | `diag_b_oracle.py` | 2026-11-09 (codice `d171cee`) | **diagnostico** (`docs/DIAGNOSTIC_B_PLAN.md`, `docs/DIAGNOSTIC_B_RESULTS.md`) |
 
 Riproduzione: comandi in `docs/CATALOGUE_DICTIONARY.md`; analisi esplorative:
 `.venv/bin/python python/sharpbl/factorial.py` poi `exploratory.py` e

@@ -44,6 +44,11 @@
   con H2, V5 con H3, V6 no; la varianza non basta a spiegare le frequenze in V3, V4 T3, V6 T5;
   parte individuale sottostimata di circa il 15% (osservazione post hoc). Tabelle di
   `diag_summary.py` rigenerate ad albero pulito (cambiano solo commit e flag).
+- 2026-11-09, controllo diagnostico B eseguito (`diag_b_oracle.py`, piano registrato prima,
+  risultati in `docs/DIAGNOSTIC_B_RESULTS.md`): con i parametri temporali veri i falsi
+  verdetti scendono a 3,0–3,2% in V2–V3 (limite CP ≤ 4%) e la differenza V2/V4 scompare; in
+  V1 restano invariati (3,4–3,5%, CP 4,1–4,3%); eccesso residuo di 0,5–1 punto sopra il 2,5%
+  in tutti gli scenari.
 
 ## Preparazione del repository
 

@@ -16,6 +16,8 @@ docs/ARTICLE_OUTLINE.md
 docs/CATALOGUE_DICTIONARY.md
 docs/DIAGNOSTIC_A_PLAN.md
 docs/DIAGNOSTIC_A_RESULTS.md
+docs/DIAGNOSTIC_B_PLAN.md
+docs/DIAGNOSTIC_B_RESULTS.md
 docs/DIAGNOSTIC_P2E.md
 docs/EXPLORATORY_PLAN.md
 docs/EXPLORATORY_RESULTS.md
@@ -90,6 +92,7 @@ python/sharpbl/compare_test_case.py
 python/sharpbl/cycle.py
 python/sharpbl/cycle_boundary.py
 python/sharpbl/diag_a_variance.py
+python/sharpbl/diag_b_oracle.py
 python/sharpbl/diag_summary.py
 python/sharpbl/download_records.py
 python/sharpbl/exploratory.py
@@ -111,6 +114,9 @@ requirements.txt
 results/DIAGNOSTIC/A_BY_CATALOGUE.csv.gz
 results/DIAGNOSTIC/A_CHECKS.csv
 results/DIAGNOSTIC/A_SUMMARY.csv
+results/DIAGNOSTIC/B_CHECKS.csv
+results/DIAGNOSTIC/B_RAW.csv.gz
+results/DIAGNOSTIC/B_SUMMARY.csv
 results/DIAGNOSTIC/DIAG_P2E_APPLICABILITY.csv
 results/DIAGNOSTIC/DIAG_P2E_PHI_TERCILES.csv
 results/DIAGNOSTIC/DIAG_P2E_SCENARIOS.csv
