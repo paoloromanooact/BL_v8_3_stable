@@ -10,6 +10,15 @@ risultato, conteggio storico o decisione di P2/P2d/P2e cambia.
 | Emendamento (non cieco, dopo l'ispezione dell'esecuzione 1) | `docs/DIAGNOSTIC_C_PLAN_A1.md` (commit `f275f0d`) |
 | Implementazione, riesecuzione di C2 | `python/sharpbl/diag_c2_a1.py` (commit `555c973`); output `C2_A1_*`, log locale `logs/diag_c2_a1.log` |
 
+**Controlli diretti successivi** (finitezza di C1 e trasformazione di T3):
+`docs/DIAGNOSTIC_C1_AUDIT.md` §4.
+
+**Terminologia.** C1 simula la distribuzione di β̂ sotto il modello del generatore (parametri
+temporali veri, componente individuale normale con varianza vera). Per T5 la rappresentazione
+lineare di β̂ è esatta; per T3 ignora la trasformazione γ → sin γ → γ, che non conserva γ per
+|γ| > 90°: è un'**approssimazione senza effetto sui verdetti nei cataloghi esaminati**
+(`docs/DIAGNOSTIC_C1_AUDIT.md` §4). Per questo C1 non è chiamato "modello esatto".
+
 ## 1. Esecuzione 1 e validità delle parti
 
 - **C2-T3 dell'esecuzione 1: non valido** e non interpretato. Nelle celle con una sola unità
@@ -46,7 +55,7 @@ nessuna.
 
 ## 4. Bracci simulati (2000 cataloghi per scenario e test; frequenze tra gli applicabili, tutti applicabili)
 
-| Scenario, test | P2e originale | B (parametri temporali veri) | **C2** (B + componente individuale corretta) | **C1** (modello nullo esatto) | CP di C2 |
+| Scenario, test | P2e originale | B (parametri temporali veri) | **C2** (B + componente individuale corretta) | **C1** (modello nullo del generatore) | CP di C2 |
 |---|---|---|---|---|---|
 | V1 T3 | 3,45% (69) | 3,50% (70) | 3,15% (63) ± 0,39 | 3,00% (60) ± 0,38 | 3,87% |
 | V1 T5 | 3,30% (66) | 3,35% (67) | 3,05% (61) ± 0,38 | 3,15% (63) ± 0,39 | 3,76% |
@@ -72,8 +81,10 @@ della calibrazione interna: anche con semi diversi, B e C1 condividono 59–62 c
   **Questo non dimostra che il livello sia il 2,5%.** Le quattro frequenze sono tutte sopra
   il 2,5%, ma non sono osservazioni indipendenti: V1 e V4 usano gli stessi semi dei
   cataloghi e della calibrazione interna, e i loro falsi verdetti C1 cadono in gran parte
-  negli stessi cataloghi (45 su 60–62 in T3, 39 su 60–63 in T5). T3 e T5 dello stesso
-  scenario risultano invece indipendenti in questo senso (2 cataloghi in comune, attesi 1,9).
+  negli stessi cataloghi (45 su 60–62 in T3, 39 su 60–63 in T5). Per T3 e T5 dello stesso
+  scenario i cataloghi con falso verdetto in comune sono 2, contro circa 1,9 attesi se le
+  decisioni fossero indipendenti: non c'è evidenza di associazione, ma questo **non dimostra**
+  l'indipendenza (T3 e T5 condividono il disegno del catalogo).
   Lo scostamento positivo resta un punto da controllare con cataloghi nuovi.
 - **K2 — V1:** C2 è entro 2 errori binomiali da C1 (+0,15 e −0,10 punti) e ha limite CP
   ≤ 4%. Per il criterio registrato, la sottostima della componente individuale è coerente con
@@ -90,7 +101,7 @@ Falsi verdetti T3 / T5 su 2000:
 - P2e originale: 69 / 66;
 - con i parametri temporali veri (B): 70 / 67, nessun guadagno netto;
 - correggendo anche la componente individuale (C2): 63 / 61;
-- con il modello nullo esatto (C1): 60 / 63.
+- con il modello nullo del generatore (C1): 60 / 63.
 
 Il limite di accettazione era 65. Correggendo la componente individuale, C2 dà frequenze
 vicine a C1 e rispetta il limite CP previsto; la vicinanza non dimostra equivalenza. Anche un
@@ -108,7 +119,7 @@ Entro il modello degli scenari:
 - **V1:** la componente individuale sottostimata dalla correzione per la leva, incluse le
   celle con una sola unità, è coerente con l'eccesso residuo (C): correggendola, C2 dà
   frequenze vicine a C1 e rispetta il limite CP (vicinanza, non equivalenza).
-- **Tutti gli scenari:** con il modello esatto resta un livello di circa il 3,0–3,15% sugli
+- **Tutti gli scenari:** con il modello nullo del generatore resta un livello di circa il 3,0–3,15% sugli
   stessi cataloghi, da verificare con cataloghi nuovi prima di qualunque conclusione.
 - **Non applicabile alla procedura reale:** il termine oracolo di A1 usa la varianza vera.
   Una procedura per i dati reali avrebbe bisogno di un metodo diverso per la componente

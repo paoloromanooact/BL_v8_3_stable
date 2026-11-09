@@ -52,14 +52,19 @@
 - 2026-11-09, controllo diagnostico C (piano registrato prima; emendamento A1 non cieco dopo
   un difetto NaN nel braccio C2, esecuzione 1 di C2-T3 dichiarata non valida e conservata):
   la correzione per la leva rende conto della sottostima della componente individuale (H5);
-  in V1, correggendola, C2 dà frequenze vicine a quelle del modello esatto (C1, circa
+  in V1, correggendola, C2 dà frequenze vicine a quelle del modello nullo del generatore (C1, circa
   3,0–3,15%, entro 2 errori dal 2,5% ma tutte sopra; V1 e V4 non indipendenti) e rispetta il
   limite CP; la vicinanza non dimostra equivalenza.
 - 2026-11-09, verifica post hoc di coerenza di C1 (`docs/DIAGNOSTIC_C1_AUDIT.md`,
-  `diag_c1_audit.py`): decisioni Monte Carlo concordi con quelle esatte (1996–1999 su 2000);
+  `diag_c1_audit.py`): decisioni Monte Carlo concordi con quelle analitiche (1996–1999 su 2000);
   V1–V4 condividono la stessa realizzazione casuale (stessi semi in tutti gli scenari,
   correlazione di z 0,87–1,00), contro l'assunzione di indipendenza di P2d §6; sui gruppi
-  indipendenti la frequenza esatta è 2,65% ± 0,13.
+  indipendenti la frequenza analitica è 2,65% ± 0,13.
+- 2026-11-09, controlli diretti su C1 richiesti dalla revisione (`diag_c1_checks.py`):
+  ingressi finiti in tutti gli 8000 casi, simulazioni rigenerate finite e verdetti identici
+  nei 400 casi campionati; per T3 la trasformazione γ → sin γ → γ è un'approssimazione senza
+  effetto sui verdetti nei 14 000 cataloghi esaminati (|Δβ| ≤ 1,4% di una deviazione
+  standard, 0 decisioni cambiate). C1 non è più chiamato "modello esatto".
 
 ## Preparazione del repository
 

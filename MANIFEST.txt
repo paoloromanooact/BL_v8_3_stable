@@ -98,6 +98,7 @@ python/sharpbl/cycle_boundary.py
 python/sharpbl/diag_a_variance.py
 python/sharpbl/diag_b_oracle.py
 python/sharpbl/diag_c1_audit.py
+python/sharpbl/diag_c1_checks.py
 python/sharpbl/diag_c2_a1.py
 python/sharpbl/diag_c_individual.py
 python/sharpbl/diag_summary.py
@@ -128,6 +129,10 @@ results/DIAGNOSTIC/A_SUMMARY.csv
 results/DIAGNOSTIC/B_CHECKS.csv
 results/DIAGNOSTIC/B_RAW.csv.gz
 results/DIAGNOSTIC/B_SUMMARY.csv
+results/DIAGNOSTIC/C1_CHECKS_DIRECT.csv
+results/DIAGNOSTIC/C1_INPUTS_RESIM_BY_CATALOGUE.csv.gz
+results/DIAGNOSTIC/C1_T3_TRANSFORM.csv
+results/DIAGNOSTIC/C1_T3_TRANSFORM_BY_CATALOGUE.csv.gz
 results/DIAGNOSTIC/C2_A1_CHECKS.csv
 results/DIAGNOSTIC/C2_A1_RAW.csv.gz
 results/DIAGNOSTIC/C2_A1_SUMMARY.csv
