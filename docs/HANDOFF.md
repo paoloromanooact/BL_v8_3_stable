@@ -63,11 +63,13 @@ protocollo, quelli eseguiti si conservano)
    solo repository (o ZIP) da ciò che richiede i FITS esterni.
 2. Controllo delle regioni che dominano la sorgente (il 10% più intenso porta il
    62–72% di |S_BL|): maschere, polarità, centroidi, associazioni NOAA.
-3. Sensibilità alle ricomparse e all'istante della misura: raccogliere
+3. [fatto 2026-11-09, `docs/SENSITIVITY_SUMMARY.md`] Sensibilità alle ricomparse e all'istante della misura: raccogliere
    l'effetto su somme ed efficienza (variante E di P1e, sensibilità S8;
    primario contro controllo, che mescola selezione, posizione sul disco ed
    evoluzione; `docs/EXPLORATORY_RESULTS.md` §4).
-4. Diagnosi del fallimento di P2d/P2e: quali condizioni sintetiche producono
+4. [in corso: diagnosi in `docs/DIAGNOSTIC_P2E.md`, discrepanza V0 in
+   `docs/P2E_V0_APPLICABILITY_DISCREPANCY.md`, controllo A registrato in
+   `docs/DIAGNOSTIC_A_PLAN.md`; B si decide dopo A] Diagnosi del fallimento di P2d/P2e: quali condizioni sintetiche producono
    falsi verdetti eccessivi o parametri non stimabili (passano V0 e V4,
    falliscono V1–V3 con residui AR(1); in V0 test non applicabile nel ~31%
    dei cataloghi). Priorità per l'inferenza.

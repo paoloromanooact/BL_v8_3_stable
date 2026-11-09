@@ -33,6 +33,12 @@
   allineati. Precisazione successiva: S_BL e D sono misurati all'istante del
   record selezionato (primario vicino al meridiano centrale), non
   necessariamente all'emersione; tolto "sorgente iniziale".
+- 2026-11-09, sviluppo diagnostico (nessun risultato esistente cambiato): diagnosi del
+  mancato superamento di P2d/P2e (`docs/DIAGNOSTIC_P2E.md`), discrepanza tra codice e P2e §2
+  sulla non applicabilità con ĉ0 ≤ 0 (`docs/P2E_V0_APPLICABILITY_DISCREPANCY.md`, codice non
+  modificato), quadro delle sensibilità (`docs/SENSITIVITY_SUMMARY.md`), script
+  `diag_summary.py` e tabelle in `results/DIAGNOSTIC/`; piano del controllo A registrato prima
+  dell'esecuzione (`docs/DIAGNOSTIC_A_PLAN.md`).
 
 ## Preparazione del repository
 

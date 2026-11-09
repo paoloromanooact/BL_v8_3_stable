@@ -19,6 +19,7 @@ aggiunto o aggiornato il file nel repository.
 | Validazione della procedura P2d/P2e | `results/P2/P2E_VALIDATION*.csv`, `P2E_ACCEPTANCE.csv` | cataloghi sintetici | `p2d.py --validate` | `3da29da` (codice `3fcd702`) | protocollo P2d/P2e |
 | Calibrazione P2b | `results/P2/P2B_CALIBRATION_RUN1_N40.*`, `..._RUN2_N100.*` | cataloghi sintetici | `run_p2.py` | `fb3e8ae` e successivi | protocollo P2b |
 | Fattoriale e analisi esplorative | `results/EXPLORATORY/*.csv` | `FACTORIAL_BY_RECORD.csv.gz` ← FITS; catalogo; coppie BARD | `factorial.py`, `exploratory.py` | `6439f5d` | **esplorativo** |
+| Diagnosi di P2d/P2e e quadro delle sensibilità | `results/DIAGNOSTIC/DIAG_*.csv`, `SENS_*.csv` | validazione P2e, test P2, catalogo, somme P1 | `diag_summary.py` | 2026-11-09 | **diagnostico/descrittivo** (`docs/DIAGNOSTIC_P2E.md`, `docs/SENSITIVITY_SUMMARY.md`) |
 
 Riproduzione: comandi in `docs/CATALOGUE_DICTIONARY.md`; analisi esplorative:
 `.venv/bin/python python/sharpbl/factorial.py` poi `exploratory.py` e
