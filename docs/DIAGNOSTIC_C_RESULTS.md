@@ -120,8 +120,9 @@ Entro il modello degli scenari:
 - **V1:** la componente individuale sottostimata dalla correzione per la leva, incluse le
   celle con una sola unità, è coerente con l'eccesso residuo (C): correggendola, C2 dà
   frequenze vicine a C1 e rispetta il limite CP (vicinanza, non equivalenza).
-- **Tutti gli scenari:** con il modello nullo del generatore resta un livello di circa il 3,0–3,15% sugli
-  stessi cataloghi, da verificare con cataloghi nuovi prima di qualunque conclusione.
+- **V1 e V4** (gli unici scenari in cui C1 è stato simulato): con il modello nullo del
+  generatore resta un livello di circa il 3,0–3,15% sugli stessi cataloghi, da verificare con
+  cataloghi nuovi prima di qualunque conclusione.
 - **Non applicabile alla procedura reale:** il termine oracolo di A1 usa la varianza vera.
   Una procedura per i dati reali avrebbe bisogno di un metodo diverso per la componente
   individuale. Questo è materiale per la valutazione di P2f (punto 5), non una soluzione.

@@ -59,7 +59,9 @@
   `diag_c1_audit.py`): decisioni Monte Carlo concordi con quelle analitiche (1996–1999 su 2000);
   V1–V4 condividono la stessa realizzazione casuale (stessi semi in tutti gli scenari,
   correlazione di z 0,87–1,00), contro l'assunzione di indipendenza di P2d §6; sui gruppi
-  indipendenti la frequenza analitica è 2,65% ± 0,13.
+  con realizzazioni del rumore distinte (stesso disegno) la frequenza analitica è 2,65%, errore
+  raggruppato per catalogo 0,13 (correzione successiva: questi gruppi non sono detti
+  indipendenti; `diag_c1_checks.py` restituisce un codice d'errore se un controllo fallisce).
 - 2026-11-09, controlli diretti su C1 richiesti dalla revisione (`diag_c1_checks.py`):
   ingressi finiti in tutti gli 8000 casi; verifica diretta delle simulazioni solo nei 400
   casi campionati (finite, verdetti identici); per T3, nel confronto analitico, la

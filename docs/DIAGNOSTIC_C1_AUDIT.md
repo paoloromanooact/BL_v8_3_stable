@@ -55,18 +55,27 @@ gli scenari usano gli stessi semi dei cataloghi (40000 + k in P2e, 30000 + k in 
 prescritto da P2d §5), e negli scenari AR(1) `cr_component` consuma lo stesso numero di
 numeri casuali, quindi V1–V4 condividono disegno e rumore individuale e differiscono solo
 nella componente per rotazione. V0, V5 e V6 consumano un numero diverso di numeri casuali e
-danno realizzazioni diverse.
+danno realizzazioni diverse del rumore; tutti gli scenari condividono però lo stesso
+**disegno** (tempi, latitudini, flussi e quindi le stesse regioni: 11 519 523 nei disegni T3
+di ciascuno scenario, `C1_T3_UNITS.csv`). Correlazioni di z vicine a zero tra questi gruppi
+non dimostrano che siano indipendenti.
 
-**Gruppi indipendenti** (un rappresentante per gruppo: V0, V1 per V1–V4, V5, V6;
-`AUDIT_C1_POOLED_INDEPENDENT.csv`): frequenza analitica di |z| > z_0,0125 pari a 2,56% (T3),
-2,74% (T5), 2,65% ± 0,13 complessiva su 16 000, cioè circa 1,2 errori sopra il 2,5%.
+**Gruppi con realizzazioni del rumore distinte** (un rappresentante per gruppo: V0, V1 per
+V1–V4, V5, V6; stesso disegno; `AUDIT_C1_POOLED_GROUPS.csv`): frequenza analitica di
+|z| > z_0,0125 pari a 2,56% (T3), 2,74% (T5), 2,65% complessiva su 16 000 indicatori. Poiché
+gli indicatori dello stesso catalogo k condividono il disegno, l'incertezza è calcolata
+**raggruppando per catalogo** (2000 cataloghi come unità): errore 0,17 punti (T3), 0,18 (T5),
+0,13 (complessivo). In questi dati coincide in pratica con l'errore binomiale ingenuo, che
+però non sarebbe giustificato a priori. Complessivamente circa 1,2 errori sopra il 2,5%.
 
 ## 4. Controlli diretti richiesti dalla revisione
 
 Script `python/sharpbl/diag_c1_checks.py`; tabelle `results/DIAGNOSTIC/C1_CHECKS_DIRECT.csv`,
 `C1_INPUTS_RESIM_BY_CATALOGUE.csv.gz`, `C1_T3_TRANSFORM.csv`,
 `C1_T3_TRANSFORM_BY_CATALOGUE.csv.gz`. Soglia normale z_0,0125 a precisione completa
-(`norm.ppf(1 − 0,0125)`); 2,2414 è solo il valore arrotondato nel testo.
+(`norm.ppf(1 − 0,0125)`); 2,2414 è solo il valore arrotondato nel testo. Lo script restituisce
+un codice d'errore se un controllo fallisce (correzione successiva all'esecuzione, che riguarda
+solo il codice di uscita: le tabelle prodotte non cambiano e riportano 0 fallimenti).
 
 **Finitezza di C1.** Il controllo `5_run1_C1_verdicts_valid` di A1 verificava solo che i
 verdetti appartenessero all'elenco consentito, il che non esclude simulazioni NaN (il
@@ -116,8 +125,9 @@ Entro questo confronto, la trasformazione non spiega lo scostamento di C1 dal 2,
   V1–V4 la distribuzione di z è compatibile con N(0, 1).
 - Il livello di circa il 3% di C1 in V1 e V4 riflette soprattutto una **sola realizzazione**,
   condivisa da V1–V4, in cui |z| supera la soglia nel 3,05–3,20% dei cataloghi (var(z)
-  1,04–1,07, cioè 1,2–2,2 errori sopra 1). Sui gruppi indipendenti la frequenza complessiva
-  è 2,65%: compatibile con il 2,5% entro l'incertezza, senza dimostrarlo.
+  1,04–1,07, cioè 1,2–2,2 errori sopra 1). Sui gruppi con realizzazioni del rumore distinte
+  la frequenza complessiva è 2,65% (errore raggruppato per catalogo 0,13): compatibile con il
+  2,5% entro l'incertezza, senza dimostrarlo.
 
 ## 6. Conseguenza per la validazione originale (da documentare, non modifica i risultati)
 

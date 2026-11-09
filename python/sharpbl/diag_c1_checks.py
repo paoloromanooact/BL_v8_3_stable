@@ -131,6 +131,9 @@ def main() -> int:
     pd.DataFrame(rows).assign(**st).to_csv(out / "C1_T3_TRANSFORM.csv", index=False)
     print(checks.to_string(index=False))
     print(pd.DataFrame(rows).round(4).to_string(index=False))
+    if (checks["n_fail"] > 0).any():
+        print("CONTROLLO FALLITO: vedi C1_CHECKS_DIRECT.csv")
+        return 2
     return 0
 
 

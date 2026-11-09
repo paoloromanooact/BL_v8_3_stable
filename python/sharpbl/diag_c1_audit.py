@@ -51,18 +51,17 @@ def main() -> int:
                     corr.append(dict(test=test, scenario_1=i, scenario_2=j, corr_z=c.loc[i, j]))
     pd.DataFrame(corr).assign(**st).to_csv(out / "AUDIT_C1_Z_CORR.csv", index=False)
 
-    # una riga per gruppo indipendente (primo scenario del gruppo) e test
+    # un rappresentante per gruppo di realizzazioni del rumore (stesso disegno: stessi semi dei cataloghi)
+    # e test; errore raggruppato per catalogo k (i 2000 cataloghi sono le unita' indipendenti)
     rep = a[a["scenario"].isin(["V0", "V1", "V5", "V6"])]
     rows = []
-    for test, g in rep.groupby("test"):
+    for test, g in list(rep.groupby("test")) + [("T3+T5", rep)]:
         p = g["exact_false"].mean()
-        rows.append(dict(test=test, groups="V0, V1 (per V1-V4), V5, V6", n=len(g), exact_false_frac=p,
-                         se=np.sqrt(p * (1 - p) / len(g))))
-    g = rep
-    p = g["exact_false"].mean()
-    rows.append(dict(test="T3+T5", groups="V0, V1 (per V1-V4), V5, V6", n=len(g), exact_false_frac=p,
-                     se=np.sqrt(p * (1 - p) / len(g))))
-    pd.DataFrame(rows).assign(**st).to_csv(out / "AUDIT_C1_POOLED_INDEPENDENT.csv", index=False)
+        per_k = g.groupby("k")["exact_false"].mean()
+        rows.append(dict(test=test, groups="V0, V1 (per V1-V4), V5, V6", n_indicators=len(g), n_catalogues=len(per_k),
+                         exact_false_frac=p, se_binomial_naive=np.sqrt(p * (1 - p) / len(g)),
+                         se_clustered_by_catalogue=per_k.std(ddof=1) / np.sqrt(len(per_k))))
+    pd.DataFrame(rows).assign(**st).to_csv(out / "AUDIT_C1_POOLED_GROUPS.csv", index=False)
 
     c = pd.read_csv(out / "C_RAW_RUN1.csv.gz")
     c1 = c[c["arm"] == "C1"].merge(a[["scenario", "k", "test", "z", "exact_false"]], on=["scenario", "k", "test"])

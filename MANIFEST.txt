@@ -121,7 +121,7 @@ python/sharpbl/select_records.py
 requirements-v84.txt
 requirements.txt
 results/DIAGNOSTIC/AUDIT_C1_MC_VS_EXACT.csv
-results/DIAGNOSTIC/AUDIT_C1_POOLED_INDEPENDENT.csv
+results/DIAGNOSTIC/AUDIT_C1_POOLED_GROUPS.csv
 results/DIAGNOSTIC/AUDIT_C1_Z_BY_SCENARIO.csv
 results/DIAGNOSTIC/AUDIT_C1_Z_CORR.csv
 results/DIAGNOSTIC/A_BY_CATALOGUE.csv.gz
