@@ -92,11 +92,13 @@ Falsi verdetti T3 / T5 su 2000:
 - correggendo anche la componente individuale (C2): 63 / 61;
 - con il modello nullo esatto (C1): 60 / 63.
 
-Il limite di accettazione era 65. Il fallimento di V1 in P2e sembra quindi composto da
-alcuni cataloghi in più dovuti alla componente individuale sottostimata (circa 6–7) e da un
-gruppo di circa 60 cataloghi con β̂ estremo, che dà falsi verdetti anche con il modello
-esatto. Se quest'ultimo livello (circa 3,0%) sia una fluttuazione di questi 2000 cataloghi
-o un effetto strutturale non è stabilito.
+Il limite di accettazione era 65. Correggendo la componente individuale, C2 dà frequenze
+vicine a C1 e rispetta il limite CP previsto; la vicinanza non dimostra equivalenza. Anche un
+test esatto al 2,5% produce falsi verdetti (circa 50 attesi su 2000): la presenza dei circa
+60 cataloghi con falso verdetto in C1 **non** è una causa aggiuntiva del fallimento. La
+questione aperta è lo **scostamento dal nominale** (circa 3,0–3,15% invece di 2,5%): se sia
+una fluttuazione di questi 2000 cataloghi, un difetto di implementazione o un effetto
+strutturale non è stabilito.
 
 ## 7. Stato della diagnosi (punto 4)
 
@@ -104,7 +106,8 @@ Entro il modello degli scenari:
 - **V2–V3:** la stima dei parametri temporali è coerente con la maggior parte dell'eccesso
   (A, B).
 - **V1:** la componente individuale sottostimata dalla correzione per la leva, incluse le
-  celle con una sola unità, è coerente con l'eccesso residuo (C).
+  celle con una sola unità, è coerente con l'eccesso residuo (C): correggendola, C2 dà
+  frequenze vicine a C1 e rispetta il limite CP (vicinanza, non equivalenza).
 - **Tutti gli scenari:** con il modello esatto resta un livello di circa il 3,0–3,15% sugli
   stessi cataloghi, da verificare con cataloghi nuovi prima di qualunque conclusione.
 - **Non applicabile alla procedura reale:** il termine oracolo di A1 usa la varianza vera.

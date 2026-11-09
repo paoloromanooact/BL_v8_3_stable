@@ -71,8 +71,10 @@ protocollo, quelli eseguiti si conservano)
    `docs/P2E_V0_APPLICABILITY_DISCREPANCY.md`, controllo A registrato in
    `docs/DIAGNOSTIC_A_PLAN.md` ed eseguito, risultati in `docs/DIAGNOSTIC_A_RESULTS.md`;
    controllo B eseguito, `docs/DIAGNOSTIC_B_RESULTS.md`; controllo C eseguito (con
-   emendamento A1), `docs/DIAGNOSTIC_C_RESULTS.md`; resta aperto il livello di circa il 3%
-   con il modello esatto, da verificare con cataloghi nuovi] Diagnosi del fallimento di P2d/P2e: quali condizioni sintetiche producono
+   emendamento A1), `docs/DIAGNOSTIC_C_RESULTS.md`; verifica di coerenza di C1 in
+   `docs/DIAGNOSTIC_C1_AUDIT.md`: nessuna discrepanza d'implementazione, il livello di circa
+   il 3% riflette una realizzazione condivisa da V1–V4 (stessi semi in tutti gli scenari);
+   proposta: verifica analitica su cataloghi nuovi con piano registrato] Diagnosi del fallimento di P2d/P2e: quali condizioni sintetiche producono
    falsi verdetti eccessivi o parametri non stimabili (passano V0 e V4,
    falliscono V1–V3 con residui AR(1); in V0 test non applicabile nel ~31%
    dei cataloghi). Priorità per l'inferenza.

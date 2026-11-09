@@ -52,8 +52,14 @@
 - 2026-11-09, controllo diagnostico C (piano registrato prima; emendamento A1 non cieco dopo
   un difetto NaN nel braccio C2, esecuzione 1 di C2-T3 dichiarata non valida e conservata):
   la correzione per la leva rende conto della sottostima della componente individuale (H5);
-  in V1, correggendola, i falsi verdetti scendono al livello del modello esatto (C1, circa
-  3,0–3,15%, entro 2 errori dal 2,5% ma tutto sopra; V1 e V4 non indipendenti).
+  in V1, correggendola, C2 dà frequenze vicine a quelle del modello esatto (C1, circa
+  3,0–3,15%, entro 2 errori dal 2,5% ma tutte sopra; V1 e V4 non indipendenti) e rispetta il
+  limite CP; la vicinanza non dimostra equivalenza.
+- 2026-11-09, verifica post hoc di coerenza di C1 (`docs/DIAGNOSTIC_C1_AUDIT.md`,
+  `diag_c1_audit.py`): decisioni Monte Carlo concordi con quelle esatte (1996–1999 su 2000);
+  V1–V4 condividono la stessa realizzazione casuale (stessi semi in tutti gli scenari,
+  correlazione di z 0,87–1,00), contro l'assunzione di indipendenza di P2d §6; sui gruppi
+  indipendenti la frequenza esatta è 2,65% ± 0,13.
 
 ## Preparazione del repository
 

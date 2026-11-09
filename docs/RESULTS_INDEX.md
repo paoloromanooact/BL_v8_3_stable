@@ -23,6 +23,7 @@ aggiunto o aggiornato il file nel repository.
 | Controllo diagnostico A (varianza nulla contro vera) | `results/DIAGNOSTIC/A_*.csv*` | cataloghi sintetici della validazione P2e (semi 40000 + k) | `diag_a_variance.py` | 2026-11-09 (codice `5315103`) | **diagnostico** (`docs/DIAGNOSTIC_A_PLAN.md`, `docs/DIAGNOSTIC_A_RESULTS.md`) |
 | Controllo diagnostico B (oracolo, parametri temporali veri) | `results/DIAGNOSTIC/B_*.csv*` | cataloghi sintetici V1–V4 della validazione P2e, stessi semi | `diag_b_oracle.py` | 2026-11-09 (codice `d171cee`) | **diagnostico** (`docs/DIAGNOSTIC_B_PLAN.md`, `docs/DIAGNOSTIC_B_RESULTS.md`) |
 | Controllo diagnostico C (componente individuale e leva) | `results/DIAGNOSTIC/C_*_RUN1.*` (C2-T3 non valido), `C2_A1_*` | cataloghi sintetici V1–V4 della validazione P2e | `diag_c_individual.py`, `diag_c2_a1.py` | 2026-11-09 (codice `c56779f`, `555c973`) | **diagnostico** (`docs/DIAGNOSTIC_C_PLAN.md`, `..._A1.md`, `docs/DIAGNOSTIC_C_RESULTS.md`) |
+| Verifica di coerenza di C1 (post hoc) | `results/DIAGNOSTIC/AUDIT_C1_*.csv` | `A_BY_CATALOGUE.csv.gz`, `C_RAW_RUN1.csv.gz` | `diag_c1_audit.py` | 2026-11-09 | **verifica post hoc** (`docs/DIAGNOSTIC_C1_AUDIT.md`) |
 
 Riproduzione: comandi in `docs/CATALOGUE_DICTIONARY.md`; analisi esplorative:
 `.venv/bin/python python/sharpbl/factorial.py` poi `exploratory.py` e

@@ -18,6 +18,7 @@ docs/DIAGNOSTIC_A_PLAN.md
 docs/DIAGNOSTIC_A_RESULTS.md
 docs/DIAGNOSTIC_B_PLAN.md
 docs/DIAGNOSTIC_B_RESULTS.md
+docs/DIAGNOSTIC_C1_AUDIT.md
 docs/DIAGNOSTIC_C_PLAN.md
 docs/DIAGNOSTIC_C_PLAN_A1.md
 docs/DIAGNOSTIC_C_RESULTS.md
@@ -96,6 +97,7 @@ python/sharpbl/cycle.py
 python/sharpbl/cycle_boundary.py
 python/sharpbl/diag_a_variance.py
 python/sharpbl/diag_b_oracle.py
+python/sharpbl/diag_c1_audit.py
 python/sharpbl/diag_c2_a1.py
 python/sharpbl/diag_c_individual.py
 python/sharpbl/diag_summary.py
@@ -116,6 +118,10 @@ python/sharpbl/run_p3.py
 python/sharpbl/select_records.py
 requirements-v84.txt
 requirements.txt
+results/DIAGNOSTIC/AUDIT_C1_MC_VS_EXACT.csv
+results/DIAGNOSTIC/AUDIT_C1_POOLED_INDEPENDENT.csv
+results/DIAGNOSTIC/AUDIT_C1_Z_BY_SCENARIO.csv
+results/DIAGNOSTIC/AUDIT_C1_Z_CORR.csv
 results/DIAGNOSTIC/A_BY_CATALOGUE.csv.gz
 results/DIAGNOSTIC/A_CHECKS.csv
 results/DIAGNOSTIC/A_SUMMARY.csv
