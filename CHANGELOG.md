@@ -61,10 +61,12 @@
   correlazione di z 0,87–1,00), contro l'assunzione di indipendenza di P2d §6; sui gruppi
   indipendenti la frequenza analitica è 2,65% ± 0,13.
 - 2026-11-09, controlli diretti su C1 richiesti dalla revisione (`diag_c1_checks.py`):
-  ingressi finiti in tutti gli 8000 casi, simulazioni rigenerate finite e verdetti identici
-  nei 400 casi campionati; per T3 la trasformazione γ → sin γ → γ è un'approssimazione senza
-  effetto sui verdetti nei 14 000 cataloghi esaminati (|Δβ| ≤ 1,4% di una deviazione
-  standard, 0 decisioni cambiate). C1 non è più chiamato "modello esatto".
+  ingressi finiti in tutti gli 8000 casi; verifica diretta delle simulazioni solo nei 400
+  casi campionati (finite, verdetti identici); per T3, nel confronto analitico, la
+  trasformazione γ → sin γ → γ non cambia nessuna decisione nei 14 000 cataloghi esaminati
+  (327 cataloghi e 345 regioni su 80 636 661 con |γ| > 90°; |Δβ| ≤ 1,4% di una deviazione
+  standard); i verdetti Monte Carlo non sono stati ricalcolati. C1 non è più chiamato
+  "modello esatto".
 
 ## Preparazione del repository
 

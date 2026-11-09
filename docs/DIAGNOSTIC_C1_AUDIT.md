@@ -72,32 +72,42 @@ Script `python/sharpbl/diag_c1_checks.py`; tabelle `results/DIAGNOSTIC/C1_CHECKS
 verdetti appartenessero all'elenco consentito, il che non esclude simulazioni NaN (il
 difetto di C2 lo ha mostrato). Due verifiche dirette, con copertura diversa:
 - **ingressi, su tutti i cataloghi** (V1 e V4, T3 e T5: 8000): a_i, σ_i (> 0), B, `const` e
-  parametri veri finiti. 0 fallimenti. Poiché la simulazione C1 è una combinazione lineare
-  di questi ingressi con estrazioni normali, simulazioni non finite richiederebbero ingressi
-  non finiti;
+  parametri veri finiti. 0 fallimenti. Ingressi finiti sostengono la stabilità numerica
+  della simulazione, ma non sono una verifica diretta delle simulazioni;
 - **simulazioni, verifica campionaria** (primi 100 cataloghi per scenario, 400 casi): C1
   rieseguito con gli stessi semi (260000 + 2k + t), tutte le simulazioni finite (0
-  fallimenti) e tutti i verdetti uguali a quelli dell'esecuzione 1 (0 differenze). Le
-  simulazioni degli altri 3600 casi non sono state rigenerate.
+  fallimenti) e tutti i verdetti uguali a quelli dell'esecuzione 1 (0 differenze). È l'unica
+  verifica diretta delle simulazioni: quelle degli altri 3600 casi non sono state rigenerate.
 
 **T3 e la trasformazione γ → sin γ → γ.** Per ogni catalogo di V0–V6 (14 000) la pendenza
 calcolata con γ del generatore, senza la trasformazione, è confrontata con quella osservata
 (che coincide con quella di A in 14 000 casi su 14 000):
 
-| Scenario | Cataloghi con almeno una regione |γ| > 90° | Regioni | Max \|Δβ\| (gradi per unità di Â) | Max \|Δβ\| / √V_true | Decisioni cambiate (|z| > z_0,0125) |
-|---|---|---|---|---|---|
-| V0 | 1 | 1 | 0,0005 | 0,0004 | 0 su 2000 |
-| V1 | 11 | 11 | 0,017 | 0,007 | 0 |
-| V2 | 14 | 14 | 0,017 | 0,005 | 0 |
-| V3 | 14 | 14 | 0,017 | 0,004 | 0 |
-| V4 | 256 | 273 | 0,010 | 0,003 | 0 |
-| V5 | 22 | 23 | 0,051 | 0,014 | 0 |
-| V6 | 9 | 9 | 0,016 | 0,003 | 0 |
+Denominatori (`C1_T3_UNITS.csv`, script `diag_c1_t3_units.py`): 2000 cataloghi per scenario;
+11 519 523 regioni nei disegni T3 di ciascuno scenario (uguali tra scenari perché i semi dei
+cataloghi sono gli stessi), 80 636 661 in tutto.
 
-La trasformazione è un'**approssimazione senza effetto sui verdetti nei cataloghi esaminati**:
-gli scarti della pendenza sono al più l'1,4% di una deviazione standard di β̂, nessuna
-decisione analitica cambia e var(z) è uguale alla quarta cifra decimale con o senza
-trasformazione. Non spiega lo scostamento di C1 dal 2,5%.
+| Scenario | Cataloghi con almeno una regione con \|γ\| > 90° | Regioni con \|γ\| > 90° | Max \|Δβ\| (gradi per unità di Â) | Max \|Δβ\| / √V_true | Decisioni analitiche cambiate (\|z\| > z_0,0125) |
+|---|---|---|---|---|---|
+| V0 | 1 su 2000 | 1 su 11 519 523 | 0,0005 | 0,0004 | 0 su 2000 |
+| V1 | 11 su 2000 | 11 su 11 519 523 | 0,017 | 0,007 | 0 su 2000 |
+| V2 | 14 su 2000 | 14 su 11 519 523 | 0,017 | 0,005 | 0 su 2000 |
+| V3 | 14 su 2000 | 14 su 11 519 523 | 0,017 | 0,004 | 0 su 2000 |
+| V4 | 256 su 2000 | 273 su 11 519 523 | 0,010 | 0,003 | 0 su 2000 |
+| V5 | 22 su 2000 | 23 su 11 519 523 | 0,051 | 0,014 | 0 su 2000 |
+| V6 | 9 su 2000 | 9 su 11 519 523 | 0,016 | 0,003 | 0 su 2000 |
+| Totale | 327 su 14 000 | 345 su 80 636 661 | | | 0 su 14 000 |
+
+I due conteggi sono diversi perché un catalogo può contenere più di una di queste regioni.
+
+Nel **confronto analitico** (decisione |z| > z_0,0125 con e senza trasformazione) la
+trasformazione è un'**approssimazione senza effetto sulle decisioni nei cataloghi
+esaminati**: gli scarti della pendenza sono al più l'1,4% di una deviazione standard di β̂,
+nessuna decisione analitica cambia e var(z) è uguale alla quarta cifra decimale. Il confronto
+**non** riguarda i verdetti Monte Carlo di C1, che non sono stati ricalcolati con γ del
+generatore; dato che le decisioni Monte Carlo e analitiche di C1 concordano in 1996–1999 casi
+su 2000 (§3), un effetto sui verdetti Monte Carlo è improbabile, ma non è stato verificato.
+Entro questo confronto, la trasformazione non spiega lo scostamento di C1 dal 2,5%.
 
 ## 5. Lettura (descrittiva)
 

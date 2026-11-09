@@ -16,7 +16,8 @@ risultato, conteggio storico o decisione di P2/P2d/P2e cambia.
 **Terminologia.** C1 simula la distribuzione di β̂ sotto il modello del generatore (parametri
 temporali veri, componente individuale normale con varianza vera). Per T5 la rappresentazione
 lineare di β̂ è esatta; per T3 ignora la trasformazione γ → sin γ → γ, che non conserva γ per
-|γ| > 90°: è un'**approssimazione senza effetto sui verdetti nei cataloghi esaminati**
+|γ| > 90°: nel confronto analitico è un'**approssimazione senza effetto sulle decisioni nei
+cataloghi esaminati**
 (`docs/DIAGNOSTIC_C1_AUDIT.md` §4). Per questo C1 non è chiamato "modello esatto".
 
 ## 1. Esecuzione 1 e validità delle parti
