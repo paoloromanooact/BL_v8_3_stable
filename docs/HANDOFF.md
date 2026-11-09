@@ -70,8 +70,9 @@ protocollo, quelli eseguiti si conservano)
 4. [in corso: diagnosi in `docs/DIAGNOSTIC_P2E.md`, discrepanza V0 in
    `docs/P2E_V0_APPLICABILITY_DISCREPANCY.md`, controllo A registrato in
    `docs/DIAGNOSTIC_A_PLAN.md` ed eseguito, risultati in `docs/DIAGNOSTIC_A_RESULTS.md`;
-   controllo B eseguito, `docs/DIAGNOSTIC_B_RESULTS.md`; restano aperti V1 e la
-   componente individuale] Diagnosi del fallimento di P2d/P2e: quali condizioni sintetiche producono
+   controllo B eseguito, `docs/DIAGNOSTIC_B_RESULTS.md`; controllo C eseguito (con
+   emendamento A1), `docs/DIAGNOSTIC_C_RESULTS.md`; resta aperto il livello di circa il 3%
+   con il modello esatto, da verificare con cataloghi nuovi] Diagnosi del fallimento di P2d/P2e: quali condizioni sintetiche producono
    falsi verdetti eccessivi o parametri non stimabili (passano V0 e V4,
    falliscono V1–V3 con residui AR(1); in V0 test non applicabile nel ~31%
    dei cataloghi). Priorità per l'inferenza.

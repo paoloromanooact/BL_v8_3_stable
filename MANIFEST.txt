@@ -18,6 +18,9 @@ docs/DIAGNOSTIC_A_PLAN.md
 docs/DIAGNOSTIC_A_RESULTS.md
 docs/DIAGNOSTIC_B_PLAN.md
 docs/DIAGNOSTIC_B_RESULTS.md
+docs/DIAGNOSTIC_C_PLAN.md
+docs/DIAGNOSTIC_C_PLAN_A1.md
+docs/DIAGNOSTIC_C_RESULTS.md
 docs/DIAGNOSTIC_P2E.md
 docs/EXPLORATORY_PLAN.md
 docs/EXPLORATORY_RESULTS.md
@@ -93,6 +96,8 @@ python/sharpbl/cycle.py
 python/sharpbl/cycle_boundary.py
 python/sharpbl/diag_a_variance.py
 python/sharpbl/diag_b_oracle.py
+python/sharpbl/diag_c2_a1.py
+python/sharpbl/diag_c_individual.py
 python/sharpbl/diag_summary.py
 python/sharpbl/download_records.py
 python/sharpbl/exploratory.py
@@ -117,6 +122,14 @@ results/DIAGNOSTIC/A_SUMMARY.csv
 results/DIAGNOSTIC/B_CHECKS.csv
 results/DIAGNOSTIC/B_RAW.csv.gz
 results/DIAGNOSTIC/B_SUMMARY.csv
+results/DIAGNOSTIC/C2_A1_CHECKS.csv
+results/DIAGNOSTIC/C2_A1_RAW.csv.gz
+results/DIAGNOSTIC/C2_A1_SUMMARY.csv
+results/DIAGNOSTIC/C_ANALYTIC_BY_CATALOGUE_RUN1.csv.gz
+results/DIAGNOSTIC/C_ANALYTIC_RUN1.csv
+results/DIAGNOSTIC/C_CHECKS_RUN1.csv
+results/DIAGNOSTIC/C_RAW_RUN1.csv.gz
+results/DIAGNOSTIC/C_SUMMARY_RUN1.csv
 results/DIAGNOSTIC/DIAG_P2E_APPLICABILITY.csv
 results/DIAGNOSTIC/DIAG_P2E_PHI_TERCILES.csv
 results/DIAGNOSTIC/DIAG_P2E_SCENARIOS.csv

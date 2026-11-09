@@ -49,6 +49,11 @@
   verdetti scendono a 3,0–3,2% in V2–V3 (limite CP ≤ 4%) e la differenza V2/V4 scompare; in
   V1 restano invariati (3,4–3,5%, CP 4,1–4,3%); eccesso residuo di 0,5–1 punto sopra il 2,5%
   in tutti gli scenari.
+- 2026-11-09, controllo diagnostico C (piano registrato prima; emendamento A1 non cieco dopo
+  un difetto NaN nel braccio C2, esecuzione 1 di C2-T3 dichiarata non valida e conservata):
+  la correzione per la leva rende conto della sottostima della componente individuale (H5);
+  in V1, correggendola, i falsi verdetti scendono al livello del modello esatto (C1, circa
+  3,0–3,15%, entro 2 errori dal 2,5% ma tutto sopra; V1 e V4 non indipendenti).
 
 ## Preparazione del repository
 
