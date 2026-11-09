@@ -39,6 +39,11 @@
   modificato), quadro delle sensibilità (`docs/SENSITIVITY_SUMMARY.md`), script
   `diag_summary.py` e tabelle in `results/DIAGNOSTIC/`; piano del controllo A registrato prima
   dell'esecuzione (`docs/DIAGNOSTIC_A_PLAN.md`).
+- 2026-11-09, controllo diagnostico A eseguito (`diag_a_variance.py`, risultati in
+  `docs/DIAGNOSTIC_A_RESULTS.md`): controlli obbligatori superati; V2–V3 coerenti con H1, V4
+  con H2, V5 con H3, V6 no; la varianza non basta a spiegare le frequenze in V3, V4 T3, V6 T5;
+  parte individuale sottostimata di circa il 15% (osservazione post hoc). Tabelle di
+  `diag_summary.py` rigenerate ad albero pulito (cambiano solo commit e flag).
 
 ## Preparazione del repository
 

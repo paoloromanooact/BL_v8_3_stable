@@ -90,5 +90,5 @@ distribuzione nulla simulata con la varianza vera di β̂: controllo A,
 ## 6. Prossimo passo
 
 Controllo A (analitico, sui cataloghi di sviluppo), con piano registrato prima
-dell'esecuzione: `docs/DIAGNOSTIC_A_PLAN.md`. Il controllo B (oracolo con simulazione) si
-decide dopo A.
+dell'esecuzione: `docs/DIAGNOSTIC_A_PLAN.md`; eseguito, risultati in
+`docs/DIAGNOSTIC_A_RESULTS.md`. Il controllo B (oracolo con simulazione) si decide dopo A.
