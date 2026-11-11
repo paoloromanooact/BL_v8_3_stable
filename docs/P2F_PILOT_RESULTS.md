@@ -92,9 +92,11 @@ M: massimo 34 falsi (scenario 7, salti: 3,4 %, sotto la soglia del 4 % ma circa 
 binomiali sopra il 2,5 %), `errore` ≤ 0,1 % → **mantenuta**. B: oltre 40 falsi in 8 scenari su 9
 (tutti tranne il 4), nessun `errore` → **non mantenuta**.
 
-Osservazioni descrittive (non entrano nella regola): per B i falsi verdetti superano il livello
-nominale già nello scenario 0, senza componente temporale (3,2 % in T3, 5,4 % in T5), con 17 e 16
-cluster; il motivo non è stato indagato e non va corretto senza un nuovo piano. Per M i falsi
+Osservazioni descrittive (non entrano nella regola): per B, nello scenario 0 senza componente
+temporale, i 32 falsi su 1000 di T3 da soli non bastano a stabilire un'inflazione rispetto al
+2,5 % (1,4 errori binomiali sopra); i 54 di T5 sono un segnale più netto (5,9 errori sopra), con
+17 e 16 cluster. Il rigetto di B è sostenuto dagli altri scenari falliti; la causa non è stata
+indagata, può essere un lavoro separato e non va corretta senza un nuovo piano. Per M i falsi
 verdetti restano tra 1,8 e 2,4 % in T3 in tutti gli scenari, inclusi AR(2), salti e code pesanti,
 che il modello AR(1) di M non contempla; in T5 tra 1,8 e 2,3 % tranne i salti (3,4 %).
 
@@ -177,5 +179,22 @@ parametri del generatore con cui è coerente; non dice nulla sulla loro adeguate
 - Le tre convenzioni della nota d'implementazione vanno risolte esplicitamente nel protocollo
   (origine dei blocchi, oggi solo per B; componenti separate per test; mediana di Φ), senza
   cambiarle in funzione di questi risultati.
-- Il livello di B sopra il nominale già senza componente temporale è un fatto da capire prima di
-  riproporre un bootstrap a blocchi, non da aggiustare in corsa.
+- Il livello di B in T5 già senza componente temporale è un fatto da capire prima di riproporre
+  un bootstrap a blocchi, non da aggiustare in corsa; non serve recuperare B per validare M.
+
+## 8. Revisione esterna dello ZIP `2e197f8` (2026-11-11, incollata dall'utente; adottata)
+
+Il revisore ha ricontato dai dati grezzi (43 200 righe senza chiavi duplicate, nessuna discrepanza
+tra statistiche e verdetti, tabelle coincidenti, 11 errori, SHA-256 e provenienza uniformi) e
+conferma M per T3 e T5 con le regole del pilota; non ha rieseguito il pilota né i test. Punti da
+fissare **prima** del protocollo P2f, recepiti nel passaggio di consegne:
+1. T5 con salti (3,4 %): supera il criterio del pilota ma non dimostra il controllo al 2,5 %; lo
+   scenario resta decisivo nella validazione finale, con numerosità e criterio fissati
+   considerando tutti gli scenari.
+2. T3, potenza molto bassa (5–12 % a −0,2·γ0): un futuro mancato rilevamento sarebbe poco
+   informativo; gli effetti di interesse vanno motivati scientificamente, non scelti per ottenere
+   una potenza favorevole.
+3. B: i 32 di T3 nello scenario 0 non bastano da soli a stabilire un'inflazione, i 54 di T5 sì;
+   il rigetto resta sostenuto dagli altri scenari; la causa è un lavoro separato.
+4. Congelare esattamente la procedura M da validare: gestione degli errori, celle con una sola
+   unità, convenzioni del generatore, regole separate per T3 e T5.

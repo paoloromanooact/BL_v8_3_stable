@@ -30,11 +30,13 @@ dell'interpretazione (tutti i 20 controlli superati) e i risultati sono in
 - Risultati `docs/P2F_PILOT_RESULTS.md`; voci in `CHANGELOG.md` e `docs/RESULTS_INDEX.md`.
 
 **Prossimi passi**
-1. Revisione scientifica dei risultati e della scelta (le osservazioni del revisore esterno
-   arrivano incollate dall'utente; di norma si adottano). Punti da discutere: il livello di B
-   sopra il nominale già senza componente temporale (da capire, non da correggere in corsa); il
-   3,4 % di M nello scenario a salti in T5; la potenza bassa di M in T3 e la scelta degli effetti
-   di interesse scientifico.
+1. [fatto 2026-11-11] Revisione esterna dello ZIP `2e197f8`: riconteggio dai dati grezzi
+   confermato, conclusione operativa corretta (M alla validazione, B scartata nella forma
+   provata). Vincoli fissati per il protocollo (`docs/P2F_PILOT_RESULTS.md` §8): (i) lo scenario
+   a salti resta decisivo nella validazione, numerosità e criterio fissati su tutti gli scenari;
+   (ii) effetti di interesse motivati scientificamente, non scelti per la potenza; (iii) la causa
+   del livello di B è un lavoro separato, non serve per validare M; (iv) la procedura M si
+   congela esattamente (errori, celle singole, convenzioni del generatore, regole separate T3/T5).
 2. Scrivere il **protocollo P2f** (`docs/PROTOCOL_P2F_*.md`), dichiaratamente non cieco rispetto
    al pilota e alle diagnosi: candidata M; validazione con semi nuovi e distinti per scenario,
    scenari fissati prima (anche fuori dal modello AR(1): AR(2), salti, code pesanti), criteri di
