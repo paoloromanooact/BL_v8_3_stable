@@ -87,7 +87,8 @@ def recount(raw):
 
 
 def raw_checks():
-    raw = pd.read_csv(P.OUT / "PILOT_RAW.csv.gz")
+    # `kind` vale "null" per i cataloghi nulli: non va letto come mancante (pandas lo farebbe per default)
+    raw = pd.read_csv(P.OUT / "PILOT_RAW.csv.gz", low_memory=False, keep_default_na=False, na_values=["", "nan", "NaN"])
     rows = []
 
     def add(name, value, passed):
