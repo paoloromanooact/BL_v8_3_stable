@@ -11,6 +11,11 @@ dichiarato con evidenza (JSON storici P2b). È una ricognizione, non una certifi
 dell'identità del produttore o della riproduzione numerica. Regole e scale proposte:
 `docs/REPRO_COMPARISON_RULES.md` e le due tabelle di chiavi e scale associate.
 
+Revisione di queste regole: `docs/REPRO_REVIEW_21E7210.md`. La prima verifica è
+congelata in `docs/REPRO_PHASE1_PLAN.md` e comprende soltanto cinque CSV delle figure P1:
+non è ancora stata eseguita. `docs/MDI_SMARP_FEASIBILITY.md` è uno studio documentale,
+non un risultato di calibrazione o un'estensione della serie.
+
 | Elemento | File | Dati tracciati / input | Script | Commit | Stato |
 |---|---|---|---|---|---|
 | Fig. diagramma a farfalla | `figures/P1/fig1_butterfly.png` | `figures/P1/data/fig1_butterfly.csv` ← catalogo P1 | `figures_p1.py` | `120f852` | protocollo P1–P1e |

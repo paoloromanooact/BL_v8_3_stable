@@ -22,7 +22,7 @@ ID = ['kind','test','cand','scenario','effect','beta_frac','k','seed','sc','rho'
       'group','gruppo','variant','sample','set','comparison','activity','act',
       'quantity','estimator','check','convention','statistic','HARPNUM','T_REC',
       'role','CR','hemisphere','cyc','cycle','year','item','lag']
-PROV = re.compile(r'^(git_commit|git_dirty|status|sha256_.*|.*_sha256.*|validation_git_commit)$')
+PROV = re.compile(r'^(git_commit|git_dirty|sha256_.*|.*_sha256.*|validation_git_commit)$')
 
 # Explicit keys reviewed on the table schemas, including the 23 initially
 # unresolved tables and the five exposed by the narrower identifier vocabulary.
@@ -123,6 +123,8 @@ def policy(col, context, numeric, key):
         return 'exact_key', '', None, 'identificativo della riga; mancanti espliciti se previsti'
     if col == 'sha256':
         return 'exact', '', None, 'impronta del file controllato'
+    if col == 'status':
+        return 'exact', '', None, 'stato scientifico dichiarato: non metadato Git intercambiabile'
     if not numeric:
         return 'exact', '', None, 'testo, data scientifica o valore eterogeneo; nessuna esclusione implicita'
     # A mean/quantile of counts is continuous; raw counts remain exact even if
@@ -139,6 +141,10 @@ def policy(col, context, numeric, key):
     tunit = ('G/Mx' if test == 'T5' and quantity != 'S*'
              else 'cm' if quantity == 'S*' else 'deg')
     base = base_stat(col)
+    if col.startswith('gamma0'):
+        return 'scaled', 'deg', GAMMA, 'coefficiente Joy: stessa scala fissa di pianificazione 24 gradi'
+    if col == 'se_var_z':
+        return 'scaled', '1', 1.0, 'errore standard della varianza di z sotto la normale, non di una frequenza'
     if col == 'se' or col.startswith('se_') or col in ('mc_se','C1_se'):
         return 'scaled', '1', 1.0, 'errore Monte Carlo di una frequenza nei file attuali; non SE della pendenza'
     if col == 'sig':
@@ -186,6 +192,12 @@ def policy(col, context, numeric, key):
 def selftest():
     def p(col, test=None, quantity=None, numeric=True, key=()):
         return policy(col, dict(test=test, quantity=quantity), numeric, key)
+    assert p('gamma0', 'T0')[2] == GAMMA
+    assert p('gamma0_c24', 'T3')[2] == GAMMA
+    assert p('gamma0_c25', 'T3')[2] == GAMMA
+    assert p('status', numeric=False)[0] == 'exact'
+    assert 'varianza di z' in p('se_var_z')[3]
+    assert p('se_var_z')[2] == 1.0
     assert p('estimate', 'T5')[2] == ETA
     assert p('v_true', 'T5')[2] == ETA**2
     assert p('sigma_x2_mean', 'T5')[2] == ETA**2
@@ -211,7 +223,7 @@ def selftest():
     assert not near(0.0,1e-30,ETA)
     assert near(1e-25,1e-25*(1+1e-10),ETA)
     assert not near(1e-50,9e-50,ETA**2)
-    print('23 semantic/numeric policy checks passed; no scientific data or simulation used')
+    print('29 semantic/numeric policy checks passed; no scientific data or simulation used')
 
 
 def main():

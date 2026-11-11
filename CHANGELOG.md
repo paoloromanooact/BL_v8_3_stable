@@ -2,6 +2,11 @@
 
 ## v8.4 (Python, branch `v8.4-python-gianluca`) — in corso
 
+- 2026-11-11: revisione indipendente di `21e7210`, tre precisazioni recepite nelle
+  politiche (scala gamma0, semantica se_var_z e confronto esatto status); congelata la sola
+  prima verifica di riproducibilità sui cinque CSV delle figure P1, con input/codice/hash
+  e budget fissati, nessun rilancio. Aggiunta bozza di fattibilità MDI/SMARP da fonti primarie.
+
 - 2026-11-11: revisione delle bozze di confronto della riproducibilità, senza rilanci:
   chiavi delle 112 tabelle (111 univoche e una tabella vuota), scale fisiche fisse per
   colonna/test/quantità, conteggi e decisioni esatti anche se float, provenienza del riferimento

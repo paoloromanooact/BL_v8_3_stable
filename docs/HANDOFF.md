@@ -5,7 +5,7 @@
 **Stato:** il **pilota di sviluppo di P2f** è terminato (esecuzione unica, 10:17–12:06, commit del
 codice `67058f6`), gli output sono committati, il controllo indipendente è stato eseguito prima
 dell'interpretazione (tutti i 20 controlli superati) e i risultati sono in
-`docs/P2F_PILOT_RESULTS.md`. Nessun processo in esecuzione.
+`docs/P2F_PILOT_RESULTS.md`. Questa frase riguarda la conclusione del pilota; la validazione successiva è descritta sotto.
 
 **Esito del pilota** (regole registrate nel piano §5 e A1 §4, applicate alla lettera):
 - candidata **M** (funzione di varianza + REML AR(1) bivariata sulle medie di cella, decisione
@@ -36,8 +36,8 @@ sono stati superati due volte, su `ed90e15` (conservati come `results/P2F/PRELIM
 e su `5c3b664` (`results/P2F/PRELIM_*.csv`, stessi valori). La **validazione è in esecuzione**:
 avviata il 2026-11-11 alle 14:46:47 in modo distaccato, **PID 968943**, 12 processi con
 `OMP_NUM_THREADS=1`, log `logs/p2f_validation.log` (avanzamento ogni 2500 cataloghi su
-152 000), commit del codice e della provenienza **`5c3b664`**, albero pulito; fine prevista
-verso le 22:00–23:30. Controllo: `kill -0 968943`, `tail logs/p2f_validation.log`.
+152 000), commit del codice e della provenienza **`5c3b664`**, albero pulito; stima iniziale 22:00–23:30 superata: non usarla per prevedere la fine.
+Ultima lettura durante la revisione Codex: 5000/152000 lavori nel log; nessuna nuova ETA affidabile. Controllo: `kill -0 968943`, `tail logs/p2f_validation.log`.
 
 **Durante l'esecuzione** si può fare commit (la provenienza è acquisita all'avvio), ma non si
 toccano codice scientifico, dipendenze, protocolli, input né `results/P2F/_design.pkl`. Il
@@ -70,6 +70,24 @@ delle politiche numeriche; nessun rilancio di analisi. Prima della verifica effe
 e congelamento delle regole, elenco di file/comandi/budget. Gli output P2f in corso non fanno
 parte dell'inventario tracciato corrente; andranno aggiunti prima della loro riproduzione.
 La validazione originale, i suoi input e `_design.pkl` restano invariati. Nessun push.
+
+**Aggiornamento Codex dopo la revisione indipendente (2026-11-11):**
+- Rivisto `21e7210`: 112 riferimenti Git/chiavi verificati, tre rilievi risolti
+  (gamma0 a 24°, motivo di se_var_z, status esatto); 29 controlli delle politiche superati.
+  Dettagli in `docs/REPRO_REVIEW_21E7210.md`.
+- Congelata solo la prima verifica in `docs/REPRO_PHASE1_PLAN.md`: cinque CSV delle figure
+  P1, clone isolato al codice/riferimento `120f852`, input e hash fissati, limite 10 minuti.
+  Codice del comparatore ancora da scrivere e provare su casi sintetici; rilancio a macchina
+  libera dopo P2f e il controllo indipendente. Le altre 107 tabelle restano fuori da questa fase.
+- Studio documentale `docs/MDI_SMARP_FEASIBILITY.md`: bozza, fonti primarie, nessun download
+  o calcolo. Primo passo proposto: confronto nella sovrapposizione maggio–ottobre 2010,
+  separando LOS/Br, risoluzione e strumento; beneficio statistico ancora da misurare.
+- Nessun cambiamento a P2f, input, risultati scientifici o protocolli precedenti; nessun push.
+- La sessione Codex si è fermata per esaurimento dei token prima di installare questi file,
+  rimasti in `/tmp/bl-followup-review`. Installati da Claude la sera del 2026-11-11 con l'ok
+  dell'utente: hash di partenza e di arrivo verificati, tabelle DRAFT rigenerate fuori dal
+  repository e identiche, `--selftest` 29/29, hash dei 11 file della fase 1 verificati.
+  Validazione P2f ancora in corso (30 000/152 000 alle 19:38).
 
 **Prossimi passi**
 1. [fatto 2026-11-11] Revisione esterna dello ZIP `2e197f8`: riconteggio dai dati grezzi

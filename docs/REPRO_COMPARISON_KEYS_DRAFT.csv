@@ -1,62 +1,62 @@
 file,rows,key,key_status,provenance_cols
-figures/EXPLORATORY/data/hale_transition_cases.csv,8,HARPNUM,"identificativi di schema, unicita verificata",sha256_P1;sha256_P1b;sha256_P1c;sha256_P1d;sha256_P1e;git_commit;git_dirty;status;input_catalogue_sha256;input_factorial_sha256
+figures/EXPLORATORY/data/hale_transition_cases.csv,8,HARPNUM,"identificativi di schema, unicita verificata",sha256_P1;sha256_P1b;sha256_P1c;sha256_P1d;sha256_P1e;git_commit;git_dirty;input_catalogue_sha256;input_factorial_sha256
 figures/P1/data/fig1_butterfly.csv,4189,HARPNUM,"identificativi di schema, unicita verificata",
 figures/P1/data/fig2_cumulative_d_bal.csv,220,CR,"identificativi di schema, unicita verificata",
 figures/P1/data/fig2_series_by_cr.csv,424,variant;CR;hemisphere,"identificativi di schema, unicita verificata",sha256_P1;sha256_P1b;sha256_P1c;sha256_P1d;sha256_P1e;git_commit;git_dirty
 figures/P1/data/fig3a_s_bl_by_cr.csv,424,HARPNUM;T_REC;CR;hemisphere,"identificativi di schema, unicita verificata",sha256_P1;sha256_P1b;sha256_P1c;sha256_P1d;sha256_P1e;git_commit;git_dirty
 figures/P1/data/fig3b_tilt_difference.csv,4189,HARPNUM,"identificativi di schema, unicita verificata",
-results/DIAGNOSTIC/AUDIT_C1_MC_VS_EXACT.csv,4,test;scenario,"identificativi di schema, unicita verificata",sha256_P2;sha256_P2d;sha256_P2e;git_commit;git_dirty;status
-results/DIAGNOSTIC/AUDIT_C1_POOLED_GROUPS.csv,3,test,"identificativi di schema, unicita verificata",sha256_P2;sha256_P2d;sha256_P2e;git_commit;git_dirty;status
-results/DIAGNOSTIC/AUDIT_C1_Z_BY_SCENARIO.csv,14,test;scenario,"identificativi di schema, unicita verificata",sha256_P2;sha256_P2d;sha256_P2e;git_commit;git_dirty;status
-results/DIAGNOSTIC/AUDIT_C1_Z_CORR.csv,42,test;scenario_1;scenario_2,naturale esplicita,sha256_P2;sha256_P2d;sha256_P2e;git_commit;git_dirty;status
-results/DIAGNOSTIC/A_BY_CATALOGUE.csv.gz,28000,test;scenario;k,"identificativi di schema, unicita verificata",sha256_P2;sha256_P2d;sha256_P2e;git_commit;git_dirty;sha256_DIAGNOSTIC_A_PLAN;status
-results/DIAGNOSTIC/A_CHECKS.csv,10,check,"identificativi di schema, unicita verificata",sha256_P2;sha256_P2d;sha256_P2e;git_commit;git_dirty;sha256_DIAGNOSTIC_A_PLAN;status
-results/DIAGNOSTIC/A_SUMMARY.csv,14,test;scenario,"identificativi di schema, unicita verificata",sha256_P2;sha256_P2d;sha256_P2e;git_commit;git_dirty;sha256_DIAGNOSTIC_A_PLAN;status
-results/DIAGNOSTIC/B_CHECKS.csv,2,check,"identificativi di schema, unicita verificata",sha256_P2;sha256_P2d;sha256_P2e;git_commit;git_dirty;sha256_DIAGNOSTIC_B_PLAN;status
-results/DIAGNOSTIC/B_RAW.csv.gz,16000,test;scenario;k,"identificativi di schema, unicita verificata",sha256_P2;sha256_P2d;sha256_P2e;git_commit;git_dirty;sha256_DIAGNOSTIC_B_PLAN;status
-results/DIAGNOSTIC/B_SUMMARY.csv,8,test;scenario,"identificativi di schema, unicita verificata",sha256_P2;sha256_P2d;sha256_P2e;git_commit;git_dirty;sha256_DIAGNOSTIC_B_PLAN;status
-results/DIAGNOSTIC/C1_CHECKS_DIRECT.csv,4,check,"identificativi di schema, unicita verificata",sha256_P2;sha256_P2d;sha256_P2e;git_commit;git_dirty;status
-results/DIAGNOSTIC/C1_INPUTS_RESIM_BY_CATALOGUE.csv.gz,8000,test;scenario;k,"identificativi di schema, unicita verificata",sha256_P2;sha256_P2d;sha256_P2e;git_commit;git_dirty;status
-results/DIAGNOSTIC/C1_T3_TRANSFORM.csv,7,scenario,"identificativi di schema, unicita verificata",sha256_P2;sha256_P2d;sha256_P2e;git_commit;git_dirty;status
-results/DIAGNOSTIC/C1_T3_TRANSFORM_BY_CATALOGUE.csv.gz,14000,test;scenario;k,"identificativi di schema, unicita verificata",sha256_P2;sha256_P2d;sha256_P2e;git_commit;git_dirty;status
-results/DIAGNOSTIC/C1_T3_UNITS.csv,8,scenario,"identificativi di schema, unicita verificata",sha256_P2;sha256_P2d;sha256_P2e;git_commit;git_dirty;status
-results/DIAGNOSTIC/C2_A1_CHECKS.csv,8,check,"identificativi di schema, unicita verificata",sha256_P2;sha256_P2d;sha256_P2e;git_commit;git_dirty;sha256_DIAGNOSTIC_C_PLAN;sha256_DIAGNOSTIC_C_PLAN_A1;status
-results/DIAGNOSTIC/C2_A1_RAW.csv.gz,8000,test;scenario;k,"identificativi di schema, unicita verificata",sha256_P2;sha256_P2d;sha256_P2e;git_commit;git_dirty;sha256_DIAGNOSTIC_C_PLAN;sha256_DIAGNOSTIC_C_PLAN_A1;status
-results/DIAGNOSTIC/C2_A1_SUMMARY.csv,4,test;scenario,"identificativi di schema, unicita verificata",sha256_P2;sha256_P2d;sha256_P2e;git_commit;git_dirty;sha256_DIAGNOSTIC_C_PLAN;sha256_DIAGNOSTIC_C_PLAN_A1;status
-results/DIAGNOSTIC/C_ANALYTIC_BY_CATALOGUE_RUN1.csv.gz,16000,test;scenario;k,"identificativi di schema, unicita verificata",sha256_P2;sha256_P2d;sha256_P2e;git_commit;git_dirty;sha256_DIAGNOSTIC_C_PLAN;status
-results/DIAGNOSTIC/C_ANALYTIC_RUN1.csv,8,test;scenario,"identificativi di schema, unicita verificata",sha256_P2;sha256_P2d;sha256_P2e;git_commit;git_dirty;sha256_DIAGNOSTIC_C_PLAN;status
-results/DIAGNOSTIC/C_CHECKS_RUN1.csv,2,check,"identificativi di schema, unicita verificata",sha256_P2;sha256_P2d;sha256_P2e;git_commit;git_dirty;sha256_DIAGNOSTIC_C_PLAN;status
-results/DIAGNOSTIC/C_RAW_RUN1.csv.gz,16000,scenario;k;test;arm,naturale esplicita,sha256_P2;sha256_P2d;sha256_P2e;git_commit;git_dirty;sha256_DIAGNOSTIC_C_PLAN;status
-results/DIAGNOSTIC/C_SUMMARY_RUN1.csv,8,arm;scenario;test,naturale esplicita,sha256_P2;sha256_P2d;sha256_P2e;git_commit;git_dirty;sha256_DIAGNOSTIC_C_PLAN;status
-results/DIAGNOSTIC/DIAG_P2E_APPLICABILITY.csv,14,test;scenario,"identificativi di schema, unicita verificata",sha256_P1;sha256_P1d;sha256_P1e;sha256_P2;sha256_P2d;sha256_P2e;git_commit;git_dirty;status
-results/DIAGNOSTIC/DIAG_P2E_PHI_TERCILES.csv,42,scenario;test;phi_tercile,naturale esplicita,sha256_P1;sha256_P1d;sha256_P1e;sha256_P2;sha256_P2d;sha256_P2e;git_commit;git_dirty;status
-results/DIAGNOSTIC/DIAG_P2E_SCENARIOS.csv,14,test;scenario,"identificativi di schema, unicita verificata",sha256_P1;sha256_P1d;sha256_P1e;sha256_P2;sha256_P2d;sha256_P2e;git_commit;git_dirty;status
-results/DIAGNOSTIC/DIAG_P2E_T3_T5_PHI_CORR.csv,7,scenario,"identificativi di schema, unicita verificata",sha256_P1;sha256_P1d;sha256_P1e;sha256_P2;sha256_P2d;sha256_P2e;git_commit;git_dirty;status
-results/DIAGNOSTIC/DIAG_P2_REAL_FLAGS.csv,2,test,"identificativi di schema, unicita verificata",sha256_P1;sha256_P1d;sha256_P1e;sha256_P2;sha256_P2d;sha256_P2e;git_commit;git_dirty;status
-results/DIAGNOSTIC/D_BY_CATALOGUE.csv.gz,100000,test;scenario;k,"identificativi di schema, unicita verificata",sha256_P2;sha256_P2d;sha256_P2e;git_commit;git_dirty;sha256_DIAGNOSTIC_D_PLAN;sha256_DIAGNOSTIC_D_PLAN_A1;status
-results/DIAGNOSTIC/D_CHECKS.csv,6,check,"identificativi di schema, unicita verificata",sha256_P2;sha256_P2d;sha256_P2e;git_commit;git_dirty;sha256_DIAGNOSTIC_D_PLAN;sha256_DIAGNOSTIC_D_PLAN_A1;status
-results/DIAGNOSTIC/D_CRITERIA.csv,2,statistic,"identificativi di schema, unicita verificata",sha256_P2;sha256_P2d;sha256_P2e;git_commit;git_dirty;sha256_DIAGNOSTIC_D_PLAN;sha256_DIAGNOSTIC_D_PLAN_A1;status
-results/DIAGNOSTIC/D_SUMMARY.csv,10,test;scenario,"identificativi di schema, unicita verificata",sha256_P2;sha256_P2d;sha256_P2e;git_commit;git_dirty;sha256_DIAGNOSTIC_D_PLAN;sha256_DIAGNOSTIC_D_PLAN_A1;status
-results/DIAGNOSTIC/SENS_SUMS.csv,24,set;hemisphere;cycle,"identificativi di schema, unicita verificata",sha256_P1;sha256_P1d;sha256_P1e;sha256_P2;sha256_P2d;sha256_P2e;git_commit;git_dirty;status
-results/DIAGNOSTIC/SENS_SUMS_CELLS_E_VS_A.csv,4,quantity,"identificativi di schema, unicita verificata",sha256_P1;sha256_P1d;sha256_P1e;sha256_P2;sha256_P2d;sha256_P2e;git_commit;git_dirty;status
-results/DIAGNOSTIC/SENS_SUMS_RATIOS.csv,16,set;hemisphere;cycle,"identificativi di schema, unicita verificata",sha256_P1;sha256_P1d;sha256_P1e;sha256_P2;sha256_P2d;sha256_P2e;git_commit;git_dirty;status
-results/DIAGNOSTIC/SENS_TESTS.csv,9,test;variant,"identificativi di schema, unicita verificata",sha256_P1;sha256_P1d;sha256_P1e;sha256_P2;sha256_P2d;sha256_P2e;git_commit;git_dirty;status
-results/DOMINANT_TRIAL_2HARP/DOMINANT_HARP_CHECKS.csv,2,kind;group;HARPNUM,"identificativi di schema, unicita verificata",sha256_P1;sha256_P1b;sha256_P1c;sha256_P1d;sha256_P1e;git_commit;git_dirty;sha256_DOMINANT_HARP_PLAN;status
-results/DOMINANT_TRIAL_2HARP/DOMINANT_HARP_FITS_SHA256.csv,4,file,naturale esplicita,sha256_P1;sha256_P1b;sha256_P1c;sha256_P1d;sha256_P1e;git_commit;git_dirty;sha256_DOMINANT_HARP_PLAN;status
-results/DOMINANT_TRIAL_2HARP/DOMINANT_HARP_SELECTION.csv,120,kind;group;HARPNUM,"identificativi di schema, unicita verificata",sha256_P1;sha256_P1b;sha256_P1c;sha256_P1d;sha256_P1e;git_commit;git_dirty;sha256_DOMINANT_HARP_PLAN;status
-results/EXPLORATORY/FACTORIAL_BY_RECORD.csv.gz,113560,HARPNUM;T_REC;M;G;C,naturale esplicita,sha256_P1;sha256_P1b;sha256_P1c;sha256_P1d;sha256_P1e;git_commit;git_dirty;status;input_catalogue_sha256
-results/EXPLORATORY/FACTORIAL_EFFECTS_BY_RECORD_SUMMARY.csv,35,quantity;kind;term,naturale esplicita,sha256_P1;sha256_P1b;sha256_P1c;sha256_P1d;sha256_P1e;git_commit;git_dirty;status;input_catalogue_sha256;input_factorial_sha256
-results/EXPLORATORY/FACTORIAL_G_EFFECT_BY_INTENSITY.csv,11,decile_abs_sbl,naturale esplicita,sha256_P1;sha256_P1b;sha256_P1c;sha256_P1d;sha256_P1e;git_commit;git_dirty;status;input_catalogue_sha256;input_factorial_sha256
-results/EXPLORATORY/FACTORIAL_REPRODUCTION.csv,25,column;kind;combination,naturale esplicita,sha256_P1;sha256_P1b;sha256_P1c;sha256_P1d;sha256_P1e;git_commit;git_dirty;status;input_catalogue_sha256
-results/EXPLORATORY/FACTORIAL_SBL_SUMS.csv,30,sample;term;M;G;C,naturale esplicita,sha256_P1;sha256_P1b;sha256_P1c;sha256_P1d;sha256_P1e;git_commit;git_dirty;status;input_catalogue_sha256;input_factorial_sha256
-results/EXPLORATORY/FACTORIAL_TILT_SIMPLE_EFFECTS.csv,12,factor;fixed,naturale esplicita,sha256_P1;sha256_P1b;sha256_P1c;sha256_P1d;sha256_P1e;git_commit;git_dirty;status;input_catalogue_sha256;input_factorial_sha256
-results/EXPLORATORY/FACTORIAL_VALIDITY.csv,15,item,naturale esplicita,sha256_P1;sha256_P1b;sha256_P1c;sha256_P1d;sha256_P1e;git_commit;git_dirty;status;input_catalogue_sha256;input_factorial_sha256
-results/EXPLORATORY/HALE_TRANSITIONS.csv,9,item,naturale esplicita,sha256_P1;sha256_P1b;sha256_P1c;sha256_P1d;sha256_P1e;git_commit;git_dirty;status;input_catalogue_sha256;input_factorial_sha256
-results/EXPLORATORY/HALE_TRANSITIONS_BY_RECORD.csv,404,HARPNUM,"identificativi di schema, unicita verificata",sha256_P1;sha256_P1b;sha256_P1c;sha256_P1d;sha256_P1e;git_commit;git_dirty;status;input_catalogue_sha256;input_factorial_sha256
-results/EXPLORATORY/P3_C1_C2_COMMON_SUBSET.csv,3,comparison,naturale esplicita,sha256_P1;sha256_P1b;sha256_P1c;sha256_P1d;sha256_P1e;git_commit;git_dirty;status;input_catalogue_sha256;input_factorial_sha256
-results/EXPLORATORY/PRIMARY_VS_CONTROL.csv,11,item,naturale esplicita,sha256_P1;sha256_P1b;sha256_P1c;sha256_P1d;sha256_P1e;git_commit;git_dirty;status;input_catalogue_sha256;input_factorial_sha256
-results/EXPLORATORY/PRIMARY_VS_CONTROL_BY_HARP.csv,4073,HARPNUM,"identificativi di schema, unicita verificata",sha256_P1;sha256_P1b;sha256_P1c;sha256_P1d;sha256_P1e;git_commit;git_dirty;status;input_catalogue_sha256;input_factorial_sha256
-results/EXPLORATORY/SBL_CONCENTRATION.csv,15,k;group,"identificativi di schema, unicita verificata",sha256_P1;sha256_P1b;sha256_P1c;sha256_P1d;sha256_P1e;git_commit;git_dirty;status;input_catalogue_sha256;input_factorial_sha256
+results/DIAGNOSTIC/AUDIT_C1_MC_VS_EXACT.csv,4,test;scenario,"identificativi di schema, unicita verificata",sha256_P2;sha256_P2d;sha256_P2e;git_commit;git_dirty
+results/DIAGNOSTIC/AUDIT_C1_POOLED_GROUPS.csv,3,test,"identificativi di schema, unicita verificata",sha256_P2;sha256_P2d;sha256_P2e;git_commit;git_dirty
+results/DIAGNOSTIC/AUDIT_C1_Z_BY_SCENARIO.csv,14,test;scenario,"identificativi di schema, unicita verificata",sha256_P2;sha256_P2d;sha256_P2e;git_commit;git_dirty
+results/DIAGNOSTIC/AUDIT_C1_Z_CORR.csv,42,test;scenario_1;scenario_2,naturale esplicita,sha256_P2;sha256_P2d;sha256_P2e;git_commit;git_dirty
+results/DIAGNOSTIC/A_BY_CATALOGUE.csv.gz,28000,test;scenario;k,"identificativi di schema, unicita verificata",sha256_P2;sha256_P2d;sha256_P2e;git_commit;git_dirty;sha256_DIAGNOSTIC_A_PLAN
+results/DIAGNOSTIC/A_CHECKS.csv,10,check,"identificativi di schema, unicita verificata",sha256_P2;sha256_P2d;sha256_P2e;git_commit;git_dirty;sha256_DIAGNOSTIC_A_PLAN
+results/DIAGNOSTIC/A_SUMMARY.csv,14,test;scenario,"identificativi di schema, unicita verificata",sha256_P2;sha256_P2d;sha256_P2e;git_commit;git_dirty;sha256_DIAGNOSTIC_A_PLAN
+results/DIAGNOSTIC/B_CHECKS.csv,2,check,"identificativi di schema, unicita verificata",sha256_P2;sha256_P2d;sha256_P2e;git_commit;git_dirty;sha256_DIAGNOSTIC_B_PLAN
+results/DIAGNOSTIC/B_RAW.csv.gz,16000,test;scenario;k,"identificativi di schema, unicita verificata",sha256_P2;sha256_P2d;sha256_P2e;git_commit;git_dirty;sha256_DIAGNOSTIC_B_PLAN
+results/DIAGNOSTIC/B_SUMMARY.csv,8,test;scenario,"identificativi di schema, unicita verificata",sha256_P2;sha256_P2d;sha256_P2e;git_commit;git_dirty;sha256_DIAGNOSTIC_B_PLAN
+results/DIAGNOSTIC/C1_CHECKS_DIRECT.csv,4,check,"identificativi di schema, unicita verificata",sha256_P2;sha256_P2d;sha256_P2e;git_commit;git_dirty
+results/DIAGNOSTIC/C1_INPUTS_RESIM_BY_CATALOGUE.csv.gz,8000,test;scenario;k,"identificativi di schema, unicita verificata",sha256_P2;sha256_P2d;sha256_P2e;git_commit;git_dirty
+results/DIAGNOSTIC/C1_T3_TRANSFORM.csv,7,scenario,"identificativi di schema, unicita verificata",sha256_P2;sha256_P2d;sha256_P2e;git_commit;git_dirty
+results/DIAGNOSTIC/C1_T3_TRANSFORM_BY_CATALOGUE.csv.gz,14000,test;scenario;k,"identificativi di schema, unicita verificata",sha256_P2;sha256_P2d;sha256_P2e;git_commit;git_dirty
+results/DIAGNOSTIC/C1_T3_UNITS.csv,8,scenario,"identificativi di schema, unicita verificata",sha256_P2;sha256_P2d;sha256_P2e;git_commit;git_dirty
+results/DIAGNOSTIC/C2_A1_CHECKS.csv,8,check,"identificativi di schema, unicita verificata",sha256_P2;sha256_P2d;sha256_P2e;git_commit;git_dirty;sha256_DIAGNOSTIC_C_PLAN;sha256_DIAGNOSTIC_C_PLAN_A1
+results/DIAGNOSTIC/C2_A1_RAW.csv.gz,8000,test;scenario;k,"identificativi di schema, unicita verificata",sha256_P2;sha256_P2d;sha256_P2e;git_commit;git_dirty;sha256_DIAGNOSTIC_C_PLAN;sha256_DIAGNOSTIC_C_PLAN_A1
+results/DIAGNOSTIC/C2_A1_SUMMARY.csv,4,test;scenario,"identificativi di schema, unicita verificata",sha256_P2;sha256_P2d;sha256_P2e;git_commit;git_dirty;sha256_DIAGNOSTIC_C_PLAN;sha256_DIAGNOSTIC_C_PLAN_A1
+results/DIAGNOSTIC/C_ANALYTIC_BY_CATALOGUE_RUN1.csv.gz,16000,test;scenario;k,"identificativi di schema, unicita verificata",sha256_P2;sha256_P2d;sha256_P2e;git_commit;git_dirty;sha256_DIAGNOSTIC_C_PLAN
+results/DIAGNOSTIC/C_ANALYTIC_RUN1.csv,8,test;scenario,"identificativi di schema, unicita verificata",sha256_P2;sha256_P2d;sha256_P2e;git_commit;git_dirty;sha256_DIAGNOSTIC_C_PLAN
+results/DIAGNOSTIC/C_CHECKS_RUN1.csv,2,check,"identificativi di schema, unicita verificata",sha256_P2;sha256_P2d;sha256_P2e;git_commit;git_dirty;sha256_DIAGNOSTIC_C_PLAN
+results/DIAGNOSTIC/C_RAW_RUN1.csv.gz,16000,scenario;k;test;arm,naturale esplicita,sha256_P2;sha256_P2d;sha256_P2e;git_commit;git_dirty;sha256_DIAGNOSTIC_C_PLAN
+results/DIAGNOSTIC/C_SUMMARY_RUN1.csv,8,arm;scenario;test,naturale esplicita,sha256_P2;sha256_P2d;sha256_P2e;git_commit;git_dirty;sha256_DIAGNOSTIC_C_PLAN
+results/DIAGNOSTIC/DIAG_P2E_APPLICABILITY.csv,14,test;scenario,"identificativi di schema, unicita verificata",sha256_P1;sha256_P1d;sha256_P1e;sha256_P2;sha256_P2d;sha256_P2e;git_commit;git_dirty
+results/DIAGNOSTIC/DIAG_P2E_PHI_TERCILES.csv,42,scenario;test;phi_tercile,naturale esplicita,sha256_P1;sha256_P1d;sha256_P1e;sha256_P2;sha256_P2d;sha256_P2e;git_commit;git_dirty
+results/DIAGNOSTIC/DIAG_P2E_SCENARIOS.csv,14,test;scenario,"identificativi di schema, unicita verificata",sha256_P1;sha256_P1d;sha256_P1e;sha256_P2;sha256_P2d;sha256_P2e;git_commit;git_dirty
+results/DIAGNOSTIC/DIAG_P2E_T3_T5_PHI_CORR.csv,7,scenario,"identificativi di schema, unicita verificata",sha256_P1;sha256_P1d;sha256_P1e;sha256_P2;sha256_P2d;sha256_P2e;git_commit;git_dirty
+results/DIAGNOSTIC/DIAG_P2_REAL_FLAGS.csv,2,test,"identificativi di schema, unicita verificata",sha256_P1;sha256_P1d;sha256_P1e;sha256_P2;sha256_P2d;sha256_P2e;git_commit;git_dirty
+results/DIAGNOSTIC/D_BY_CATALOGUE.csv.gz,100000,test;scenario;k,"identificativi di schema, unicita verificata",sha256_P2;sha256_P2d;sha256_P2e;git_commit;git_dirty;sha256_DIAGNOSTIC_D_PLAN;sha256_DIAGNOSTIC_D_PLAN_A1
+results/DIAGNOSTIC/D_CHECKS.csv,6,check,"identificativi di schema, unicita verificata",sha256_P2;sha256_P2d;sha256_P2e;git_commit;git_dirty;sha256_DIAGNOSTIC_D_PLAN;sha256_DIAGNOSTIC_D_PLAN_A1
+results/DIAGNOSTIC/D_CRITERIA.csv,2,statistic,"identificativi di schema, unicita verificata",sha256_P2;sha256_P2d;sha256_P2e;git_commit;git_dirty;sha256_DIAGNOSTIC_D_PLAN;sha256_DIAGNOSTIC_D_PLAN_A1
+results/DIAGNOSTIC/D_SUMMARY.csv,10,test;scenario,"identificativi di schema, unicita verificata",sha256_P2;sha256_P2d;sha256_P2e;git_commit;git_dirty;sha256_DIAGNOSTIC_D_PLAN;sha256_DIAGNOSTIC_D_PLAN_A1
+results/DIAGNOSTIC/SENS_SUMS.csv,24,set;hemisphere;cycle,"identificativi di schema, unicita verificata",sha256_P1;sha256_P1d;sha256_P1e;sha256_P2;sha256_P2d;sha256_P2e;git_commit;git_dirty
+results/DIAGNOSTIC/SENS_SUMS_CELLS_E_VS_A.csv,4,quantity,"identificativi di schema, unicita verificata",sha256_P1;sha256_P1d;sha256_P1e;sha256_P2;sha256_P2d;sha256_P2e;git_commit;git_dirty
+results/DIAGNOSTIC/SENS_SUMS_RATIOS.csv,16,set;hemisphere;cycle,"identificativi di schema, unicita verificata",sha256_P1;sha256_P1d;sha256_P1e;sha256_P2;sha256_P2d;sha256_P2e;git_commit;git_dirty
+results/DIAGNOSTIC/SENS_TESTS.csv,9,test;variant,"identificativi di schema, unicita verificata",sha256_P1;sha256_P1d;sha256_P1e;sha256_P2;sha256_P2d;sha256_P2e;git_commit;git_dirty
+results/DOMINANT_TRIAL_2HARP/DOMINANT_HARP_CHECKS.csv,2,kind;group;HARPNUM,"identificativi di schema, unicita verificata",sha256_P1;sha256_P1b;sha256_P1c;sha256_P1d;sha256_P1e;git_commit;git_dirty;sha256_DOMINANT_HARP_PLAN
+results/DOMINANT_TRIAL_2HARP/DOMINANT_HARP_FITS_SHA256.csv,4,file,naturale esplicita,sha256_P1;sha256_P1b;sha256_P1c;sha256_P1d;sha256_P1e;git_commit;git_dirty;sha256_DOMINANT_HARP_PLAN
+results/DOMINANT_TRIAL_2HARP/DOMINANT_HARP_SELECTION.csv,120,kind;group;HARPNUM,"identificativi di schema, unicita verificata",sha256_P1;sha256_P1b;sha256_P1c;sha256_P1d;sha256_P1e;git_commit;git_dirty;sha256_DOMINANT_HARP_PLAN
+results/EXPLORATORY/FACTORIAL_BY_RECORD.csv.gz,113560,HARPNUM;T_REC;M;G;C,naturale esplicita,sha256_P1;sha256_P1b;sha256_P1c;sha256_P1d;sha256_P1e;git_commit;git_dirty;input_catalogue_sha256
+results/EXPLORATORY/FACTORIAL_EFFECTS_BY_RECORD_SUMMARY.csv,35,quantity;kind;term,naturale esplicita,sha256_P1;sha256_P1b;sha256_P1c;sha256_P1d;sha256_P1e;git_commit;git_dirty;input_catalogue_sha256;input_factorial_sha256
+results/EXPLORATORY/FACTORIAL_G_EFFECT_BY_INTENSITY.csv,11,decile_abs_sbl,naturale esplicita,sha256_P1;sha256_P1b;sha256_P1c;sha256_P1d;sha256_P1e;git_commit;git_dirty;input_catalogue_sha256;input_factorial_sha256
+results/EXPLORATORY/FACTORIAL_REPRODUCTION.csv,25,column;kind;combination,naturale esplicita,sha256_P1;sha256_P1b;sha256_P1c;sha256_P1d;sha256_P1e;git_commit;git_dirty;input_catalogue_sha256
+results/EXPLORATORY/FACTORIAL_SBL_SUMS.csv,30,sample;term;M;G;C,naturale esplicita,sha256_P1;sha256_P1b;sha256_P1c;sha256_P1d;sha256_P1e;git_commit;git_dirty;input_catalogue_sha256;input_factorial_sha256
+results/EXPLORATORY/FACTORIAL_TILT_SIMPLE_EFFECTS.csv,12,factor;fixed,naturale esplicita,sha256_P1;sha256_P1b;sha256_P1c;sha256_P1d;sha256_P1e;git_commit;git_dirty;input_catalogue_sha256;input_factorial_sha256
+results/EXPLORATORY/FACTORIAL_VALIDITY.csv,15,item,naturale esplicita,sha256_P1;sha256_P1b;sha256_P1c;sha256_P1d;sha256_P1e;git_commit;git_dirty;input_catalogue_sha256;input_factorial_sha256
+results/EXPLORATORY/HALE_TRANSITIONS.csv,9,item,naturale esplicita,sha256_P1;sha256_P1b;sha256_P1c;sha256_P1d;sha256_P1e;git_commit;git_dirty;input_catalogue_sha256;input_factorial_sha256
+results/EXPLORATORY/HALE_TRANSITIONS_BY_RECORD.csv,404,HARPNUM,"identificativi di schema, unicita verificata",sha256_P1;sha256_P1b;sha256_P1c;sha256_P1d;sha256_P1e;git_commit;git_dirty;input_catalogue_sha256;input_factorial_sha256
+results/EXPLORATORY/P3_C1_C2_COMMON_SUBSET.csv,3,comparison,naturale esplicita,sha256_P1;sha256_P1b;sha256_P1c;sha256_P1d;sha256_P1e;git_commit;git_dirty;input_catalogue_sha256;input_factorial_sha256
+results/EXPLORATORY/PRIMARY_VS_CONTROL.csv,11,item,naturale esplicita,sha256_P1;sha256_P1b;sha256_P1c;sha256_P1d;sha256_P1e;git_commit;git_dirty;input_catalogue_sha256;input_factorial_sha256
+results/EXPLORATORY/PRIMARY_VS_CONTROL_BY_HARP.csv,4073,HARPNUM,"identificativi di schema, unicita verificata",sha256_P1;sha256_P1b;sha256_P1c;sha256_P1d;sha256_P1e;git_commit;git_dirty;input_catalogue_sha256;input_factorial_sha256
+results/EXPLORATORY/SBL_CONCENTRATION.csv,15,k;group,"identificativi di schema, unicita verificata",sha256_P1;sha256_P1b;sha256_P1c;sha256_P1d;sha256_P1e;git_commit;git_dirty;input_catalogue_sha256;input_factorial_sha256
 results/P1/CYCLE_BOUNDARY_FITS.csv,13,window;start,naturale esplicita,sha256_P1;sha256_P1b;sha256_P1c;git_commit;git_dirty
 results/P1/P1E_METADATA_VERIFICATION_BY_YEAR.csv,17,year,"identificativi di schema, unicita verificata",
 results/P1/P1_CHECKS.csv,83,check,"identificativi di schema, unicita verificata",sha256_P1;sha256_P1b;sha256_P1c;sha256_P1d;sha256_P1e;git_commit;git_dirty
@@ -84,24 +84,24 @@ results/P2/P2_T2_INTERCYCLE.csv,10,test;variant,"identificativi di schema, unici
 results/P2/P2_T3_TILT_QUENCHING.csv,12,test;variant;activity,"identificativi di schema, unicita verificata",sha256_P1;sha256_P1b;sha256_P1c;sha256_P1d;sha256_P1e;sha256_P2;sha256_P2b;sha256_P2c;sha256_P2d;sha256_P2e;git_commit;git_dirty
 results/P2/P2_T4_LATITUDE_QUENCHING.csv,12,test;variant;activity,"identificativi di schema, unicita verificata",sha256_P1;sha256_P1b;sha256_P1c;sha256_P1d;sha256_P1e;sha256_P2;sha256_P2b;sha256_P2c;sha256_P2d;sha256_P2e;git_commit;git_dirty
 results/P2/P2_T5_EFFICIENCY.csv,16,test;variant;activity;quantity,"identificativi di schema, unicita verificata",sha256_P1;sha256_P1b;sha256_P1c;sha256_P1d;sha256_P1e;sha256_P2;sha256_P2b;sha256_P2c;sha256_P2d;sha256_P2e;git_commit;git_dirty
-results/P2F_PILOT/DESIGN_CHECKS.csv,27,quantity,"identificativi di schema, unicita verificata",sha256_P2;sha256_P2d;sha256_P2e;git_commit;git_dirty;sha256_P2F_PILOT_PLAN;sha256_P2F_PILOT_PLAN_A1;sha256_P2F_PILOT_PLAN_A2;status
-results/P2F_PILOT/PILOT_CHOICE.csv,2,test,"identificativi di schema, unicita verificata",sha256_P2;sha256_P2d;sha256_P2e;git_commit;git_dirty;sha256_P2F_PILOT_PLAN;sha256_P2F_PILOT_PLAN_A1;sha256_P2F_PILOT_PLAN_A2;status
-results/P2F_PILOT/PILOT_DIAGNOSTICS_M.csv,30,kind;test;scenario;effect,"identificativi di schema, unicita verificata",sha256_P2;sha256_P2d;sha256_P2e;git_commit;git_dirty;sha256_P2F_PILOT_PLAN;sha256_P2F_PILOT_PLAN_A1;sha256_P2F_PILOT_PLAN_A2;status
-results/P2F_PILOT/PILOT_ERRORS.csv,11,kind;test;cand;scenario,"identificativi di schema, unicita verificata",sha256_P2;sha256_P2d;sha256_P2e;git_commit;git_dirty;sha256_P2F_PILOT_PLAN;sha256_P2F_PILOT_PLAN_A1;sha256_P2F_PILOT_PLAN_A2;status
-results/P2F_PILOT/PILOT_FALSE_VERDICTS.csv,36,test;cand;scenario,"identificativi di schema, unicita verificata",sha256_P2;sha256_P2d;sha256_P2e;git_commit;git_dirty;sha256_P2F_PILOT_PLAN;sha256_P2F_PILOT_PLAN_A1;sha256_P2F_PILOT_PLAN_A2;status
-results/P2F_PILOT/PILOT_POWER.csv,24,test;cand;scenario;effect,"identificativi di schema, unicita verificata",sha256_P2;sha256_P2d;sha256_P2e;git_commit;git_dirty;sha256_P2F_PILOT_PLAN;sha256_P2F_PILOT_PLAN_A1;sha256_P2F_PILOT_PLAN_A2;status
-results/P2F_PILOT/PILOT_RAW.csv.gz,43200,kind;test;cand;scenario;effect;k,"identificativi di schema, unicita verificata",sha256_P2;sha256_P2d;sha256_P2e;git_commit;git_dirty;sha256_P2F_PILOT_PLAN;sha256_P2F_PILOT_PLAN_A1;sha256_P2F_PILOT_PLAN_A2;status
-results/P2F_PILOT/POST_CHECKS.csv,20,check,"identificativi di schema, unicita verificata",sha256_P2;sha256_P2d;sha256_P2e;git_commit;git_dirty;sha256_P2F_PILOT_PLAN;sha256_P2F_PILOT_PLAN_A1;sha256_P2F_PILOT_PLAN_A2;status
-results/P2F_PILOT/POST_CHECKS_CHOICE_RECOUNT.csv,2,test,"identificativi di schema, unicita verificata",sha256_P2;sha256_P2d;sha256_P2e;git_commit;git_dirty;sha256_P2F_PILOT_PLAN;sha256_P2F_PILOT_PLAN_A1;sha256_P2F_PILOT_PLAN_A2;status
-results/P2F_PILOT/POST_CHECKS_FALSE_VERDICTS_RECOUNT.csv,36,test;cand;scenario,"identificativi di schema, unicita verificata",sha256_P2;sha256_P2d;sha256_P2e;git_commit;git_dirty;sha256_P2F_PILOT_PLAN;sha256_P2F_PILOT_PLAN_A1;sha256_P2F_PILOT_PLAN_A2;status
-results/P2F_PILOT/POST_CHECKS_NONFINITE_ROWS.csv,0,,tabella vuota: identita di schema e zero righe,sha256_P2;sha256_P2d;sha256_P2e;git_commit;git_dirty;sha256_P2F_PILOT_PLAN;sha256_P2F_PILOT_PLAN_A1;sha256_P2F_PILOT_PLAN_A2;status
-results/P2F_PILOT/POST_CHECKS_POWER_RECOUNT.csv,24,test;cand;scenario;effect,"identificativi di schema, unicita verificata",sha256_P2;sha256_P2d;sha256_P2e;git_commit;git_dirty;sha256_P2F_PILOT_PLAN;sha256_P2F_PILOT_PLAN_A1;sha256_P2F_PILOT_PLAN_A2;status
-results/P2F_PILOT/PRELIM_T1_REML.csv,200,k,"identificativi di schema, unicita verificata",sha256_P2;sha256_P2d;sha256_P2e;git_commit;git_dirty;sha256_P2F_PILOT_PLAN;sha256_P2F_PILOT_PLAN_A1;sha256_P2F_PILOT_PLAN_A2;status
-results/P2F_PILOT/PRELIM_T1_REML_RUN1.csv,200,k,"identificativi di schema, unicita verificata",sha256_P2;sha256_P2d;sha256_P2e;git_commit;git_dirty;sha256_P2F_PILOT_PLAN;sha256_P2F_PILOT_PLAN_A1;status
-results/P2F_PILOT/PRELIM_T2_VARFUN.csv,400,k;seed,"identificativi di schema, unicita verificata",sha256_P2;sha256_P2d;sha256_P2e;git_commit;git_dirty;sha256_P2F_PILOT_PLAN;sha256_P2F_PILOT_PLAN_A1;sha256_P2F_PILOT_PLAN_A2;status
-results/P2F_PILOT/PRELIM_T2_VARFUN_RUN1.csv,200,k,"identificativi di schema, unicita verificata",sha256_P2;sha256_P2d;sha256_P2e;git_commit;git_dirty;sha256_P2F_PILOT_PLAN;sha256_P2F_PILOT_PLAN_A1;status
-results/P2F_PILOT/PRELIM_TESTS.csv,14,test,"identificativi di schema, unicita verificata",sha256_P2;sha256_P2d;sha256_P2e;git_commit;git_dirty;sha256_P2F_PILOT_PLAN;sha256_P2F_PILOT_PLAN_A1;sha256_P2F_PILOT_PLAN_A2;status
-results/P2F_PILOT/PRELIM_TESTS_RUN1.csv,12,test,"identificativi di schema, unicita verificata",sha256_P2;sha256_P2d;sha256_P2e;git_commit;git_dirty;sha256_P2F_PILOT_PLAN;sha256_P2F_PILOT_PLAN_A1;status
+results/P2F_PILOT/DESIGN_CHECKS.csv,27,quantity,"identificativi di schema, unicita verificata",sha256_P2;sha256_P2d;sha256_P2e;git_commit;git_dirty;sha256_P2F_PILOT_PLAN;sha256_P2F_PILOT_PLAN_A1;sha256_P2F_PILOT_PLAN_A2
+results/P2F_PILOT/PILOT_CHOICE.csv,2,test,"identificativi di schema, unicita verificata",sha256_P2;sha256_P2d;sha256_P2e;git_commit;git_dirty;sha256_P2F_PILOT_PLAN;sha256_P2F_PILOT_PLAN_A1;sha256_P2F_PILOT_PLAN_A2
+results/P2F_PILOT/PILOT_DIAGNOSTICS_M.csv,30,kind;test;scenario;effect,"identificativi di schema, unicita verificata",sha256_P2;sha256_P2d;sha256_P2e;git_commit;git_dirty;sha256_P2F_PILOT_PLAN;sha256_P2F_PILOT_PLAN_A1;sha256_P2F_PILOT_PLAN_A2
+results/P2F_PILOT/PILOT_ERRORS.csv,11,kind;test;cand;scenario,"identificativi di schema, unicita verificata",sha256_P2;sha256_P2d;sha256_P2e;git_commit;git_dirty;sha256_P2F_PILOT_PLAN;sha256_P2F_PILOT_PLAN_A1;sha256_P2F_PILOT_PLAN_A2
+results/P2F_PILOT/PILOT_FALSE_VERDICTS.csv,36,test;cand;scenario,"identificativi di schema, unicita verificata",sha256_P2;sha256_P2d;sha256_P2e;git_commit;git_dirty;sha256_P2F_PILOT_PLAN;sha256_P2F_PILOT_PLAN_A1;sha256_P2F_PILOT_PLAN_A2
+results/P2F_PILOT/PILOT_POWER.csv,24,test;cand;scenario;effect,"identificativi di schema, unicita verificata",sha256_P2;sha256_P2d;sha256_P2e;git_commit;git_dirty;sha256_P2F_PILOT_PLAN;sha256_P2F_PILOT_PLAN_A1;sha256_P2F_PILOT_PLAN_A2
+results/P2F_PILOT/PILOT_RAW.csv.gz,43200,kind;test;cand;scenario;effect;k,"identificativi di schema, unicita verificata",sha256_P2;sha256_P2d;sha256_P2e;git_commit;git_dirty;sha256_P2F_PILOT_PLAN;sha256_P2F_PILOT_PLAN_A1;sha256_P2F_PILOT_PLAN_A2
+results/P2F_PILOT/POST_CHECKS.csv,20,check,"identificativi di schema, unicita verificata",sha256_P2;sha256_P2d;sha256_P2e;git_commit;git_dirty;sha256_P2F_PILOT_PLAN;sha256_P2F_PILOT_PLAN_A1;sha256_P2F_PILOT_PLAN_A2
+results/P2F_PILOT/POST_CHECKS_CHOICE_RECOUNT.csv,2,test,"identificativi di schema, unicita verificata",sha256_P2;sha256_P2d;sha256_P2e;git_commit;git_dirty;sha256_P2F_PILOT_PLAN;sha256_P2F_PILOT_PLAN_A1;sha256_P2F_PILOT_PLAN_A2
+results/P2F_PILOT/POST_CHECKS_FALSE_VERDICTS_RECOUNT.csv,36,test;cand;scenario,"identificativi di schema, unicita verificata",sha256_P2;sha256_P2d;sha256_P2e;git_commit;git_dirty;sha256_P2F_PILOT_PLAN;sha256_P2F_PILOT_PLAN_A1;sha256_P2F_PILOT_PLAN_A2
+results/P2F_PILOT/POST_CHECKS_NONFINITE_ROWS.csv,0,,tabella vuota: identita di schema e zero righe,sha256_P2;sha256_P2d;sha256_P2e;git_commit;git_dirty;sha256_P2F_PILOT_PLAN;sha256_P2F_PILOT_PLAN_A1;sha256_P2F_PILOT_PLAN_A2
+results/P2F_PILOT/POST_CHECKS_POWER_RECOUNT.csv,24,test;cand;scenario;effect,"identificativi di schema, unicita verificata",sha256_P2;sha256_P2d;sha256_P2e;git_commit;git_dirty;sha256_P2F_PILOT_PLAN;sha256_P2F_PILOT_PLAN_A1;sha256_P2F_PILOT_PLAN_A2
+results/P2F_PILOT/PRELIM_T1_REML.csv,200,k,"identificativi di schema, unicita verificata",sha256_P2;sha256_P2d;sha256_P2e;git_commit;git_dirty;sha256_P2F_PILOT_PLAN;sha256_P2F_PILOT_PLAN_A1;sha256_P2F_PILOT_PLAN_A2
+results/P2F_PILOT/PRELIM_T1_REML_RUN1.csv,200,k,"identificativi di schema, unicita verificata",sha256_P2;sha256_P2d;sha256_P2e;git_commit;git_dirty;sha256_P2F_PILOT_PLAN;sha256_P2F_PILOT_PLAN_A1
+results/P2F_PILOT/PRELIM_T2_VARFUN.csv,400,k;seed,"identificativi di schema, unicita verificata",sha256_P2;sha256_P2d;sha256_P2e;git_commit;git_dirty;sha256_P2F_PILOT_PLAN;sha256_P2F_PILOT_PLAN_A1;sha256_P2F_PILOT_PLAN_A2
+results/P2F_PILOT/PRELIM_T2_VARFUN_RUN1.csv,200,k,"identificativi di schema, unicita verificata",sha256_P2;sha256_P2d;sha256_P2e;git_commit;git_dirty;sha256_P2F_PILOT_PLAN;sha256_P2F_PILOT_PLAN_A1
+results/P2F_PILOT/PRELIM_TESTS.csv,14,test,"identificativi di schema, unicita verificata",sha256_P2;sha256_P2d;sha256_P2e;git_commit;git_dirty;sha256_P2F_PILOT_PLAN;sha256_P2F_PILOT_PLAN_A1;sha256_P2F_PILOT_PLAN_A2
+results/P2F_PILOT/PRELIM_TESTS_RUN1.csv,12,test,"identificativi di schema, unicita verificata",sha256_P2;sha256_P2d;sha256_P2e;git_commit;git_dirty;sha256_P2F_PILOT_PLAN;sha256_P2F_PILOT_PLAN_A1
 results/P3/P3_BARD_CONVENTIONS.csv,10,set;convention,"identificativi di schema, unicita verificata",sha256_P1;sha256_P1b;sha256_P1c;sha256_P1d;sha256_P1e;sha256_P3;sha256_P3b;sha256_P3c;git_commit;git_dirty
 results/P3/P3_BARD_CONVENTIONS_ATTEMPT1_STOPPED.csv,8,set;convention,"identificativi di schema, unicita verificata",sha256_P1;sha256_P1b;sha256_P1c;sha256_P1d;sha256_P1e;sha256_P3;sha256_P3b;git_commit;git_dirty
 results/P3/P3_BARD_CRITERIA.csv,6,criterion,naturale esplicita,sha256_P1;sha256_P1b;sha256_P1c;sha256_P1d;sha256_P1e;sha256_P3;sha256_P3b;sha256_P3c;git_commit;git_dirty

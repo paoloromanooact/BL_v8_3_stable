@@ -1,14 +1,15 @@
 # Regole di confronto per la riproducibilità — bozza revisionata (2026-11-11)
 
-**Bozza per revisione; non congelata.** Nessuna analisi scientifica è stata rilanciata.
+**Regole congelate per la sola fase 1** definita in `REPRO_PHASE1_PLAN.md`;
+**bozza per le altre tabelle e fasi**. Il congelamento è nel commit che introduce quel piano. Nessuna analisi scientifica è stata rilanciata.
 Le regole sono preparate leggendo schemi, riferimenti distribuiti, codice e cronologia Git;
 sono quindi informate dai risultati già disponibili, ma non da differenze di un nuovo rilancio.
-Si congelano con un commit prima della verifica effettiva. Non cambiano P1, P2 o P2f.
+Le estensioni si congelano con un commit prima della verifica effettiva. Non cambiano P1, P2 o P2f.
 
 ## 1. Ambito e tabelle di supporto
 
 L'inventario comprende le **112 tabelle già tracciate** in `results/` e `figures/*/data/` al
-commit `6166326`. Non comprende gli output P2f ancora non tracciati dell'esecuzione in corso:
+commit `21e7210` (stessi 112 riferimenti del primo inventario `6166326`). Non comprende gli output P2f ancora non tracciati dell'esecuzione in corso:
 prima della loro futura riproduzione, dovranno entrare in un'estensione dell'inventario e delle
 regole, rivista e congelata prima dei relativi rilanci. Le figure PNG non sono confrontate qui;
 il confronto dei CSV plottati non certifica da solo la corretta resa grafica.
@@ -82,9 +83,12 @@ confronto, non un'incertezza fisica, e non attribuisce a una differenza una caus
 La semantica è definita per colonna e selettore: per esempio `phi` negli stimatori temporali
 è persistenza AR, mentre `phi_mx` è flusso. `se` nelle tabelle diagnostiche correnti è errore
 Monte Carlo di una frequenza; non si applica a esso la scala della pendenza T5.
+`se_var_z` è invece l’errore standard della varianza di z sotto la normale: scala 1,
+con motivazione distinta. `gamma0`, `gamma0_c24` e `gamma0_c25` usano esplicitamente 24°.
 
 **Confronto esatto** per chiavi, verdetti, flag, conteggi grezzi, hash dei FITS e altri valori
-categoriali, anche se memorizzati come float a causa di mancanti. Le medie/quantili di conteggi
+categoriali, anche se memorizzati come float a causa di mancanti. Anche `status` è
+esatto: qualifica lo stato scientifico e non è un metadato Git intercambiabile. Le medie/quantili di conteggi
 sono statistiche continue, non conteggi grezzi. La classificazione non dipende dal fatto che
 i valori osservati siano interi: anche un flusso di 10²² Mx è una misura continua.
 
@@ -148,6 +152,7 @@ chiavi, input e provenienza; tabelle/figure derivate già disponibili; P2 e cali
 le dipendenze; diagnosi A–D; pilota; validazione P2f solo in una fase esplicita con relativo
 budget di calcolo. Ogni esclusione per costo resta `non eseguito`, non `riprodotto`.
 
-Prima del congelamento: revisione delle politiche conservative esatte e dei limiti storici di
-provenienza; fissare il sottoinsieme e i comandi della prima verifica. **Nessun rilancio o
-congelamento delle presenti regole è stato effettuato da questa ricognizione.**
+Revisione indipendente completata: `REPRO_REVIEW_21E7210.md`. Il sottoinsieme, i comandi,
+i riferimenti e il budget della prima verifica sono in `REPRO_PHASE1_PLAN.md`: solo quella
+fase è congelata. **Nessun rilancio scientifico effettuato.** Le fasi successive richiedono
+un proprio piano; i limiti storici di provenienza rimangono aperti.
