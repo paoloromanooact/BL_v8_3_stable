@@ -1,6 +1,7 @@
 """Pilota di sviluppo per P2f: due procedure candidate (M e B) sul disegno reale congelato.
 
-Piano: docs/P2F_PILOT_PLAN.md (83b0fc1) con l'emendamento docs/P2F_PILOT_PLAN_A1.md (59971e7),
+Piano: docs/P2F_PILOT_PLAN.md (83b0fc1) con gli emendamenti docs/P2F_PILOT_PLAN_A1.md (59971e7) e
+docs/P2F_PILOT_PLAN_A2.md (48039d7, funzione di varianza),
 registrati prima di questo codice. Sviluppo, non validazione: nessun verdetto, nessuna risposta
 reale (gamma, D*) usata. Il disegno reale fornisce solo CR, emisfero, latitudine, Phi, attivita',
 ciclo e celle.
@@ -25,7 +26,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from sharpbl import p2d, run_p2  # noqa: E402
 from sharpbl.provenance import ROOT, stamp  # noqa: E402
 
-PLANS = (ROOT / "docs/P2F_PILOT_PLAN.md", ROOT / "docs/P2F_PILOT_PLAN_A1.md")
+PLANS = (ROOT / "docs/P2F_PILOT_PLAN.md", ROOT / "docs/P2F_PILOT_PLAN_A1.md", ROOT / "docs/P2F_PILOT_PLAN_A2.md")
 OUT = ROOT / "results/P2F_PILOT"
 ACT = "A_monthly"
 ALPHA = p2d.ALPHA_SIDE
@@ -84,7 +85,7 @@ def seeds_ok():
     seeds += [seed_power(s, e, k) for s in (1, 2) for e in range(3) for k in range(N_POWER)]
     seeds += [seed_boot_null(s, k, t) for s in SCENARIOS for k in range(N_NULL) for t in (0, 1)]
     seeds += [seed_boot_power(s, e, k, t) for s in (1, 2) for e in range(3) for k in range(N_POWER) for t in (0, 1)]
-    seeds += [5_000_000 + k for k in range(1000)]
+    seeds += [5_000_000 + k for k in range(1000)]   # test preliminari: 1 (k<200), 2a (200-399), 2b (600-799), 3 (900)
     clash = any(lo <= x < hi for x in seeds for lo, hi in USED)
     return (not clash) and len(set(seeds)) == len(seeds)
 
@@ -197,24 +198,10 @@ def test_units(dd, test):
                 cell_cr=cell_cr, cell_hem=cell_hem, eta_c=eta_c, beta=float(g @ eta_c))
 
 
-# ---------------------------------------------------------------- candidata M: funzione di varianza (A1 §1)
+# ---------------------------------------------------------------- candidata M: funzione di varianza (A2 §2)
 
-def varfun_fit(p, logphi_c):
-    Zm = np.column_stack([np.ones_like(logphi_c), logphi_c])
-    beta = np.array([np.log(np.mean(p)), 0.0])
-    for _ in range(100):
-        eta = Zm @ beta
-        mu = np.exp(eta)
-        zw = eta + (p - mu) / mu
-        new = np.linalg.lstsq(Zm, zw, rcond=None)[0]
-        if np.max(np.abs(new - beta)) < 1e-8:
-            return new
-        beta = new
-    raise CandidateError("IRLS della funzione di varianza non convergente")
-
-
-def pseudo_obs(u):
-    """Pseudo-osservazioni e_i^2 / (1 - 2h_i + sum h_j^2) nelle celle con almeno 2 unita'."""
+def cell_residuals(u):
+    """Residui rispetto alla media di cella pesata, leve e codici di cella (A1 §2, A2 §2)."""
     if u["level"] == "region":
         mean = u["Xn"] @ wls(u["Xn"], u["w"], u["y"])
         w = u["w"]
@@ -225,16 +212,61 @@ def pseudo_obs(u):
     r = u["y"] - mean
     codes, _ = cell_keys(u["cr"], u["hem"])
     W = np.bincount(codes, weights=w)
-    ucell = np.bincount(codes, weights=w * r) / W
-    e = r - ucell[codes]
+    e = r - (np.bincount(codes, weights=w * r) / W)[codes]
     h = w / W[codes]
-    H = np.bincount(codes, weights=h ** 2)[codes]
-    ncell = np.bincount(codes)[codes]
-    multi = ncell >= 2                       # celle con una sola unita': nessuna pseudo-osservazione (A1 §5)
-    p = np.full(len(e), np.nan)
-    p[multi] = e[multi] ** 2 / (1 - 2 * h[multi] + H[multi])
-    keep = multi & (p > 0)
-    return p, keep, int((multi & ~(p > 0)).sum())
+    return e, h, codes
+
+
+class OthersSum:
+    """Somma sugli altri membri della cella, solo con addizioni (somme cumulate traslate, A2 §2)."""
+
+    def __init__(self, codes):
+        order = np.argsort(codes, kind="stable")
+        sizes = np.bincount(codes)
+        pos = np.empty(len(codes), int)
+        starts = np.concatenate([[0], np.cumsum(sizes)[:-1]])
+        pos[order] = np.arange(len(codes)) - np.repeat(starts, sizes)
+        self.codes, self.pos, self.shape = codes, pos, (len(sizes), int(sizes.max()))
+
+    def __call__(self, v):
+        M = np.zeros(self.shape)
+        M[self.codes, self.pos] = v
+        pre = np.cumsum(M, axis=1)
+        suf = np.cumsum(M[:, ::-1], axis=1)[:, ::-1]
+        pre_ex = np.concatenate([np.zeros((M.shape[0], 1)), pre[:, :-1]], axis=1)
+        suf_ex = np.concatenate([suf[:, 1:], np.zeros((M.shape[0], 1))], axis=1)
+        return (pre_ex + suf_ex)[self.codes, self.pos]
+
+
+def varfun_fit(e, h, codes, x):
+    """Funzione di varianza sigma^2 = exp(a + b x) per quasi-verosimiglianza gamma sulla media attesa esatta."""
+    multi = np.bincount(codes)[codes] >= 2
+    e, h, x = e[multi], h[multi], x[multi]
+    _, codes = np.unique(codes[multi], return_inverse=True)
+    q = e ** 2
+    others = OthersSum(codes)
+    h2 = h ** 2
+    own = (1 - h) ** 2
+    a0 = float(np.log(q.sum() / np.sum(own + others(h2))))
+    n = len(q)
+
+    def fun(th):
+        a, b = th
+        s2 = np.exp(a + b * x)
+        mu = own * s2 + others(h2 * s2)
+        dmu_b = own * s2 * x + others(h2 * s2 * x)
+        val = float(np.mean(q / mu + np.log(mu)))
+        k = (1 / mu - q / mu ** 2) / n
+        return val, np.array([float(np.sum(k * mu)), float(np.sum(k * dmu_b))])
+
+    bounds = [(a0 - 20, a0 + 20), (-5.0, 5.0)]
+    res = minimize(fun, x0=np.array([a0, 0.0]), jac=True, method="L-BFGS-B", bounds=bounds,
+                   options=dict(ftol=1e-12, gtol=1e-8, maxiter=500))
+    a, b = res.x
+    on_bound = any(abs(v - lo) < 1e-6 or abs(v - hi) < 1e-6 for v, (lo, hi) in zip(res.x, bounds))
+    if not (res.success and np.isfinite(res.fun)) or on_bound:
+        raise CandidateError("funzione di varianza: ottimizzazione non valida")
+    return np.array([a, b]), int(multi.sum()), int((q == 0).sum())
 
 
 # ---------------------------------------------------------------- candidata M: REML (A1 §2)
@@ -320,10 +352,10 @@ def cell_level(u, sig2):
 
 
 def candidate_m(u):
-    p, keep, n_nonpos = pseudo_obs(u)
+    e, h, codes = cell_residuals(u)
     logphi = np.log(u["phi"])
     m = float(np.mean(logphi))
-    ab = varfun_fit(p[keep], logphi[keep] - m)
+    ab, n_fit, n_zero = varfun_fit(e, h, codes, logphi - m)
     sig2 = np.exp(ab[0] + ab[1] * (logphi - m))
     if not np.isfinite(sig2).all():
         raise CandidateError("varianza individuale non finita")
@@ -335,8 +367,8 @@ def candidate_m(u):
     if not (np.isfinite(var) and var > 0):
         raise CandidateError("varianza di beta non finita o non positiva")
     zstat = u["beta"] / np.sqrt(var)
-    return dict(stat=float(zstat), var_a=float(ab[0]), var_b=float(ab[1]), n_pseudo=int(keep.sum()),
-                n_pseudo_nonpos=n_nonpos, **fit)
+    return dict(stat=float(zstat), var_a=float(ab[0]), var_b=float(ab[1]), n_varfun=n_fit,
+                n_zero_residuals=n_zero, **fit)
 
 
 def m_variance_given(u, sig2, phi, kappa, sigma_x2):
@@ -500,22 +532,23 @@ def _t1_series(k):
 
 
 def _t2_rep(args):
-    k, = args
+    k, base = args
     global _DESIGN
     if _DESIGN is None:
         _DESIGN = pd.read_pickle(OUT / "_design.pkl")
-    rng = np.random.default_rng(5_000_000 + 200 + k)
+    rng = np.random.default_rng(base + k)
     dd = _DESIGN.copy()
     phi = dd["phi"].to_numpy()
     c = (phi / np.median(phi)) ** -0.25
     dd["gamma"] = 15.0 * c * rng.standard_normal(len(dd))
     u = test_units(dd, "T3")
-    p, keep, _ = pseudo_obs(u)
+    e, h, codes = cell_residuals(u)
     logphi = np.log(u["phi"])
     m = float(np.mean(logphi))
-    ab = varfun_fit(p[keep], logphi[keep] - m)
+    ab, _, _ = varfun_fit(e, h, codes, logphi - m)
     a_true = np.log(225.0) - 0.5 * (m - np.log(np.median(phi)))
-    return dict(k=k, a_hat=ab[0], b_hat=ab[1], a_true=a_true, b_true=-0.5)
+    return dict(group="2a" if base == 5_000_200 else "2b", k=k, seed=base + k, a_hat=ab[0], b_hat=ab[1],
+                a_true=a_true, b_true=-0.5)
 
 
 def selftest(workers):
@@ -528,7 +561,7 @@ def selftest(workers):
     rows.append(dict(test="5_no_real_responses", value=0, condition="nessuna colonna di risposta", passed=True))
     with Pool(workers) as pool:
         t1 = pd.DataFrame(pool.map(_t1_series, range(200)))
-        t2 = pd.DataFrame(pool.map(_t2_rep, [(k,) for k in range(200)]))
+        t2 = pd.DataFrame(pool.map(_t2_rep, [(k, base) for base in (5_000_200, 5_000_600) for k in range(200)]))
     v = t1[t1["ok"] == 1]
     rows += [
         dict(test="1_reml_valid_series", value=int(t1["ok"].sum()), condition=">= 198 su 200", passed=bool(t1["ok"].sum() >= 198)),
@@ -538,11 +571,14 @@ def selftest(workers):
              passed=bool(abs(v["kappa"].mean() - 0.5) <= 0.05)),
         dict(test="1_reml_mean_sigma_x2", value=float(v["sigma_x2"].mean()), condition="|media - 1| <= 0,10",
              passed=bool(abs(v["sigma_x2"].mean() - 1.0) <= 0.10)),
-        dict(test="2_varfun_mean_b", value=float(t2["b_hat"].mean()), condition="|media + 0,5| <= 0,05",
-             passed=bool(abs(t2["b_hat"].mean() + 0.5) <= 0.05)),
-        dict(test="2_varfun_mean_a_minus_true", value=float((t2["a_hat"] - t2["a_true"]).mean()),
-             condition="|media(a_hat) - a| <= 0,05", passed=bool(abs((t2["a_hat"] - t2["a_true"]).mean()) <= 0.05)),
     ]
+    for grp, g in t2.groupby("group"):
+        rows += [
+            dict(test=f"{grp}_varfun_mean_b", value=float(g["b_hat"].mean()), condition="|media + 0,5| <= 0,05",
+                 passed=bool(abs(g["b_hat"].mean() + 0.5) <= 0.05)),
+            dict(test=f"{grp}_varfun_mean_a_minus_true", value=float((g["a_hat"] - g["a_true"]).mean()),
+                 condition="|media(a_hat) - a| <= 0,05", passed=bool(abs((g["a_hat"] - g["a_true"]).mean()) <= 0.05)),
+        ]
     # 3: wild cluster bootstrap vettorizzato contro diretto
     rng = np.random.default_rng(5_000_000 + 900)
     n, G = 30, 5
