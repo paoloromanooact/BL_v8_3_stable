@@ -33,8 +33,11 @@ regioni, pesi ΣΦ, η_c = η0_{c,h} + β_η (Ā_c − 1). β̂ = aᵀy con a la
 exp(a + b x), x = log Φ − m, m media di log Φ sulle unità del test (2485 per T3, 2375 per T5);
 r_i residui del fit WLS del **modello completo** (T3 a livello di regione con pesi Φ; T5 sulle
 celle, riportati alle regioni come z_i − η̂_c); e_i = r_i − u_{t,h} rispetto alla media di cella
-pesata di r; media attesa esatta
-μ_i = (1 − h_i)² σ_i² + Σ_{j≠i} h_j² σ_j² in forma stabile; quasi-verosimiglianza gamma; celle con una
+pesata di r; media attesa
+μ_i = (1 − h_i)² σ_i² + Σ_{j≠i} h_j² σ_j² in forma stabile (esatta per errori individuali
+indipendenti e centrati rispetto alla media di cella; **ignora l'errore della media stimata del
+fit**, di ordine 1/n, come in A2: usare i residui del fit completo non la rende esatta; la sua
+tenuta si verifica nel test preliminare 2 e nello scenario 5); quasi-verosimiglianza gamma; celle con una
 sola unità escluse dalla stima ma con σ̂²(Φ_i) assegnata dal modello; residui quadratici nulli
 tenuti e contati; partenza, vincoli, L-BFGS-B (`ftol` 10⁻¹², `gtol` 10⁻⁸, 500 iterazioni,
 gradiente analitico); non valida se senza convergenza dichiarata, Q non finita o ottimo su un
@@ -105,8 +108,20 @@ Disegno reale senza risposte, come nel pilota (`p2f_pilot.build_design`, asserzi
 di risposta; conteggi in `results/P2F_PILOT/DESIGN_CHECKS.csv`: 2485 regioni, 394 celle T3 di cui
 42 singole, 318 celle T5 con 2375 regioni). Generatore del pilota (piano §2): T3
 γ_i = (γ0 + β_frac γ0 (Â_i − 1)) sin|λ_i| + σ_e c_i ε_i + σ_x x_{t,h}, σ_e = 15, σ_x = 7,5; T5
-z_i = η̄ (1 + β_frac (Â_i − 1) + c_i ε_i + 0,5 x_{t,h}); c_i = 1 o (Φ_i/mediana Φ)^−0,25; ε
-normale o t₄ a varianza 1; x a varianza marginale 1 sulla griglia completa delle CR.
+z_i = η̄ (1 + β_frac (Ā_c − 1) + c_i ε_i + 0,5 x_{t,h}), con **Ā_c la media semplice di Â sulle
+regioni della cella** (quella della regressione T5, `run_p2.cells`), uguale per tutte le regioni
+della cella; c_i = 1 o (Φ_i/mediana Φ)^−0,25; ε normale o t₄ a varianza 1; x a varianza
+marginale 1 sulla griglia completa delle CR.
+
+**Differenza dal generatore del pilota (dichiarata):** il pilota assegnava l'effetto T5 alle
+singole regioni con Â_i; aggregando con i pesi Φ il segnale di cella seguiva la media di Â
+pesata con Φ, che differisce dalla media semplice in 215 celle su 318, e un coefficiente
+iniettato 0,2 dava una pendenza T5 di 0,19683 in una prova deterministica senza rumore. Con Ā_c
+la media aggregata segue esattamente il modello T5 e il parametro iniettato coincide con quello
+di cui si verifica la copertura. Nei residui di T5 (cella), sottrarre la previsione del modello
+completo, costante nella cella, e ricentrare nella cella elimina la previsione; il passaggio al
+fit completo da solo non rimuoverebbe un segnale che varia tra le regioni della cella.
+Il generatore del pilota resta quello storico della procedura precedente.
 
 ## 4. Scenari di validazione (tutti decisivi, fissati prima)
 
@@ -144,8 +159,9 @@ aggiungono né tolgono scenari dopo l'esecuzione.
 - **Che cosa stabilisce la validazione:** i criteri sono soddisfatti da una procedura al livello
   nominale e scartano con alta probabilità una procedura chiaramente sopra; una copertura
   osservata ≥ 96,5 % **non dimostra** una copertura effettiva del 97,5 %: la risoluzione è
-  quella di N₁, e sui dati reali l'intervallo si chiama «97,5 % nominale, validato entro circa
-  un punto negli scenari provati». I quattro scenari sotto effetto sono una verifica selezionata:
+  quella di N₁. Sui dati reali l'intervallo si descrive come «livello nominale 97,5 %; criteri
+  di validazione superati negli scenari provati», riportando la copertura osservata e la sua
+  incertezza Monte Carlo per ogni combinazione. I quattro scenari sotto effetto sono una verifica selezionata:
   le conclusioni sulla copertura valgono per essi e **non si estendono** agli altri otto.
 - **Calcolo delle probabilità di scarto** (binomiale esatta; ipotesi: cataloghi indipendenti,
   frequenza vera ripartita simmetricamente tra i versi, nessun `errore`; gli `errore` riducono i
@@ -154,11 +170,13 @@ aggiungono né tolgono scenari dopo l'esecuzione.
     probabilità 1,0 % (0,083 % per scenario, criteri complessivo e per verso insieme);
   - procedura al 3,4 % complessivo (valore del pilota per T5 con i salti), simmetrica: supera
     il solo criterio complessivo di un singolo scenario con probabilità 1,3 %;
-  - copertura vera 97,5 %: fallisce il criterio di copertura in almeno una delle 16
-    combinazioni con probabilità 4,1 % (0,26 % ciascuna); la coda inferiore vera 1,25 % supera
-    40 su 2000 in almeno una combinazione con probabilità 3,0 %;
-  - **in tutto, per test, una procedura esattamente nominale è scartata con probabilità circa
-    7,9 %** (5,1 % senza il criterio sulla coda inferiore). Una copertura vera del 96,5 % passa
+  - copertura vera 97,5 % con code simmetriche (1,25 % ciascuna): i criteri di copertura e di
+    coda inferiore si valutano **sugli stessi cataloghi** e non sono indipendenti; calcolati
+    congiuntamente (multinomiale esatta: coperto, sotto, sopra), una combinazione fallisce con
+    probabilità 0,41 % e almeno una delle 16 con il 6,3 % (separatamente sarebbero 4,1 % per
+    la copertura e 3,0 % per la coda, 7,0 % se trattate come indipendenti);
+  - **in tutto, per test, una procedura esattamente nominale è scartata con probabilità
+    7,26 %** (5,1 % senza il criterio sulla coda inferiore). Una copertura vera del 96,5 % passa
     una singola combinazione con probabilità 53 %; una coda inferiore vera del 2,0 % con il 54 %.
   Si accetta questo rischio di scarto a favore della sensibilità sulle deviazioni; non si
   ritoccano i criteri dopo l'esecuzione.
@@ -181,7 +199,9 @@ aggiungono né tolgono scenari dopo l'esecuzione.
 ## 6. Controlli obbligatori (prima e durante)
 
 1. Test del codice (come A1 §6 e A2 §3, stessi criteri, semi 20 000 000 + k; il test 2 con i
-   residui del modello completo, test 4 con la matrice completa): REML su serie
+   residui del modello completo, test 4 con la matrice completa; **test 6, nuovo:** prova
+   deterministica senza rumore (ε = 0, x = 0) con β_frac = −0,2 su T3 e T5: la stima WLS deve
+   restituire il coefficiente iniettato con scarto relativo ≤ 10⁻⁹): REML su serie
    sintetiche; funzione di varianza su 2a/2b; Var(β̂) con parametri veri contro V_true di A;
    nessuna colonna di risposta; semi. La validazione parte solo se tutti passano sullo stesso
    commit pulito.
@@ -198,11 +218,14 @@ aggiungono né tolgono scenari dopo l'esecuzione.
 - Si esegue **dopo** il commit degli output della validazione, in un passo separato che legge le
   risposte reali (`sintilt`/γ, `d_axial_bal_g`/D*) con un'opzione esplicita; una sola
   esecuzione per test.
-- Per ciascun test validato si riportano: β̂, intervallo al 97,5 % nominale (validato entro
-  circa un punto negli scenari provati, §5), esito (§1), diagnostica
+- Per ciascun test validato si riportano: β̂, intervallo («livello nominale 97,5 %; criteri di
+  validazione superati negli scenari provati», con copertura osservata e incertezza Monte Carlo
+  della validazione, §5), esito (§1), diagnostica
   (â, b̂, φ̂, κ̂, σ̂_x², `sigma_x_at_lower`, avvii validi, residui nulli), e la **lista dei δ
-  della griglia esclusi**: un quenching almeno pari a δ (cioè β ≤ −δ·scala) è «escluso al
-  97,5 %» se l'estremo inferiore dell'intervallo è > −δ·scala. È l'unico modo previsto di
+  della griglia esclusi**: un quenching almeno pari a δ (cioè β ≤ −δ·scala) è «escluso dall'intervallo a livello
+  nominale 97,5 %, validato negli scenari provati» se l'estremo inferiore dell'intervallo è
+  > −δ·scala; si riportano insieme la frequenza osservata della coda inferiore nella
+  validazione e la sua incertezza. È l'unico modo previsto di
   affermare un'assenza; potenza alta non lo autorizza.
 - Un esito `errore` sui dati reali lascia il test descrittivo.
 - **Sensibilità** (stesse formule, senza verdetto, dichiarate non validate): attività
@@ -237,6 +260,10 @@ se successivi a un esito.
 - **D5 chiusa:** A_smooth13, A_usflux, S1–S6 come sensibilità senza verdetto.
 - **Semi** corretti (sovrapposizione fra j = 5 e i test eliminata); β̂ finito richiesto; quantile
   a precisione completa.
+- **Seconda revisione (2026-11-11):** probabilità congiunta di scarto 7,26 % (non 7,9 %);
+  generatore T5 allineato al parametro della regressione (Ā_c, §3) con test deterministico 6;
+  avvertenza di A2 sulla media attesa conservata; formulazione «livello nominale 97,5 %; criteri
+  di validazione superati negli scenari provati» in §5 e §7.
 
 Dopo il congelamento questo documento non si modifica; ogni cambiamento è un emendamento
 registrato prima del passo che riguarda.
