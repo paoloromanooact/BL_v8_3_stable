@@ -37,7 +37,14 @@ dell'interpretazione (tutti i 20 controlli superati) e i risultati sono in
    (ii) effetti di interesse motivati scientificamente, non scelti per la potenza; (iii) la causa
    del livello di B è un lavoro separato, non serve per validare M; (iv) la procedura M si
    congela esattamente (errori, celle singole, convenzioni del generatore, regole separate T3/T5).
-2. Scrivere il **protocollo P2f** (`docs/PROTOCOL_P2F_*.md`), dichiaratamente non cieco rispetto
+2. [bozza scritta 2026-11-11, `docs/PROTOCOL_P2F_VALIDATED_TEST.md`, **non congelata**; da
+   chiudere le decisioni aperte D1–D5 del §10 con il revisore, poi congelare con un commit prima
+   del codice. Correzioni del revisore recepite nella bozza: il −0,35 tra cicli (Jiao et al. 2021)
+   non è una pendenza dentro il ciclo; i «1–2°» di Jiang 2020 vengono da Karak & Miesch 2017 e non
+   sono una soglia; il 30 % di Martin-Belda & Cameron 2017 non è per unità del proxio; i numeri
+   di Zeng et al. 2024 non verificati e lasciati fuori; griglia −0,1/−0,2/−0,3 con −0,2 di
+   riferimento e −0,35 supplementare; esclusione di un quenching ≥ δ solo con l'estremo
+   inferiore di un intervallo validato; A_usflux come sensibilità.] Scrivere il **protocollo P2f** (`docs/PROTOCOL_P2F_*.md`), dichiaratamente non cieco rispetto
    al pilota e alle diagnosi: candidata M; validazione con semi nuovi e distinti per scenario,
    scenari fissati prima (anche fuori dal modello AR(1): AR(2), salti, code pesanti), criteri di
    accettazione per falsi verdetti, copertura e potenza, regola di arresto; risoluzione esplicita
