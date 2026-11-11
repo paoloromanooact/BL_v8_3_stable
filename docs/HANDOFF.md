@@ -76,8 +76,20 @@ precedente (modello nullo).
    cella; esclusione di un quenching ≥ δ solo con l'estremo inferiore di un intervallo validato;
    probabilità congiunta di scarto di una procedura nominale 7,26 % per test; A_usflux come
    sensibilità. Codice (`ed90e15`), test preliminari, validazione in corso (sopra).
-3. Restano aperti dalla lista del 2026-11-09: riproducibilità (punto 1), regioni dominanti
-   (punto 2), fattibilità MDI/SMARP (punto 6), confronto con Paolo (punto 7).
+3. Dalla lista del 2026-11-09, durante l'attesa della validazione (2026-11-11 pomeriggio):
+   - riproducibilità (punto 1): **inventario** fatto, `docs/REPRODUCIBILITY_V84.md` (`8ee766e`,
+     rivisto in `32ed3b0`): input disponibili, esecuzione possibile e riproduzione verificata
+     distinti; senza Git `git_dirty = −1` blocca p2d, pilota e validazione; cinque incongruenze
+     da sistemare; la **verifica** (rilanci con regole di confronto fissate prima, manifesto di
+     hash) resta da fare a macchina libera;
+   - HARP dominanti (punto 2): piano **registrato** `docs/DOMINANT_HARP_PLAN.md` (`f805c5a`,
+     SHA-256 `e7767aea…`) dopo due revisioni; codice `python/sharpbl/dominant_harp_check.py`
+     (`a41c451`, `c61bf2d`), prova tecnica su 2 HARP con output fuori dal repository (valori P1
+     riprodotti esattamente; le due HARP viste — 393 e 5249 del gruppo 24N — vanno dichiarate
+     nei risultati). **Esecuzione dopo la fine della validazione P2f**:
+     `nice -n 10 .venv/bin/python python/sharpbl/dominant_harp_check.py` (pochi minuti), poi
+     `docs/DOMINANT_HARP_RESULTS.md`;
+   - restano fattibilità MDI/SMARP (punto 6) e confronto con Paolo (punto 7).
 4. **Non fare il push** finché l'utente non lo chiede (di norma dopo la revisione dello ZIP).
    Ultimo commit pubblicato: `23e076a`. Il file non tracciato `results/P2/P2E_VALIDATION_RAW.csv`
    (14 MB, 2026-11-03) è preesistente e va preservato, non committato.
