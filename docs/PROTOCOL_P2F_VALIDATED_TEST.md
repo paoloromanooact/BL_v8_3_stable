@@ -1,11 +1,13 @@
 # Protocollo P2f — test del quenching con la procedura M validata (T3, T5)
 
-Stato: **BOZZA per revisione, scritta il 2026-11-11, non congelata.** Diventa protocollo con un
-commit dedicato dopo la revisione; da quel momento non si modifica e il codice si scrive dopo. È
+Stato: **congelato il 2026-11-11 (sera), prima di scrivere il codice**, dopo due revisioni
+esterne della bozza (commit `09562cd`, `2618ca0`, `620920b`). Da questo commit non si modifica;
+ogni cambiamento è un emendamento registrato prima del passo che riguarda. Lo script registra
+lo SHA-256 di questo file negli output. È
 **dichiaratamente non cieco** rispetto a: la validazione fallita P2d/P2e, le diagnosi A–D, il pilota
 P2f (`docs/P2F_PILOT_RESULTS.md`) e le stime descrittive sui dati reali
 (`docs/P2_RESULTS_DESCRIPTIVE.md`, lette il 2026-11-03). Le decisioni D1–D5 sono state chiuse dopo la
-revisione della bozza (§10); resta il congelamento.
+revisione della bozza (§10); il protocollo è congelato con questo commit.
 
 Che cosa fa: fissa la procedura M (una sola), la sua validazione su risposte sintetiche sul disegno
 reale congelato, i criteri di accettazione per ciascun test, la regola di decisione e di
@@ -79,8 +81,8 @@ del periodo, non un confronto quiete–attività dentro ciascun ciclo (l'interva
 0,93–1,88 descrive solo il campione).
 
 **Griglia:** −0,1, −0,2, −0,3 della scala, con **−0,2 come riferimento centrale di
-pianificazione**; **−0,35 scenario supplementare** di «trasferimento del quenching tra cicli»
-(solo riportato). Motivazione, con i limiti:
+pianificazione**; **−0,35 effetto supplementare** di «trasferimento del quenching tra cicli»: la sua potenza è
+solo riportata, ma i criteri di copertura e di coda inferiore (§5) sono decisivi anche a −0,35. Motivazione, con i limiti:
 - Tra cicli, Jiao, Jiang & Wang (2021, A&A 653, A27) trovano per il coefficiente di Joy
   T = −0,00107 S_n + 0,61 (cicli 15–24, S_n massimo lisciato del numero di macchie): pendenza
   relativa intorno a S_n = 150 circa −0,36 per unità di forza relativa del ciclo. Riguarda il
@@ -254,7 +256,7 @@ se successivi a un esito.
   effetti fissi della REML), sotto la nulla e sotto l'alternativa; procedura unica (§1).
 - **D2 chiusa:** soglie 3,0 % complessivo, 1,75 % per verso, `errore` ≤ 1 %, copertura ≥ 96,5 %,
   coda inferiore ≤ 2,0 %; calcolo complessivo e ipotesi in §5 (scarto di una procedura nominale
-  circa 7,9 % per test).
+  7,26 % per test, calcolo congiunto).
 - **D3 chiusa:** 12 scenari; sotto effetto 1, 2, 7, 9, con conclusioni limitate a essi.
 - **D4 chiusa:** griglia −0,1/−0,2/−0,3 con −0,35 supplementare, comune ai due test.
 - **D5 chiusa:** A_smooth13, A_usflux, S1–S6 come sensibilità senza verdetto.
