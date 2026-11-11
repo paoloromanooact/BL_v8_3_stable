@@ -1,7 +1,8 @@
-# Piano di controllo delle HARP dominanti — bozza per revisione (2026-11-11)
+# Piano di controllo delle HARP dominanti (registrato il 2026-11-11)
 
-Stato: **bozza, scritta prima di qualunque codice o lettura mirata dei FITS**; diventa piano
-registrato con un commit dopo la revisione. È un controllo di qualità della misura, descrittivo:
+Stato: **piano registrato (congelato) il 2026-11-11, prima di qualunque codice o lettura mirata
+dei FITS**, dopo due revisioni esterne (`282ef4e`, `32ed3b0`). Da questo commit non si modifica;
+ogni cambiamento è un emendamento registrato prima dell'esecuzione. È un controllo di qualità della misura, descrittivo:
 non cambia il catalogo P1, non produce verdetti e non interviene sui test P2/P2f. Se un controllo
 indica un problema sistematico, la correzione richiede un emendamento al protocollo P1 e un
 ricalcolo dichiarato, non una modifica in corsa.
@@ -38,7 +39,7 @@ affidabile e non un artefatto.
 
 | Codice | Che cosa | Come | Flag se |
 |---|---|---|---|
-| M1 maschera | copertura e troncamento | frazione di pixel con bitmap ≥ 33 che toccano il bordo del riquadro | > 0 pixel di maschera sul bordo (**troncata**) |
+| M1 maschera | copertura e troncamento | frazione di pixel con bitmap ≥ 33 che toccano il bordo del riquadro | > 0 pixel di maschera sul bordo (**possibile troncamento**) |
 | M2 maschera | flusso fuori maschera | Φ di \|Br\| ≥ 100 G fuori della maschera ≥ 33 ma dentro bitmap ≥ 1, in rapporto a Φ in maschera | > 20 % (**flusso escluso**) |
 | M3 maschera | multipolarità | numero di componenti connesse (8-connettività) sopra soglia per polarità | ≥ 3 componenti per una polarità con ≥ 10 % del flusso di quella polarità (**multipolare**) |
 | P1 polarità | bilancio | \|Φ₊ − Φ₋\| / (Φ₊ + Φ₋) | > 0,5 (**sbilanciata**) |
@@ -50,8 +51,12 @@ affidabile e non un artefatto.
 | R1 record | posizione | \|longitudine di Stonyhurst\| del record primario | > 30° (**lontano dal meridiano**) |
 | R2 record | stabilità | S_BL del record di controllo / S_BL del primario (da `results/EXPLORATORY/PRIMARY_VS_CONTROL_BY_HARP.csv`, stessa HARP) | < 0,5 o > 2 o segno diverso (**instabile tra record**); se il record di controllo manca (`role = both`) o non è valido: «**non disponibile**», non un flag |
 
-**Definizioni comuni.** Δtilt è la differenza degli angoli ridotti in (−90°, 90°] (modulo 180°);
-Δd è riferita alla d della misura P1 (denominatore d_P1). Le varianti sono esattamente queste
+**Definizioni comuni.** Δtilt è la differenza tra gli angoli ridotta modulo 180° **dopo** la
+sottrazione: Δtilt = ((α_var − α_P1 + 90°) mod 180°) − 90° (ridurre separatamente gli angoli non
+basta vicino a ±90°); Δd è riferita alla d della misura P1 (denominatore d_P1). **Rapporti non
+definiti**: se S_BL,P1 = 0, R2 è «non valutabile»; lo stesso per ogni diagnostica con
+denominatore nullo (d_P1 = 0, Φ₊ + Φ₋ = 0, flusso in maschera = 0), riportata come tale e mai
+sostituita con zero o con un flag. Le varianti sono esattamente queste
 combinazioni (soglia su \|Br\|, maschera): P1 = (100 G, bitmap ≥ 33); (300 G, ≥ 33); (100 G, ≥ 1);
 per C1 la pesatura uniforme a (100 G, ≥ 33). Se in una variante una polarità non ha pixel sopra
 soglia, il confronto è «**impossibile**» e si riporta come tale, senza flag. Per ogni variante si
@@ -72,6 +77,9 @@ Tre livelli, tenuti distinti:
    S_BL,v − S_BL,P1; per gruppo, Δ_v = Σ_{HARP esaminate} (S_BL,v − S_BL,P1) in rapporto a
    **Σ|S_BL| dell'intero gruppo** (denominatore esplicito, tutta la base) e, separatamente, alla
    somma netta Σ S_BL. Vale solo per le HARP esaminate: **non certifica le HARP non esaminate**.
+   Per ogni variante si riportano **quante HARP sono confrontabili** (confronto possibile) e
+   **quale quota di Σ|S_BL| del gruppo coprono**; le HARP con confronto impossibile restano
+   fuori dalla somma e **non si sostituisce una misura mancante con zero**.
 3. **Errori confermati**: solo da evidenza specifica documentata per HARP (per esempio
    maschera che include campo di un'altra regione visibile nella scheda, polarità invertita
    rispetto alla mappa), elencati uno per uno con il motivo.
@@ -105,5 +113,8 @@ sensibilità misurate rilevanti, e un piano proprio.
 - Base: tutti i primari validi della serie principale P1 (§2), con appartenenza a S riportata.
 - Sovrapposizioni tra patch della stessa CR: **rinviate** a un eventuale controllo separato,
   con geometria e corrispondenza temporale da definire.
-- Resta da confermare prima del congelamento: le soglie dei flag (§3) e la soglia del 25 % come
-  priorità (§4).
+- Soglie dei flag (§3) e 25 % come priorità di approfondimento (§4): **confermati** dal
+  revisore come scelte operative di questo controllo descrittivo, senza validazione fisica.
+- Precisazioni finali recepite: Δtilt ridotto dopo la sottrazione; rapporti non definiti «non
+  valutabili»; confrontabilità e quota coperta riportate per variante; M1 = «possibile
+  troncamento».
