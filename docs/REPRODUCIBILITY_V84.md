@@ -1,6 +1,6 @@
 # Riproducibilità della v8.4 — inventario (2026-11-11)
 
-Inventario di sola lettura di comandi, dipendenze, input e output del branch `v8.4-python-gianluca`
+Inventario (non ancora verifica) di sola lettura di comandi, dipendenze, input e output del branch `v8.4-python-gianluca`
 (HEAD `a518115` al momento della ricognizione). **Non è una verifica eseguita**: nessuno script è
 stato rilanciato per questo documento (la validazione P2f occupava la macchina). Distingue ciò che
 si rigenera dal solo repository (o dallo ZIP) da ciò che richiede i dati esterni non tracciati.
@@ -17,8 +17,9 @@ da fare.
 - Esecuzioni numeriche con `OMP_NUM_THREADS=1` dove indicato (p2d, pilota, validazione).
 - Controlli offline: `bash scripts/check_repo.sh` (sintassi Bash, `ast.parse` di `python/` e
   `tests/`, help del launcher, pytest) e `git diff --check`. Test: `.venv/bin/python -m pytest -q tests`
-  (40 funzioni di test in 4 file, tutte su dati sintetici o file tracciati; il «20 test» di
-  `README_V84.md` è superato e va corretto).
+  (40 funzioni di test in 4 file, tutte su dati sintetici o file tracciati; i casi eseguiti sono
+  di più per la parametrizzazione; il «20 test» di `README_V84.md` è superato e va corretto con
+  il conteggio di pytest e il commit).
 
 ## 2. Input non tracciati (fuori dallo ZIP)
 
@@ -67,11 +68,17 @@ protocolli coincidenti; `p2d --validate` rifiuta un albero sporco; pilota e vali
 richiedono i test preliminari sullo stesso commit pulito; `p2f_apply` richiede decisione,
 controllo indipendente superato e SHA-256 coincidenti dei quattro output e del protocollo.
 
-**Dal solo ZIP si rigenerano**: passi 3, 6, 8–13 ed E2, cioè tutte le tabelle statistiche
-(P2, P2d/P2e, diagnosi A–D, pilota e validazione P2f), le figure P1 e le analisi esplorative
-derivate. **Richiedono i dati esterni**: il catalogo P1 (passo 5, FITS + metadati), la
-selezione (passo 2, metadati), il confronto BARD (passo 7), il fattoriale e le figure dei casi
-Hale (E1, E3).
+**Dal solo ZIP sono disponibili gli input** dei passi 3, 6, 8–13 ed E2 (tabelle statistiche
+P2, P2d/P2e, diagnosi A–D, pilota e validazione P2f, figure P1, analisi esplorative derivate).
+**Input disponibili non significa esecuzione possibile**: senza Git, `provenance.stamp()`
+restituisce `git_dirty = −1`, e `p2d.py --validate` (`if st.get("git_dirty")`), `p2f_pilot.py`
+e `p2f_validation.py` (`or st["git_dirty"]`) lo trattano come condizione di blocco. Quindi da
+un ZIP senza storia Git i passi 8, 11 e 12 **non partono**; partono 3, 6, 9, 10, 13 ed E2 (che
+registrano però `git_commit = unknown`, `git_dirty = −1`). Una modalità di riproduzione da ZIP
+va progettata a parte, senza indebolire i controlli dell'esecuzione corrente (per esempio
+confrontando con i file distribuiti e un manifesto di hash, come nel repository MWO).
+**Richiedono i dati esterni**: il catalogo P1 (passo 5, FITS + metadati), la selezione (passo
+2, metadati), il confronto BARD (passo 7), il fattoriale e le figure dei casi Hale (E1, E3).
 
 ## 4. Provenienza
 
@@ -102,7 +109,9 @@ Hale (E1, E3).
    `results/P2/P2E_DEVELOPMENT_ESTIMATORS.csv`, `P2B_CALIBRATION_RUN1_N40.*`,
    `P2B_CALIBRATION_RUN2_N100.*`. Vanno ricondotti al commit e allo script (o al passo manuale)
    che li ha generati, oppure dichiarati storici.
-4. `README_V84.md` indica «20 test»; le funzioni di test sono 40.
+4. `README_V84.md` indica «20 test»; le funzioni di test sono 40 e i casi raccolti da pytest
+   sono di più (parametrizzazione): nel README va riportato il numero raccolto da pytest con il
+   commit a cui si riferisce.
 5. `docs/CATALOGUE_DICTIONARY.md` §Riproduzione si ferma a `p2d.py --validate`: mancano la
    diagnosi A–D, il pilota e la validazione P2f (ordine in `docs/RESULTS_INDEX.md` e
    `docs/HANDOFF.md`).
@@ -111,16 +120,26 @@ Hale (E1, E3).
 
 - Che ogni CSV tracciato dichiari commit, albero pulito e SHA dei protocolli uguali ai file
   `docs/PROTOCOL_*.md` dello ZIP (controllo di coerenza, senza ricalcolo).
-- Che i passi 3, 6, 8–13 ed E2 rigenerino i file tracciati (ricalcolo; i tempi: p2d circa
-  ore, diagnosi A–D ore, pilota 1,8 h, validazione P2f stimata 15–20 h su 12 processi).
+- Che i passi 3, 6, 9, 10, 13 ed E2 rigenerino i file tracciati; i passi 8, 11 e 12 solo da un
+  clone Git (§3), con tempi di ore (p2d, diagnosi A–D), 1,8 h (pilota) e 15–20 h stimate
+  (validazione P2f) su 12 processi.
 - Che i test passino.
 - **Non** verificabile senza i dati esterni: catalogo P1, selezione, BARD, fattoriale.
+- **Verificatore P2f legato all'esecuzione originale**: `p2f_checks.py vraw` richiede la
+  provenienza `5c3b664`. Una rigenerazione futura su un altro commit richiede un controllo che
+  registri distintamente la provenienza originale e quella della riproduzione e verifichi
+  l'identità del codice scientifico (SHA-256 degli script `p2f_validation.py`, `p2f_pilot.py`,
+  `p2d.py`, `run_p2.py` e dei moduli importati) oltre a quella del protocollo.
 
 ## 7. Lavoro da fare (nessuno eseguito qui)
 
-1. Rilancio dei passi rigenerabili dal solo ZIP in una copia pulita, confronto byte per byte
-   (o numerico, dove gli output contengono date) con i file tracciati; registrare quali
-   coincidono. Da fare a macchina libera.
+1. Rilancio dei passi rigenerabili in un clone pulito, a macchina libera, con **regole di
+   confronto fissate prima**: chiavi di ordinamento delle righe per ogni file; colonne di
+   provenienza (`git_commit`, `git_dirty`, `sha256_*`, date) confrontate a parte; tolleranze
+   numeriche dichiarate per le altre colonne; per i `.csv.gz` confronto del contenuto
+   decompresso, non dell'archivio (le intestazioni gzip includono la data). Il manifesto di hash
+   (punto 2) verifica l'integrità dei file distribuiti; il rilancio verifica la riproducibilità:
+   sono due cose diverse.
 2. Aggiungere un manifesto con SHA-256 dei file tracciati (come nel repository MWO) e il suo
    controllo.
 3. Correggere le incongruenze di §5 (compressione di `P2E_VALIDATION_RAW` nello script o nel

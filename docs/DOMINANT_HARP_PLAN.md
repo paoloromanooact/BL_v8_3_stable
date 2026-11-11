@@ -16,17 +16,23 @@ affidabile e non un artefatto.
 
 ## 2. Campione (fissato prima)
 
-- Base: record primari validi v8.4 del campione S di P2 (2485 regioni, cicli 24–25, Φ ≥ 10²¹
-  Mx, non AMBIGUOUS), stessi file di P2 (`results/P1/P1_SBL_CATALOG_BY_HARP.csv`,
-  `run_p2.samples(cat)["S"]`).
-- **Gruppi**: ciclo × emisfero (24N, 24S, 25N, 25S).
-- **Dominanti**: per gruppo, le **20 HARP con |S_BL| maggiore** (80 in tutto; si riporta la
-  quota della somma di |S_BL| del gruppo che portano).
-- **Controllo**: per gruppo, **10 HARP estratte a caso** tra le restanti con Φ ≥ 10²¹ Mx (40 in
-  tutto; seme 20261111, estrazione senza reimmissione, elenco salvato), per confrontare le
-  frequenze dei flag tra dominanti e non dominanti.
-- In tutto 120 HARP, 240 FITS (Br e bitmap) del record primario, già scaricati in
-  `data/sharp`. Nessun nuovo download.
+- **Base**: tutti i record **primari validi v8.4** della serie principale P1 (`role ≠ control`,
+  `valid_bl = 1`, cicli 24 e 25; gli stessi filtri delle somme di `run_p1`), dal catalogo
+  `results/P1/P1_SBL_CATALOG_BY_HARP.csv`. Il conteggio si ricava dai filtri al momento
+  dell'esecuzione e si riporta (il 4189 di `docs/EXPLORATORY_RESULTS.md` §3 ha un denominatore
+  proprio, di confronto tra metodi, e non si assume). Per ogni HARP si riporta se appartiene
+  anche al campione S di P2.
+- **Gruppi**: ciclo × emisfero (24N, 24S, 25N, 25S), nell'ordine dato.
+- **Dominanti**: per gruppo, le **20 HARP con |S_BL| maggiore**, ordinate per |S_BL|
+  decrescente e, a parità, per `HARPNUM` crescente. Si riporta la quota di Σ|S_BL| del gruppo
+  (denominatore: somma dei valori assoluti su tutta la base del gruppo) che portano, distinta
+  dalla somma netta Σ S_BL.
+- **Controllo**: per gruppo, **10 HARP estratte a caso senza reimmissione** tra le restanti del
+  gruppo (base meno le 20 dominanti), dall'elenco ordinato per `HARPNUM` crescente, con un unico
+  generatore `numpy.random.default_rng(20261111)` usato nell'ordine dei gruppi 24N, 24S, 25N,
+  25S. L'elenco estratto è salvato.
+- In tutto 120 HARP, 240 FITS (Br e bitmap) del record primario, già in `data/sharp/fits`.
+  Nessun nuovo download.
 
 ## 3. Controlli (automatici, soglie fissate prima; esito per HARP = elenco di flag)
 
@@ -38,11 +44,18 @@ affidabile e non un artefatto.
 | P1 polarità | bilancio | \|Φ₊ − Φ₋\| / (Φ₊ + Φ₋) | > 0,5 (**sbilanciata**) |
 | P2 polarità | leading robusto | segno leading ricalcolato con soglie 100 e 300 G e con bitmap ≥ 1 | cambia in almeno una variante (**leading instabile**) |
 | P3 polarità | Hale | `hale_sign` | = −1 o 0 (**anti-Hale / non definito**), riportato |
-| C1 centroidi | pesatura | centroidi pesati con \|Br\| contro centroidi per conteggio di pixel (`hale_case_figures.pixel_centroids`) | tilt cambia > 10° **o** d cambia > 20 % (**centroidi sensibili**) |
-| C2 centroidi | soglia | centroidi a 100 G contro 300 G | come C1 |
+| C1 centroidi | pesatura | centroidi di polarità con **pesi uniformi** (uno per pixel) contro **pesi \|Br\|** (quelli di P1), stessa maschera (bitmap ≥ 33, \|Br\| ≥ 100 G) e stessa geometria sferica di `measure.py` (`hale_case_figures.pixel_centroids` usa già pesi \|Br\| e non serve) | \|Δtilt\| > 10° **o** \|Δd\|/d_P1 > 20 % (**centroidi sensibili alla pesatura**) |
+| C2 centroidi | soglia | centroidi (pesi \|Br\|) con soglia 300 G contro 100 G, maschera ≥ 33 | come C1 (**sensibili alla soglia**) |
 | N1 NOAA | complessità | `NOAA_NUM` | ≥ 2 (**più regioni NOAA**), riportato con `NOAA_ARS` |
 | R1 record | posizione | \|longitudine di Stonyhurst\| del record primario | > 30° (**lontano dal meridiano**) |
-| R2 record | stabilità | S_BL del record di controllo / S_BL del primario (da `results/EXPLORATORY/PRIMARY_VS_CONTROL_BY_HARP.csv`, stessa HARP) | < 0,5 o > 2 o segno diverso (**instabile tra record**) |
+| R2 record | stabilità | S_BL del record di controllo / S_BL del primario (da `results/EXPLORATORY/PRIMARY_VS_CONTROL_BY_HARP.csv`, stessa HARP) | < 0,5 o > 2 o segno diverso (**instabile tra record**); se il record di controllo manca (`role = both`) o non è valido: «**non disponibile**», non un flag |
+
+**Definizioni comuni.** Δtilt è la differenza degli angoli ridotti in (−90°, 90°] (modulo 180°);
+Δd è riferita alla d della misura P1 (denominatore d_P1). Le varianti sono esattamente queste
+combinazioni (soglia su \|Br\|, maschera): P1 = (100 G, bitmap ≥ 33); (300 G, ≥ 33); (100 G, ≥ 1);
+per C1 la pesatura uniforme a (100 G, ≥ 33). Se in una variante una polarità non ha pixel sopra
+soglia, il confronto è «**impossibile**» e si riporta come tale, senza flag. Per ogni variante si
+registrano Φ, d, tilt e S_BL ricalcolati (servono a §4).
 
 Ogni HARP ha inoltre una **scheda visiva** (`figures/DOMINANT/<HARPNUM>.png`): mappa Br con
 contorni della maschera ≥ 33 e ≥ 1, centroidi delle polarità (pesati e per conteggio), segmento
@@ -51,16 +64,29 @@ producono flag.
 
 ## 4. Sintesi e lettura (fissate prima)
 
-- Tabella per HARP (`results/DOMINANT/DOMINANT_HARP_CHECKS.csv`): gruppo, rango, |S_BL|, quota
-  del gruppo, valori e flag di ogni controllo, dominante/controllo.
-- Per gruppo: numero di HARP con ciascun flag tra le 20 dominanti e tra le 10 di controllo;
-  **quota della somma di |S_BL| del gruppo portata da HARP con almeno un flag di misura**
-  (M1–M3, P2, C1–C2; i flag P1, P3, N1, R1, R2 sono descrittivi).
-- Lettura: se in un gruppo le HARP con un flag di misura portano **più del 25 %** della somma
-  di |S_BL|, la somma di quel gruppo si dichiara **sensibile alle scelte di misura** e si
-  propone un emendamento a P1 con un ricalcolo dichiarato; altrimenti si registra l'esito.
-  Nessun flag autorizza a rimuovere una HARP dal catalogo in questo controllo.
-- Confronto dominanti/controllo: frequenze dei flag riportate; nessun test statistico.
+Tre livelli, tenuti distinti:
+1. **Segnalazioni** (flag di §3): indicano proprietà da esaminare, non errori. Una maschera al
+   bordo è un *possibile* troncamento; multipolarità e anti-Hale possono essere proprietà
+   fisiche reali; più regioni NOAA è complessità, non errore.
+2. **Sensibilità misurate**: per ogni HARP esaminata e per ogni variante v di §3, la differenza
+   S_BL,v − S_BL,P1; per gruppo, Δ_v = Σ_{HARP esaminate} (S_BL,v − S_BL,P1) in rapporto a
+   **Σ|S_BL| dell'intero gruppo** (denominatore esplicito, tutta la base) e, separatamente, alla
+   somma netta Σ S_BL. Vale solo per le HARP esaminate: **non certifica le HARP non esaminate**.
+3. **Errori confermati**: solo da evidenza specifica documentata per HARP (per esempio
+   maschera che include campo di un'altra regione visibile nella scheda, polarità invertita
+   rispetto alla mappa), elencati uno per uno con il motivo.
+
+Tabelle: per HARP (`results/DOMINANT/DOMINANT_HARP_CHECKS.csv`: gruppo, rango, dominante o
+controllo, appartenenza a S, |S_BL|, quota di Σ|S_BL| del gruppo, valori e flag, valori
+ricalcolati per variante, confronti impossibili); per gruppo, frequenze dei flag tra dominanti
+e controlli (nessun test statistico) e Δ_v per variante.
+
+Lettura: la quota di Σ|S_BL| del gruppo portata da HARP con segnalazioni di misura (M1–M3, P2,
+C1–C2) è una **priorità di approfondimento** se supera il 25 %, non una dimostrazione che la
+somma cambi. Si parla di **sensibilità** solo per differenze effettivamente ricalcolate
+(livello 2); un valore sotto il 25 % non certifica nulla sulle HARP non esaminate. **Nessun
+emendamento a P1 scatta dai flag**: una proposta di emendamento richiede errori confermati o
+sensibilità misurate rilevanti, e un piano proprio.
 
 ## 5. Esecuzione
 
@@ -72,10 +98,12 @@ producono flag.
 - Risultati in `docs/DOMINANT_HARP_RESULTS.md`; una sola esecuzione; eventuali correzioni del
   codice dopo un esito richiedono un emendamento registrato.
 
-## 6. Da decidere con il revisore prima del congelamento
+## 6. Scelte chiuse con il revisore (2026-11-11) e rinvii
 
-- Numerosità (20 + 10 per gruppo) e soglie dei flag (§3).
-- Se usare il campione S (2485) o tutti i record primari validi (4189) come base: proposta S,
-  perché è quello dei test.
-- Se aggiungere un controllo sulla distanza tra la maschera e le HARP vicine nella stessa CR
-  (sovrapposizione di patch), oggi non previsto.
+- Numerosità 20 + 10 per gruppo: confermata, con ordinamento, pari merito e ordine delle
+  estrazioni fissati in §2.
+- Base: tutti i primari validi della serie principale P1 (§2), con appartenenza a S riportata.
+- Sovrapposizioni tra patch della stessa CR: **rinviate** a un eventuale controllo separato,
+  con geometria e corrispondenza temporale da definire.
+- Resta da confermare prima del congelamento: le soglie dei flag (§3) e la soglia del 25 % come
+  priorità (§4).
