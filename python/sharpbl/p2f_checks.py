@@ -2,6 +2,7 @@
 
     .venv/bin/python python/sharpbl/p2f_checks.py design   # conteggi del disegno congelato -> DESIGN_CHECKS.csv (prima degli esiti)
     .venv/bin/python python/sharpbl/p2f_checks.py raw      # finitezza e riconteggio indipendente di PILOT_RAW.csv.gz -> POST_CHECKS.csv
+    .venv/bin/python python/sharpbl/p2f_checks.py diag     # diagnostica descrittiva (parametri di M, errori, cluster di B), non entra nella scelta
 
 `design` non legge risposte reali (usa `p2f_pilot.build_design`) e genera risposte sintetiche con il seme
 5 000 950 (intervallo dei test preliminari, mai usato) solo per costruire le unita'. `raw` ricalcola i
@@ -144,5 +145,32 @@ def raw_checks():
     return 0 if out["passed"].all() else 2
 
 
+def diagnostics():
+    """Diagnostica descrittiva delle candidate (non entra nella scelta): parametri stimati di M, errori, cluster di B."""
+    raw = pd.read_csv(P.OUT / "PILOT_RAW.csv.gz", low_memory=False, keep_default_na=False, na_values=["", "nan", "NaN"])
+    st = P.provenance()
+    m = raw[raw["cand"] == "M"]
+    rows = []
+    for (test, kind, s, e), g in m.groupby(["test", "kind", "scenario", "effect"]):
+        ok = g[g["verdict"] != "errore"]
+        r = dict(test=test, kind=kind, scenario=s, effect=e, n=len(g), errors=int((g["verdict"] == "errore").sum()))
+        for col in ("phi", "kappa", "sigma_x2", "var_a", "var_b", "n_valid_starts", "n_zero_residuals", "n_varfun"):
+            q = ok[col].quantile([0.1, 0.5, 0.9])
+            r.update({f"{col}_q10": q.iloc[0], f"{col}_median": q.iloc[1], f"{col}_q90": q.iloc[2], f"{col}_mean": ok[col].mean()})
+        r["frac_sigma_x_at_lower"] = ok["sigma_x_at_lower"].mean()
+        rows.append(r)
+    pd.DataFrame(rows).assign(**st).to_csv(P.OUT / "PILOT_DIAGNOSTICS_M.csv", index=False)
+    err = raw[raw["verdict"] == "errore"].groupby(["test", "cand", "kind", "scenario", "effect", "error"]).size().reset_index(name="n")
+    err.assign(**st).to_csv(P.OUT / "PILOT_ERRORS.csv", index=False)
+    b = raw[raw["cand"] == "B"].groupby("test")["n_clusters"].agg(["min", "max"]).reset_index()
+    with pd.option_context("display.width", 250, "display.max_columns", 40):
+        print(pd.DataFrame(rows)[["test", "kind", "scenario", "effect", "n", "errors", "phi_median", "kappa_median", "sigma_x2_median",
+                                  "frac_sigma_x_at_lower", "var_b_mean", "n_valid_starts_mean", "n_zero_residuals_mean"]].round(4).to_string(index=False))
+        print(err.to_string(index=False))
+        print(b.to_string(index=False))
+    return 0
+
+
 if __name__ == "__main__":
-    sys.exit(design_checks() if sys.argv[1:] == ["design"] else raw_checks() if sys.argv[1:] == ["raw"] else 2)
+    cmd = sys.argv[1:]
+    sys.exit(design_checks() if cmd == ["design"] else raw_checks() if cmd == ["raw"] else diagnostics() if cmd == ["diag"] else 2)
