@@ -58,6 +58,19 @@ dichiarate non validate anche negli intervalli), risultati in `docs/P2F_RESULTS.
 validato resta descrittivo. Gli output del pilota restano risultati storici della procedura
 precedente (modello nullo).
 
+**Ripresa con Codex, revisione delle bozze di riproducibilità (2026-11-11):**
+le modifiche parziali lasciate da Claude sono state conservate e completate. Regole in
+`docs/REPRO_COMPARISON_RULES.md` ancora **bozza non congelata**; 112 tabelle tracciate
+inventariate, 111 chiavi univoche e una tabella vuota; scale fisse per colonna/test/quantità,
+con eta_bar ed eta_bar² per T5 e confronto esatto conservativo per semantiche eterogenee.
+`scripts/repro_draft_tables.py` prepara le tre tabelle di supporto senza importare codice
+scientifico. Distinti commit del riferimento, commit registrati nei dati ed eccezioni storiche
+dei JSON P2b o degli alberi originali non puliti. Verificati schema/chiavi e controlli sintetici
+delle politiche numeriche; nessun rilancio di analisi. Prima della verifica effettiva: revisione
+e congelamento delle regole, elenco di file/comandi/budget. Gli output P2f in corso non fanno
+parte dell'inventario tracciato corrente; andranno aggiunti prima della loro riproduzione.
+La validazione originale, i suoi input e `_design.pkl` restano invariati. Nessun push.
+
 **Prossimi passi**
 1. [fatto 2026-11-11] Revisione esterna dello ZIP `2e197f8`: riconteggio dai dati grezzi
    confermato, conclusione operativa corretta (M alla validazione, B scartata nella forma

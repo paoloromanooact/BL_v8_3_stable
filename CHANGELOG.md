@@ -2,6 +2,13 @@
 
 ## v8.4 (Python, branch `v8.4-python-gianluca`) — in corso
 
+- 2026-11-11: revisione delle bozze di confronto della riproducibilità, senza rilanci:
+  chiavi delle 112 tabelle (111 univoche e una tabella vuota), scale fisiche fisse per
+  colonna/test/quantità, conteggi e decisioni esatti anche se float, provenienza del riferimento
+  distinta da quella del codice, eccezioni storiche dichiarate. Aggiunto il preparatore
+  `scripts/repro_draft_tables.py` con controlli sintetici delle politiche. Regole ancora in bozza;
+  nessun risultato scientifico o protocollo congelato modificato.
+
 - Porting in Python (`python/sharpbl/`); il codice IDL v8.3 resta come riferimento.
 - Geometria: longitudine e latitudine dalla WCS completa (le mappe SHARP CEA sono
   oblique, centrate sulla patch); centroidi, distanza e tilt sulla sfera.

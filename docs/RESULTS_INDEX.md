@@ -1,9 +1,15 @@
 # Indice di figure e tabelle: dati, script, commit
 
-Ogni CSV di risultato contiene anche le colonne `git_commit` (codice che l'ha
-prodotto), `git_dirty` e gli SHA-256 dei protocolli; quelli esplorativi anche
-`status` e gli SHA-256 dei file di input. "Commit" qui è quello che ha
-aggiunto o aggiornato il file nel repository.
+Le esecuzioni recenti registrano `git_commit`, `git_dirty` e gli SHA-256 dei protocolli;
+alcune tabelle derivate ereditano la provenienza dagli input, e alcuni file storici non la
+registrano. Le eccezioni sono nella tabella finale. "Commit" nell'indice è quello che ha
+aggiunto o aggiornato il file nel repository, distinto dal commit del codice eseguito.
+
+La bozza `docs/REPRO_GIT_REFERENCES_DRAFT.csv` separa per ogni tabella il commit/blob
+del riferimento distribuito, i commit registrati nei dati e l'eventuale codice effettivo
+dichiarato con evidenza (JSON storici P2b). È una ricognizione, non una certificazione
+dell'identità del produttore o della riproduzione numerica. Regole e scale proposte:
+`docs/REPRO_COMPARISON_RULES.md` e le due tabelle di chiavi e scale associate.
 
 | Elemento | File | Dati tracciati / input | Script | Commit | Stato |
 |---|---|---|---|---|---|

@@ -60,6 +60,8 @@ docs/REPOSITORY.md
 docs/REPRODUCIBILITY_V84.md
 docs/REPRO_COMPARISON_KEYS_DRAFT.csv
 docs/REPRO_COMPARISON_RULES.md
+docs/REPRO_COMPARISON_SCALES_DRAFT.csv
+docs/REPRO_GIT_REFERENCES_DRAFT.csv
 docs/RESULTS_INDEX.md
 docs/SEEN_BEFORE_FREEZE_2026-11-03.md
 docs/SENSITIVITY_SUMMARY.md
@@ -255,6 +257,7 @@ results/P3/P3_RANDOM_CONTROL.csv
 scripts/check_repo.sh
 scripts/download_test_20240508.sh
 scripts/process_test_20240508_idl_commands.pro
+scripts/repro_draft_tables.py
 scripts/run_pipeline.sh
 test/test_process_day.pro
 test/test_sharp_bl_source_single.pro
