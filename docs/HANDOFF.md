@@ -1,5 +1,73 @@
 # Cold restart — SHARP BL
 
+## ⇒ Passaggio di consegne del 2026-11-11 (leggere per primo)
+
+**Stato:** il **pilota di sviluppo di P2f** è in esecuzione, partito il 2026-11-11 alle 10:17
+in modo distaccato (`setsid nohup`, sopravvive alla chiusura della sessione), PID 948816,
+log `logs/p2f_pilot.log` (avanzamento ogni 250 cataloghi su 10 800). Fine prevista verso le
+12:45–13:15 (stima dal ritmo iniziale). Controllo: `pgrep -af p2f_pilot` e
+`tail logs/p2f_pilot.log`.
+
+**Che cosa si sta facendo** (punto 5 della lista "Prossimi passi" sotto): scegliere tra due
+procedure candidate per T3 e T5 sul disegno reale congelato, senza usare le risposte reali.
+- Progettazione: `docs/P2F_DESIGN.md` (§7 con le decisioni dopo la revisione).
+- Piano: `docs/P2F_PILOT_PLAN.md` (`83b0fc1`), emendamenti `docs/P2F_PILOT_PLAN_A1.md`
+  (`59971e7`) e `docs/P2F_PILOT_PLAN_A2.md` (`48039d7`, non cieco: dopo il fallimento del test
+  2, esecuzione 1 conservata come `results/P2F_PILOT/PRELIM_*_RUN1.csv`).
+- Codice: `python/sharpbl/p2f_pilot.py` (commit `67058f6`). Test preliminari rieseguiti su
+  quel commit: tutti superati. Gli output sono in `results/P2F_PILOT/PRELIM_TESTS.csv`,
+  `PRELIM_T1_REML.csv` e `PRELIM_T2_VARFUN.csv`, **non ancora committati di proposito**: il
+  pilota verifica che i test siano dello stesso commit da cui parte.
+
+**Quando il pilota finisce:**
+1. Controllare il log (ultime righe: tabelle e scelta) e la provenienza degli output in
+   `results/P2F_PILOT/`: `PILOT_RAW.csv.gz`, `PILOT_FALSE_VERDICTS.csv`, `PILOT_POWER.csv`,
+   `PILOT_CHOICE.csv`. Devono avere `git_commit` = `67058f6…`, `git_dirty` = 0 e gli SHA-256
+   dei tre piani. `_design.pkl` è escluso da Git e non va committato.
+2. Fare il commit degli output dei test preliminari e del pilota.
+3. Scrivere `docs/P2F_PILOT_RESULTS.md` applicando **esattamente** le regole registrate
+   (piano §5 e A1 §4), separatamente per T3 e T5:
+   - una candidata è mantenuta se ha ≤ 40 falsi verdetti su 1000 tentativi in **ognuno** dei
+     9 scenari e ≤ 2% di esiti `errore`;
+   - potenza calcolata su tutti i 300 tentativi, con gli `errore` contati come mancati
+     rilevamenti;
+   - se sono mantenute entrambe, vince la potenza media più alta negli scenari 1 e 2
+     all'effetto −0,2 (B in caso di parità entro 0,02); se nessuna, il test resta descrittivo.
+
+   È **sviluppo, non validazione**: nessun verdetto, nessuna applicazione ai dati reali.
+4. Aggiornare questa sezione, `CHANGELOG.md`, `docs/RESULTS_INDEX.md` e `MANIFEST.txt`
+   (`git ls-files > MANIFEST.txt`).
+5. Preparare lo ZIP per il revisore:
+   `git archive --format=zip --prefix=BL_v8_3_stable-v8.4-python-gianluca/ -o ~/Downloads/BL_v8_3_stable-v8.4-python-gianluca-<hash>.zip HEAD`.
+   Dare all'utente il percorso esatto.
+6. **Non fare il push** finché l'utente non lo chiede (di norma dopo la revisione dello ZIP).
+   Ultimo commit pubblicato: `23e076a`.
+
+Se il pilota si interrompe o un controllo fallisce: riportarlo, conservare gli output e non
+rieseguire con modifiche senza un emendamento registrato prima.
+
+**Modo di lavorare concordato con l'utente**
+- Le osservazioni di un revisore esterno arrivano incollate dall'utente; di norma si adottano.
+- Ogni regola o analisi nuova ha un piano registrato con un commit **prima** del codice.
+  I cambiamenti si fanno con emendamenti, dichiarati non ciechi se scritti dopo aver visto dei
+  risultati. Ogni esecuzione è unica e gli output con `git_commit` e `git_dirty` = 0.
+- Formulazioni prudenti: niente verdetti sul quenching; "compatibile" o "coerente", non
+  "dimostra"; denominatori espliciti; distinguere i controlli completi da quelli campionari.
+- Commit locali; push solo su richiesta, con il token dell'URL `origin` del repository MWO
+  passato **solo** sulla riga di comando, mai salvato nella configurazione di questo
+  repository.
+- Esecuzioni lunghe: `setsid nohup … &`. Per aspettarle si usa `kill -0 <PID>` in un ciclo,
+  **non** `pgrep -f` sul nome dello script (il ciclo riconosce sé stesso).
+- Rispondere in italiano.
+
+**Prompt da incollare nella nuova sessione:**
+
+> Riprendi SHARP BL v8.4 nel repository /home/gianluca/BL_v8_3_stable, branch
+> v8.4-python-gianluca. Leggi AGENTS.md e docs/HANDOFF.md (sezione "Passaggio di consegne del
+> 2026-11-11"), poi docs/P2F_PILOT_PLAN.md con gli emendamenti A1 e A2. Controlla se il
+> pilota P2f (PID 948816, log logs/p2f_pilot.log) è ancora in corso. Quando è finito, segui i
+> passi elencati nel passaggio di consegne. Non fare il push senza la mia richiesta.
+
 ## Branch `v8.4-python-gianluca` (stato del 2026-11-09)
 
 Questa sezione vale per il branch v8.4 (Gianluca Santagati); la sezione v8.3
