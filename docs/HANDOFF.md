@@ -1,58 +1,63 @@
 # Cold restart — SHARP BL
 
-## ⇒ Passaggio di consegne del 2026-11-11 (leggere per primo)
+## ⇒ Passaggio di consegne del 2026-11-11, sera (leggere per primo)
 
-**Stato:** il **pilota di sviluppo di P2f** è in esecuzione, partito il 2026-11-11 alle 10:17
-in modo distaccato (`setsid nohup`, sopravvive alla chiusura della sessione), PID 948816,
-log `logs/p2f_pilot.log` (avanzamento ogni 250 cataloghi su 10 800). Fine prevista verso le
-12:45–13:15 (stima dal ritmo iniziale). Controllo: `pgrep -af p2f_pilot` e
-`tail logs/p2f_pilot.log`.
+**Stato:** il **pilota di sviluppo di P2f** è terminato (esecuzione unica, 10:17–12:06, commit del
+codice `67058f6`), gli output sono committati, il controllo indipendente è stato eseguito prima
+dell'interpretazione (tutti i 20 controlli superati) e i risultati sono in
+`docs/P2F_PILOT_RESULTS.md`. Nessun processo in esecuzione.
 
-**Che cosa si sta facendo** (punto 5 della lista "Prossimi passi" sotto): scegliere tra due
-procedure candidate per T3 e T5 sul disegno reale congelato, senza usare le risposte reali.
-- Progettazione: `docs/P2F_DESIGN.md` (§7 con le decisioni dopo la revisione).
-- Piano: `docs/P2F_PILOT_PLAN.md` (`83b0fc1`), emendamenti `docs/P2F_PILOT_PLAN_A1.md`
-  (`59971e7`) e `docs/P2F_PILOT_PLAN_A2.md` (`48039d7`, non cieco: dopo il fallimento del test
-  2, esecuzione 1 conservata come `results/P2F_PILOT/PRELIM_*_RUN1.csv`).
-- Codice: `python/sharpbl/p2f_pilot.py` (commit `67058f6`). Test preliminari rieseguiti su
-  quel commit: tutti superati. Gli output sono in `results/P2F_PILOT/PRELIM_TESTS.csv`,
-  `PRELIM_T1_REML.csv` e `PRELIM_T2_VARFUN.csv`, **non ancora committati di proposito**: il
-  pilota verifica che i test siano dello stesso commit da cui parte.
+**Esito del pilota** (regole registrate nel piano §5 e A1 §4, applicate alla lettera):
+- candidata **M** (funzione di varianza + REML AR(1) bivariata sulle medie di cella, decisione
+  analitica) **mantenuta** per T3 (massimo 24 falsi verdetti su 1000) e T5 (massimo 34, scenario a
+  salti); `errore` ≤ 0,1 %;
+- candidata **B** (wild cluster bootstrap ristretto, blocchi di 13 CR, Webb, CR1) **non
+  mantenuta**: oltre 40 falsi in 7 scenari su 9 (T3) e 8 su 9 (T5), già 32 e 54 su 1000 senza
+  componente temporale;
+- **scelta: M per T3 e per T5**. Potenza di M bassa in T3 (≤ 0,24 agli effetti −0,1…−0,3·γ0),
+  moderata in T5 solo a −0,3·η̄ (0,45–0,65).
+- È **sviluppo, non validazione**: nessun verdetto, nessun dato reale usato. B non va «aggiustata»
+  dopo aver visto i risultati; una variante richiede un nuovo piano, dichiarato non cieco.
 
-**Quando il pilota finisce:**
-1. Controllare il log (ultime righe: tabelle e scelta) e la provenienza degli output in
-   `results/P2F_PILOT/`: `PILOT_RAW.csv.gz`, `PILOT_FALSE_VERDICTS.csv`, `PILOT_POWER.csv`,
-   `PILOT_CHOICE.csv`. Devono avere `git_commit` = `67058f6…`, `git_dirty` = 0 e gli SHA-256
-   dei tre piani. `_design.pkl` è escluso da Git e non va committato.
-2. Fare il commit degli output dei test preliminari e del pilota.
-3. Scrivere `docs/P2F_PILOT_RESULTS.md` applicando **esattamente** le regole registrate
-   (piano §5 e A1 §4), separatamente per T3 e T5:
-   - una candidata è mantenuta se ha ≤ 40 falsi verdetti su 1000 tentativi in **ognuno** dei
-     9 scenari e ≤ 2% di esiti `errore`;
-   - potenza calcolata su tutti i 300 tentativi, con gli `errore` contati come mancati
-     rilevamenti;
-   - se sono mantenute entrambe, vince la potenza media più alta negli scenari 1 e 2
-     all'effetto −0,2 (B in caso di parità entro 0,02); se nessuna, il test resta descrittivo.
+**Documenti di questa fase**
+- Piano `docs/P2F_PILOT_PLAN.md` (`83b0fc1`), emendamenti A1 (`59971e7`) e A2 (`48039d7`, non
+  cieco rispetto al test preliminare 2 fallito; esecuzione 1 conservata come `PRELIM_*_RUN1.csv`).
+- Nota d'implementazione `docs/P2F_PILOT_IMPLEMENTATION_NOTE.md` (`211b3ed`, registrata durante
+  l'esecuzione, prima degli esiti): tre convenzioni non fissate dal piano (origine dei blocchi di
+  B per T5 alla CR 2097; componenti per rotazione separate per T3 e T5; mediana di Φ sul
+  disegno), conteggi del disegno in `results/P2F_PILOT/DESIGN_CHECKS.csv`, controllo di
+  finitezza e riconteggio (`python/sharpbl/p2f_checks.py design | raw | diag`).
+- Risultati `docs/P2F_PILOT_RESULTS.md`; voci in `CHANGELOG.md` e `docs/RESULTS_INDEX.md`.
 
-   È **sviluppo, non validazione**: nessun verdetto, nessuna applicazione ai dati reali.
-4. Aggiornare questa sezione, `CHANGELOG.md`, `docs/RESULTS_INDEX.md` e `MANIFEST.txt`
-   (`git ls-files > MANIFEST.txt`).
-5. Preparare lo ZIP per il revisore:
-   `git archive --format=zip --prefix=BL_v8_3_stable-v8.4-python-gianluca/ -o ~/Downloads/BL_v8_3_stable-v8.4-python-gianluca-<hash>.zip HEAD`.
-   Dare all'utente il percorso esatto.
-6. **Non fare il push** finché l'utente non lo chiede (di norma dopo la revisione dello ZIP).
-   Ultimo commit pubblicato: `23e076a`.
-
-Se il pilota si interrompe o un controllo fallisce: riportarlo, conservare gli output e non
-rieseguire con modifiche senza un emendamento registrato prima.
+**Prossimi passi**
+1. Revisione scientifica dei risultati e della scelta (le osservazioni del revisore esterno
+   arrivano incollate dall'utente; di norma si adottano). Punti da discutere: il livello di B
+   sopra il nominale già senza componente temporale (da capire, non da correggere in corsa); il
+   3,4 % di M nello scenario a salti in T5; la potenza bassa di M in T3 e la scelta degli effetti
+   di interesse scientifico.
+2. Scrivere il **protocollo P2f** (`docs/PROTOCOL_P2F_*.md`), dichiaratamente non cieco rispetto
+   al pilota e alle diagnosi: candidata M; validazione con semi nuovi e distinti per scenario,
+   scenari fissati prima (anche fuori dal modello AR(1): AR(2), salti, code pesanti), criteri di
+   accettazione per falsi verdetti, copertura e potenza, regola di arresto; risoluzione esplicita
+   delle tre convenzioni della nota d'implementazione; effetti di interesse scientifico;
+   applicazione ai dati reali solo se la validazione passa. Un protocollo scritto prima del
+   codice e congelato con un commit.
+3. Restano aperti dalla lista del 2026-11-09: riproducibilità (punto 1), regioni dominanti
+   (punto 2), fattibilità MDI/SMARP (punto 6), confronto con Paolo (punto 7).
+4. **Non fare il push** finché l'utente non lo chiede (di norma dopo la revisione dello ZIP).
+   Ultimo commit pubblicato: `23e076a`. Il file non tracciato `results/P2/P2E_VALIDATION_RAW.csv`
+   (14 MB, 2026-11-03) è preesistente e va preservato, non committato.
 
 **Modo di lavorare concordato con l'utente**
 - Le osservazioni di un revisore esterno arrivano incollate dall'utente; di norma si adottano.
 - Ogni regola o analisi nuova ha un piano registrato con un commit **prima** del codice.
   I cambiamenti si fanno con emendamenti, dichiarati non ciechi se scritti dopo aver visto dei
-  risultati. Ogni esecuzione è unica e gli output con `git_commit` e `git_dirty` = 0.
+  risultati. Ogni esecuzione è unica e gli output con `git_commit` e `git_dirty` = 0. Gli output
+  di un'esecuzione non si modificano mai; riconteggi e riclassificazioni si salvano a parte.
+- Il controllo indipendente degli output precede la loro interpretazione.
 - Formulazioni prudenti: niente verdetti sul quenching; "compatibile" o "coerente", non
-  "dimostra"; denominatori espliciti; distinguere i controlli completi da quelli campionari.
+  "dimostra"; denominatori espliciti; distinguere i controlli completi da quelli campionari;
+  niente «impatto trascurabile» se non misurato.
 - Commit locali; push solo su richiesta, con il token dell'URL `origin` del repository MWO
   passato **solo** sulla riga di comando, mai salvato nella configurazione di questo
   repository.
@@ -64,9 +69,9 @@ rieseguire con modifiche senza un emendamento registrato prima.
 
 > Riprendi SHARP BL v8.4 nel repository /home/gianluca/BL_v8_3_stable, branch
 > v8.4-python-gianluca. Leggi AGENTS.md e docs/HANDOFF.md (sezione "Passaggio di consegne del
-> 2026-11-11"), poi docs/P2F_PILOT_PLAN.md con gli emendamenti A1 e A2. Controlla se il
-> pilota P2f (PID 948816, log logs/p2f_pilot.log) è ancora in corso. Quando è finito, segui i
-> passi elencati nel passaggio di consegne. Non fare il push senza la mia richiesta.
+> 2026-11-11, sera"), poi docs/P2F_PILOT_RESULTS.md e docs/P2F_PILOT_IMPLEMENTATION_NOTE.md.
+> Verifica lo stato di Git. Il prossimo passo è la revisione scientifica dei risultati del
+> pilota e poi il protocollo P2f, scritto prima del codice. Non fare il push senza la mia richiesta.
 
 ## Branch `v8.4-python-gianluca` (stato del 2026-11-09)
 

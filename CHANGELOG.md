@@ -82,6 +82,15 @@
   `results/P2F_PILOT/DESIGN_CHECKS.csv` (`p2f_checks.py design`), controllo di finitezza e
   riconteggio indipendente da eseguire prima dell'interpretazione (`p2f_checks.py raw`, output
   del pilota mai modificati).
+- 2026-11-11, pilota di sviluppo P2f eseguito (esecuzione unica, commit `67058f6`, 10:17–12:06,
+  `results/P2F_PILOT/PILOT_*`), controllo indipendente prima dell'interpretazione
+  (`POST_CHECKS.csv`: 20 controlli superati, nessuna statistica non finita, riconteggio identico)
+  e risultati in `docs/P2F_PILOT_RESULTS.md`: con le regole registrate (≤ 40 falsi verdetti su
+  1000 in ognuno dei 9 scenari e `errore` ≤ 2 %) la candidata M è mantenuta per T3 (massimo 24)
+  e T5 (massimo 34, scenario a salti) e la candidata B non lo è (oltre 40 in 7 scenari su 9 per
+  T3 e 8 su 9 per T5, già 32 e 54 senza componente temporale); scelta: M per entrambi i test.
+  Potenza di M bassa in T3 (≤ 0,24 agli effetti provati). Sviluppo, non validazione: nessun
+  verdetto, nessun dato reale.
 - 2026-11-09, controlli diretti su C1 richiesti dalla revisione (`diag_c1_checks.py`):
   ingressi finiti in tutti gli 8000 casi; verifica diretta delle simulazioni solo nei 400
   casi campionati (finite, verdetti identici); per T3, nel confronto analitico, la
