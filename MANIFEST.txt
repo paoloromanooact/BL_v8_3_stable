@@ -32,6 +32,7 @@ docs/HANDOFF.md
 docs/P2E_V0_APPLICABILITY_DISCREPANCY.md
 docs/P2F_DESIGN.md
 docs/P2F_PILOT_PLAN.md
+docs/P2F_PILOT_PLAN_A1.md
 docs/P2_DECISION_DESCRIPTIVE_FALLBACK.md
 docs/P2_RESULTS_DESCRIPTIVE.md
 docs/P3_RESULTS_C1.md
@@ -118,6 +119,7 @@ python/sharpbl/geometry.py
 python/sharpbl/hale_case_figures.py
 python/sharpbl/measure.py
 python/sharpbl/p2d.py
+python/sharpbl/p2f_pilot.py
 python/sharpbl/provenance.py
 python/sharpbl/recurrence.py
 python/sharpbl/run_p1.py
@@ -204,6 +206,9 @@ results/P2/P2_T2_INTERCYCLE.csv
 results/P2/P2_T3_TILT_QUENCHING.csv
 results/P2/P2_T4_LATITUDE_QUENCHING.csv
 results/P2/P2_T5_EFFICIENCY.csv
+results/P2F_PILOT/PRELIM_T1_REML_RUN1.csv
+results/P2F_PILOT/PRELIM_T2_VARFUN_RUN1.csv
+results/P2F_PILOT/PRELIM_TESTS_RUN1.csv
 results/P3/P3_BARD_CONVENTIONS.csv
 results/P3/P3_BARD_CONVENTIONS_ATTEMPT1_STOPPED.csv
 results/P3/P3_BARD_CRITERIA.csv

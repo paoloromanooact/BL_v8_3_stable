@@ -25,3 +25,4 @@ __pycache__/
 # IDL generated files
 *.sav
 *.jou
+/results/P2F_PILOT/_design.pkl
