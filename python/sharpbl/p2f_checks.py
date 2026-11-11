@@ -7,7 +7,8 @@
 5 000 950 (intervallo dei test preliminari, mai usato) solo per costruire le unita'. `raw` ricalcola i
 verdetti dalle statistiche, verifica che siano finite in ogni riga con esito, applica la regola `errore` alle
 eventuali righe non finite e riconta falsi verdetti, potenza e scelta con le regole del piano §5 e A1 §4,
-confrontandoli con le tabelle scritte dal pilota.
+confrontandoli con le tabelle scritte dal pilota. Gli output del pilota non vengono modificati: il riconteggio e le
+righe riclassificate sono salvati a parte (POST_CHECKS_*_RECOUNT.csv, POST_CHECKS_NONFINITE_ROWS.csv).
 """
 from __future__ import annotations
 
@@ -136,6 +137,8 @@ def raw_checks():
     out = pd.DataFrame(rows).assign(**st)
     out.to_csv(P.OUT / "POST_CHECKS.csv", index=False)
     fv.assign(**st).to_csv(P.OUT / "POST_CHECKS_FALSE_VERDICTS_RECOUNT.csv", index=False)
+    pw.assign(**st).to_csv(P.OUT / "POST_CHECKS_POWER_RECOUNT.csv", index=False)
+    ch.assign(**st).to_csv(P.OUT / "POST_CHECKS_CHOICE_RECOUNT.csv", index=False)
     print(out[["check", "value", "passed"]].to_string(index=False))
     return 0 if out["passed"].all() else 2
 
