@@ -33,7 +33,12 @@ class Refused(Exception):
     pass
 
 
+CHECKED = ("VALIDATION_RAW.csv.gz", "VALIDATION_FALSE_VERDICTS.csv", "VALIDATION_COVERAGE_POWER.csv", "VALIDATION_DECISION.csv")
+
+
 def check_allowed(out_dir: Path, test: str):
+    """Permesso solo se: decisione presente e test validato; controllo indipendente presente, tutto superato e
+    riferito agli stessi output (SHA-256 dei quattro file) e allo stesso protocollo; nessun risultato gia' scritto."""
     dec = out_dir / "VALIDATION_DECISION.csv"
     if not dec.exists():
         raise Refused("manca VALIDATION_DECISION.csv: la validazione non e' stata eseguita")
@@ -41,6 +46,18 @@ def check_allowed(out_dir: Path, test: str):
     row = d[d["test"] == test]
     if len(row) != 1 or not bool(row["validated"].iloc[0]):
         raise Refused(f"{test} non validato: il test resta descrittivo")
+    pc = out_dir / "POST_CHECKS.csv"
+    if not pc.exists():
+        raise Refused("manca POST_CHECKS.csv: il controllo indipendente non e' stato eseguito")
+    c = pd.read_csv(pc)
+    if not c["passed"].all():
+        raise Refused("controllo indipendente non superato: " + ", ".join(c.loc[~c["passed"], "check"]))
+    for f in CHECKED:
+        col = f"sha256_{f.split('.')[0]}"
+        if col not in c or not (out_dir / f).exists() or c[col].iloc[0] != hashlib.sha256((out_dir / f).read_bytes()).hexdigest():
+            raise Refused(f"il controllo indipendente non si riferisce all'attuale {f}")
+    if c["sha256_PROTOCOL_P2F_checked"].iloc[0] != hashlib.sha256(V.PROTOCOL.read_bytes()).hexdigest():
+        raise Refused("il controllo indipendente si riferisce a un altro protocollo")
     if (out_dir / f"REAL_{test}.csv").exists():
         raise Refused(f"REAL_{test}.csv esiste gia': una sola esecuzione per test")
     return d
@@ -130,7 +147,28 @@ def selftest():
             check_allowed(out, "T3"); ok = False; print("FAIL: accettato T3 non validato")
         except Refused as e:
             print("ok rifiuto 2:", e)
-        # 3: validato -> esecuzione (disegno sintetico: nessun controllo sul disegno reale)
+        # 2b: validato ma senza controllo indipendente -> rifiuto; con controllo fallito -> rifiuto; con hash diverso -> rifiuto
+        try:
+            check_allowed(out, "T5"); ok = False; print("FAIL: accettato senza POST_CHECKS")
+        except Refused as e:
+            print("ok rifiuto 2b:", e)
+        for f in CHECKED:
+            (out / f).write_text("x") if not (out / f).exists() else None
+        hashes = {f"sha256_{f.split('.')[0]}": hashlib.sha256((out / f).read_bytes()).hexdigest() for f in CHECKED}
+        hashes["sha256_PROTOCOL_P2F_checked"] = hashlib.sha256(V.PROTOCOL.read_bytes()).hexdigest()
+        pd.DataFrame([dict(check="a", passed=False, **hashes)]).to_csv(out / "POST_CHECKS.csv", index=False)
+        try:
+            check_allowed(out, "T5"); ok = False; print("FAIL: accettato con controllo fallito")
+        except Refused as e:
+            print("ok rifiuto 2c:", e)
+        bad = dict(hashes); bad["sha256_VALIDATION_RAW"] = "0" * 64
+        pd.DataFrame([dict(check="a", passed=True, **bad)]).to_csv(out / "POST_CHECKS.csv", index=False)
+        try:
+            check_allowed(out, "T5"); ok = False; print("FAIL: accettato con hash diverso")
+        except Refused as e:
+            print("ok rifiuto 2d:", e)
+        pd.DataFrame([dict(check="a", passed=True, **hashes)]).to_csv(out / "POST_CHECKS.csv", index=False)
+        # 3: validato e controllato -> esecuzione (disegno sintetico: nessun controllo sul disegno reale)
         dec = check_allowed(out, "T5")
         m = apply_once(smp["S"], "T5", expected=False)
         print("ok esecuzione 3:", {k: m[k] for k in ("verdict", "beta", "lo", "hi") if k in m})

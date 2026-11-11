@@ -226,6 +226,10 @@ def validation_checks():
     ge = raw[raw["kind"] == "effect"].groupby(["test", "scenario", "effect"]).size()
     add("null_groups_24_of_10000", f"{len(gn)} gruppi, min {gn.min()}, max {gn.max()}", len(gn) == 24 and (gn == V.N_NULL).all())
     add("effect_groups_32_of_2000", f"{len(ge)} gruppi, min {ge.min()}, max {ge.max()}", len(ge) == 32 and (ge == V.N_EFF).all())
+    expected = {("null", s, 0.0, k, t) for s in V.SCENARIOS for k in range(V.N_NULL) for t in ("T3", "T5")}
+    expected |= {("effect", s, e, k, t) for s in V.EFFECT_SCENARIOS for e in V.EFFECTS for k in range(V.N_EFF) for t in ("T3", "T5")}
+    got = set(zip(raw["kind"], raw["scenario"].astype(int), raw["effect"].astype(float), raw["k"].astype(int), raw["test"]))
+    add("keys_equal_expected_set", f"mancanti {len(expected - got)}, inattese {len(got - expected)}", got == expected)
     add("git_commit_is_5c3b664", raw["git_commit"].iloc[0][:7], raw["git_commit"].nunique() == 1 and raw["git_commit"].iloc[0].startswith(V_COMMIT))
     add("git_dirty_0", int(raw["git_dirty"].iloc[0]), (raw["git_dirty"] == 0).all())
     sha_now = hashlib.sha256(V.PROTOCOL.read_bytes()).hexdigest()
@@ -243,8 +247,10 @@ def validation_checks():
         ((raw.loc[valid, "se"] > 0) & (raw.loc[valid, "lo"] < raw.loc[valid, "hi"])).all())
     Zf = float(norm.ppf(1 - 0.0125))
     v = raw[valid]
-    dz = np.abs((v["hi"] - v["lo"]) / (2 * v["se"]) - Zf)
-    add("interval_uses_full_precision_z", float(dz.max()), (dz <= 1e-9).all())
+    dlo = np.abs((v["beta"] - v["lo"]) / v["se"] - Zf)
+    dhi = np.abs((v["hi"] - v["beta"]) / v["se"] - Zf)
+    add("lower_half_width_(beta-lo)/se=z", float(dlo.max()), (dlo <= 1e-9).all())
+    add("upper_half_width_(hi-beta)/se=z", float(dhi.max()), (dhi <= 1e-9).all())
     ds = np.abs(v["stat"] - v["beta"] / v["se"])
     add("stat_equals_beta_over_se", float(ds.max()), (ds <= 1e-9 * np.maximum(1, np.abs(v["stat"]))).all())
     vr = np.where(v["hi"] < 0, "supportato", np.where(v["lo"] > 0, "opposto", "non deciso"))
@@ -277,6 +283,9 @@ def validation_checks():
     add("decision_recount_equal", "|".join(f"{t}:{v}" for t, v in zip(jd["test"], jd["validated"])),
         len(jd) == 2 and (jd["validated"] == jd["validated_v"]).all() and (jd["null_ok"] == jd["null_ok_v"]).all() and (jd["effect_ok"] == jd["effect_ok_v"]).all())
     st = P.provenance()
+    for f in ("VALIDATION_RAW.csv.gz", "VALIDATION_FALSE_VERDICTS.csv", "VALIDATION_COVERAGE_POWER.csv", "VALIDATION_DECISION.csv"):
+        st[f"sha256_{f.split('.')[0]}"] = hashlib.sha256((V_OUT / f).read_bytes()).hexdigest()
+    st["sha256_PROTOCOL_P2F_checked"] = sha_now
     out = pd.DataFrame(rows).assign(**st)
     out.to_csv(V_OUT / "POST_CHECKS.csv", index=False)
     fv.assign(**st).to_csv(V_OUT / "POST_CHECKS_FALSE_VERDICTS_RECOUNT.csv", index=False)
