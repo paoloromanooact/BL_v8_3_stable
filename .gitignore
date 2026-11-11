@@ -26,3 +26,4 @@ __pycache__/
 *.sav
 *.jou
 /results/P2F_PILOT/_design.pkl
+/results/P2F/_design.pkl
