@@ -84,6 +84,12 @@ protocollo, quelli eseguiti si conservano)
    cieco rispetto ai risultati precedenti, validato con simulazioni e semi
    nuovi (falsi verdetti, copertura, capacità di rilevare effetti fisicamente
    interessanti) prima dell'applicazione ai dati.
+   Requisiti dalla diagnosi (2026-11-11; le correzioni possibili non sono validate):
+   (a) stima dei parametri temporali meno distorta (A, B); (b) gestione della componente
+   individuale utilizzabile sui dati reali, incluse le celle con una sola unità (C; il
+   termine oracolo non è applicabile); (c) validazione con semi nuovi e distinti per scenario
+   e regola di arresto (C1 audit, D); (d) robustezza a dipendenze temporali diverse
+   dall'AR(1), in particolare AR(2) e salti di livello (V5, V6), che D non affronta.
 6. MDI / ciclo 23 (SMARP) solo dopo uno studio di fattibilità: quali grandezze
    sono confrontabili con SHARP e come trattare le differenze strumentali.
 7. Breve confronto con Paolo sulla sua domanda originaria, in parallelo.
