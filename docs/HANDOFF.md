@@ -29,6 +29,20 @@ dell'interpretazione (tutti i 20 controlli superati) e i risultati sono in
   finitezza e riconteggio (`python/sharpbl/p2f_checks.py design | raw | diag`).
 - Risultati `docs/P2F_PILOT_RESULTS.md`; voci in `CHANGELOG.md` e `docs/RESULTS_INDEX.md`.
 
+**Stato al 2026-11-11, ore 14:45 (aggiornamento):** il protocollo P2f è **congelato**
+(`docs/PROTOCOL_P2F_VALIDATED_TEST.md`, commit `500c56a`, SHA-256 `8f030010…`), il codice è
+scritto dopo (`python/sharpbl/p2f_validation.py`, commit `ed90e15`) e i **sei test preliminari
+sono tutti superati** su quel commit con albero pulito (`results/P2F/PRELIM_*.csv`, non ancora
+committati di proposito: la validazione verifica che siano dello stesso commit). La
+**validazione (7–8 ore, 152 000 cataloghi) non è stata avviata** per richiesta dell'utente;
+si avvia solo al suo via con:
+`cd /home/gianluca/BL_v8_3_stable && OMP_NUM_THREADS=1 setsid nohup .venv/bin/python python/sharpbl/p2f_validation.py --workers 12 > logs/p2f_validation.log 2>&1 &`
+(avanzamento ogni 2500 cataloghi; attesa con `kill -0 <PID>`). Dopo: controllo indipendente
+(`p2f_checks.py`, da adattare agli output di `results/P2F/`) prima dell'interpretazione, commit
+degli output, `docs/P2F_VALIDATION_RESULTS.md`, poi applicazione ai soli test validati
+(`p2f_apply.py`, da scrivere). Gli output del pilota restano risultati storici della procedura
+precedente (modello nullo).
+
 **Prossimi passi**
 1. [fatto 2026-11-11] Revisione esterna dello ZIP `2e197f8`: riconteggio dai dati grezzi
    confermato, conclusione operativa corretta (M alla validazione, B scartata nella forma

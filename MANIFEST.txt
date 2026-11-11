@@ -125,6 +125,7 @@ python/sharpbl/measure.py
 python/sharpbl/p2d.py
 python/sharpbl/p2f_checks.py
 python/sharpbl/p2f_pilot.py
+python/sharpbl/p2f_validation.py
 python/sharpbl/provenance.py
 python/sharpbl/recurrence.py
 python/sharpbl/run_p1.py
