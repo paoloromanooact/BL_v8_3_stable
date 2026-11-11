@@ -114,3 +114,40 @@ Proposta di struttura, da fissare nel protocollo:
   procedura calibrata abbia potenza utile: è un esito da accettare e dichiarare.
 - T5 richiede la stessa procedura di T3 o una propria? A livello di celle (318 celle, 176 CR)
   i cluster sono ancora meno.
+
+## 7. Decisioni dopo la revisione del 2026-11-11
+
+Risposte alle domande di §6 (utente e revisore):
+1. **Disegno reale: adottato.** La validazione è condizionata a tempi, CR, emisferi,
+   latitudini, flussi e attività osservati del campione S. Si congelano anche la selezione
+   (le 2485 regioni di S per T3) e le celle ammesse (le 318 celle CR × emisfero con almeno 3
+   regioni per T5): le risposte sintetiche non cambiano il campione. Non invalida le prove
+   precedenti; ne affronta il limite di trasferibilità.
+2. **κ negativo e φ vicino a 0,9: inclusi nell'accettazione**, dichiarando che la scelta è
+   informata dai dati. Si usa una gamma plausibile, senza trattare −0,85 o 0,91 come valori
+   veri noti.
+3. **AR(2) e salti concorrono all'accettazione**, con coefficienti, ampiezze, lunghezze e
+   fase dei salti specificati nel piano (non una famiglia indefinita).
+4. **Calibrazione e utilità distinte.** Una potenza minima può decidere l'utilità solo con
+   effetti di interesse scientifico definiti separatamente per T3 (rispetto a γ0) e per T5
+   (rispetto a η̄); vanno fissati nel protocollo.
+5. **T3 e T5 separati:** procedure e accettazione possono differire; può riuscire uno solo
+   dei due test.
+
+Correzioni alle alternative di §3:
+- **T-3:** i blocchi di CR devono contenere **insieme nord e sud** (cluster = blocco di CR con
+  entrambi gli emisferi), altrimenti si perde la dipendenza tra emisferi (κ).
+- **T-2:** la varianza del rumore individuale è **stimata**, non nota; la procedura completa,
+  compresa questa stima, si ristima in ogni catalogo di prova, così che la sua incertezza
+  entri nella verifica.
+- **I-1, I-2:** la regressione dei residui quadratici e i residui cancellati non eliminano da
+  soli distorsione e dipendenza: sono candidate da verificare, non correzioni garantite.
+- **T-4 (Berger–Boos):** il p-value massimo sull'insieme di confidenza va aumentato della
+  probabilità di mancata copertura dell'insieme (p = sup p(θ) + γ); non si prova nel pilota.
+- **Molti scenari:** numerosità e soglie si fissano considerando la probabilità complessiva
+  che una procedura adeguata fallisca almeno una cella per fluttuazione Monte Carlo.
+
+Prossimo passo: pilota di sviluppo con due candidate, una basata su un modello temporale
+(T-2 + I-1) e una a blocchi con emisferi congiunti (T-3 + I-3); piano in
+`docs/P2F_PILOT_PLAN.md`. Il pilota serve a scegliere e a scartare; la validazione finale
+resta separata. Nessuna risposta reale (γ_i, D*_i) viene usata.
