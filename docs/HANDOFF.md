@@ -29,18 +29,33 @@ dell'interpretazione (tutti i 20 controlli superati) e i risultati sono in
   finitezza e riconteggio (`python/sharpbl/p2f_checks.py design | raw | diag`).
 - Risultati `docs/P2F_PILOT_RESULTS.md`; voci in `CHANGELOG.md` e `docs/RESULTS_INDEX.md`.
 
-**Stato al 2026-11-11, ore 14:45 (aggiornamento):** il protocollo P2f è **congelato**
-(`docs/PROTOCOL_P2F_VALIDATED_TEST.md`, commit `500c56a`, SHA-256 `8f030010…`), il codice è
-scritto dopo (`python/sharpbl/p2f_validation.py`, commit `ed90e15`) e i **sei test preliminari
-sono tutti superati** su quel commit con albero pulito (`results/P2F/PRELIM_*.csv`, non ancora
-committati di proposito: la validazione verifica che siano dello stesso commit). La
-**validazione (7–8 ore, 152 000 cataloghi) non è stata avviata** per richiesta dell'utente;
-si avvia solo al suo via con:
-`cd /home/gianluca/BL_v8_3_stable && OMP_NUM_THREADS=1 setsid nohup .venv/bin/python python/sharpbl/p2f_validation.py --workers 12 > logs/p2f_validation.log 2>&1 &`
-(avanzamento ogni 2500 cataloghi; attesa con `kill -0 <PID>`). Dopo: controllo indipendente
-(`p2f_checks.py`, da adattare agli output di `results/P2F/`) prima dell'interpretazione, commit
-degli output, `docs/P2F_VALIDATION_RESULTS.md`, poi applicazione ai soli test validati
-(`p2f_apply.py`, da scrivere). Gli output del pilota restano risultati storici della procedura
+**Stato al 2026-11-11, ore 14:55 (aggiornamento):** il protocollo P2f è **congelato**
+(`docs/PROTOCOL_P2F_VALIDATED_TEST.md`, commit `500c56a`, SHA-256 `8f030010…`); il codice è stato
+scritto dopo (`python/sharpbl/p2f_validation.py`, commit `ed90e15`); i sei test preliminari
+sono stati superati due volte, su `ed90e15` (conservati come `results/P2F/PRELIM_*_ed90e15.csv`)
+e su `5c3b664` (`results/P2F/PRELIM_*.csv`, stessi valori). La **validazione è in esecuzione**:
+avviata il 2026-11-11 alle 14:46:47 in modo distaccato, **PID 968943**, 12 processi con
+`OMP_NUM_THREADS=1`, log `logs/p2f_validation.log` (avanzamento ogni 2500 cataloghi su
+152 000), commit del codice e della provenienza **`5c3b664`**, albero pulito; fine prevista
+verso le 22:00–23:30. Controllo: `kill -0 968943`, `tail logs/p2f_validation.log`.
+
+**Durante l'esecuzione** si può fare commit (la provenienza è acquisita all'avvio), ma non si
+toccano codice scientifico, dipendenze, protocolli, input né `results/P2F/_design.pkl`. Il
+controllo finale confronta la provenienza degli output con `5c3b664`, non con il nuovo HEAD.
+
+**A fine esecuzione, nell'ordine:** (1) provenienza degli output `results/P2F/VALIDATION_*`
+(`git_commit` = `5c3b664`, `git_dirty` = 0, SHA del protocollo `8f030010…`); (2) controllo
+indipendente e riconteggio dai dati grezzi **prima** di leggere le tabelle
+(`p2f_checks.py vraw`: 304 000 righe, chiavi uniche, numerosità per gruppo, identità
+coperti + coda inferiore + coda superiore + errori = tentativi, verdetti ricalcolati dagli
+intervalli, riconteggio senza la funzione di riepilogo della validazione; una discrepanza blocca
+l'interpretazione); (3) commit degli output; (4) `docs/P2F_VALIDATION_RESULTS.md` (scheletro
+già scritto) con le regole del protocollo §5 alla lettera, per test; (5) CHANGELOG,
+RESULTS_INDEX, MANIFEST, ZIP per il revisore; (6) revisione esterna; (7) solo per i test
+validati e dopo la revisione: applicazione ai dati reali con `p2f_apply.py` (una esecuzione per
+test; rifiuta se il test non è validato o se i suoi risultati esistono già; sensibilità
+dichiarate non validate anche negli intervalli), risultati in `docs/P2F_RESULTS.md`. Un test non
+validato resta descrittivo. Gli output del pilota restano risultati storici della procedura
 precedente (modello nullo).
 
 **Prossimi passi**
@@ -51,20 +66,16 @@ precedente (modello nullo).
    (ii) effetti di interesse motivati scientificamente, non scelti per la potenza; (iii) la causa
    del livello di B è un lavoro separato, non serve per validare M; (iv) la procedura M si
    congela esattamente (errori, celle singole, convenzioni del generatore, regole separate T3/T5).
-2. [bozza scritta 2026-11-11, `docs/PROTOCOL_P2F_VALIDATED_TEST.md`, **non congelata**; da
-   chiudere le decisioni aperte D1–D5 del §10 con il revisore, poi congelare con un commit prima
-   del codice. Correzioni del revisore recepite nella bozza: il −0,35 tra cicli (Jiao et al. 2021)
-   non è una pendenza dentro il ciclo; i «1–2°» di Jiang 2020 vengono da Karak & Miesch 2017 e non
-   sono una soglia; il 30 % di Martin-Belda & Cameron 2017 non è per unità del proxio; i numeri
-   di Zeng et al. 2024 non verificati e lasciati fuori; griglia −0,1/−0,2/−0,3 con −0,2 di
-   riferimento e −0,35 supplementare; esclusione di un quenching ≥ δ solo con l'estremo
-   inferiore di un intervallo validato; A_usflux come sensibilità.] Scrivere il **protocollo P2f** (`docs/PROTOCOL_P2F_*.md`), dichiaratamente non cieco rispetto
-   al pilota e alle diagnosi: candidata M; validazione con semi nuovi e distinti per scenario,
-   scenari fissati prima (anche fuori dal modello AR(1): AR(2), salti, code pesanti), criteri di
-   accettazione per falsi verdetti, copertura e potenza, regola di arresto; risoluzione esplicita
-   delle tre convenzioni della nota d'implementazione; effetti di interesse scientifico;
-   applicazione ai dati reali solo se la validazione passa. Un protocollo scritto prima del
-   codice e congelato con un commit.
+2. [fatto 2026-11-11] Protocollo P2f scritto come bozza (`09562cd`), rivisto due volte dal
+   revisore (`2618ca0`, `620920b`) e **congelato** (`500c56a`). Correzioni recepite: il −0,35
+   tra cicli (Jiao et al. 2021) non è una pendenza dentro il ciclo; i «1–2°» di Jiang 2020 vengono
+   da Karak & Miesch 2017 e non sono una soglia; il 30 % di Martin-Belda & Cameron 2017 non è per
+   unità del proxy; i numeri di Zeng et al. 2024 non verificati e lasciati fuori; griglia
+   −0,1/−0,2/−0,3 con −0,2 di riferimento e −0,35 supplementare (copertura e coda decisive anche
+   lì); modello completo per residui e REML; generatore T5 con la media semplice di attività della
+   cella; esclusione di un quenching ≥ δ solo con l'estremo inferiore di un intervallo validato;
+   probabilità congiunta di scarto di una procedura nominale 7,26 % per test; A_usflux come
+   sensibilità. Codice (`ed90e15`), test preliminari, validazione in corso (sopra).
 3. Restano aperti dalla lista del 2026-11-09: riproducibilità (punto 1), regioni dominanti
    (punto 2), fattibilità MDI/SMARP (punto 6), confronto con Paolo (punto 7).
 4. **Non fare il push** finché l'utente non lo chiede (di norma dopo la revisione dello ZIP).
@@ -92,9 +103,11 @@ precedente (modello nullo).
 
 > Riprendi SHARP BL v8.4 nel repository /home/gianluca/BL_v8_3_stable, branch
 > v8.4-python-gianluca. Leggi AGENTS.md e docs/HANDOFF.md (sezione "Passaggio di consegne del
-> 2026-11-11, sera"), poi docs/P2F_PILOT_RESULTS.md e docs/P2F_PILOT_IMPLEMENTATION_NOTE.md.
-> Verifica lo stato di Git. Il prossimo passo è la revisione scientifica dei risultati del
-> pilota e poi il protocollo P2f, scritto prima del codice. Non fare il push senza la mia richiesta.
+> 2026-11-11, sera"), poi docs/PROTOCOL_P2F_VALIDATED_TEST.md e docs/P2F_PILOT_RESULTS.md.
+> Verifica lo stato di Git e se la validazione P2f (PID 968943, log logs/p2f_validation.log)
+> è ancora in corso. Il protocollo docs/PROTOCOL_P2F_VALIDATED_TEST.md è congelato. Quando la
+> validazione è finita, segui i passi elencati nel passaggio di consegne (controllo indipendente
+> prima dell'interpretazione). Non fare il push senza la mia richiesta.
 
 ## Branch `v8.4-python-gianluca` (stato del 2026-11-09)
 
