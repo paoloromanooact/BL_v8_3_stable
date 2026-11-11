@@ -66,6 +66,22 @@
   esecuzione unica su 50 000 cataloghi nuovi, semi distinti per scenario): decisione al 2,5%
   sotto il modello nullo del generatore compatibile con il 2,5% (D1, V1 e V4: 2,485%, SE 0,078
   punti; D2, V0–V4: 2,506%); diagnosi di C1 chiusa, prossimo passo la progettazione di P2f.
+- 2026-11-11, progettazione di P2f (`docs/P2F_DESIGN.md`, documento di lavoro) e piano del
+  pilota di sviluppo (`docs/P2F_PILOT_PLAN.md`, registrato prima del codice; emendamento A1 prima
+  del codice; emendamento A2 non cieco, dopo il fallimento del test preliminare 2 sulla funzione di
+  varianza, esecuzione 1 conservata come `PRELIM_*_RUN1.csv`): due candidate per T3 e T5 sul
+  disegno reale congelato senza risposte reali (M: funzione di varianza + REML AR(1) bivariata
+  sulle medie di cella, decisione analitica; B: wild cluster bootstrap ristretto su blocchi di
+  13 CR con entrambi gli emisferi, pesi di Webb, CR1), 9 scenari nulli × 1000 cataloghi e potenza
+  su 2 scenari × 3 effetti × 300. Test preliminari superati sul commit `67058f6`; pilota avviato
+  in modo distaccato. Sviluppo, non validazione: nessun verdetto.
+- 2026-11-11, nota d'implementazione del pilota (`docs/P2F_PILOT_IMPLEMENTATION_NOTE.md`,
+  registrata durante l'esecuzione e prima di leggere gli esiti, dopo una revisione indipendente
+  del codice): convenzioni non fissate dal piano (origine dei blocchi T5 alla CR 2097, componenti
+  per rotazione separate per test, mediana di Φ sul disegno), conteggi del disegno in
+  `results/P2F_PILOT/DESIGN_CHECKS.csv` (`p2f_checks.py design`), controllo di finitezza e
+  riconteggio indipendente da eseguire prima dell'interpretazione (`p2f_checks.py raw`, output
+  del pilota mai modificati).
 - 2026-11-09, controlli diretti su C1 richiesti dalla revisione (`diag_c1_checks.py`):
   ingressi finiti in tutti gli 8000 casi; verifica diretta delle simulazioni solo nei 400
   casi campionati (finite, verdetti identici); per T3, nel confronto analitico, la
