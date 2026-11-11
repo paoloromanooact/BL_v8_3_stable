@@ -3,6 +3,7 @@
     .venv/bin/python python/sharpbl/p2f_checks.py design   # conteggi del disegno congelato -> DESIGN_CHECKS.csv (prima degli esiti)
     .venv/bin/python python/sharpbl/p2f_checks.py raw      # finitezza e riconteggio indipendente di PILOT_RAW.csv.gz -> POST_CHECKS.csv
     .venv/bin/python python/sharpbl/p2f_checks.py diag     # diagnostica descrittiva (parametri di M, errori, cluster di B), non entra nella scelta
+    .venv/bin/python python/sharpbl/p2f_checks.py vraw     # validazione P2f: controllo indipendente di results/P2F/VALIDATION_RAW.csv.gz -> POST_CHECKS.csv
 
 `design` non legge risposte reali (usa `p2f_pilot.build_design`) e genera risposte sintetiche con il seme
 5 000 950 (intervallo dei test preliminari, mai usato) solo per costruire le unita'. `raw` ricalcola i
@@ -15,6 +16,8 @@ from __future__ import annotations
 
 import sys
 from pathlib import Path
+
+import hashlib
 
 import numpy as np
 import pandas as pd
@@ -171,6 +174,120 @@ def diagnostics():
     return 0
 
 
+# ---------------------------------------------------------------- validazione P2f (protocollo §5, §6.3): controllo indipendente
+
+V_OUT = P.ROOT / "results/P2F"
+V_COMMIT = "5c3b664"        # commit della provenienza della validazione (HANDOFF 2026-11-11); non il nuovo HEAD
+V_PROTO_SHA = "8f030010"    # SHA-256 (inizio) del protocollo congelato in 500c56a
+THR = dict(false=0.03, side=0.0175, err=0.01, cov=0.965, below=0.02)
+
+
+def v_recount(raw):
+    """Riconteggio con le regole del protocollo §5, scritto a parte (non usa p2f_validation.summarize)."""
+    fv = []
+    for (test, s), g in raw[raw["kind"] == "null"].groupby(["test", "scenario"]):
+        n = len(g)
+        sup, opp, err = [int((g["verdict"] == v).sum()) for v in ("supportato", "opposto", "errore")]
+        fv.append(dict(test=test, scenario=s, n=n, false=sup + opp, supported=sup, opposite=opp, errors=err,
+                       scenario_ok=bool((sup + opp) <= THR["false"] * n and sup <= THR["side"] * n and opp <= THR["side"] * n
+                                        and err <= THR["err"] * n)))
+    fv = pd.DataFrame(fv)
+    cp = []
+    for (test, s, e), g in raw[raw["kind"] == "effect"].groupby(["test", "scenario", "effect"]):
+        n = len(g)
+        cov, below, above, err = int(g["covered"].sum()), int(g["below"].sum()), int(g["above"].sum()), int((g["verdict"] == "errore").sum())
+        cp.append(dict(test=test, scenario=s, effect=e, n=n, covered=cov, below=below, above=above, errors=err,
+                       power=float((g["verdict"] == "supportato").mean()),
+                       combo_ok=bool(cov >= THR["cov"] * n and below <= THR["below"] * n)))
+    cp = pd.DataFrame(cp)
+    dec = []
+    for test in ("T3", "T5"):
+        f, c = fv[fv["test"] == test], cp[cp["test"] == test]
+        dec.append(dict(test=test, n_null=len(f), null_ok=bool(len(f) == 12 and f["scenario_ok"].all()), n_combo=len(c),
+                        effect_ok=bool(len(c) == 16 and c["combo_ok"].all()),
+                        validated=bool(len(f) == 12 and f["scenario_ok"].all() and len(c) == 16 and c["combo_ok"].all())))
+    return fv, cp, pd.DataFrame(dec)
+
+
+def validation_checks():
+    from scipy.stats import norm
+    from sharpbl import p2f_validation as V
+    raw = pd.read_csv(V_OUT / "VALIDATION_RAW.csv.gz", low_memory=False, keep_default_na=False, na_values=["", "nan", "NaN"])
+    rows = []
+
+    def add(name, value, passed):
+        rows.append(dict(check=name, value=value, passed=bool(passed)))
+
+    n_exp = 12 * V.N_NULL * 2 + 16 * V.N_EFF * 2
+    add("rows", len(raw), len(raw) == n_exp)
+    key = ["kind", "scenario", "effect", "k", "test"]
+    add("keys_unique", int(raw.duplicated(key).sum()), not raw.duplicated(key).any())
+    gn = raw[raw["kind"] == "null"].groupby(["test", "scenario"]).size()
+    ge = raw[raw["kind"] == "effect"].groupby(["test", "scenario", "effect"]).size()
+    add("null_groups_24_of_10000", f"{len(gn)} gruppi, min {gn.min()}, max {gn.max()}", len(gn) == 24 and (gn == V.N_NULL).all())
+    add("effect_groups_32_of_2000", f"{len(ge)} gruppi, min {ge.min()}, max {ge.max()}", len(ge) == 32 and (ge == V.N_EFF).all())
+    add("git_commit_is_5c3b664", raw["git_commit"].iloc[0][:7], raw["git_commit"].nunique() == 1 and raw["git_commit"].iloc[0].startswith(V_COMMIT))
+    add("git_dirty_0", int(raw["git_dirty"].iloc[0]), (raw["git_dirty"] == 0).all())
+    sha_now = hashlib.sha256(V.PROTOCOL.read_bytes()).hexdigest()
+    add("sha256_protocol_8f030010_and_unchanged", raw["sha256_PROTOCOL_P2F"].iloc[0][:8],
+        (raw["sha256_PROTOCOL_P2F"] == sha_now).all() and sha_now.startswith(V_PROTO_SHA))
+    valid = raw["verdict"] != "errore"
+    err = raw["verdict"] == "errore"
+    add("error_rows", int(err.sum()), True)
+    ident = raw["covered"] + raw["below"] + raw["above"] + err.astype(int)
+    add("identity_cov+below+above+err=1_per_row", int((ident == 1).sum()), (ident == 1).all())
+    fin_cols = ["beta", "se", "stat", "lo", "hi", "var_a", "var_b", "phi", "kappa", "sigma_x2"]
+    fin = np.isfinite(raw.loc[valid, fin_cols]).all(axis=1)
+    add("finite_in_rows_with_outcome", int(fin.sum()), fin.all())
+    add("se_positive_lo_lt_hi", int(((raw.loc[valid, "se"] > 0) & (raw.loc[valid, "lo"] < raw.loc[valid, "hi"])).sum()),
+        ((raw.loc[valid, "se"] > 0) & (raw.loc[valid, "lo"] < raw.loc[valid, "hi"])).all())
+    Zf = float(norm.ppf(1 - 0.0125))
+    v = raw[valid]
+    dz = np.abs((v["hi"] - v["lo"]) / (2 * v["se"]) - Zf)
+    add("interval_uses_full_precision_z", float(dz.max()), (dz <= 1e-9).all())
+    ds = np.abs(v["stat"] - v["beta"] / v["se"])
+    add("stat_equals_beta_over_se", float(ds.max()), (ds <= 1e-9 * np.maximum(1, np.abs(v["stat"]))).all())
+    vr = np.where(v["hi"] < 0, "supportato", np.where(v["lo"] > 0, "opposto", "non deciso"))
+    add("verdict_recomputed_from_interval", int((vr == v["verdict"]).sum()), (vr == v["verdict"]).all())
+    cr = ((v["lo"] <= v["beta_true"]) & (v["beta_true"] <= v["hi"])).astype(int)
+    br = (v["lo"] > v["beta_true"]).astype(int)
+    ar = (v["hi"] < v["beta_true"]).astype(int)
+    add("tails_recomputed_from_interval", int(((cr == v["covered"]) & (br == v["below"]) & (ar == v["above"])).sum()),
+        ((cr == v["covered"]) & (br == v["below"]) & (ar == v["above"])).all())
+    bt = raw["effect"] * np.where(raw["test"] == "T3", V.GAMMA0, V.ETA_BAR)
+    add("beta_true_consistent", float(np.max(np.abs(raw["beta_true"] - bt) / np.maximum(np.abs(bt), 1e-300))),
+        (np.abs(raw["beta_true"] - bt) <= 1e-12 * np.maximum(np.abs(bt), 1e-300)).all() and (raw.loc[raw["kind"] == "null", "beta_true"] == 0).all())
+    add("errors_have_zero_tails", int(((raw.loc[err, ["covered", "below", "above"]] == 0).all(axis=1)).sum()),
+        (raw.loc[err, ["covered", "below", "above"]] == 0).all().all())
+    nonfin = raw[valid & ~fin.reindex(raw.index, fill_value=True)]
+    nonfin.to_csv(V_OUT / "POST_CHECKS_NONFINITE_ROWS.csv", index=False)
+    add("rows_with_outcome_but_nonfinite", len(nonfin), True)
+    fv, cp, dec = v_recount(raw)
+    fv0 = pd.read_csv(V_OUT / "VALIDATION_FALSE_VERDICTS.csv")
+    cp0 = pd.read_csv(V_OUT / "VALIDATION_COVERAGE_POWER.csv")
+    dc0 = pd.read_csv(V_OUT / "VALIDATION_DECISION.csv")
+    j = fv.merge(fv0, on=["test", "scenario"], suffixes=("", "_v"))
+    add("false_verdicts_recount_equal", len(j), len(j) == 24 and (j["false"] == j["false_v"]).all() and (j["supported"] == j["supported_v"]).all()
+        and (j["opposite"] == j["opposite_v"]).all() and (j["errors"] == j["errors_v"]).all() and (j["scenario_ok"] == j["scenario_ok_v"]).all())
+    jc = cp.merge(cp0, on=["test", "scenario", "effect"], suffixes=("", "_v"))
+    add("coverage_recount_equal", len(jc), len(jc) == 32 and (jc["covered"] == jc["covered_v"]).all() and (jc["below"] == jc["below_v"]).all()
+        and (jc["above"] == jc["above_v"]).all() and (jc["errors"] == jc["errors_v"]).all() and np.isclose(jc["power"], jc["power_v"]).all()
+        and (jc["combo_ok"] == jc["combo_ok_v"]).all())
+    jd = dec.merge(dc0, on="test", suffixes=("", "_v"))
+    add("decision_recount_equal", "|".join(f"{t}:{v}" for t, v in zip(jd["test"], jd["validated"])),
+        len(jd) == 2 and (jd["validated"] == jd["validated_v"]).all() and (jd["null_ok"] == jd["null_ok_v"]).all() and (jd["effect_ok"] == jd["effect_ok_v"]).all())
+    st = P.provenance()
+    out = pd.DataFrame(rows).assign(**st)
+    out.to_csv(V_OUT / "POST_CHECKS.csv", index=False)
+    fv.assign(**st).to_csv(V_OUT / "POST_CHECKS_FALSE_VERDICTS_RECOUNT.csv", index=False)
+    cp.assign(**st).to_csv(V_OUT / "POST_CHECKS_COVERAGE_RECOUNT.csv", index=False)
+    dec.assign(**st).to_csv(V_OUT / "POST_CHECKS_DECISION_RECOUNT.csv", index=False)
+    with pd.option_context("display.width", 200):
+        print(out[["check", "value", "passed"]].to_string(index=False))
+    return 0 if out["passed"].all() else 2
+
+
 if __name__ == "__main__":
     cmd = sys.argv[1:]
-    sys.exit(design_checks() if cmd == ["design"] else raw_checks() if cmd == ["raw"] else diagnostics() if cmd == ["diag"] else 2)
+    sys.exit(design_checks() if cmd == ["design"] else raw_checks() if cmd == ["raw"] else diagnostics() if cmd == ["diag"]
+             else validation_checks() if cmd == ["vraw"] else 2)

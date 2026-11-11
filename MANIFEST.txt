@@ -36,6 +36,7 @@ docs/P2F_PILOT_PLAN.md
 docs/P2F_PILOT_PLAN_A1.md
 docs/P2F_PILOT_PLAN_A2.md
 docs/P2F_PILOT_RESULTS.md
+docs/P2F_VALIDATION_RESULTS.md
 docs/P2_DECISION_DESCRIPTIVE_FALLBACK.md
 docs/P2_RESULTS_DESCRIPTIVE.md
 docs/P3_RESULTS_C1.md
@@ -123,6 +124,7 @@ python/sharpbl/geometry.py
 python/sharpbl/hale_case_figures.py
 python/sharpbl/measure.py
 python/sharpbl/p2d.py
+python/sharpbl/p2f_apply.py
 python/sharpbl/p2f_checks.py
 python/sharpbl/p2f_pilot.py
 python/sharpbl/p2f_validation.py
