@@ -182,7 +182,8 @@ def figure(harp, br, header, p1, cb, cu, m33, m1, path, info):
     ax.contour(m33.astype(int), levels=[0.5], colors="yellow", linewidths=0.8)
 
     def pix(lo, la):
-        j = np.unravel_index(np.nanargmin((lon - lo) ** 2 + (lat - la) ** 2), br.shape)
+        dlon = (lon - lo + 180.0) % 360.0 - 180.0          # i centroidi sono in (-180, 180], la mappa in [0, 360)
+        j = np.unravel_index(np.nanargmin(dlon ** 2 + (lat - la) ** 2), br.shape)
         return j[1], j[0]
     for c, col, lab in ((cb, "red", "|Br|"), (cu, "lime", "uniformi")):
         if c.get("possible"):
