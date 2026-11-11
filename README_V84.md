@@ -65,7 +65,7 @@ eseguirlo; gli script registrano lo SHA-256 dei protocolli negli output.
 ```bash
 python3 -m virtualenv .venv
 .venv/bin/pip install -r requirements-v84.txt   # numpy 2.2.6, scipy 1.15.3, astropy 6.1.7, pandas 2.3.3, drms 0.9.0
-.venv/bin/python -m pytest -q tests             # 20 test: bipoli sintetici e P2 su cataloghi sintetici
+.venv/bin/python -m pytest -q tests             # 60 casi raccolti da pytest (40 funzioni, alcune parametrizzate; test/ invariati dal commit 55cd7f4, conteggio del 2026-11-11): bipoli sintetici, P2, P2d/P2e, P3 su dati sintetici o costruiti
 ```
 
 Non servono IDL né SolarSoft. `bash scripts/check_repo.sh` controlla la sintassi di tutti i

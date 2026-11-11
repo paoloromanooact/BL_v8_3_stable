@@ -85,6 +85,27 @@ python3 -m virtualenv .venv && .venv/bin/pip install -r requirements-v84.txt
 .venv/bin/python python/sharpbl/run_p3.py                  # P3 (BARD)
 .venv/bin/python python/sharpbl/run_p2.py                  # P2 (descrittivo, dopo P2E_ACCEPTANCE)
 OMP_NUM_THREADS=1 .venv/bin/python python/sharpbl/p2d.py --validate --estimator p2e   # validazione P2e
+# diagnosi di P2d/P2e (piani in docs/DIAGNOSTIC_*_PLAN*.md), nell'ordine:
+.venv/bin/python python/sharpbl/diag_summary.py
+OMP_NUM_THREADS=1 .venv/bin/python python/sharpbl/diag_a_variance.py
+OMP_NUM_THREADS=1 .venv/bin/python python/sharpbl/diag_b_oracle.py
+OMP_NUM_THREADS=1 .venv/bin/python python/sharpbl/diag_c_individual.py   # esecuzione 1, conservata come *_RUN1
+OMP_NUM_THREADS=1 .venv/bin/python python/sharpbl/diag_c2_a1.py
+.venv/bin/python python/sharpbl/diag_c1_audit.py
+OMP_NUM_THREADS=1 .venv/bin/python python/sharpbl/diag_c1_checks.py
+OMP_NUM_THREADS=1 .venv/bin/python python/sharpbl/diag_c1_t3_units.py
+OMP_NUM_THREADS=1 .venv/bin/python python/sharpbl/diag_d_new_seeds.py
+# pilota P2f (docs/P2F_PILOT_PLAN.md, A1, A2)
+OMP_NUM_THREADS=1 .venv/bin/python python/sharpbl/p2f_pilot.py --selftest && OMP_NUM_THREADS=1 .venv/bin/python python/sharpbl/p2f_pilot.py
+.venv/bin/python python/sharpbl/p2f_checks.py design && .venv/bin/python python/sharpbl/p2f_checks.py raw && .venv/bin/python python/sharpbl/p2f_checks.py diag
+# validazione P2f (docs/PROTOCOL_P2F_VALIDATED_TEST.md), poi controllo indipendente
+OMP_NUM_THREADS=1 .venv/bin/python python/sharpbl/p2f_validation.py --selftest && OMP_NUM_THREADS=1 .venv/bin/python python/sharpbl/p2f_validation.py
+.venv/bin/python python/sharpbl/p2f_checks.py vraw
+# applicazione ai dati reali: solo test validati, dopo controllo e revisione
+.venv/bin/python python/sharpbl/p2f_apply.py --test T3 --real    # e/o T5
+# esplorativi: factorial.py (FITS) -> exploratory.py -> hale_case_figures.py (FITS)
 ```
+Le esecuzioni che richiedono un albero pulito (`p2d --validate`, pilota, validazione P2f) non
+partono da uno ZIP senza Git (`docs/REPRODUCIBILITY_V84.md` §3).
 I metadati di JSOC possono cambiare nel tempo (nuovi mesi, riprocessamenti):
 la riproduzione esatta richiede le copie su disco dei metadati e dei FITS.

@@ -31,6 +31,21 @@ aggiunto o aggiornato il file nel repository.
 | Pilota di sviluppo P2f: esecuzione unica | `results/P2F_PILOT/PILOT_RAW.csv.gz`, `PILOT_FALSE_VERDICTS.csv`, `PILOT_POWER.csv`, `PILOT_CHOICE.csv` | disegno reale senza risposte, risposte sintetiche (semi 3 000 000 + 100 000·s + k, potenza 3 900 000 + …, bootstrap 4 000 000 + …) | `p2f_pilot.py` | `bea7de8` (codice `67058f6`) | **sviluppo, nessun verdetto** (`docs/P2F_PILOT_RESULTS.md`) |
 | Pilota P2f: controllo indipendente e diagnostica | `results/P2F_PILOT/POST_CHECKS*.csv`, `PILOT_DIAGNOSTICS_M.csv`, `PILOT_ERRORS.csv` | `PILOT_RAW.csv.gz` e tabelle del pilota | `p2f_checks.py raw`, `diag` | `bea7de8` (codice `c9258fe`, `bea7de8`) | **verifica** (`docs/P2F_PILOT_IMPLEMENTATION_NOTE.md` §3) |
 
+## File storici, rinominati o senza produttore nel codice attuale
+
+| File | Origine (primo commit) | Come è stato prodotto | Stato |
+|---|---|---|---|
+| `results/P1/P1E_METADATA_VERIFICATION_BY_YEAR.csv` | `6ffa258` (2026-11-03) | verifica sui metadati citata in `docs/PROTOCOL_P1E_CANDIDATE_RECURRENCES.md` (riga 83), senza script nel repository | storico, conservato; produttore da documentare |
+| `results/P3/P3_C1_DISCORDANT_DESCRIPTIVE.csv`, `P3_C1_DISCORDANT_SUMMARY.csv` | `37acdf0` (2026-11-03) | analisi descrittiva citata in `docs/P3_RESULTS_C1.md` §(righe 48–49), senza script nel repository | storico, conservato; produttore da documentare |
+| `results/P3/P3_BARD_CONVENTIONS_ATTEMPT1_STOPPED.csv` | `9824ac4` (2026-11-03) | primo tentativo di `run_p3.py` interrotto, rinominato a mano (ha `git_commit`) | esecuzione conservata agli atti |
+| `results/P2/P2E_DEVELOPMENT_ESTIMATORS.csv` | `3fcd702` (2026-11-03) | sviluppo degli stimatori di P2e citato in `docs/PROTOCOL_P2E_ATTENUATION_CORRECTION.md`, senza script nel repository | storico (sviluppo), conservato |
+| `results/P2/P2B_CALIBRATION_RUN1_N40.*`, `P2B_CALIBRATION_RUN2_N100.*` | `05355e2`, `fb3e8ae` (2026-11-03) | `run_p2.py` (calibrazione P2b), output `P2B_CALIBRATION.*` rinominati a mano per esecuzione (hanno `git_commit`) | esecuzioni conservate |
+| `results/P2/P2E_VALIDATION_RAW.csv.gz` | `3da29da` | `p2d.py --validate` scrive il `.csv` non compresso; compresso a mano (il `.csv` non tracciato resta sul disco) | tracciato compresso |
+| `results/DIAGNOSTIC/C_*_RUN1.*` | `c092068` (2026-11-09) | `diag_c_individual.py`, rinominati a mano (esecuzione 1, C2-T3 non valido) | esecuzione conservata |
+| `results/P2F_PILOT/PRELIM_*_RUN1.csv` | `0eb7bd6` | `p2f_pilot.py --selftest` su `e98b3bf`, test 2 fallito, rinominati a mano | esecuzione conservata |
+| `results/P2F/PRELIM_*_ed90e15.csv` | (da committare con la validazione) | `p2f_validation.py --selftest` su `ed90e15`, rinominati a mano prima della riesecuzione su `5c3b664` | esecuzione conservata |
+| `results/DOMINANT_TRIAL_2HARP/*` | `9b762f5` | `dominant_harp_check.py --limit 2 --out <scratchpad>` su `a41c451` non pulito, copiati | prova tecnica, non il controllo |
+
 Riproduzione: comandi in `docs/CATALOGUE_DICTIONARY.md`; analisi esplorative:
 `.venv/bin/python python/sharpbl/factorial.py` poi `exploratory.py` e
 `hale_case_figures.py`.
