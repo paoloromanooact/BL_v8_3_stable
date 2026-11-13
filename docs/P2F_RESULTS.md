@@ -20,12 +20,12 @@ subito dopo: tra `0f12ed1` e `42fcd01` sono cambiati solo `CHANGELOG.md`, `docs/
 ## 1. Risultato principale
 
 Modello (P2 §4, T3): γ_i = (γ0,c,h + β_T (Â_i − 1)) sin|λ_i| + ε_i, WLS con pesi Φ, campione S (2485
-regioni, 394 celle CR × emisfero), attività `A_monthly` (numero di macchie emisferico mensile SILSO
+record primari HARP, 394 celle CR × emisfero), attività `A_monthly` (numero di macchie emisferico mensile SILSO
 normalizzato alla media HMI). Il quenching del tilt prevede β_T < 0.
 
 | Grandezza | Valore |
 |---|---|
-| β̂_T | **−3,59°** per unità di Â (−0,149·γ0, con γ0 = 24°) |
+| β̂_T (pendenza del coefficiente di Joy) | **−3,59°** per unità di Â (−0,149·γ0, con γ0 = 24°) |
 | Errore standard (procedura M) | 3,12° |
 | Intervallo, livello nominale 97,5 %; criteri di validazione superati negli scenari provati | **[−10,58°; +3,41°]**, cioè [−0,441; +0,142]·γ0 |
 | Esito (protocollo §1) | **non deciso** (l'intervallo comprende 0) |
@@ -34,12 +34,21 @@ normalizzato alla media HMI). Il quenching del tilt prevede β_T < 0.
 Lettura, con le cautele registrate:
 - La stima puntuale è negativa, nel verso previsto dal quenching, ma l'intervallo comprende zero: i
   dati non decidono il segno di β_T con questa procedura.
-- **«Non deciso» non è assenza di quenching.** La potenza validata di M all'effetto di riferimento
-  −0,2·γ0 è 4,55–11,10 %, e l'intervallo osservato è compatibile sia con β_T = 0 sia con un
-  quenching dentro il ciclo di ampiezza −0,35·γ0 (lo scenario supplementare di «trasferimento» dal
-  quenching tra cicli), e con valori fino a −0,44·γ0.
-- Non si esclude nessun valore della griglia; si esclude soltanto, al livello nominale indicato, un
-  effetto **positivo** superiore a +0,14·γ0 per unità di Â (opposto al quenching).
+- **«Non deciso» non è assenza di quenching.** La potenza **osservata nelle simulazioni di
+  validazione** all'effetto di riferimento −0,2·γ0 è 4,55–11,10 % nei quattro scenari provati; non è
+  una stima della potenza sul processo reale (la componente temporale stimata sui dati reali,
+  σ̂_x² = 4,34 deg², è diversa da quella degli scenari sotto effetto, 56,25 o 225 deg²).
+- L'intervallo osservato comprende sia β_T = 0 sia l'effetto supplementare −0,35·γ0 della griglia,
+  la cui interpretazione come trasferimento del quenching tra cicli all'attività mensile resta
+  **ipotetica** (protocollo §2). L'estremo inferiore −0,441·γ0 descrive l'intervallo ottenuto, non un
+  limite fisico del quenching.
+- Per le esclusioni previste dal protocollo (§7), nessun effetto della griglia è escluso. L'estremo
+  superiore dell'intervallo è +0,142·γ0 (+3,41°); non si introduce un criterio di esclusione per
+  valori positivi.
+- β_T è la pendenza del coefficiente di Joy: per una regione a latitudine fissa la variazione del
+  tilt per unità di attività è β_T sin|λ| (per esempio circa −0,9° a 15°), non −3,59° a tutte le
+  latitudini. Le unità del campione sono 2485 record primari HARP, non 2485 regioni fisiche
+  necessariamente indipendenti.
 - L'intervallo vale per il modello e gli scenari della validazione: copertura verificata in quattro
   scenari sotto effetto (AR(1) φ 0,5 e 0,9, salti di 20 CR, parametri alle stime reali con code
   pesanti), non oltre.
@@ -51,8 +60,9 @@ Lettura, con le cautele registrate:
   protocollo), nessun residuo quadratico nullo.
 - Componente temporale: φ̂ = 0,751, κ̂ = −0,423, σ̂_x² = 4,34 deg² (non al limite inferiore); 5 avvii
   validi su 5. La componente per rotazione stimata è molto più piccola di quella usata nei
-  generatori della validazione (σ_x² = 56,25 deg²); la validazione comprende anche lo scenario senza
-  componente temporale (scenario 0), con falsi verdetti 1,87 %.
+  generatori della validazione sotto effetto (σ_x² = 56,25 deg², o 225 deg² nello scenario 9). Lo
+  scenario 0, senza componente temporale, controlla i falsi verdetti sotto la nulla (1,87 %); non
+  estende da solo la copertura sotto effetto ai regimi intermedi, che non sono stati provati.
 - Confronto con P2 descrittivo (`docs/P2_RESULTS_DESCRIPTIVE.md`, procedura non validata): stessa
   stima puntuale (−3,6°), intervallo P2 al 97,5 % [−8,0°; 1,3°]; l'intervallo di M è più largo
   ([−10,6°; 3,4°]). Le due procedure non sono confrontabili come verdetti: solo M ha superato una
@@ -71,7 +81,8 @@ Lettura, con le cautele registrate:
 | S5 (record di controllo) | A_monthly | 4001 / 417 | −3,26 | [−10,81; +4,30] |
 | S6 (con AMBIGUOUS) | A_monthly | 2485 / 394 | −3,59 | [−10,58; +3,41] |
 
-- La stima è negativa in tutte le 8 sensibilità e tutti gli intervalli comprendono zero. Gli
+- La stima è negativa in tutte le 8 sensibilità e tutti gli intervalli comprendono zero. Le
+  sensibilità sono correlate (stessi dati in larga parte), non repliche indipendenti. Gli
   intervalli delle sensibilità non sono validati: la procedura è stata validata solo sul disegno di
   S con `A_monthly`.
 - S6 coincide con S perché nel campione non ci sono regioni AMBIGUOUS con le altre condizioni
@@ -84,9 +95,21 @@ Lettura, con le cautele registrate:
 
 - Con la procedura validata, la pendenza del tilt rispetto all'attività dentro il ciclo, nei cicli
   24–25 osservati da HMI, è **stimata negativa ma non distinta da zero**; il risultato è
-  **compatibile** sia con l'assenza di dipendenza sia con un quenching dentro il ciclo dell'ordine di
-  quello stimato tra cicli. Il test, con due cicli HMI, **non ha la sensibilità** per distinguere
-  queste ipotesi agli effetti della griglia.
+  **compatibile** sia con l'assenza di dipendenza sia con l'effetto supplementare −0,35·γ0 della
+  griglia, la cui interpretazione come trasferimento dal quenching tra cicli resta ipotetica. Il
+  risultato osservato non distingue zero dagli effetti negativi della griglia; nelle simulazioni
+  provate la potenza è bassa. Non si attribuisce questo limite al solo numero di cicli.
 - Non si attribuisce alcun meccanismo; un esito negativo non avrebbe comunque distinto il quenching
   da effetti di selezione o di blending.
 - T5 (efficienza della sorgente) resta descrittivo: la procedura non è validata (scenario a salti).
+
+## 5. Revisione esterna (2026-11-13, ZIP `0c22bee`, SHA-256 `1922faa9…`)
+
+Nessuna discrepanza numerica (19 controlli, script indipendente senza i moduli del progetto):
+ricostruiti campione S (2485 record, 394 celle, 42 singoletti), pendenza (−3,5874055°), varianza con i
+parametri salvati (8,0028 deg² individuale + 1,7309 deg² temporale, SE 3,11988°) e intervallo; esito
+«non deciso», nessun effetto della griglia escluso. La ricostruzione non ripete l'ottimo REML né la
+stima della funzione di varianza. Le correzioni di formulazione richieste (nessuna esclusione di
+effetti positivi, potenza come proprietà delle simulazioni, −0,35·γ0 come effetto ipotetico, unità
+come record HARP, β_T come pendenza del coefficiente di Joy, sensibilità correlate) sono state
+recepite qui senza cambiare output.

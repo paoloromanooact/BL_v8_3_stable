@@ -3,7 +3,8 @@
 Stato: **esecuzione unica, terminata il 2026-11-12 alle 13:45; documento scritto il 2026-11-13 dopo il
 controllo indipendente (§2) e una revisione esterna (§8).** Le regole sono quelle del protocollo
 congelato `docs/PROTOCOL_P2F_VALIDATED_TEST.md` (`500c56a`, SHA-256 `8f030010…`) §5, applicate alla
-lettera. **Validazione della procedura M, non applicazione**: nessun dato reale, nessun verdetto sul
+lettera. **Validazione della procedura M, non applicazione**: risposte sintetiche sul disegno reale
+(nessuna risposta reale), nessun verdetto sul
 quenching.
 
 **Dichiarazione.** La tabella di decisione (T3 validato, T5 no) è stata vista nell'ultima riga del
@@ -138,7 +139,7 @@ T5: 15 combinazioni entro i criteri; **scenario 7, effetto −0,3**: 1922 su 200
 
 - Stabilisce che la procedura M soddisfa i criteri registrati **per T3** negli scenari provati; per T5
   no.
-- Non è evidenza osservativa di quenching: nessun dato reale è stato usato.
+- Non è evidenza osservativa di quenching: sono state usate solo risposte sintetiche sul disegno reale.
 - Con la potenza di T3 (5–11 % a −0,2·γ0), un esito «non deciso» sui dati reali non dimostrerebbe
   assenza di quenching; un'esclusione di un quenching ≥ δ si potrà affermare solo con la regola del
   protocollo §7 (estremo inferiore dell'intervallo > −δ·γ0).
