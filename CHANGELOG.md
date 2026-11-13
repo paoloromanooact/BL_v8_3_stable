@@ -2,6 +2,12 @@
 
 ## v8.4 (Python, branch `v8.4-python-gianluca`) — in corso
 
+- 2026-11-13: verifica interna successiva del rapporto morfologico, con
+  codice separato csv/Decimal dello stesso autore: 553 controlli superati,
+  nessuna discrepanza numerica. Sistemate due intestazioni Markdown e
+  annotati gli arrotondamenti; nessuna lettura o tabella CSV scientifica
+  modificata. Limiti e provenienza in MORPHOLOGY_INTERNAL_REVIEW.md.
+
 - 2026-11-13: confronto morfologico e tabelle finali dopo tutti i blocchi:
   24/30 classi primarie coincidenti, C 24/30 o 23/27 sui casi entrambi
   valutabili; condizioni operative soddisfatte per la sola proposta di

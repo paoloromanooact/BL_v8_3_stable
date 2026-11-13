@@ -28,6 +28,7 @@ con [lista input](T5_DIAGNOSTIC_INPUTS_SHA256.csv) e
 
 | Elemento | File | Dati tracciati / input | Script | Commit | Stato |
 |---|---|---|---|---|---|
+| Verifica interna del rapporto morfologico | `results/MORPHOLOGY/REVIEW/` | letture bloccate, catalogo e aggregazioni distribuite | `scripts/review_morphology.py` | riferimento `84099c2` | 553 verifiche, stesso autore, non revisione esterna |
 | Morfologia HMI, confronto e contributi per classe | `results/MORPHOLOGY/ANALYSIS/*.csv` | letture bloccate pubblicate, mapping verificato, P1 e controlli dominanti | `morphology_compare.py` | codice `744eeec`, output `b660836` | descrittivo, 229 verifiche; regola solo per proporre uno studio distinto |
 | Fig. diagramma a farfalla | `figures/P1/fig1_butterfly.png` | `figures/P1/data/fig1_butterfly.csv` ← catalogo P1 | `figures_p1.py` | `120f852` | protocollo P1–P1e |
 | Fig. serie per CR e dipolo cumulato | `figures/P1/fig2_series_by_cr.png` | `figures/P1/data/fig2_*.csv` ← `P1_SBL_BY_CR_HEMISPHERE.csv` | `figures_p1.py` | `120f852` | protocollo |

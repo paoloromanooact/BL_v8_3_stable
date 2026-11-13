@@ -1,5 +1,20 @@
 # Cold restart — SHARP BL
 
+## Morfologia: verifica interna del rapporto conclusa — 2026-11-13
+
+Il rapporto `84099c2` è stato riesaminato dal medesimo autore con un codice
+separato (csv/Decimal, senza comparatore originale): 553 verifiche superate,
+nessuna discrepanza numerica. Corretta soltanto la presentazione di due
+intestazioni Markdown e chiarito l'arrotondamento delle quote piccole.
+Esiti in `docs/MORPHOLOGY_INTERNAL_REVIEW.md` e `results/MORPHOLOGY/REVIEW/`.
+È una verifica interna, non una revisione esterna indipendente. L'accordo
+primario resta 24/30, esattamente alla soglia operativa; la conclusione è
+la sola proposta di uno studio distinto su S, non il suo avvio. Nessuna
+lettura, tabella numerica o protocollo modificato. T5-D2 non esaminato.
+Il blocco morfologico resta chiuso a questo livello descrittivo; eventuale
+revisione esterna distinta e sviluppi futuri non sono avviati. Nessun push.
+
+
 ## Morfologia HMI conclusa — 2026-11-13
 
 Confronto dei lettori e tabelle finali completati; rapporto

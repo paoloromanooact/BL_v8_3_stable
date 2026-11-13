@@ -136,7 +136,7 @@ cambiare le classi o i flag automatici già esistenti.
 Classi del lettore 1 sulle 90 nuove; ogni quota è riferita alla **Σ|S_BL|
 dell'intera base P1 del gruppo**, non alla sola porzione esaminata:
 
-| Gruppo | Classe | N | In S | Σ S_BL (Mx cm) | Σ|S_BL| (Mx cm) | Quota della base P1 |
+| Gruppo | Classe | N | In S | Σ S_BL (Mx cm) | Σ\|S_BL\| (Mx cm) | Quota della base P1 |
 |---|---|---|---|---|---|---|
 | 24N | A | 18 | 16 | 9.682931e+32 | 1.514745e+33 | 12.879% |
 | 24N | B | 8 | 8 | 5.389512e+32 | 9.526358e+32 | 8.100% |
@@ -150,6 +150,10 @@ dell'intera base P1 del gruppo**, non alla sola porzione esaminata:
 | 25N | B | 12 | 12 | 2.076086e+33 | 2.752075e+33 | 16.194% |
 | 25N | D | 3 | 0 | 3.199593e+30 | 4.919361e+30 | 0.029% |
 | 25N | U | 1 | 0 | -2.805594e+28 | 2.805594e+28 | 0.000% |
+
+Le quote mostrate come `0.000%` sono valori piccoli arrotondati alla
+precisione della tabella, non contributi esattamente nulli; i CSV conservano
+i valori completi.
 
 Le 32 HARP B del lettore 1 appartengono tutte a S in questo campione.
 Questo descrive casi esaminati, non la prevalenza di B nell'intero S.
@@ -177,7 +181,7 @@ aggregazioni secondo l'indicatore C, sempre con il denominatore specificato.
 Per le HARP B del lettore 1, differenze rispetto a P1 sulle sole schede
 esaminate. Sia ΣΔ sia Σ|Δ| sono divise per **Σ|S_BL| dell'intero gruppo**:
 
-| Gruppo | Variante | Confrontabili / B | ΣΔ / base | Σ|Δ| / base |
+| Gruppo | Variante | Confrontabili / B | ΣΔ / base | Σ\|Δ\| / base |
 |---|---|---|---|---|
 | 24N | bmap1 | 8/8 | -1.399% | 2.199% |
 | 24N | uniform | 8/8 | -0.911% | 1.553% |
@@ -250,3 +254,29 @@ I campi della nuova provenienza e il numero di controlli sui file privati
 eventualmente assenti vanno distinti da quelli dell'esecuzione originale;
 conteggi, matrici e aggregazioni scientifiche leggono soltanto input tracciati.
 Nessun push eseguito in questo compito.
+
+## 9. Verifica interna successiva del rapporto
+
+Il rapporto al commit `84099c2` è stato riesaminato dallo stesso autore,
+senza nuova classificazione o consultazione dei risultati T5-D2. Un
+programma separato, `scripts/review_morphology.py`, usa soltanto csv,
+Counter e Decimal, senza importare il comparatore originale o pandas.
+Ha superato **553 verifiche** sugli originali pubblicati: blocchi e ordine
+dei passaggi, matrici, accordi e denominatori, registri, base P1, contributi
+per classe, differenze numeriche e condizioni operative. Le somme delle
+sensibilità per classe ricostruiscono inoltre i totali del controllo
+dominanti già distribuito. Questa verifica resta interna e successiva
+alla conoscenza dei risultati; non è una revisione esterna indipendente.
+
+Esiti e provenienza sono conservati in
+`results/MORPHOLOGY/REVIEW/REVIEW_CHECKS.csv` e `META.json`; il secondo
+identifica l'hash del rapporto esaminato prima delle correzioni di
+presentazione. Non sono emerse discrepanze numeriche. Sono state protette
+le barre verticali in due intestazioni Markdown e chiariti gli arrotondamenti
+delle quote piccole; nessuna tabella CSV o conclusione è cambiata.
+
+Resta il limite centrale: l'accordo è esattamente sulla soglia operativa,
+con taratura condivisa e 30 sole doppie letture. Il risultato descrive la
+concordanza delle annotazioni e quote di proxy sui casi selezionati;
+non stabilisce una verità fisica delle classi o l'indipendenza statistica
+degli errori dei due modelli. Le etichette originali restano quelle bloccate.

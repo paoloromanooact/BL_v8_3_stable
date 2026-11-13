@@ -37,6 +37,7 @@ docs/HMI_QUENCHING_SYNTHESIS.md
 docs/MDI_SMARP_FEASIBILITY.md
 docs/MORPHOLOGY_CALIBRATION_COMPARISON.md
 docs/MORPHOLOGY_COMPARISON_INPUTS_SHA256.csv
+docs/MORPHOLOGY_INTERNAL_REVIEW.md
 docs/MORPHOLOGY_READER2_CALIBRATION_RECEIPT.md
 docs/MORPHOLOGY_READER2_CENTROIDS_RECEIPT.md
 docs/MORPHOLOGY_READER2_PRIMARY_RECEIPT.md
@@ -593,6 +594,8 @@ results/MORPHOLOGY/READING_ORDER_READER1.csv
 results/MORPHOLOGY/READING_ORDER_READER2.csv
 results/MORPHOLOGY/READING_READER1_COMMITMENT.csv
 results/MORPHOLOGY/REFERENCE_SHEETS.csv
+results/MORPHOLOGY/REVIEW/META.json
+results/MORPHOLOGY/REVIEW/REVIEW_CHECKS.csv
 results/MORPHOLOGY/SHEETS_CHECKS.csv
 results/MORPHOLOGY/SHEETS_META.json
 results/P1/CYCLE_BOUNDARY_FITS.csv
@@ -701,6 +704,7 @@ scripts/download_test_20240508.sh
 scripts/process_test_20240508_idl_commands.pro
 scripts/repro_compare.py
 scripts/repro_draft_tables.py
+scripts/review_morphology.py
 scripts/run_pipeline.sh
 test/test_process_day.pro
 test/test_sharp_bl_source_single.pro
