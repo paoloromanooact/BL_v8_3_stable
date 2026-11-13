@@ -112,12 +112,14 @@ richiede un'evidenza specifica per HARP (per esempio una maschera che include ca
 regione visibile nella scheda, o polarità invertite rispetto alla mappa). Le schede sono in
 `figures/DOMINANT/`; l'esame visivo, documentato HARP per HARP con il motivo, è in
 `docs/DOMINANT_HARP_VISUAL_25S.md` per il gruppo 25S (esame fatto il 2026-11-13 da un solo
-lettore): **nessun errore confermato** nelle 30 schede; 10 dominanti su 20 sono complessi
-multiregione (classe B) e 5 hanno un centroide tra regioni distinte (classe C: 11487, 9680, 11907,
-11727, 12589); 5 controlli su 10 sono regioni quasi unipolari o in decadimento (classe D) con
-contributo trascurabile. Le classi B–D non sono errori: derivano dalla definizione «una misura per
-HARP» di P1 e dal criterio di validità (20 pixel per polarità), e un loro trattamento richiederebbe
-un piano proprio.
+lettore, con seconda lettura esterna): **nessun errore confermato** nelle 30 schede (nessun errore
+geometrico macroscopico; appartenenza del campo ad altre HARP non verificabile dalle schede).
+Dominanti: 3 A, 1 A/B, 7 B (complessi), 4 B/C, 5 C (centroide tra concentrazioni distinte: 11487,
+9680, 11907, 11727, 12589); controlli: 2 A, 1 A/B, 1 A/D, 1 C, 5 D (due quasi unipolari, tre a
+morfologia frammentata o sbilanciata; 0,12 % di Σ|S_BL| in tutto). Le classi B–D non sono errori:
+derivano dalla definizione «una misura per HARP» di P1 e dai criteri di validità (P1: polarità non
+vuote) e di selezione (P2: 20 pixel per polarità, Φ ≥ 10²¹ Mx); un loro trattamento richiederebbe un
+piano proprio.
 
 ## 5. Che cosa si può dire
 
