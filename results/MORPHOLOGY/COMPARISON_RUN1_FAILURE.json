@@ -1,0 +1,14 @@
+{
+  "attempt": 1,
+  "observed_utc": "2026-11-13T14:31:25.262718+00:00",
+  "code_commit": "5d9094ad3ee8482ca1e8b5ad4b64f3f5ce04d8c3",
+  "exit_code": 1,
+  "stage": "join_common30_to_registry",
+  "error_type": "pandas.errors.MergeError",
+  "message": "Merge keys are not unique in right dataset; not a one-to-one merge",
+  "cause": "The 30 historical rows correctly have no anonymous code; the join mistakenly included their repeated empty code.",
+  "derived_output_directory_created": false,
+  "all_frozen_inputs_hash_verified_unchanged": true,
+  "fix": "Filter to the 90 nonempty unique anonymous codes before the common30 join; no classification, denominator or rule change.",
+  "regression_test": "A one-code table joins a table containing repeated empty historical codes only after filtering empty codes."
+}

@@ -74,7 +74,10 @@ def selftest():
     assert sums([10., -9.]) == (1., 19.)
     assert math.isnan(ratio(1., 0.))
     assert [x for x in ['B', 'B', 'U'] if x == 'B'] == ['B', 'B']
-    return 8
+    left = pd.DataFrame({'code':['M001']})
+    right = pd.DataFrame({'code':['M001','',''], 'cohort':['new','historical','historical']})
+    assert len(left.merge(right[right.code!=''],on='code',validate='one_to_one')) == 1
+    return 9
 
 def historical_rows(doc):
     rows, section = [], None
@@ -286,7 +289,7 @@ def priority(reg, agreement):
     return table,result
 
 def run():
-    check('hand_built_selftests',selftest()==8)
+    check('hand_built_selftests',selftest()==9)
     check('output_directory_new',not OUT.exists())
     check('tracked_clean_before_run',not git('status','--porcelain','--untracked-files=no'))
     head=git('rev-parse','HEAD')
@@ -296,7 +299,9 @@ def run():
     verified=snapshot_checks()
     new,common=reading_tables()
     reg,hist=registry(new)
-    common=common.merge(reg[['code','HARPNUM','group','kind','in_S','share_abs']],on='code',validate='one_to_one')
+    coded = reg[reg.code != '']
+    check('only_new90_have_unique_codes',len(coded)==90 and coded.code.nunique()==90)
+    common=common.merge(coded[['code','HARPNUM','group','kind','in_S','share_abs']],on='code',validate='one_to_one')
     check('composition_7dominants_3controls_each_group',all(len(common[(common.group==g)&(common.kind==k)])==n for g in NEW_GROUPS for k,n in [('dominante',7),('controllo',3)]))
     m1,m2,agreement=agreement_tables(common)
     source,sensitivity=distributions(reg)
