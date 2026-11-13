@@ -12,6 +12,8 @@ provenienza alterata,False,False,True,
 metadato scientifico alterato (status),False,False,True,
 chiave mancante,False,False,True,"insieme delle chiavi diverso: mancanti 1, inattese 0"
 chiave duplicata,False,False,True,chiave duplicata nel rilancio: 1
-chiave vuota,False,False,True,chiave mancante nel rilancio
+chiave vuota solo nel rilancio,False,False,True,chiave interamente mancante nel rilancio
+"componente di chiave mancante in entrambi (consentita, marcatore)",True,True,True,
+componente mancante nel riferimento ma presente nel rilancio,False,False,True,"insieme delle chiavi diverso: mancanti 1, inattese 1"
 schema diverso (colonna in più),False,False,True,"schema diverso: rif ['id', 'n', 'x', 'eta', 'git_commit', 'status'] / nuovo ['id', 'n', 'x', 'eta', 'git_commit', 'status', 'extra']"
 schema diverso (ordine),False,False,True,"schema diverso: rif ['id', 'n', 'x', 'eta', 'git_commit', 'status'] / nuovo ['n', 'id', 'x', 'eta', 'git_commit', 'status']"

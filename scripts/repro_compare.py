@@ -23,6 +23,7 @@ import pandas as pd
 ROOT = Path(__file__).resolve().parents[1]
 FREEZE = "0f51e61"
 NA = ["", "nan", "NaN"]
+MISSING_KEY = "\x00<CHIAVE MANCANTE>\x00"   # marcatore esplicito (regole §2), non confondibile con testo reale
 
 
 def git_show(commit, path):
@@ -55,12 +56,19 @@ def compare(ref, new, key, policy):
         if not all(k in d.columns for k in key):
             summ["problems"].append(f"chiave assente nel {name}")
             return [], summ
-        if d[key].isna().any().any():
-            summ["problems"].append(f"chiave mancante nel {name}")
-        if d.duplicated(key).any():
-            summ["problems"].append(f"chiave duplicata nel {name}: {int(d.duplicated(key).sum())}")
+        if (d[key] == MISSING_KEY).any().any():
+            summ["problems"].append(f"marcatore di chiave mancante presente come testo nel {name}")
+        if d[key].isna().all(axis=1).any():
+            summ["problems"].append(f"chiave interamente mancante nel {name}")
+        if d[key].fillna(MISSING_KEY).duplicated().any():
+            summ["problems"].append(f"chiave duplicata nel {name}: {int(d[key].fillna(MISSING_KEY).duplicated().sum())}")
     if summ["problems"] and any(p.startswith(("chiave", "schema")) for p in summ["problems"]):
         return [], summ
+    # regole §2: componenti di chiave mancanti consentite dallo schema -> marcatore esplicito per l'allineamento
+    ref = ref.copy(); new = new.copy()
+    summ["key_components_missing_ref"] = int(ref[key].isna().sum().sum())
+    summ["key_components_missing_new"] = int(new[key].isna().sum().sum())
+    ref[key] = ref[key].fillna(MISSING_KEY); new[key] = new[key].fillna(MISSING_KEY)
     kr = set(map(tuple, ref[key].to_numpy())); kn = set(map(tuple, new[key].to_numpy()))
     if kr != kn:
         summ["problems"].append(f"insieme delle chiavi diverso: mancanti {len(kr - kn)}, inattese {len(kn - kr)}")
@@ -134,7 +142,16 @@ def selftest():
     case("metadato scientifico alterato (status)", base.assign(status=["ok", "ok", "ko"]), False)
     case("chiave mancante", base.drop(index=2), False)
     case("chiave duplicata", pd.concat([base, base.iloc[[0]]]), False)
-    case("chiave vuota", base.assign(id=["1", "", "3"]), False)
+    case("chiave vuota solo nel rilancio", base.assign(id=["1", "", "3"]), False)
+    two = base.assign(grp=["a", "a", "b"], id=["1", "", "3"])
+    pol["grp"] = {"mode": "exact_key"}
+    rows, s_ = compare(to_txt(two), to_txt(two.iloc[[2, 1, 0]]), ["grp", "id"], pol)
+    cases.append(dict(case="componente di chiave mancante in entrambi (consentita, marcatore)", expected_ok=True,
+                      got_ok=verdict(rows, s_), passed=verdict(rows, s_), problems="; ".join(s_["problems"])))
+    rows, s_ = compare(to_txt(two), to_txt(two.assign(id=["1", "2", "3"])), ["grp", "id"], pol)
+    cases.append(dict(case="componente mancante nel riferimento ma presente nel rilancio", expected_ok=False,
+                      got_ok=verdict(rows, s_), passed=not verdict(rows, s_), problems="; ".join(s_["problems"])))
+    del pol["grp"]
     case("schema diverso (colonna in più)", base.assign(extra=["a", "b", "c"]), False)
     case("schema diverso (ordine)", base[["n", "id", "x", "eta", "git_commit", "status"]], False)
     t = pd.DataFrame(cases)
