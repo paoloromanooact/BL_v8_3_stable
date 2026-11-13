@@ -1,0 +1,17 @@
+case,expected_ok,got_ok,passed,problems
+identico,True,True,True,
+righe permutate,True,True,True,
+x entro tolleranza (1e-10 relativo),True,True,True,
+x fuori tolleranza,False,False,True,
+NaN contro numero,False,False,True,
+inf di segno opposto,False,False,True,
+T5 minuscolo 1e-25 contro 9e-25,False,False,True,
+T5 minuscolo entro tolleranza,True,True,True,
+conteggio alterato,False,False,True,
+provenienza alterata,False,False,True,
+metadato scientifico alterato (status),False,False,True,
+chiave mancante,False,False,True,"insieme delle chiavi diverso: mancanti 1, inattese 0"
+chiave duplicata,False,False,True,chiave duplicata nel rilancio: 1
+chiave vuota,False,False,True,chiave mancante nel rilancio
+schema diverso (colonna in più),False,False,True,"schema diverso: rif ['id', 'n', 'x', 'eta', 'git_commit', 'status'] / nuovo ['id', 'n', 'x', 'eta', 'git_commit', 'status', 'extra']"
+schema diverso (ordine),False,False,True,"schema diverso: rif ['id', 'n', 'x', 'eta', 'git_commit', 'status'] / nuovo ['n', 'id', 'x', 'eta', 'git_commit', 'status']"
