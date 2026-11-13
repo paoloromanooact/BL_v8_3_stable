@@ -2,6 +2,13 @@
 
 ## Priorità corrente — HMI e quenching (2026-11-13)
 
+**T5-D1: congelato prima del codice**, su via dell'utente.
+Protocollo `docs/PROTOCOL_T5_DIAGNOSTIC_SAVED_OUTPUTS.md`, SHA-256
+`53a05c1fd7c0315eca52b508472c59d6df485c29c8ef2b717e81264d3d600e5d`. Il compito autorizzato comprende
+codice, prove costruite a mano ed esecuzione unica sugli output salvati,
+seguiti dai risultati. Nessun controllo oracolo o nuovo fit autorizzato qui;
+nessun push richiesto. Le descrizioni di bozza più sotto sono precedenti.
+
 Decisione dell'utente: concentrarsi sulla misura della sorgente BL e sul
 quenching con HMI. **MDI/SMARP e la degradazione HMI→MDI sono rinviati**, inclusa
 la prova sintetica di precisione. Le bozze restano conservate, non congelate.

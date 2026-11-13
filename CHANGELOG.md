@@ -2,6 +2,10 @@
 
 ## v8.4 (Python, branch `v8.4-python-gianluca`) — in corso
 
+- 2026-11-13: congelato T5-D1 su autorizzazione dell'utente, con commit
+  dedicato prima di scrivere il codice diagnostico. Nessuna modifica alle
+  analisi previste; dati e risultati originali invariati.
+
 - 2026-11-13: preparata la bozza completa T5-D1 per la diagnosi del fallimento
   sui salti dagli output sintetici P2f salvati: 17 gruppi previsti, formule,
   denominatori/code, prodotti, controlli e arresto fissati per revisione.

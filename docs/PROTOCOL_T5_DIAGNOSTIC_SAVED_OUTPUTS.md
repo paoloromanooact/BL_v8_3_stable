@@ -1,9 +1,10 @@
 # T5-D1 — diagnosi dagli output sintetici P2f già salvati
 
-**BOZZA COMPLETA PER REVISIONE — 2026-11-13; non congelata, non eseguita.**
+**CONGELATO — 2026-11-13, su autorizzazione dell'utente, prima del codice diagnostico.**
 Protocollo diagnostico non cieco: fallimento di T5 e riassunti P2f già noti.
-Prima di scrivere il codice diagnostico, congelare questa versione con un
-commit dedicato e registrare il suo SHA-256 negli output. Nessuna nuova
+Registrato con commit dedicato; lo script registra il suo SHA-256 negli output.
+Dopo il congelamento questo file non si modifica; eventuali nuove regole
+richiedono un emendamento separato prima dell'esecuzione. Nessuna nuova
 simulazione, stima REML, risposta reale o modifica della procedura M.
 
 ## 1. Domanda e limite della risposta
