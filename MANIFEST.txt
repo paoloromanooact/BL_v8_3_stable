@@ -49,7 +49,7 @@ docs/P2_RESULTS_DESCRIPTIVE.md
 docs/P3_RESULTS_C1.md
 docs/PROJECT_STATUS.md
 docs/PROTOCOL_HMI_LOS_SENSITIVITY_DRAFT.md
-docs/PROTOCOL_HMI_MORPHOLOGY_DRAFT.md
+docs/PROTOCOL_HMI_MORPHOLOGY.md
 docs/PROTOCOL_P1B_QUALITY_0x80.md
 docs/PROTOCOL_P1C_CYCLE_RULE.md
 docs/PROTOCOL_P1D_RECURRENCE_EVOLUTION.md
@@ -262,6 +262,7 @@ python/sharpbl/diag_c2_a1.py
 python/sharpbl/diag_c_individual.py
 python/sharpbl/diag_d_new_seeds.py
 python/sharpbl/diag_summary.py
+python/sharpbl/diag_t5_oracle.py
 python/sharpbl/diag_t5_saved_outputs.py
 python/sharpbl/dominant_harp_check.py
 python/sharpbl/download_records.py

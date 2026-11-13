@@ -61,7 +61,7 @@ Fonti: [sensibilità P2f](P2F_RESULTS.md#3-sensibilità-stesse-formule-non-valid
    e congelamento del piano, le letture delle 90 schede mancanti. Versioni
    prive di diagnostiche numeriche, ordine casuale e seconda lettura indipendente
    di 30 casi; descrizione della sola mappa prima di vedere i centroidi.
-   [Bozza revisionata](PROTOCOL_HMI_MORPHOLOGY_DRAFT.md). Una regola operativa
+   [Bozza revisionata](PROTOCOL_HMI_MORPHOLOGY.md). Una regola operativa
    proposta delimita quando progettare uno studio sulla popolazione S; non
    autorizza un nuovo fit o l'eliminazione di HARP complesse.
 

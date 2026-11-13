@@ -18,7 +18,7 @@ agli input distribuiti. `docs/MDI_SMARP_FEASIBILITY.md` è uno studio documental
 non un risultato di calibrazione o un'estensione della serie; il seguito MDI è rinviato.
 
 Sintesi correnti HMI: [misura](HMI_MEASUREMENT_ASSESSMENT.md) e
-[quenching](HMI_QUENCHING_SYNTHESIS.md). La [bozza morfologica](PROTOCOL_HMI_MORPHOLOGY_DRAFT.md)
+[quenching](HMI_QUENCHING_SYNTHESIS.md). La [bozza morfologica](PROTOCOL_HMI_MORPHOLOGY.md)
 propone un nuovo controllo descrittivo, con letture separate e concordanza;
 non contiene nuovi risultati. La [traccia T5 sui salti](T5_JUMPS_DIAGNOSTIC_DESIGN.md)
 è un documento di progettazione storico. La prima fase

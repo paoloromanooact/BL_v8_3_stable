@@ -141,7 +141,7 @@ I dati non sono in Git. `data/sharp` può essere un link a un disco capiente
   le componenti responsabili restano da separare (`docs/T5_DIAGNOSTIC_RESULTS.md`).
   T5 resta descrittivo, senza nuova applicazione reale.
 - [ ] Revisione di T5-D1, poi eventuale piano per componenti note. Controllo
-  morfologico complementare ancora in bozza (`docs/PROTOCOL_HMI_MORPHOLOGY_DRAFT.md`),
+  morfologico complementare ancora in bozza (`docs/PROTOCOL_HMI_MORPHOLOGY.md`),
   nessuna nuova lettura avviata. Stato in `docs/HANDOFF.md`.
 
 ## Ancillari

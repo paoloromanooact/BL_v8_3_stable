@@ -28,7 +28,7 @@ Sono pronti i documenti di lavoro:
   dell'interpretazione del tilt nei complessi HARP;
 - `docs/HMI_QUENCHING_SYNTHESIS.md`: risultati T3/T4/T5, sensibilità già fatte e
   lacuna residua; distingue P2 storico da P2f;
-- `docs/PROTOCOL_HMI_MORPHOLOGY_DRAFT.md`: bozza limitata alle 120 schede già
+- `docs/PROTOCOL_HMI_MORPHOLOGY.md`: bozza limitata alle 120 schede già
   prodotte (30 25S storiche, 90 da leggere). Nessuna nuova classificazione,
   selezione o aggregazione eseguita; piano morfologico non congelato.
 - `docs/T5_JUMPS_DIAGNOSTIC_DESIGN.md`: traccia del blocco metodologico T5;

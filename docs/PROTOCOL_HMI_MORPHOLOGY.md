@@ -1,6 +1,6 @@
 # HMI: interpretabilità del bipolo nelle schede esistenti — bozza
 
-**BOZZA NON CONGELATA, revisione 3 — 2026-11-13 (pronta per la revisione prima del congelamento; §7 elenca le chiusure).** Nessuna nuova scheda,
+**CONGELATO il 2026-11-13 (revisione 4), dopo la revisione esterna della revisione 3 (`0a8e826`) e con le sue tre correzioni recepite.** Da questo commit non si modifica; ogni cambiamento è un emendamento registrato prima del passo che riguarda. Nessuna nuova scheda,
 classificazione o estrazione è stata prodotta. Le scelte numeriche sotto sono
 proposte operative da rivedere prima del congelamento, non criteri fisici validati.
 Studio descrittivo; P1, P2 e P2f restano invariati.
@@ -26,9 +26,9 @@ le nuove letture. Non estendere il campione o sostituire schede difficili.
 Rigenerare le 90 schede dagli stessi FITS e record, con identica geometria
 e maschera P1. Le immagini originali restano intatte. Preparare due versioni:
 
-- **Mappa:** Br con scala comune ±1500 G (saturazione oltre; nessuna scala adattiva, così regioni
-  forti e deboli restano confrontabili; le regioni deboli appaiono più tenui e questo va tenuto
-  presente nel giudizio D) e contorni di maschera; nessun tilt,
+- **Mappa, due viste fisse per tutte le schede:** Br a ±1500 G e Br a **±300 G** (tre volte la soglia
+  P1 di 100 G, scelta a priori, non guardando le schede: ogni pixel che entra nella misura è visibile
+  ad almeno un terzo della saturazione). Nessuna scala adattiva. Contorni di maschera; nessun tilt,
   S_BL, flusso integrato, flag, NOAA, data, gruppo o HARPNUM. Solo un codice
   anonimo; nessun centroide o segmento fra centroidi.
 - **Centroidi:** la stessa immagine, aggiungendo soltanto i marker positivo
@@ -41,9 +41,15 @@ già noti e parte delle immagini è stata vista (incluse 393 e 5249 nella prova
 tecnica); dichiarare la lettura non cieca e registrare le esposizioni note.
 
 Dopo il congelamento, assegnare codici e mescolare le 90 schede con un
-generatore dedicato, seme proposto **2026111301**. Conservare la corrispondenza
+generatore dedicato, seme **2026111301**. Conservare la corrispondenza
 fra codice, HARPNUM e file con i relativi hash, senza passarla ai lettori prima
 del blocco delle etichette. La preparazione non modifica le misure P1.
+
+**Chi prepara le immagini.** Le prepara il lettore 1 (sessione dell'agente) con uno script che scrive
+la corrispondenza codice–HARPNUM in un file senza stamparla. Il lettore 1 dichiara di non aprire quel
+file prima del blocco delle proprie etichette, ma la sua sessione ha scritto il codice che la genera:
+**esposizione dichiarata**, non esclusa. La seconda lettura resta indipendente dalle etichette del
+lettore 1 solo se queste restano nascoste al lettore 2 fino alla registrazione delle sue.
 
 ## 3. Classificazione in due passaggi: evitare circolarità
 
@@ -56,22 +62,29 @@ del blocco delle etichette. La preparazione non modifica le misure P1.
 | D | Configurazione diffusa, frammentata o visivamente molto sbilanciata; coppia bipolare poco riconoscibile. |
 | U | Immagine insufficiente o giudizio di confine non risolto; conservare le alternative nel testo. |
 
-**Regole operative per i casi di confine (revisione 3).** Si guarda solo il campo forte dentro la
-maschera P1 (contorno giallo); la plage debole e sparsa non conta come concentrazione.
+**Regole operative per i casi di confine (revisione 4).** Si guarda il campo dentro la maschera P1
+(contorno giallo) in **entrambe le viste** (§2): la vista ±1500 G per le concentrazioni forti, la vista
+sensibile per il campo debole che entra comunque nella misura P1 (soglia 100 G).
 1. **A** se, per ciascuna polarità, il campo forte forma **un solo gruppo** (anche con più macchie
    vicine e collegate da campo della stessa polarità) e i due gruppi stanno affiancati.
 2. **B** se almeno una polarità forma **due o più gruppi separati** da una zona senza campo forte di
-   quella polarità, ciascuno con un peso visivo paragonabile (indicativamente non meno di circa un
-   terzo dell'altro), oppure se compaiono due coppie bipolari distinte.
-3. **D** se una polarità è appena visibile rispetto all'altra, oppure se entrambe sono solo plage
-   frammentata senza gruppi riconoscibili.
+   quella polarità e i gruppi secondari sono **chiaramente comparabili** a quello principale, come negli
+   esempi B della taratura, oppure se compaiono due coppie bipolari distinte. Non è un rapporto
+   quantitativo (area, contrasto o loro combinazione non sono misurati): se il confronto resta incerto,
+   classe U con le alternative. La concordanza tra lettori dirà quanto la regola è riproducibile.
+3. **D** solo se la configurazione è **riconoscibilmente** diffusa o sbilanciata in entrambe le viste:
+   una polarità chiaramente minoritaria anche nella vista sensibile, oppure solo plage frammentata senza
+   gruppi riconoscibili. Se la difficoltà è di visibilità (polarità debole poco leggibile), classe U.
 4. Se dopo queste regole restano due classi plausibili: classe **U** con le due alternative scritte
    (per esempio «U: A o B»). Le etichette miste non si usano più come classe primaria.
 
-**Schede di riferimento (taratura, prima di leggere).** I lettori guardano, nella sola versione
-«mappa», queste schede di 25S già lette e fuori dalla nuova verifica, con la classe indicata:
-A — 8950, 9559, 8206, 7821, 12623; B — 11786, 11513, 12094, 11930; D — 11248 (quasi unipolare),
-13169 (frammentata). Servono a rendere comuni le regole tra i due lettori; non diventano repliche.
+**Schede di riferimento (taratura, prima di leggere).** Undici schede di 25S già lette e fuori dalla
+nuova verifica, con la classe storica: A — 8950, 9559, 8206, 7821, 12623; B — 11786, 11513, 12094,
+11930; D — 11248 (quasi unipolare), 13169 (frammentata). Le classi storiche vengono da schede con scala
+adattiva, centroidi e annotazioni: **non si trasferiscono automaticamente**. Le undici schede si
+rigenerano nel nuovo formato (due viste, senza marker); ciascun lettore le classifica con le nuove
+regole e registra ogni differenza dalla classe storica, con il motivo, **prima** di leggere le 90. Le
+differenze si discutono e la taratura comune si registra con hash; non diventano repliche.
 
 Non dedurre il decadimento da un istante. Non usare componenti connesse,
 sbilanciamenti calcolati, numero NOAA, soglie diagnostiche, tilt, Hale o
@@ -174,7 +187,7 @@ Completare registro e tabelle, poi fermarsi. Nessuna segmentazione, nuovo
 campione, nuova applicazione T3 o modifica T5. La robustezza di T5 ai salti
 rimane una priorità distinta: [traccia diagnostica](T5_JUMPS_DIAGNOSTIC_DESIGN.md).
 
-## 7. Chiusure della revisione 3 (da confermare in revisione prima del congelamento)
+## 7. Chiusure registrate
 
 - **Classi:** A, B, D, U con regole operative per i casi di confine e U con alternative scritte;
   niente etichette miste come classe primaria; C solo indicatore del secondo passaggio.
@@ -186,5 +199,8 @@ rimane una priorità distinta: [traccia diagnostica](T5_JUMPS_DIAGNOSTIC_DESIGN.
   2026111303; lettore 2 = sessione del revisore esterno; esposizioni dichiarate.
 - **Regola per uno studio successivo:** invariata (B ≥ 10 % di Σ|S_BL| della base del gruppo in almeno
   due dei tre gruppi nuovi; accordo ≥ 24/30, U ≤ 3/30 per lettore; verifica con entrambi i lettori).
-- **Restano da confermare:** la soglia indicativa «circa un terzo» del peso visivo per B; la scala fissa
-  ±1500 G; la scelta del lettore 2.
+- **Revisione 4 (dopo la revisione esterna di `0a8e826`):** due viste fisse (±1500 G e ±300 G); D solo se
+  riconoscibile in entrambe, U per problemi di visibilità; B senza rapporto quantitativo, U se incerto;
+  riferimenti rigenerati e riclassificati nel nuovo formato prima delle 90, con differenze registrate;
+  esposizione del lettore 1 come preparatore dichiarata. Il revisore ha riaperto, durante la revisione,
+  le schede storiche 13169, 8950 e 11786 e la relativa tabella; nessuna delle 90 nuove.

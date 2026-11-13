@@ -25,7 +25,7 @@ separate. Le classi complesse non autorizzano esclusioni a posteriori.
 
 Quadro operativo: [misura HMI](HMI_MEASUREMENT_ASSESSMENT.md),
 [quenching e sensibilità](HMI_QUENCHING_SYNTHESIS.md),
-[bozza di controllo morfologico](PROTOCOL_HMI_MORPHOLOGY_DRAFT.md).
+[bozza di controllo morfologico](PROTOCOL_HMI_MORPHOLOGY.md).
 La bozza morfologica revisionata non è congelata né eseguita. Candidato
 prioritario accanto alla morfologia: revisione dei
 [risultati T5-D1](T5_DIAGNOSTIC_RESULTS.md), poi eventuale piano distinto con

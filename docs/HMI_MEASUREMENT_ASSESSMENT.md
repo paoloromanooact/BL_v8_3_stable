@@ -53,7 +53,7 @@ Non richiede nuovi FITS. Il prodotto utile sarebbe una tabella HARP per HARP
 che distingua interpretabilità dell'asse e sensibilità della misura, senza
 trasformare le classi in errori o eliminare casi dal catalogo.
 
-La [bozza di studio morfologico](PROTOCOL_HMI_MORPHOLOGY_DRAFT.md) delimita questo
+La [bozza di studio morfologico](PROTOCOL_HMI_MORPHOLOGY.md) delimita questo
 passo. Non è ancora congelata e non è stata eseguita. Una verifica sulla
 popolazione completa del campione S richiederebbe successivamente un disegno
 proprio: le dominanti e i controlli selezionati non sono un campione casuale di S.
