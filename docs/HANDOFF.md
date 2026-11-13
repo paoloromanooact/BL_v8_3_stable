@@ -1,5 +1,22 @@
 # Cold restart — SHARP BL
 
+## T5-D2: verificatore separato pronto — 2026-11-13
+
+Specifica `bd3616a` registrata prima del codice. Nuovo verificatore
+`python/sharpbl/t5_oracle_postcheck.py`, codice finale `9bd1e2e`: 77/77
+prove costruite a mano, su commit pulito; ricevuta e RUN1 (73/73 sul primo
+codice) in `results/T5_ORACLE_POSTCHECK_SELFTEST/`. Suite ordinaria 60/60,
+due avvisi attesi su input costante. Guida `docs/T5_ORACLE_POSTCHECK_README.md`.
+Il produttore e i suoi output non sono stati modificati. **Output scientifici
+T5-D2 non aperti, controllo effettivo non eseguito, nessun risultato letto.**
+Dopo la conclusione della corsa, prima di interpretarla, usare il nuovo
+verificatore con --check: rifiuta una corsa incompleta o una ricevuta obsoleta,
+richiede cartella di output nuova e conserva anche i fallimenti. Tiene
+separati commit del produttore e del controllore e controlla tutti i conteggi,
+i momenti e gli appaiamenti. Non usare il verificatore storico come unica
+verifica finale: ha il problema di parsing di null e controlli incompleti.
+T5 resta descrittivo. Nessun nuovo protocollo inferenziale o push.
+
 ## T5-D2: specifica del controllo separato registrata — 2026-11-13
 
 Prima del nuovo codice, registrati `docs/T5_ORACLE_POSTCHECK_SPEC.md` e la

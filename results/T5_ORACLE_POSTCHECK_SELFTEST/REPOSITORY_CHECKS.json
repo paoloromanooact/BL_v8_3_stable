@@ -1,0 +1,13 @@
+{
+  "command": "PYTHONDONTWRITEBYTECODE=1 bash scripts/check_repo.sh",
+  "execution_commit": "9bd1e2e80812623e8133bc02d2842526fc09b1f2",
+  "git_dirty": 0,
+  "exit_code": 0,
+  "python_syntax_files": 43,
+  "shell_and_launcher_help_passed": true,
+  "pytest_passed": 60,
+  "pytest_warnings": 2,
+  "elapsed_pytest_seconds": 95.76,
+  "warnings": "ConstantInputWarning in the existing P3 degenerate-input test (two correlations)",
+  "receipt_kind": "summary recorded from command output; not a scientific result"
+}

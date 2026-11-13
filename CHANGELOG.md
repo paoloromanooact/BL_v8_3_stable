@@ -2,6 +2,12 @@
 
 ## v8.4 (Python, branch `v8.4-python-gianluca`) — in corso
 
+- 2026-11-13: preparato un verificatore T5-D2 separato, dopo specifica e
+  fotografia degli input registrate prima del codice. 77 prove costruite
+  a mano superate, inclusi parsing null, code, momenti, appaiamenti,
+  provenienza e porte di esecuzione; suite ordinaria 60/60. Output della
+  corsa non letti e produttore invariato; controllo effettivo non eseguito.
+
 - 2026-11-13: verifica interna successiva del rapporto morfologico, con
   codice separato csv/Decimal dello stesso autore: 553 controlli superati,
   nessuna discrepanza numerica. Sistemate due intestazioni Markdown e

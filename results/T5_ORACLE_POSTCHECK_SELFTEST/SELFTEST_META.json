@@ -1,0 +1,10 @@
+{
+  "all_passed": true,
+  "tests": 77,
+  "code_sha256": "ac591b47cf36b9557887b0ac6d1632dfab2ad1572fb822563c43eaf8621c3715",
+  "spec_sha256": "9b0e61093a8786811510f57421611203057566f5d2407d108f40e369cafa6dfc",
+  "selftest_sha256": "8df68be1e7d35da834ba3eac055c06f3f5b037304ee797bfe364fad649ec23c4",
+  "fixture": "hand-built only; no production outputs read; no RNG or optimizer",
+  "checker_commit": "9bd1e2e80812623e8133bc02d2842526fc09b1f2",
+  "checker_git_dirty": 0
+}
