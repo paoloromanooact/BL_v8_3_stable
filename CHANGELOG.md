@@ -94,6 +94,12 @@
   `results/P2F_PILOT/DESIGN_CHECKS.csv` (`p2f_checks.py design`), controllo di finitezza e
   riconteggio indipendente da eseguire prima dell'interpretazione (`p2f_checks.py raw`, output
   del pilota mai modificati).
+- 2026-11-13, validazione P2f (protocollo congelato `500c56a`, codice `ed90e15`, esecuzione unica
+  su `5c3b664`, 152 000 cataloghi, 2026-11-11/12): controllo indipendente superato (23/23) e
+  revisione esterna senza discrepanze; **T3 validato** negli scenari provati (falsi verdetti
+  1,61–2,97 %, copertura ≥ 96,60 %, potenza 5–11 % a −0,2·γ0), **T5 non validato** (scenario a
+  salti: 3,35 % di falsi verdetti; a −0,3 copertura 96,10 %, coda inferiore 2,30 %), resta
+  descrittivo. Risultati in `docs/P2F_VALIDATION_RESULTS.md`. Nessun dato reale usato.
 - 2026-11-11, pilota di sviluppo P2f eseguito (esecuzione unica, commit `67058f6`, 10:17–12:06,
   `results/P2F_PILOT/PILOT_*`), controllo indipendente prima dell'interpretazione
   (`POST_CHECKS.csv`: 20 controlli superati, nessuna statistica non finita, riconteggio identico)

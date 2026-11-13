@@ -1,6 +1,53 @@
 # Cold restart — SHARP BL
 
-## ⇒ Passaggio di consegne del 2026-11-11, sera (leggere per primo)
+## ⇒ Passaggio di consegne del 2026-11-13 (leggere per primo)
+
+**Stato:** la **validazione P2f è terminata** (esecuzione unica, 2026-11-11 14:46 → 2026-11-12
+13:45, provenienza `5c3b664`, albero pulito, protocollo `8f030010…`). Controllo indipendente
+superato (23 su 23, riconteggio identico), output committati (`11b71f4`), risultati in
+`docs/P2F_VALIDATION_RESULTS.md`, revisione esterna dello ZIP `0f12ed1` senza discrepanze (53
+asserzioni, script separato). Nessun processo in esecuzione.
+
+**Esito (protocollo §5, alla lettera):**
+- **T3: criteri di validazione superati negli scenari provati** (falsi verdetti 1,61–2,97 % nei 12
+  scenari; copertura 96,60–98,15 %, coda inferiore ≤ 1,85 % nelle 16 combinazioni). Potenza bassa:
+  4,55–11,10 % all'effetto di riferimento −0,2·γ0, 2,25–34,70 % sugli effetti provati.
+- **T5: non validato**: scenario 7 (salti di 20 CR) con 3,35 % di falsi verdetti (limite 3,0 %) e,
+  a −0,3, copertura 96,10 % e coda inferiore 2,30 %. **Resta descrittivo**.
+- Dichiarazioni: la tabella di decisione è stata vista nell'ultima riga del log prima del
+  controllo indipendente; la colonna `status` di `results/P2F/POST_CHECKS*.csv` dice «pilota di
+  sviluppo» per un'etichetta ereditata (output non riscritti).
+
+**Prossimo passo: applicazione ai dati reali solo per T3**, autorizzata dal revisore dopo il
+commit dei risultati: `OMP_NUM_THREADS=1 .venv/bin/python python/sharpbl/p2f_apply.py --test T3 --real`
+(una sola esecuzione; lo script rifiuta T5, richiede `POST_CHECKS.csv` superato e legato agli stessi
+output e protocollo). Poi `docs/P2F_RESULTS.md` con formulazioni prudenti: «supportato» non
+attribuisce un meccanismo; «non deciso» non è assenza (potenza 5–11 % a −0,2); esclusione di un
+quenching ≥ δ solo se l'estremo inferiore dell'intervallo è > −δ·γ0; sensibilità non validate.
+Poi ZIP e revisione. Push solo su richiesta dell'utente.
+
+**Dopo:** controllo delle HARP dominanti (piano `f805c5a`, codice pronto, prova tecnica in
+`results/DOMINANT_TRIAL_2HARP/`; eseguire da commit pulito con
+`nice -n 10 .venv/bin/python python/sharpbl/dominant_harp_check.py`); fase 1 della verifica di
+riproducibilità (`docs/REPRO_PHASE1_PLAN.md`, congelato in `0f51e61`, solo dopo P2f); studio
+MDI/SMARP in bozza (`docs/MDI_SMARP_FEASIBILITY.md`).
+
+**Modo di lavorare:** per ogni nuovo compito l'utente sceglie prima il modello (l'agente lo
+consiglia e aspetta). Le osservazioni del revisore esterno arrivano incollate dall'utente; di norma
+si adottano.
+
+**Prompt da incollare nella nuova sessione:**
+
+> Riprendi SHARP BL v8.4 nel repository /home/gianluca/BL_v8_3_stable, branch
+> v8.4-python-gianluca. Leggi AGENTS.md e docs/HANDOFF.md (sezione "Passaggio di consegne del
+> 2026-11-13"), poi docs/P2F_VALIDATION_RESULTS.md e docs/PROTOCOL_P2F_VALIDATED_TEST.md §7.
+> Verifica lo stato di Git. Prossimo passo: applicazione di T3 ai dati reali con p2f_apply.py,
+> una sola volta. Prima di ogni compito consigliami il modello e aspetta. Non fare il push senza
+> la mia richiesta.
+
+---
+
+## Passaggio di consegne del 2026-11-11, sera (storico)
 
 **Stato:** il **pilota di sviluppo di P2f** è terminato (esecuzione unica, 10:17–12:06, commit del
 codice `67058f6`), gli output sono committati, il controllo indipendente è stato eseguito prima
