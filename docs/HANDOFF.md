@@ -56,15 +56,16 @@ HMI (Br contro LOS/μ e LOS degradato a MDI). Prossimo: revisione esterna dello 
 riproducibilità (`docs/REPRO_PHASE1_PLAN.md`, congelato in `0f51e61`, solo dopo P2f); studio
 MDI/SMARP in bozza (`docs/MDI_SMARP_FEASIBILITY.md`).
 
-**Nuova attività autorizzata dall'utente — 2026-11-13:** preparata una bozza
-`docs/PROTOCOL_HMI_LOS_SENSITIVITY_DRAFT.md`, **non congelata**, dopo lo studio
-MDI/SMARP rivisto (`d96f6ec`). Propone campione probabilistico fino a64HARP e fino
-a16casi di stress separati; confronti appaiati Br, LOS proiettato, LOS misurato,
-campionamento, PSF e rumore; diagnostica della dipendenza degli errori dall'attività.
-Cinque decisioni D1–D5 aperte (campione, dominio/maschera, modello strumentale,
-criteri/incertezza, budget). Nessun campione estratto, query/download nuovo o
-calcolo scientifico. Primo passo: revisione della bozza, risoluzione delle scelte
-e congelamento prima di codice e nuove risposte. Nessuna nuova applicazioneT3.
+**Bozza esperimento HMI, revisione2 — 2026-11-13:**
+`docs/PROTOCOL_HMI_LOS_SENSITIVITY_DRAFT.md`, non congelato. Recepiti i rilievi:
+esperimento solo descrittivo, senza criterio automatico per avviareMDI; precisione
+preventiva con risposte sintetiche prima dei nuovi dati; campioni annidati80/160/320
+sovracampionando le codeA e mantenendo il centro (N finale da scegliere); R3–R5 su
+sottocampione; pesiΦ principali, Φ/pi sensibilità con obiettivo distinto; perdite
+per fasciaA e gruppo; spostamenti medi oltre alle pendenze; minimi di disegno e
+scaling del rumore conμ. Primo passo: revisione della bozza e piano separato della
+prova di precisione, con codice solo dopo registrazione. Nessun nuovo calcolo,
+selezione o download svolto; nessuna nuova applicazioneT3. Push non fatto.
 
 **Modo di lavorare:** per ogni nuovo compito l'utente sceglie prima il modello (l'agente lo
 consiglia e aspetta). Le osservazioni del revisore esterno arrivano incollate dall'utente; di norma

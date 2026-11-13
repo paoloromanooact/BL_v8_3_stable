@@ -2,6 +2,12 @@
 
 ## v8.4 (Python, branch `v8.4-python-gianluca`) — in corso
 
+- 2026-11-13: revisione2 della bozza soloHMI: prova di precisione preventiva,
+  code dell'attività sovracampionate con fascia centrale, campioni annidati per
+  rami economici e sottoinsieme ottico, pesiΦ principali, esclusioni per attività,
+  spostamenti medi per gruppo; esiti di accettazione rimossi. Bozza non congelata,
+  nessun nuovo calcolo o dato acquisito.
+
 - 2026-11-13: bozza non congelata dell'esperimento soloHMI
   (`docs/PROTOCOL_HMI_LOS_SENSITIVITY_DRAFT.md`): domanda collegata al quenching,
   campione e stress separati, confronti LOS/Br e degradazioni simulate, cinque

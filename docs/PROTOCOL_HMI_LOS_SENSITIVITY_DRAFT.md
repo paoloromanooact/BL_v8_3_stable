@@ -1,6 +1,6 @@
 # HMI: sensibilità della misura BL a LOS, risoluzione e rumore — bozza H1
 
-**BOZZA NON CONGELATA — 2026-11-13.** Richiesta dell'utente: preparare prima il
+**BOZZA NON CONGELATA, revisione 2 — 2026-11-13.** Richiesta dell'utente: preparare prima il
 protocollo, poi revisione e congelamento, codice e prove sintetiche, infine esecuzione.
 Questo documento propone scelte concrete da rivedere. Nessuna selezione è stata
 eseguita, nessun nuovo segmento interrogato o scaricato, nessuna risposta trasformata
@@ -11,7 +11,8 @@ P1, P2 e P2f restano i riferimenti storici; non vengono modificati o rieseguiti.
 
 **Domanda:** sul disegno HMI, le approssimazioni LOS e le degradazioni simulate
 cambiano tilt, flusso, sorgente e dipolo in modo dipendente dall'attività solare,
-capace di contaminare la ricerca del quenching?
+capace di contaminare la ricerca del quenching? Introducono inoltre spostamenti
+medi diversi per ciclo×emisfero, confondibili con differenze fra cicli?
 
 Confronti appaiati: stessa HARP, stesso record primario, stessi dati di attività,
 con diversa rappresentazione del campo. Br HMI è il riferimento strumentale, non
@@ -19,10 +20,14 @@ la verità fisica. Lo studio misura differenze fra pipeline simulate; non misura
 nuovamente il quenching e non riproduce integralmente MDI.
 
 Prodotti: elenco congelato delle HARP, inventario e hash degli input, tabella per
-HARP e trasformazione, perdite di confrontabilità, differenze e diagnostiche in
-funzione dell'attività, figure e relazione con esiti «compatibile con il budget»,
-«supera il budget» o «inconclusivo». Anche un esito favorevole richiede dopo un
-confronto con MDI reale e una valutazione separata del beneficio statistico.
+HARP e trasformazione, perdite di confrontabilità, spostamenti medi per ciclo ed
+emisfero, pendenze descrittive degli errori contro attività, precisione attesa e
+osservata, figure e relazione. **Esperimento interamente descrittivo:** nessun
+esito «compatibile», «supera il budget» o accettazione globale. Le scale di §7
+sono riferimenti di lettura, non soglie decisionali. L'avvio del confronto MDI
+NON dipende dal superamento di un criterio di questo esperimento: richiederà una
+decisione e un protocollo propri. Non si cerca un metodo «che passa» ritoccando
+campione o simulazioni dopo averne visto le risposte.
 
 ## 2. Non cecità e scelte già informate dai dati
 
@@ -35,52 +40,113 @@ non verranno scelti campioni o tolleranze per migliorare il risultato T3.
 Le classi visive non diventano esclusioni. Una HARP con più NOAA può essere un
 complesso fisico: l'esperimento conserva questo limite della misura per HARP.
 
-## 3. Campione proposto: fino a 64 estratte e 16 prove di stress
+## 3. Precisione preventiva, due campioni annidati e acquisizione
 
-### 3.1 Campione principale
+### 3.1 Pianificazione su sole covariate e risposte sintetiche
 
-Base: i 2485 record primari HARP del campione S con A_monthly finita, ricostruiti
-con il codice/dati usati nell'applicazione T3 su 42fcd01. Conservarne le chiavi
-HARPNUM,T_REC e gli hash di catalogo, selezione, SILSO e codice; riprodurre il
-conteggio e confrontare il disegno con quello P2f prima di interrogare JSOC.
+Prima di qualsiasi nuovo segmento o risposta R1/R2, preparare una prova di
+precisione separata: piano e scelte registrati prima del codice e dei calcoli.
+Si usano soltanto identificativi e covariate del disegno S (Φ, A, latitudine,
+ciclo, emisfero, CR e famiglie candidate); nessun tilt reale, nessun R1 osservato
+e nessuna selezione in base alla pendenza reale. Le regole delle prove di stress
+possono usare |S_BL| già noto, ma quegli elementi restano fuori dalla simulazione
+del campione probabilistico.
 
-Strati: ciclo×emisfero (24N,24S,25N,25S) × attività bassa/alta × flusso basso/alto
-× complessità di catalogo (NOAA_NUM≤1 contro ≥2). Le due mediane sono calcolate
-separatamente sulla base di ciascun ciclo×emisfero, senza usare tilt o S_BL;
-valori uguali alla mediana assegnati al livello basso. Sono covariate di disegno,
-non risultati di un nuovo test. Nessuna pretesa che NOAA_NUM identifichi il numero
-esatto di bipoli fisici.
+Proposta di griglia: campioni massimi N=80,160,320 secondo §3.2; 1000 repliche per
+configurazione. Δγ sintetico con dispersione individuale 1°,3°,6°, centro zero
+oppure pendenza diagnostica di 1,2° per unità di attività; componente comune di
+famiglia con SD 0 o 1°, componente per CR AR(1) con SD 0 o 1° e φ=0,8 (fattoriale
+completo). Sono scenari di pianificazione, NON stime della dispersione R1 né un
+modello dello strumento. Identificativi, covariate, rumore e semi separati: proposta
+SeedSequence(27000000) con chiavi (N,scenario,replica), elenco degli scenari in
+ordine esplicito da registrare prima del codice. Eventuali semi del bootstrap
+interno in uno spazio distinto, SeedSequence(27000001).
 
-Per ognuno dei 32 strati estrarre due HARP senza reimmissione, dalla lista ordinata
-HARPNUM,T_REC. Un solo generatore default_rng(26000000), gruppi nell'ordine sopra,
-poi attività bassa/alta, flusso basso/alto, complessità bassa/alta. Se uno strato
-ha meno di due elementi, prenderli tutti, registrando lo strato vuoto/scarso;
-nessun riempimento opportunistico da altri strati. Dimensione massima 64.
-Probabilità d'inclusione pi_i=min(2,N_strato)/N_strato registrata per ogni estratta.
+Per ogni configurazione riportare rango e condizionamento, errore standard e
+semilarghezza dell'intervallo, bias/dispersione della pendenza e delle medie,
+numero di famiglie, fallimenti, mediana e quantili 10/90 delle larghezze. Le
+prestazioni sono condizionate ai rumori ipotizzati; non validano intervalli sul
+processo reale. I casi con correlazione per CR mostrano il limite del bootstrap
+solo a famiglie. Usare la stessa procedura descrittiva prevista in §7.
 
-### 3.2 Prove di stress
+Obiettivo di precisione di pianificazione: semilarghezza attesa della pendenza
+Δγ di ordine 1,2° o inferiore; mostrare anche il rapporto fra larghezza e quella
+scala, per scenario, senza un esito complessivo di accettazione. Presentare
+precisione e costo per tutti e tre gli N. **Scelta finale di N prima di congelare
+la lista e scaricare risposte**, proposta iniziale N=160 per R1/R2; se neppure
+N=320 dà precisione utile nei regimi plausibili, riformulare l'obiettivo o
+accettare esplicitamente precisione limitata. Nessun aumento guidato dalle
+risposte reali. Non usare un primo R1 per ottimizzare N dopo aver visto la
+pendenza: una futura ricalibrazione sulla dispersione sarebbe un emendamento
+non cieco separato, non previsto dall'esecuzione unica qui proposta.
 
-Per ciascun ciclo×emisfero, le quattro HARP con |S_BL| più grande nella base S,
-con pari merito risolti per HARPNUM,T_REC. Fino a 16, in parte già note. Unire
-senza duplicare i download: una HARP estratta e dominante mantiene entrambi i
-ruoli; totale di record distinti ≤80. I casi di stress non entrano come campione
-probabilistico nelle stime pesate del §7; si riportano singolarmente.
+### 3.2 Campione principale R0–R2: più informazione sulle code di attività
 
-### 3.3 Copertura e acquisizione
+Base: i 2485 record primari HARP S con A_monthly finita del disegno P2f, usando
+codice/input di 42fcd01. Verificare conteggio e chiavi senza ricalcolare T3.
 
-Prima dei nuovi campi: salvare lista, strati, numerosità, pesi e hash in un commit.
-Inventariare latitudine, attività, flusso, date e geometria dell'osservatore già
-nei metadati. La posizione dei primari vicino al meridiano limita il dominio di μ:
-questa prova non rappresenta automaticamente il lembo né le fasi della vita di
-ogni regione. μ pixel per pixel è calcolato dalla WCS e dalla posizione finita
-dell'osservatore, non solo dalla longitudine e non dal centro della patch.
+Per ogni ciclo×emisfero (24N,24S,25N,25S) dividere l'attività mediante quartili
+empirici q25/q75: bassa A≤q25, centrale q25<A<q75, alta A≥q75. Definire i quantili
+con interpolazione lineare; se q25=q75 assegnare gli uguali alla fascia centrale
+e dichiarare la degenerazione. Il limite basso ha precedenza sugli uguali a q25
+quando i quartili sono distinti. Flusso basso/alto rispetto alla mediana di Φ
+nell'intero gruppo, uguali al livello basso; complessità NOAA_NUM≤1 contro ≥2.
+NOAA non identifica automaticamente un numero di bipoli fisici indipendenti.
 
-Download tentato SOLO sulle chiavi congelate, prodotti definitivi allo stesso
-T_REC: Bt,Bp e magnetogram da hmi.sharp_cea_720s; magnetogram nativo da
-hmi.sharp_720s per il ramo ottico. Br,bitmap e relativi metadati locali P1 si
-conservano byte-identici. Inventario preliminare di segmenti, unità, QUALITY,
-WCS, tempi effettivi e disponibilità prima del download. Mai sostituire un record
-con il tempo vicino o una HARP «simile». Assenze registrate, nessuna sostituzione.
+Strati: 4 gruppi × 3 fasce A × 2 flussi × 2 complessità =48. Estrarre senza
+reimmissione n=2k per ognuna delle fasce estrema bassa/alta e n=k per la centrale,
+con k=1,2,4 rispettivamente per N massimo 80,160,320. Mantenere quindi probabilità
+positiva anche nella fascia centrale, senza affermare che il campione riproduca
+la distribuzione dell'intero catalogo. Pesi principali Φ; Φ/pi solo sensibilità.
+
+Un generatore default_rng(26000000), ordine gruppi sopra, fascia bassa/centrale/alta,
+flusso basso/alto, complessità bassa/alta; lista ordinata HARPNUM,T_REC. Produrre
+un'unica permutazione per strato e prenderne i primi n: i tre campioni sono
+annidati. Se uno strato è scarso prendere tutti gli elementi e registrarlo,
+senza rimpiazzi fra strati. Registrare N_strato,n_strato,pi=min(n,N_strato)/N_strato.
+N finale rimane aperto fino alla prova di precisione; nessuna estrazione svolta
+nel deposito di questa bozza.
+
+### 3.3 Sottocampione R3–R5 e prove di stress
+
+Per limitare il costo dei rami ottici e delle repliche, usare il sottocampione
+annidato k=1, fino a80HARP, indipendentemente da N scelto per R1/R2. I confronti
+fra R2,R3,R4,R5 sono sempre ricalcolati sullo stesso sottoinsieme confrontabile;
+non sottrarre pendenze stimate su campioni diversi attribuendole al solo ramo.
+
+Prove di stress: quattro HARP con |S_BL| più grande per ciclo×emisfero nella baseS,
+pari merito per HARPNUM,T_REC, fino a16 già in parte note. Unire per il download
+senza duplicati; stress fuori dalle stime principali se non estratto anche nel
+campione probabilistico. Fino a336 record distinti per R1/R2 e96 per R3–R5; il
+preventivo può imporre un arresto PRIMA dei download, non una selezione a posteriori.
+
+### 3.4 Esclusioni, copertura e acquisizione
+
+Prima dei nuovi campi: commit della lista finale, strati, campioni annidati,
+probabilità e hash. Inventariare covariate, WCS e metadati disponibili. La posizione
+dei primari limita il dominio μ; nessuna generalizzazione automatica al lembo.
+Calcolare μ pixel per pixel dall'osservatore finito, non dal centro della patch.
+
+Produrre una **tabella di flusso per ramo e per strato A**, anche per ciclo×emisfero,
+flusso e complessità: candidati, selezionati, tentativi, input mancanti, μ fuori
+dominio, margine PSF insufficiente, polarità assente, errore e confrontabili.
+Conservare più motivi per record e anche il conteggio delle loro unioni, evitando
+di sommare percentuali sovrapposte come se fossero casi distinti. Denominatori
+espliciti (selezionati oppure tentativi dello specifico ramo), anche per repliche.
+
+Riportare per inclusi/esclusi distribuzioni di A,Φ,latitudine,μ,NOAA_NUM e quote
+baseline di flusso/|S_BL|. Verificare in particolare se μ≥0,8 su TUTTA la maschera
+e il margine5σ eliminino maggiormente code di attività o complessi grandi. Se
+questo avviene le pendenze sui sopravvissuti sono condizionate alla selezione,
+non una stima non distorta dell'effetto strumentale sul catalogo. Nessuna
+imputazione, nessun peso correttivo per mancate misure assunto valido a priori.
+Le percentuali citate dal revisore (4%, medie A1,28/1,44) sono indizi, non nuove
+misure verificate qui: l'esito va ricostruito sul dominio e sulla maschera effettivi.
+
+Download SOLO su chiavi congelate: Bt,Bp,magnetogramCEA per R1/R2; magnetogram
+nativo solo per R3–R5. Br/bitmap/metadati P1 immutati. Inventario preliminare di
+segmenti, unità, QUALITY,WCS, tempi e dimensioni; nessuna sostituzione con tempi
+oHARP simili. La selezione definitiva non può dipendere dal segno delle differenze.
 
 ## 4. Rami del confronto e quantità mantenute fisse
 
@@ -140,6 +206,10 @@ di contesto full-disk richiede un emendamento e un budget dichiarato prima.
 covarianza sul piano bersaglio: indipendente oppure gaussiana con lunghezza di
 correlazione di un pixel bersaglio (definizione kernel da fissare nella specifica).
 Questi scenari non ricostruiscono il leakage p-mode o la sua distribuzione reale.
+Per densità di flusso LOS, G e Mx cm⁻² sono unità equivalenti. Le RMS qui si
+riferiscono alla LOS prima della divisione: sul proxy radiale il rumore locale
+cresce come σ_LOS/μ e la covarianza diventa C_ij/(μ_i μ_j), oltre agli effetti
+della rimappatura. Non imporre una RMS radiale costante dopo la divisione.
 
 Il rumore HMI esiste già: usare un modello HMI con RMS6,3G nel nativo e propagare
 la sua covarianza attraverso gli operatori. Aggiungere soltanto la componente
@@ -178,45 +248,79 @@ firmati e somma dei moduli distinti; le prove di stress restano riconoscibili.
 Nessuna somma del campione è chiamata somma dell'intero ciclo. Nessuna Φ daLOS
 è sostituita al flusso P1 nelle ponderazioni del confronto principale.
 
-## 7. Legame con il quenching: diagnostiche e budget proposti
+## 7. Analisi solo descrittiva: spostamenti medi e dipendenza dall'attività
 
-Nel campione principale confrontabile, per ciascun ramo, stimare una pendenza
-DIAGNOSTICA del cambiamento Δγ=γ_ramo−γ_R0 rispetto ad(A−1)sin|λ_R0|, con gli
-stessi quattro termini ciclo×emisfero moltiplicati per sin|λ_R0|. Pesi Φ_R0/pi_i.
-Non è una seconda stima del quenching reale: descrive l'alterazione del modello
-indotta dal ramo simulato, condizionatamente al campione e alla sua copertura.
+### 7.1 Popolazione e pesi dichiarati
 
-Perη, riportare il cambiamento controA con intercette ciclo×emisfero, stesso peso
-di riferimento dichiarato; è una diagnostica regionale, NON il test T5 per celle.
-Le stime non sono confrontate con il β reale per scegliere o correggere i rami.
-L'inclusione probabilistica non recupera automaticamente le HARP perse: niente
-imputazione o riponderazione delle mancate misure come se mancassero a caso.
+**Principale:** pesi Φ_R0 sul campione probabilistico selezionato e confrontabile.
+Descrive quel campione, deliberatamente arricchito nelle code di A; non è una
+stima automatica dell'intero catalogo. **Sensibilità:** Φ_R0/pi_i sul medesimo
+insieme; cambia l'obiettivo verso il catalogo di campionamento e può aumentare
+la variabilità. Non dichiarare i due pesi equivalenti né scegliere il risultato
+più stretto. Le probabilità di campionamento non correggono le perdite successive.
+Stress separati; confronti incrementali sul comune sottoinsieme; riportare sempre
+numerosità, famiglie e distribuzioni dei pesi/quote massime di peso.
 
-Intervalli descrittivi95% mediante2000 bootstrap a famiglie candidate P1e, mai a
-pixel o repliche; le repliche di rumore si mediano dentro ciascuna HARP prima del
-bootstrap. Riportare la numerosità effettiva delle famiglie; eventuali famiglie
-che attraversano strati si ricampionano insieme. La dipendenza temporale fra
-famiglie diverse non è coperta da questa scelta: intervalli NON validati,
-nessun test inferenziale o dichiarazione di equivalenza. Sensibilità descrittiva
-ulteriore a blocchi di CR da definire prima del congelamento se richiesta.
+### 7.2 Spostamenti medi per ciclo×emisfero (primo risultato)
 
-**Budget di misura candidato:** un quarto dell'effetto di riferimento0,2del
-protocolloP2f, cioè0,05×24°=1,2° per unità di attività per la pendenza diΔγ e
-0,05×eta_bar per quella diΔη (eta_bar=3,56e−25G/Mx). È una tolleranza di
-pianificazione da discutere, NON una soglia universale o derivata dalla potenza.
+Per ramo/scenario e per i quattro gruppi riportare media pesata, mediana e
+intervallo descrittivo di Δγ, ΔΦ/Φ_R0 e Δη; aggiungere ΔS_BL e ΔD_bal, cambi di
+segno, differenze firmate e somma dei moduli con denominatori del campione
+espliciti. Baseline e ramo entrambi confrontabili; denominatori nulli/non finiti
+indicati e mai sostituiti conzero. Mostrare anche differenze fra gruppi: possono
+mimare uno spostamento fra cicli o emisferi, ma non stimano un biasMDI osservato.
 
-Proposta di lettura PER OGNI ramo/scenario (nessuna scelta del migliore):
-- intervallo descrittivo interamente nel budget: «compatibile col budget nel
-  campione e nel modello simulato», non equivalenza dimostrata;
-- intervallo interamente fuori: «supera il budget nella diagnostica»;
-- altrimenti: «inconclusivo».
-Se mancano rami, copertura o rango del disegno, esito complessivo inconclusivo,
-non successo. Questa lettura non è ancora pronta per un'accettazione formale:
-intervalli e dipendenze richiedono la decisione D4 sotto.
+Scale illustrative proposte, NON criteri: per Δγ la media pesata nel gruppo di
+1,2°sin|λ_R0| (effetto sul tilt di una variazione del coefficiente Joy di1,2°);
+per ΔΦ/Φ una linea ±5%; per Δη ±0,05eta_bar. Tenere distinte le unità:1,2° è una
+scala del coefficiente Joy, non uno spostamento uniforme del tilt delle regioni.
+Le scale sono scelte di pianificazione, non limiti strumentali dimostrati.
 
+### 7.3 Pendenze diagnostiche
+
+Δγ=γ_ramo−γ_R0 contro (A−1)sin|λ_R0| con quattro termini ciclo×emisfero
+moltiplicati per sin|λ_R0|; pesi principali Φ_R0. Per Δη, cambiamento contro A−1
+con intercette ciclo×emisfero: diagnostica REGIONALE, non testT5 per celle.
+Aggiungere ΔΦ/Φ_R0 contro A−1 con le stesse intercette per distinguere il flusso.
+Nessuna nuova stima del quenching e nessuna correzione del βT3 osservato.
+
+Minimi operativi proposti per il modello a quattro gruppi: almeno4HARP distinte
+e almeno3famiglie per gruppo dopo le perdite, almeno due valori distinti del
+regressore (A−1)sin|λ| e qualche sin|λ| non nullo in ciascun gruppo. Questi
+minimi NON garantiscono precisione o rango: richiedere anche rango5 della
+matrice del tilt e numero di condizione≤10^12 per X'WX con pesi normalizzati alla
+media1. Se falliscono, pendenza «non stimabile», con motivo; le medie dei gruppi
+con dati rimangono descrivibili. Per i modelli con intercette non moltiplicate
+per sin|λ| applicare analoghe verifiche. Non aggregare gruppi dopo aver visto
+le risposte per recuperare una pendenza.
+
+### 7.4 Incertezza e lettura
+
+Intervalli descrittivi95% da2000 bootstrap a famiglie candidateP1e; una famiglia
+attraverso più strati/gruppi si ricampiona come unità, mai pixel o repliche.
+Le20repliche di rumore sono mediate dentroHARP prima del bootstrap e la loro
+dispersione riportata separatamente. Nei bootstrap con rango perso registrare
+il fallimento; se più del10% fallisce non riportare l'intervallo, lasciando stima
+e conteggio. Se meno di3famiglie in un gruppo, riportare soltanto descrizione e
+numerosità per quel gruppo. Sono cautele operative proposte, non validazione
+della copertura. La correlazione temporale fra famiglie diverse resta un limite;
+la prova sintetica§3.1 ne mostrerà la sensibilità. Nessun claim inferenziale.
+
+Affiancare precisione attesa e osservata e scale illustrative di §7.2. Per la
+pendenza Δγ mostrare ±1,2°/unitàA (0,05×24°), perΔη ±0,05eta_bar con
+eta_bar=3,56e−25G/Mx. **Nessuna classificazione pass/fail o «compatibile»**,
+nessuna equivalenza dimostrata, nessuna correzione scelta dal segno osservato.
+Una barra larga è informazione sulla precisione insufficiente di questo disegno,
+non prova di assenza di distorsione. Una barra stretta resta condizionata a
+campione, selezione, modello del rumore e intervallo descrittivo non validato.
+
+La faseMDI non ha una porta automatica in questa prova. Un suo eventuale avvio
+sarà deciso con un piano separato, usando insieme grandezza degli scostamenti,
+precisione, copertura, perdite legate all'attività e limiti del modello simulato.
 ## 8. Controlli, arresto e costo
 
-Prima delle risposte nuove: congelare protocollo e lista campione; poi codice,
+Per l’esperimento sulle mappe, prima delle risposte nuove: congelare protocollo
+e lista campione; poi codice,
 prove sintetiche su campi uniformi/radiali, geometria obliqua, passaggio ai±180°,
 conservazione di area e flusso firmato nell'integrazione, maschera frazionaria,
 assenza di polarità, μ, kernel e rumore. Un campo radiale sintetico deve dare
@@ -232,26 +336,42 @@ sintesi. Difetti scoperti dopo un esito: conservare run fallito, emendamento,
 dichiarazione non cieca e nuova esecuzione esplicitamente delimitata.
 
 Limiti di spesa proposti: prima inventario, poi preventivo da dimensioni dei
-segmenti; massimo2GB nuovi dati e2ore di calcolo su4processi, senza installare
+segmenti; massimo2GB nuovi dati e2ore di calcolo su4processi per l’esperimento sulle mappe, senza installare
 nell'ambiente P2f. Questi sono tetti operativi, NON una stima misurata. Se il
 preventivo supera il tetto, arresto prima del download; nessuna riduzione del
-campione dopo aver visto risposte. Salvare avanzamento/risultati parziali se si
+campione dopo aver visto risposte. Il preventivo deve distinguere R1/R2 estesi,
+R3–R5 sul sottoinsieme e prova preventiva sintetica (budget separato da fissare
+nel suo piano prima del codice). Se precisione e costo sono incompatibili,
+segnalarlo prima dei dati: non promettere che il limite2GB copra N=320. Salvare avanzamento/risultati parziali se si
 supera il tempo; niente aumento automatico del budget.
 
-## 9. Decisioni da chiudere prima del congelamento
+## 9. Decisioni e revisione recepita
 
-| ID | Decisione proposta | Che cosa serve per chiuderla |
+**D4 chiusa nella bozza:** esperimento solo descrittivo, niente accettazione o
+porta versoMDI. PesiΦ principali e Φ/pi come sensibilità con obiettivi distinti.
+Spostamenti medi per ciclo×emisfero parte integrante dell'analisi, non soltanto
+pendenze. Resta da congelare la specifica completa dopo la pianificazione.
+
+| ID | Proposta aggiornata | Prima del congelamento |
 |---|---|---|
-|D1|64estratte stratificate più16stress, solo primariS|verifica di copertura senza nuove risposte e revisione delle numerosità|
-|D2|dominioμ≥0,8 e maschera spaziale P1 fissa|decidere trattamento di patch estese, margini e frazioni d'area; nessun trackerTARP simulato|
-|D3|PSF gaussiana, livelli/covarianze del rumore di§5|specifica riproducibile degli operatori, stadio del rumore, griglia e positività della covarianza; non sono caratteristicheMDI misurate|
-|D4|pendenze diagnostiche, bootstrap e budget0,05della scala|decidere se mantenerle solo descrittive oppure progettare/validare una regola di accettazione prima di usarle come porta alla faseMDI|
-|D5|20repliche,2GB,2ore|preventivo dei dati e prova tecnica su sintetici, senza leggere nuove risposte reali|
+|D1|code A sovracampionate, fascia centrale mantenuta; N=80/160/320 per R1/R2, sottocampione k=1 per R3–R5|piano della prova sintetica e confronto di precisione/costo; scelta di N prima dei dati|
+|D2|μ≥0,8 e maschera P1 fissa; perdite e motivi per fascia A/gruppo/complessità|dominio esatto, frazioni d'area e verifica dei margini con sole covariate/metadati|
+|D3|PSF/rumore di§5, LOS prima e dopo divisione per μ distinti|operatori, covarianza, stadio del rumore e positività; nessuna equivalenza dichiarata aMDI|
+|D4|solo descrittivo; medie per gruppo, pendenze e due schemi di pesi|rivedere i minimi operativi e il bootstrap, senza creare regole di successo|
+|D5|20repliche,2GB/2ore per le mappe, prova sintetica separata|preventivo distinto per rami e budget della pianificazione prima di eseguirla|
 
-**Stato finale della bozza:** una proposta concreta per revisione, con cinque
-scelte aperte. Nessun download, codice dell'esperimento o calcolo autorizzato dal
-solo deposito della bozza. Il passo seguente è risolvere D1–D5 e congelare il
-protocollo, non passare direttamente alle mappe.
+Revisione2, dopo i rilievi dell'utente/revisore sulla prima bozza: introdotta la
+precisione preventiva, concentrazione del campione nelle code senza eliminare il
+centro, peso principaleΦ con obiettivo esplicito, esclusioni per attività e medie
+per ciclo×emisfero. Tolti i tre esiti di accettazione; aggiunti minimi di disegno
+e scaling del rumore conμ. Le osservazioni numeriche del revisore sulle HARP
+escluse non sono state trattate come verifiche già svolte da questa revisione.
+
+**Stato:** bozza non congelata; nessuna prova sintetica, selezione o download
+eseguito. Primo passo successivo: rivedere questa versione e registrare il piano
+della sola valutazione sintetica di precisione. Il protocollo sulle mappe si
+congela dopo averne risolto numerosità, costo e specifiche; non partire da R1
+per decidere retroattivamente il campione.
 
 ## 10. Fonti e limiti di attribuzione
 
