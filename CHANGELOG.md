@@ -2,6 +2,12 @@
 
 ## v8.4 (Python, branch `v8.4-python-gianluca`) — in corso
 
+- 2026-11-13: taratura individuale del lettore 2 sulle sole 11 mappe
+  morfologiche di riferimento; modello gpt-6.1-sol, ragionamento alto
+  richiesto. Classi e motivazioni bloccate fuori da Git prima del confronto,
+  SHA-256 pubblici, esposizioni e provenienza dichiarate. Nessuna lettura
+  delle 90 schede nuove o dei centroidi, nessuna modifica alle regole.
+
 - 2026-11-13: T5-D1 eseguito una volta dal commit pulito `3c73595`, dopo il
   congelamento `85df0e9`. 201 controlli superati, incluse 26 prove su tabelle
   costruite a mano; output conservati in `dcc7219` prima della lettura.

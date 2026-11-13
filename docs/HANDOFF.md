@@ -1,5 +1,20 @@
 # Cold restart — SHARP BL
 
+## Taratura morfologica lettore 2 — 2026-11-13
+
+Le 11 mappe di riferimento sono state lette da questa sessione Codex,
+modello `gpt-6.1-sol`, ragionamento alto richiesto. Classi e motivazioni
+sono bloccate nei file privati `CALIBRATION_READER2.csv` e
+`CALIBRATION_READER2_META.json`; hash pubblici in
+`results/MORPHOLOGY/CALIBRATION_READER2_COMMITMENT.csv` e descrizione in
+`docs/MORPHOLOGY_READER2_CALIBRATION_RECEIPT.md`. Etichette del lettore 1
+non aperte; note le classi storiche e il suo riepilogo aggregato gia
+comunicato dall'utente (esposizione dichiarata). Nessuna delle 90 nuove
+schede o delle versioni con centroidi aperta. Prossimo passo: confronto
+delle due tarature bloccate, con eventuali decisioni comuni in un file
+separato; le classificazioni originali non si modificano. Nessun push.
+
+
 ## Priorità corrente — HMI e quenching (2026-11-13)
 
 **T5-D1 completato, una sola esecuzione (2026-11-13).** Piano congelato
