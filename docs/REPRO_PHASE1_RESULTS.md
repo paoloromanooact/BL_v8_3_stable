@@ -2,8 +2,8 @@
 
 Stato: **eseguita il 2026-11-13** secondo il piano congelato `docs/REPRO_PHASE1_PLAN.md`
 (`0f51e61`, SHA-256 `638c308e…`), dopo la fine della validazione P2f e del suo controllo. Esito:
-**fase 1 superata** per i cinque CSV, con una correzione del comparatore prima del confronto finale
-(dichiarata in §3). Attesta i valori delle figure P1 **condizionatamente agli input P1 distribuiti**:
+**fase 1 superata** per i cinque CSV, con due correzioni del comparatore prima dei confronti successivi
+(dichiarate in §3; tre confronti conservati). Attesta i valori delle figure P1 **condizionatamente agli input P1 distribuiti**:
 non ricostruisce P1 dai FITS, non valida P2/P2f, non verifica BARD e non certifica l'intero progetto.
 
 ## 1. Preparazione
@@ -57,6 +57,20 @@ Correzione **non cieca**: l'identità byte per byte era già stata osservata.
   tolleranza); colonne di provenienza ereditate dagli input (`git_commit`, `git_dirty`, SHA P1–P1e)
   uguali.
 - Riferimenti letti da Git (`git show 120f852:<file>`) con SHA-256 uguale a quello fissato.
+
+**Terzo confronto, dopo la revisione esterna di `ceb5d38`** (il secondo è conservato come
+`results/REPRO_PHASE1/*_RUN2.*`). Il revisore ha confermato identità dei CSV, hash congelati, assenza di
+sostituzioni dei riferimenti e legame del rapporto agli hash, e ha trovato due difetti del comparatore,
+riproducibili su input sintetici e senza effetto su questi cinque file byte-identici:
+(1) pandas legge un campo che inizia con un byte NUL come vuoto, quindi un testo con NUL (o il
+marcatore interno scritto nel file) poteva essere accettato come chiave mancante; (2) nelle colonne
+esatte la conversione numerica passava per float64, e grandi interi diversi (9007199254740992 e
+…993) risultavano uguali. Correzioni (`d757255`, prima del terzo confronto): i byte NUL si rifiutano
+prima del parsing; le colonne esatte e di provenienza si confrontano senza perdita (testo, oppure
+`Decimal` per i numeri senza zeri iniziali, così 5 = 5.0 = 5e0 ma 007 ≠ 7); 10 prove END-TO-END da byte
+CSV aggiunte (28 su 28 con l'esito atteso). Il terzo confronto sugli **stessi output rigenerati
+conservati** (clone ancora pulito, nessun rilancio) dà lo stesso esito: 5 file byte-identici, 59
+colonne uguali (comparatore SHA-256 `43fbd46b…` in `PHASE1_META.json`). Correzione non cieca.
 
 ## 4. Che cosa attesta
 

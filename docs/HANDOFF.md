@@ -43,7 +43,8 @@ sull'appartenenza ad altre HARP, bordo inferiore): nessun errore confermato; com
 concentrazioni tra le dominanti; nessuna azione sul catalogo senza un piano proprio. **Push fatto su
 richiesta dell'utente il 2026-11-13** (`e6f7419`). Poi **verifica di riproducibilità fase 1 superata**
 (`docs/REPRO_PHASE1_RESULTS.md`): i 5 CSV delle figure P1 rigenerati byte-identici da `120f852`;
-comparatore corretto prima del confronto finale (regola §2 sulle chiavi mancanti, dichiarato).
+comparatore corretto due volte prima dei confronti successivi (regola §2 sulle chiavi mancanti; NUL
+rifiutati e confronti esatti senza float64 dopo la revisione esterna), tre confronti conservati.
 Prossimo: studio MDI/SMARP in bozza, nota per Paolo, eventuali fasi successive di riproducibilità.
 
 **(Storico) Dopo:** controllo delle HARP dominanti (piano `f805c5a`, codice pronto, prova tecnica in
