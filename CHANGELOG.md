@@ -2,6 +2,15 @@
 
 ## v8.4 (Python, branch `v8.4-python-gianluca`) — in corso
 
+- 2026-11-13: T5-D1 eseguito una volta dal commit pulito `3c73595`, dopo il
+  congelamento `85df0e9`. 201 controlli superati, incluse 26 prove su tabelle
+  costruite a mano; output conservati in `dcc7219` prima della lettura.
+  Risultati: scala complessiva insufficiente nello scenario a salti di 20 CR,
+  bias piccolo rispetto alla dispersione, ruolo della forma delle code;
+  attribuzione individuale/temporale non identificata. Nessun nuovo fit,
+  simulazione, verdetto o dato reale; T5 resta descrittivo. Relazione, indice
+  e passaggio di consegne aggiornati; eventuali oracoli richiedono un nuovo piano.
+
 - 2026-11-13: implementato il diagnostico T5-D1, dopo il congelamento del
   piano (`85df0e9`). Script autonomo senza import dei moduli scientifici,
   prove su tabelle costruite a mano, controlli di provenienza/chiavi/code,

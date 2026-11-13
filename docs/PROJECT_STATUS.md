@@ -14,6 +14,7 @@ concordata è HMI; MDI/SMARP e l'esperimento di degradazione sono rinviati.
 | Diagnosi P2d/P2e | svolte le analisi A–D; hanno motivato lo sviluppo della procedura M, senza riabilitare i verdetti delle procedure storiche |
 | Quenching del tilt, P2f T3 | criteri di validazione superati negli scenari provati; applicazione unica: −3,59° per unità di attività, intervallo nominale 97,5% [−10,58°; +3,41°], **non deciso**; nessun effetto della griglia escluso |
 | Efficienza della sorgente, T5 | **non validato** per il fallimento sui salti di livello; resta descrittivo |
+| Diagnosi T5-D1 | esecuzione unica su 74000 righe sintetiche salvate; 201 controlli superati. Carenza di scala nello scenario 7, attribuzione alle componenti ancora aperta |
 | HARP dominanti | 120 controllate numericamente; 30 schede 25S esaminate, nessun errore macroscopico riconosciuto; interpretazione del tilt più debole nei complessi |
 | Riproducibilità fase 1 | cinque CSV delle figure P1 rigenerati byte-identici, condizionatamente agli input distribuiti; non verifica tutta la catena |
 
@@ -26,9 +27,9 @@ Quadro operativo: [misura HMI](HMI_MEASUREMENT_ASSESSMENT.md),
 [quenching e sensibilità](HMI_QUENCHING_SYNTHESIS.md),
 [bozza di controllo morfologico](PROTOCOL_HMI_MORPHOLOGY_DRAFT.md).
 La bozza morfologica revisionata non è congelata né eseguita. Candidato
-prioritario accanto alla morfologia, ora scelto dall'utente:
-[diagnosi T5-D1](PROTOCOL_T5_DIAGNOSTIC_SAVED_OUTPUTS.md), bozza completa
-non congelata, senza nuovi calcoli. MDI resta una possibile estensione futura,
+prioritario accanto alla morfologia: revisione dei
+[risultati T5-D1](T5_DIAGNOSTIC_RESULTS.md), poi eventuale piano distinto con
+componenti note. Nessuna nuova procedura validata. MDI resta una possibile estensione futura,
 subordinata alla confrontabilità e al beneficio statistico atteso.
 Prossimi passi e cronologia:
 [HANDOFF](HANDOFF.md). Risultati originali: [indice](RESULTS_INDEX.md).

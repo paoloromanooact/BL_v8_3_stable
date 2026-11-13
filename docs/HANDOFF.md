@@ -2,12 +2,19 @@
 
 ## Priorità corrente — HMI e quenching (2026-11-13)
 
-**T5-D1: congelato prima del codice**, su via dell'utente.
-Protocollo `docs/PROTOCOL_T5_DIAGNOSTIC_SAVED_OUTPUTS.md`, SHA-256
-`53a05c1fd7c0315eca52b508472c59d6df485c29c8ef2b717e81264d3d600e5d`. Il compito autorizzato comprende
-codice, prove costruite a mano ed esecuzione unica sugli output salvati,
-seguiti dai risultati. Nessun controllo oracolo o nuovo fit autorizzato qui;
-nessun push richiesto. Le descrizioni di bozza più sotto sono precedenti.
+**T5-D1 completato, una sola esecuzione (2026-11-13).** Piano congelato
+`85df0e9`, codice `3c73595` (albero pulito), output `dcc7219`. **201/201
+controlli superati**, incluse 26 prove costruite a mano; 17 gruppi e 74000
+righe T5, 42 errori originali conservati. Risultati in
+`docs/T5_DIAGNOSTIC_RESULTS.md`. Nessuna simulazione o risposta reale nuova.
+Con salti di 20 CR, media(SE²)/varianza empirica circa 0,858 sotto nulla e
+0,852–0,882 sotto effetto; bias piccolo rispetto alla dispersione. La forma
+delle code conta: non è identificata una singola componente responsabile.
+**T5 resta descrittivo.** Dopo revisione dei risultati, l'eventuale passo
+successivo è un piano separato per covarianza temporale e varianza individuale
+note; nessun oracolo avviato. Il protocollo T5-D1 congelato resta byte-identico,
+SHA-256 `53a05c1fd7c0315eca52b508472c59d6df485c29c8ef2b717e81264d3d600e5d`.
+Push non richiesto. Non rilanciare il diagnostico sopra gli output esistenti.
 
 Decisione dell'utente: concentrarsi sulla misura della sorgente BL e sul
 quenching con HMI. **MDI/SMARP e la degradazione HMI→MDI sono rinviati**, inclusa
@@ -23,11 +30,11 @@ Sono pronti i documenti di lavoro:
   lacuna residua; distingue P2 storico da P2f;
 - `docs/PROTOCOL_HMI_MORPHOLOGY_DRAFT.md`: bozza limitata alle 120 schede già
   prodotte (30 25S storiche, 90 da leggere). Nessuna nuova classificazione,
-  selezione o aggregazione eseguita; nessun protocollo nuovo congelato.
+  selezione o aggregazione eseguita; piano morfologico non congelato.
 - `docs/T5_JUMPS_DIAGNOSTIC_DESIGN.md`: traccia del blocco metodologico T5;
-- `docs/PROTOCOL_T5_DIAGNOSTIC_SAVED_OUTPUTS.md`: bozza completa T5-D1,
-  con lista input `docs/T5_DIAGNOSTIC_INPUTS_SHA256.csv`, da rivedere e congelare
-  prima del codice diagnostico. Nessuna nuova analisi eseguita.
+- `docs/PROTOCOL_T5_DIAGNOSTIC_SAVED_OUTPUTS.md`: T5-D1 congelato ed eseguito,
+  con lista input `docs/T5_DIAGNOSTIC_INPUTS_SHA256.csv` e risultati
+  `docs/T5_DIAGNOSTIC_RESULTS.md`; nessuna modifica alla procedura M.
 
 T3 è già applicato una volta: −3,59° per unità di attività, intervallo nominale
 97,5% [−10,58°; +3,41°], **non deciso**. T5 non è validato e resta descrittivo.
@@ -35,15 +42,12 @@ Le sensibilità non sono nuove conferme. Il filtro S4 «una NOAA» non è una
 classificazione di bipoli. Nessuna nuova applicazione di T3 o modifica a P1.
 
 **Priorità corrente e percorso complementare:**
-- **T5, scelto dall'utente come prossimo lavoro:** bozza T5-D1 pronta per
-  revisione e congelamento, prima del codice. Usa solo output sintetici P2f
-  esistenti: 17 gruppi previsti, 74000 righe T5 comprese quelle errore;
-  bias, scala di SE, quantili/code e dipendenza errore–SE. Nessun fit,
-  simulazione o risposta reale. Definizioni esplicite delle due code e della
-  statistica centrata sotto effetto. Questo passo non può separare la varianza
-  individuale e temporale vera: eventuali oracoli richiedono un piano distinto.
-  Output e semi P2f sono sviluppo T5; un metodo modificato richiede una nuova
-  validazione indipendente. Nessun nuovo calcolo avviato.
+- **T5, diagnosi iniziale conclusa:** rivedere risultati e implementazione
+  di T5-D1. Il quadro è coerente con scala di SE insufficiente nello scenario
+  7, ma lo scenario 10 mostra che R<1 non implica da solo falsi verdetti in
+  eccesso. Per separare le cause serve eventualmente un piano nuovo con
+  componenti del generatore note. Non applicare correzioni di scala ai dati
+  reali. Output e semi P2f sono sviluppo, non validazione futura indipendente.
 - **Morfologia, per interpretare la misura:** rivedere e congelare la bozza
   revisione 2 prima di figure o letture. Sono proposti mappe senza risultati
   numerici, ordine casuale, seconda lettura indipendente di 30 casi e due
@@ -65,10 +69,10 @@ dell'utente. Nessun push senza richiesta. Preservare il CSV non tracciato
 > Riprendi SHARP BL in /home/gianluca/BL_v8_3_stable. Leggi AGENTS.md,
 > questa sezione e i documenti HMI indicati sopra. Verifica Git. MDI e
 > degradazione rinviati. T3 già eseguito, non deciso; T5 descrittivo. Il passo
-> scelto è la diagnosi T5 dagli output già salvati. La bozza completa è
-> docs/PROTOCOL_T5_DIAGNOSTIC_SAVED_OUTPUTS.md, con lista input associata;
-> rivederla e congelarla prima del codice. Nessuna analisi nuova, simulazione
-> o fit è avviato. La morfologia resta un percorso complementare.
+> T5-D1 è concluso: leggi docs/T5_DIAGNOSTIC_RESULTS.md e il protocollo
+> congelato. Prossimo passo: revisione, poi eventuale piano separato con
+> componenti note. Non rilanciare il diagnostico o nuovi fit e non applicare
+> T5 ai dati reali. La morfologia resta un percorso complementare.
 > Prima consigliami il modello e attendi la mia scelta. Nessun push richiesto.
 
 ---

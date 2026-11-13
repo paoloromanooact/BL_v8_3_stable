@@ -1,11 +1,11 @@
 # T5: diagnosi mirata del fallimento sui salti — documento di lavoro
 
-**2026-11-13. Non è un protocollo congelato. Nessun nuovo calcolo eseguito.**
+**2026-11-13. Traccia storica di progettazione, non un protocollo congelato.**
 
-La prima fase è ora specificata nella bozza completa
-[T5-D1](PROTOCOL_T5_DIAGNOSTIC_SAVED_OUTPUTS.md), con elenco degli input e
-analisi fissate prima del codice. Bozza da rivedere e congelare; nessuna
-nuova analisi eseguita. Questo documento conserva la traccia di progettazione.
+La prima fase [T5-D1](PROTOCOL_T5_DIAGNOSTIC_SAVED_OUTPUTS.md) è ora congelata
+ed eseguita: [risultati](T5_DIAGNOSTIC_RESULTS.md), 201 controlli superati.
+Questo documento conserva la traccia di progettazione precedente. La fase
+con componenti note richiede ancora un piano proprio, non è avviata.
 Candidato prioritario HMI, accanto al controllo morfologico. Scopo: capire
 il fallimento prima di proporre un'altra procedura per il quenching
 dell'efficienza. Non riabilita T5 e non modifica la validazione P2f.

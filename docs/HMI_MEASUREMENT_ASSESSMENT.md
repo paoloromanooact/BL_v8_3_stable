@@ -61,3 +61,5 @@ proprio: le dominanti e i controlli selezionati non sono un campione casuale di 
 Questo controllo serve all'interpretazione della misura. Per una risposta
 sul quenching dell'efficienza, il candidato prioritario distinto è la
 [diagnosi del fallimento T5 sui salti](T5_JUMPS_DIAGNOSTIC_DESIGN.md).
+La prima fase è conclusa: [risultati T5-D1](T5_DIAGNOSTIC_RESULTS.md).
+L'attribuzione alle componenti individuale e temporale resta aperta.

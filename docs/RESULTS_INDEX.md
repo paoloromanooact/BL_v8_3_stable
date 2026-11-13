@@ -21,10 +21,10 @@ Sintesi correnti HMI: [misura](HMI_MEASUREMENT_ASSESSMENT.md) e
 [quenching](HMI_QUENCHING_SYNTHESIS.md). La [bozza morfologica](PROTOCOL_HMI_MORPHOLOGY_DRAFT.md)
 propone un nuovo controllo descrittivo, con letture separate e concordanza;
 non contiene nuovi risultati. La [traccia T5 sui salti](T5_JUMPS_DIAGNOSTIC_DESIGN.md)
-è un documento di progettazione. La prima fase è specificata in
-[T5-D1](PROTOCOL_T5_DIAGNOSTIC_SAVED_OUTPUTS.md) e nella
-[lista input con hash](T5_DIAGNOSTIC_INPUTS_SHA256.csv): bozza non congelata,
-nessuna analisi già eseguita.
+è un documento di progettazione storico. La prima fase
+[T5-D1](PROTOCOL_T5_DIAGNOSTIC_SAVED_OUTPUTS.md) è congelata ed eseguita,
+con [lista input](T5_DIAGNOSTIC_INPUTS_SHA256.csv) e
+[risultati diagnostici](T5_DIAGNOSTIC_RESULTS.md). Non valida T5.
 
 | Elemento | File | Dati tracciati / input | Script | Commit | Stato |
 |---|---|---|---|---|---|
@@ -56,6 +56,7 @@ nessuna analisi già eseguita.
 | P2f, applicazione di T3 ai dati reali | `results/P2F/REAL_T3.csv`, `REAL_T3_SENSITIVITY.csv` | catalogo P1, selezione, SILSO; decisione e controlli della validazione | `p2f_apply.py --test T3 --real` | `8ad8e61` (codice ed esecuzione `42fcd01`) | **test validato, esito «non deciso»**; sensibilità non validate (`docs/P2F_RESULTS.md`) |
 | Controllo delle HARP dominanti | `results/DOMINANT/*.csv`, `figures/DOMINANT/*.png` | catalogo P1, `PRIMARY_VS_CONTROL_BY_HARP.csv`, 240 FITS (SHA-256 in `DOMINANT_HARP_FITS_SHA256.csv`) | `dominant_harp_check.py` | `36676a9` (esecuzione `1a22e09`) | **descrittivo** (`docs/DOMINANT_HARP_PLAN.md`, `docs/DOMINANT_HARP_RESULTS.md`) |
 | Riproducibilità fase 1 (figure P1) | `results/REPRO_PHASE1/*` (prima esecuzione del confronto `*_RUN1.*`, artefatti del rilancio in `run/`) | `figures_p1.py` e input P1 a `120f852` in un clone pulito | `scripts/repro_compare.py` | (questo commit) | **verifica**: superata (`docs/REPRO_PHASE1_RESULTS.md`) |
+| T5-D1, diagnosi dagli output sintetici salvati | `results/T5_DIAGNOSTIC/T5D_*.csv`, `T5D_META.json`; `figures/T5_DIAGNOSTIC/*.png` | output P2f salvati, otto hash/blob nella lista input | `diag_t5_saved_outputs.py --run` | `dcc7219` (codice `3c73595`, piano `85df0e9`) | **diagnostico**: 201 controlli superati; T5 resta non validato (`docs/T5_DIAGNOSTIC_RESULTS.md`) |
 
 ## File storici, rinominati o senza produttore nel codice attuale
 

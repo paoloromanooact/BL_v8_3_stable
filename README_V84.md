@@ -136,11 +136,13 @@ I dati non sono in Git. `data/sharp` può essere un link a un disco capiente
   T3 e T5 senza verdetto. Una pendenza negativa non dimostra il quenching; una
   pendenza vicina a zero non dimostra un'efficienza costante.
 - [ ] Discussione con Paolo.
-- [ ] Priorità HMI scelta: diagnosi T5 dagli output sintetici già salvati
-  (`docs/PROTOCOL_T5_DIAGNOSTIC_SAVED_OUTPUTS.md`), bozza completa ancora da
-  rivedere e congelare. Controllo morfologico complementare
-  (`docs/PROTOCOL_HMI_MORPHOLOGY_DRAFT.md`); nessuna nuova analisi o lettura
-  avviata. Stato in `docs/HANDOFF.md`.
+- [x] Diagnosi T5-D1 dagli output sintetici salvati: 201 controlli superati,
+  17 gruppi e 74000 righe. Nei salti di 20 CR emerge una carenza di scala;
+  le componenti responsabili restano da separare (`docs/T5_DIAGNOSTIC_RESULTS.md`).
+  T5 resta descrittivo, senza nuova applicazione reale.
+- [ ] Revisione di T5-D1, poi eventuale piano per componenti note. Controllo
+  morfologico complementare ancora in bozza (`docs/PROTOCOL_HMI_MORPHOLOGY_DRAFT.md`),
+  nessuna nuova lettura avviata. Stato in `docs/HANDOFF.md`.
 
 ## Ancillari
 
