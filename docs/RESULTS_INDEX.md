@@ -43,6 +43,7 @@ non un risultato di calibrazione o un'estensione della serie.
 | Pilota P2f: controllo indipendente e diagnostica | `results/P2F_PILOT/POST_CHECKS*.csv`, `PILOT_DIAGNOSTICS_M.csv`, `PILOT_ERRORS.csv` | `PILOT_RAW.csv.gz` e tabelle del pilota | `p2f_checks.py raw`, `diag` | `bea7de8` (codice `c9258fe`, `bea7de8`) | **verifica** (`docs/P2F_PILOT_IMPLEMENTATION_NOTE.md` §3) |
 | Validazione P2f (procedura M) | `results/P2F/VALIDATION_RAW.csv.gz`, `VALIDATION_FALSE_VERDICTS.csv`, `VALIDATION_COVERAGE_POWER.csv`, `VALIDATION_DECISION.csv`, `PRELIM_*.csv` (e `_ed90e15`) | disegno reale senza risposte, risposte sintetiche (semi 6 000 000 + …, 7 500 000 + …, test 20 000 000 + k) | `p2f_validation.py` | `11b71f4` (codice `ed90e15`, provenienza `5c3b664`) | **validazione**: T3 validato, T5 no (`docs/P2F_VALIDATION_RESULTS.md`) |
 | Validazione P2f: controllo indipendente | `results/P2F/POST_CHECKS*.csv` (colonna `status` con etichetta «pilota» ereditata, dichiarata) | output della validazione | `p2f_checks.py vraw` | `11b71f4` (codice `a518115`) | **verifica** |
+| P2f, applicazione di T3 ai dati reali | `results/P2F/REAL_T3.csv`, `REAL_T3_SENSITIVITY.csv` | catalogo P1, selezione, SILSO; decisione e controlli della validazione | `p2f_apply.py --test T3 --real` | `8ad8e61` (codice ed esecuzione `42fcd01`) | **test validato, esito «non deciso»**; sensibilità non validate (`docs/P2F_RESULTS.md`) |
 
 ## File storici, rinominati o senza produttore nel codice attuale
 

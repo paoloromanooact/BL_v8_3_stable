@@ -18,8 +18,13 @@ asserzioni, script separato). Nessun processo in esecuzione.
   controllo indipendente; la colonna `status` di `results/P2F/POST_CHECKS*.csv` dice «pilota di
   sviluppo» per un'etichetta ereditata (output non riscritti).
 
-**Prossimo passo: applicazione ai dati reali solo per T3**, autorizzata dal revisore dopo il
-commit dei risultati: `OMP_NUM_THREADS=1 .venv/bin/python python/sharpbl/p2f_apply.py --test T3 --real`
+**Fatto il 2026-11-13 alle 09:05: applicazione di T3 ai dati reali** (una esecuzione, commit
+`42fcd01`): β̂_T = −3,59° per unità di Â (−0,149·γ0), intervallo a livello nominale 97,5 %
+[−10,58°; +3,41°], esito **non deciso**, nessun effetto della griglia escluso; 8 sensibilità non
+validate tutte negative e tutte comprendenti zero. Risultati in `docs/P2F_RESULTS.md`; T5 rifiutato
+dallo script. **Prossimo passo: revisione esterna di `docs/P2F_RESULTS.md`** (ZIP aggiornato).
+
+(Storico) Comando usato, autorizzato dal revisore dopo il commit dei risultati: `OMP_NUM_THREADS=1 .venv/bin/python python/sharpbl/p2f_apply.py --test T3 --real`
 (una sola esecuzione; lo script rifiuta T5, richiede `POST_CHECKS.csv` superato e legato agli stessi
 output e protocollo). Poi `docs/P2F_RESULTS.md` con formulazioni prudenti: «supportato» non
 attribuisce un meccanismo; «non deciso» non è assenza (potenza 5–11 % a −0,2); esclusione di un
@@ -41,8 +46,8 @@ si adottano.
 > Riprendi SHARP BL v8.4 nel repository /home/gianluca/BL_v8_3_stable, branch
 > v8.4-python-gianluca. Leggi AGENTS.md e docs/HANDOFF.md (sezione "Passaggio di consegne del
 > 2026-11-13"), poi docs/P2F_VALIDATION_RESULTS.md e docs/PROTOCOL_P2F_VALIDATED_TEST.md §7.
-> Verifica lo stato di Git. Prossimo passo: applicazione di T3 ai dati reali con p2f_apply.py,
-> una sola volta. Prima di ogni compito consigliami il modello e aspetta. Non fare il push senza
+> Verifica lo stato di Git. T3 è già stato applicato ai dati reali (docs/P2F_RESULTS.md); prossimo
+> passo: revisione esterna di quei risultati, poi HARP dominanti. Prima di ogni compito consigliami il modello e aspetta. Non fare il push senza
 > la mia richiesta.
 
 ---

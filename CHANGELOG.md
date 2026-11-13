@@ -94,6 +94,10 @@
   `results/P2F_PILOT/DESIGN_CHECKS.csv` (`p2f_checks.py design`), controllo di finitezza e
   riconteggio indipendente da eseguire prima dell'interpretazione (`p2f_checks.py raw`, output
   del pilota mai modificati).
+- 2026-11-13, applicazione di T3 ai dati reali con la procedura M validata (una esecuzione, `42fcd01`):
+  β̂_T = −3,59° per unità di attività, intervallo a livello nominale 97,5 % [−10,58°; +3,41°], esito
+  «non deciso»; nessun effetto della griglia escluso; potenza validata bassa, quindi non è evidenza
+  di assenza. T5 non applicato (non validato). `docs/P2F_RESULTS.md`.
 - 2026-11-13, validazione P2f (protocollo congelato `500c56a`, codice `ed90e15`, esecuzione unica
   su `5c3b664`, 152 000 cataloghi, 2026-11-11/12): controllo indipendente superato (23/23) e
   revisione esterna senza discrepanze; **T3 validato** negli scenari provati (falsi verdetti
