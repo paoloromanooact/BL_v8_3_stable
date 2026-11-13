@@ -9,6 +9,14 @@ nei file (commit `42fcd01`, `git_dirty` = 0, protocollo `8f030010…`, validazio
 della decisione di validazione). Un secondo tentativo di esecuzione è stato rifiutato dallo script
 («una sola esecuzione per test»).
 
+**Identità con lo ZIP revisionato (verifica a posteriori, dichiarata).** Il revisore ha esaminato
+lo ZIP `0f12ed1` (SHA-256 `60ccbe2c…`); l'applicazione è stata eseguita su `42fcd01`. La richiesta
+di verificare l'identità **prima** dell'esecuzione è arrivata dopo; la verifica è stata fatta
+subito dopo: tra `0f12ed1` e `42fcd01` sono cambiati solo `CHANGELOG.md`, `docs/HANDOFF.md`,
+`docs/P2F_VALIDATION_RESULTS.md` e `docs/RESULTS_INDEX.md`; `python/`, il protocollo,
+`results/P2F/` (output della validazione e controlli), `results/P1/`, `ancillary/` e
+`requirements-v84.txt` sono **identici** (`git diff --quiet`). Nessuna modifica sostanziale.
+
 ## 1. Risultato principale
 
 Modello (P2 §4, T3): γ_i = (γ0,c,h + β_T (Â_i − 1)) sin|λ_i| + ε_i, WLS con pesi Φ, campione S (2485
