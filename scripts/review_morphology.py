@@ -158,7 +158,7 @@ check('no_input_changed',all(sha(ROOT/f)==h for f,h in inputs.items()))
 check('HEAD_unchanged',git('rev-parse','HEAD')==head)
 OUT.mkdir(parents=True,exist_ok=True)
 with (OUT/'REVIEW_CHECKS.csv').open('w',newline='') as f:
-    w=csv.DictWriter(f,fieldnames=['check','passed']);w.writeheader();w.writerows(checks)
+    w=csv.DictWriter(f,fieldnames=['check','passed'],lineterminator='\n');w.writeheader();w.writerows(checks)
 metadata=dict(review_type='internal_post_hoc_same_author_not_external',git_reference=head,
     created_utc=datetime.now(timezone.utc).isoformat(),script_sha256=sha(Path(__file__)),
     reviewed_report_sha256=sha(ROOT/'docs/MORPHOLOGY_RESULTS.md'),

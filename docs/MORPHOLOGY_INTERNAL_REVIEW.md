@@ -62,3 +62,12 @@ non è un limite superiore alla complessità dell'intero gruppo.
 Il controllo morfologico si arresta al livello descrittivo acquisito.
 Un eventuale studio su S richiede un piano proprio. T3 e T5 non cambiano;
 T5-D2 non è stato esaminato in questo compito. Nessun push.
+
+Nota di serializzazione: dopo il primo commit Git ha segnalato la
+normalizzazione del CSV dei controlli da CRLF a LF. Il file e il relativo
+hash in META.json sono stati allineati alla versione LF effettivamente
+distribuita, verificando l'identita di tutti i 553 nomi ed esiti dei controlli.
+Il vecchio hash CRLF resta registrato; il codice effettivamente eseguito
+e identificato da `audit_code_reference_commit` e `script_sha256`. Lo scrittore
+attuale esplicita LF per le esecuzioni successive. Nessun valore scientifico
+e cambiato.

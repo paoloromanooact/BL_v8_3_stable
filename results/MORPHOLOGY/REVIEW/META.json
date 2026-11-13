@@ -41,10 +41,13 @@
     "results/MORPHOLOGY/ANALYSIS/PRIORITY_DECISION.csv": "6e0547de6a40cc178c9abdb105f8e252c38b66b963c75f9c7b5b2e1c4f647614"
   },
   "checks_passed": 553,
-  "review_checks_sha256": "f06ab07b59817cbf5afcbcf4d076dc0c3d09d477b5de920bb3dfd61a2c696856",
+  "review_checks_sha256": "ff45f0bdfe830a4ce6058805d264f672599094c345167b3ebedaf888dcc72464",
   "scope": "independent implementation using csv/Decimal, same author; no relabelling or new scientific analysis",
   "formatting_findings": [
     "Unescaped literal pipes in two Markdown table headers.",
     "Tiny nonzero percentages rendered as 0.000% need an explicit rounding note."
-  ]
+  ],
+  "audit_code_reference_commit": "4d60045ed2defa64911cb05ce610725d6cbcb278",
+  "original_review_checks_sha256_before_LF_normalization": "f06ab07b59817cbf5afcbcf4d076dc0c3d09d477b5de920bb3dfd61a2c696856",
+  "serialization_note": "CSV normalized from CRLF to LF after Git normalization notice; all 553 check names and boolean values unchanged. script_sha256 identifies the code executed, preserved at audit_code_reference_commit. Subsequent writer maintenance uses explicit LF."
 }
