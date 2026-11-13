@@ -1,0 +1,90 @@
+{
+  "started_utc": "2026-11-13T10:16:26.549763+00:00",
+  "status": "complete",
+  "protocol_sha256": "53a05c1fd7c0315eca52b508472c59d6df485c29c8ef2b717e81264d3d600e5d",
+  "git_commit_diag": "3c7359590c3cba91e3c75f5f47532d77c2123c8c",
+  "git_dirty_diag": 0,
+  "sha256_INPUT_LIST": "b017967dff7d7ac35ebad6c09c210d69f990d984e3f936028fea2a289e217d06",
+  "input_references": [
+    {
+      "file": "results/P2F/VALIDATION_RAW.csv.gz",
+      "role": "analysis_input",
+      "sha256": "9553f49ac4e0ec7a7209f366062552a1d3a6cd0933449b9002658aa80cff4178",
+      "reference_commit": "c1cb6152189d15b5919b7335ee4a2d695afc9469",
+      "reference_blob": "95262cf9f9ead0e27d7b49fd2cea8e4bd3c75a71"
+    },
+    {
+      "file": "results/P2F/VALIDATION_FALSE_VERDICTS.csv",
+      "role": "analysis_input",
+      "sha256": "d8b896aff92bdd01c6a986ce408e9ff51d56083b10d55f13e242a0432a038278",
+      "reference_commit": "c1cb6152189d15b5919b7335ee4a2d695afc9469",
+      "reference_blob": "21633aae94931dc5282c508e3f728c693a23418d"
+    },
+    {
+      "file": "results/P2F/VALIDATION_COVERAGE_POWER.csv",
+      "role": "analysis_input",
+      "sha256": "cbcc2dff4cb287ec3e896e3f4cb399ee2e9f35560b7e66e9c9267589df6dff98",
+      "reference_commit": "c1cb6152189d15b5919b7335ee4a2d695afc9469",
+      "reference_blob": "3c3ee31180bdd34214bcca6b163d576e6a69056d"
+    },
+    {
+      "file": "results/P2F/VALIDATION_DECISION.csv",
+      "role": "analysis_input",
+      "sha256": "fb0c696089c71042a1fb044a8fa6ec05988ad0d35863612db61d0de01c284221",
+      "reference_commit": "c1cb6152189d15b5919b7335ee4a2d695afc9469",
+      "reference_blob": "fb61f32deb63f25bea3fcb2a626d092227af1aba"
+    },
+    {
+      "file": "results/P2F/POST_CHECKS.csv",
+      "role": "analysis_input",
+      "sha256": "f92a63c211dd2bb63cca45bc892457e0034c468be99141d6b8cb472f0e4fb1ce",
+      "reference_commit": "c1cb6152189d15b5919b7335ee4a2d695afc9469",
+      "reference_blob": "5eb9aa95bac8c1a8b3ad963ff922b4eeeca5a65e"
+    },
+    {
+      "file": "docs/PROTOCOL_P2F_VALIDATED_TEST.md",
+      "role": "definition_reference",
+      "sha256": "8f030010ddedb28131a79ea72edd2fe6077c9a04dd236854a86fb170f1cb3ab1",
+      "reference_commit": "c1cb6152189d15b5919b7335ee4a2d695afc9469",
+      "reference_blob": "b7e40645130baba57e9811f34969f6873c96c1ee"
+    },
+    {
+      "file": "python/sharpbl/p2f_validation.py",
+      "role": "definition_reference",
+      "sha256": "8adfc197e9ee9d66359ed893162d38b92cf9c98c634beb250bb34b9b8a4ae1f1",
+      "reference_commit": "c1cb6152189d15b5919b7335ee4a2d695afc9469",
+      "reference_blob": "67d4163d9c2e2a604accf6f622a564f46c98c6e3"
+    },
+    {
+      "file": "python/sharpbl/p2f_pilot.py",
+      "role": "definition_reference",
+      "sha256": "17d1f728f3c7626ebbbca38620fb2711769dc3228d0090747990410631e28ec8",
+      "reference_commit": "c1cb6152189d15b5919b7335ee4a2d695afc9469",
+      "reference_blob": "596e5cb007267ef8360f9d873e313f22fcf89862"
+    }
+  ],
+  "original_simulation_commit": "5c3b664bb3e6bbdddd8a9502801163ed9873ce49",
+  "original_check_commits": [
+    "0f51e61df42411cd5d3565f70ee91121120717f2"
+  ],
+  "python": "3.10.12",
+  "numpy": "2.2.6",
+  "pandas": "2.3.3",
+  "scipy": "1.15.3",
+  "script_sha256": "b64edfe353a53a6edd7acd7779c536b22a2d701ad7997cb18c3f32e30f8a5c76",
+  "matplotlib": "3.8.4",
+  "groups": 17,
+  "selected_rows": 74000,
+  "checks_passed": 201,
+  "outputs_sha256": {
+    "figures/T5_DIAGNOSTIC/t5d_bias_scale.png": "25324ca601eaeabee48db7844657a9d9072fd1e00eafb54a57f14e2e92c986fa",
+    "figures/T5_DIAGNOSTIC/t5d_quantiles.png": "a791ed59ac7fe7a457867ebffe70cb0ac5becae6faef82d466373f6a8e8ac47f",
+    "figures/T5_DIAGNOSTIC/t5d_se_tails.png": "64f5b8deffbe6a54ee9f52ca683f1686946d96726a886ba43213f3721fa5fb6d",
+    "results/T5_DIAGNOSTIC/T5D_CHECKS.csv": "1a5866cf989aeb90a85965476b1541bcdaf182f09c93e43f0e841054e67baa84",
+    "results/T5_DIAGNOSTIC/T5D_GROUPS.csv": "1c70f99437d5588877df01187d5652ae5508df4c4106c9034bd2db43df69fd8a",
+    "results/T5_DIAGNOSTIC/T5D_NUISANCE.csv": "a0142a0841f6219ceb42545365b94add2670a089e5b681cf4d7c16f1db171c32",
+    "results/T5_DIAGNOSTIC/T5D_QUANTILES.csv": "bc6bfa0c6a522fbabbdd6d8668837a82f494ada531a334e6e9385e55a25c27c7",
+    "results/T5_DIAGNOSTIC/T5D_SE_QUINTILES.csv": "a7a3d48a6cd23e7c92ec269290f06e443da1825e9897924b0b51b1b8365615bd"
+  },
+  "finished_utc": "2026-11-13T10:16:35.881096+00:00"
+}

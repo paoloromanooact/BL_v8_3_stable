@@ -210,6 +210,9 @@ figures/P1/data/fig3b_tilt_difference.csv
 figures/P1/fig1_butterfly.png
 figures/P1/fig2_series_by_cr.png
 figures/P1/fig3_legacy_vs_v84.png
+figures/T5_DIAGNOSTIC/t5d_bias_scale.png
+figures/T5_DIAGNOSTIC/t5d_quantiles.png
+figures/T5_DIAGNOSTIC/t5d_se_tails.png
 idl/plot_sharp_diagnostics_from_csv.pro
 idl/process_sharp_day.pro
 idl/sharp_auto_leading_hale.pro
@@ -434,6 +437,12 @@ results/REPRO_PHASE1/run/requirements-v84-freeze.txt
 results/REPRO_PHASE1/run/run.log
 results/REPRO_PHASE1/run/run_commit.txt
 results/REPRO_PHASE1/run/start.txt
+results/T5_DIAGNOSTIC/T5D_CHECKS.csv
+results/T5_DIAGNOSTIC/T5D_GROUPS.csv
+results/T5_DIAGNOSTIC/T5D_META.json
+results/T5_DIAGNOSTIC/T5D_NUISANCE.csv
+results/T5_DIAGNOSTIC/T5D_QUANTILES.csv
+results/T5_DIAGNOSTIC/T5D_SE_QUINTILES.csv
 scripts/check_repo.sh
 scripts/download_test_20240508.sh
 scripts/process_test_20240508_idl_commands.pro
