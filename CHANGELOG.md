@@ -94,6 +94,10 @@
   `results/P2F_PILOT/DESIGN_CHECKS.csv` (`p2f_checks.py design`), controllo di finitezza e
   riconteggio indipendente da eseguire prima dell'interpretazione (`p2f_checks.py raw`, output
   del pilota mai modificati).
+- 2026-11-13, verifica di riproducibilità fase 1 (piano `0f51e61`): `figures_p1.py` di `120f852` in un
+  clone pulito e in un ambiente separato rigenera i 5 CSV delle figure P1 (e i 3 PNG) byte-identici;
+  confronto formale superato dopo una correzione dichiarata del comparatore (chiavi mancanti per schema,
+  regola §2). `docs/REPRO_PHASE1_RESULTS.md`.
 - 2026-11-13, esame visivo delle 30 schede del gruppo 25S (un solo lettore): nessun errore confermato;
   classificazione per HARP (bipolo singolo, complesso multiregione, centroide tra regioni, quasi
   unipolare); le classi non sono errori e non autorizzano azioni sul catalogo.

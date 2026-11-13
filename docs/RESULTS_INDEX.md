@@ -45,6 +45,7 @@ non un risultato di calibrazione o un'estensione della serie.
 | Validazione P2f: controllo indipendente | `results/P2F/POST_CHECKS*.csv` (colonna `status` con etichetta «pilota» ereditata, dichiarata) | output della validazione | `p2f_checks.py vraw` | `11b71f4` (codice `a518115`) | **verifica** |
 | P2f, applicazione di T3 ai dati reali | `results/P2F/REAL_T3.csv`, `REAL_T3_SENSITIVITY.csv` | catalogo P1, selezione, SILSO; decisione e controlli della validazione | `p2f_apply.py --test T3 --real` | `8ad8e61` (codice ed esecuzione `42fcd01`) | **test validato, esito «non deciso»**; sensibilità non validate (`docs/P2F_RESULTS.md`) |
 | Controllo delle HARP dominanti | `results/DOMINANT/*.csv`, `figures/DOMINANT/*.png` | catalogo P1, `PRIMARY_VS_CONTROL_BY_HARP.csv`, 240 FITS (SHA-256 in `DOMINANT_HARP_FITS_SHA256.csv`) | `dominant_harp_check.py` | `36676a9` (esecuzione `1a22e09`) | **descrittivo** (`docs/DOMINANT_HARP_PLAN.md`, `docs/DOMINANT_HARP_RESULTS.md`) |
+| Riproducibilità fase 1 (figure P1) | `results/REPRO_PHASE1/*` (prima esecuzione del confronto `*_RUN1.*`, artefatti del rilancio in `run/`) | `figures_p1.py` e input P1 a `120f852` in un clone pulito | `scripts/repro_compare.py` | (questo commit) | **verifica**: superata (`docs/REPRO_PHASE1_RESULTS.md`) |
 
 ## File storici, rinominati o senza produttore nel codice attuale
 
