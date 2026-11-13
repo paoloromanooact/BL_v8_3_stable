@@ -1,0 +1,241 @@
+{
+  "git_commit_comparison": "744eeecb551cd62f8f07006bfb54cc72f67c4056",
+  "git_dirty_comparison": 0,
+  "sha256_morphology": "2547aeebf4ba4b9762768a01b3cb9624e9d1aec93e48ad0679e76441f5e0743f",
+  "sha256_morphology_A1": "0163bdac7bf47f520d1a5d96eed92c7aafc368c2666742df6d8671f1d1738b74",
+  "sha256_morphology_A2": "14c7e0bb8acdb71d9dfadf1d50f8f6de928c69ed5c98d3246a5c12dd5f8de52c",
+  "status": "complete_descriptive_comparison_no_consensus",
+  "run_utc": "2026-11-13T14:31:39.933989+00:00",
+  "input_manifest_sha256": "c465a2448cbadaed257cc61edf5999727fdb6d78050d3816f76ef3e3a7165405",
+  "code_sha256": "5fb6c07c7bc79d34bdf1a2d70b8c0959f51d524ba4e4e9169a71c8cf2021680a",
+  "checks_passed": 229,
+  "inputs": [
+    {
+      "file": "docs/DOMINANT_HARP_PLAN.md",
+      "sha256": "e7767aea68a968bb4f064c4e18061c5308b8d8cd70447794a13039f45943b7d9",
+      "reference_commit": "c70eb0dce47964e1d24e6acba4e0d81288a96805",
+      "git_blob": "5d362a411e17bfa178883d4c164945d60f8a1c09",
+      "origin_commitment": ""
+    },
+    {
+      "file": "docs/DOMINANT_HARP_VISUAL_25S.md",
+      "sha256": "65ae0029bfa427ad9a6d3601e63f846008e3909fcc7f88d6ffdccec3751ba3ea",
+      "reference_commit": "c70eb0dce47964e1d24e6acba4e0d81288a96805",
+      "git_blob": "76445f72f2e4753d40ade59856555a98fd06d27d",
+      "origin_commitment": ""
+    },
+    {
+      "file": "docs/PROTOCOL_HMI_MORPHOLOGY.md",
+      "sha256": "2547aeebf4ba4b9762768a01b3cb9624e9d1aec93e48ad0679e76441f5e0743f",
+      "reference_commit": "c70eb0dce47964e1d24e6acba4e0d81288a96805",
+      "git_blob": "af1930266e22e4f310c4e0cea4d11898bb1def9a",
+      "origin_commitment": ""
+    },
+    {
+      "file": "docs/PROTOCOL_HMI_MORPHOLOGY_A1.md",
+      "sha256": "0163bdac7bf47f520d1a5d96eed92c7aafc368c2666742df6d8671f1d1738b74",
+      "reference_commit": "c70eb0dce47964e1d24e6acba4e0d81288a96805",
+      "git_blob": "20040805de7d88983dadbebf24f3adf12108dd7a",
+      "origin_commitment": ""
+    },
+    {
+      "file": "docs/PROTOCOL_HMI_MORPHOLOGY_A2.md",
+      "sha256": "14c7e0bb8acdb71d9dfadf1d50f8f6de928c69ed5c98d3246a5c12dd5f8de52c",
+      "reference_commit": "c70eb0dce47964e1d24e6acba4e0d81288a96805",
+      "git_blob": "6c409a2851f834d9477ffb549fd26beddbf40688",
+      "origin_commitment": ""
+    },
+    {
+      "file": "results/DOMINANT/DOMINANT_HARP_CHECKS.csv",
+      "sha256": "45ddbf277d3c66f7852bc2d7edd07fd3420bb83737c83cddda11b955175193c2",
+      "reference_commit": "c70eb0dce47964e1d24e6acba4e0d81288a96805",
+      "git_blob": "39754ab1797fe0eb12de76cf64ff228d1bef3757",
+      "origin_commitment": ""
+    },
+    {
+      "file": "results/DOMINANT/DOMINANT_HARP_SELECTION.csv",
+      "sha256": "89fb460aaeab4ba8368ab43817aac2650fcd733c99b1e5b5119b0f1cff24da4a",
+      "reference_commit": "c70eb0dce47964e1d24e6acba4e0d81288a96805",
+      "git_blob": "a978c462e21386df1131167633e8fba2f7cfeca8",
+      "origin_commitment": ""
+    },
+    {
+      "file": "results/MORPHOLOGY/CALIBRATION_READER1_COMMITMENT.csv",
+      "sha256": "1394b6dbf807217d1557bd175d2f5f5fb06173698f96182304bdc755589f44c0",
+      "reference_commit": "c70eb0dce47964e1d24e6acba4e0d81288a96805",
+      "git_blob": "6d9a4c47316496b58580fd825a1653fcb590485e",
+      "origin_commitment": ""
+    },
+    {
+      "file": "results/MORPHOLOGY/CALIBRATION_READER2_COMMITMENT.csv",
+      "sha256": "83bef9492a7a661b546dffb497a6e731dbe7f96796f397a197417c8e9f6fcfd7",
+      "reference_commit": "c70eb0dce47964e1d24e6acba4e0d81288a96805",
+      "git_blob": "cfe8abf2954dc5ee22327bda0328f0a62ac4b733",
+      "origin_commitment": ""
+    },
+    {
+      "file": "results/MORPHOLOGY/CENTROIDS_READER1_COMMITMENT.csv",
+      "sha256": "3b46f967fcad88f262c0f575a645664fc037ebb36428ce2389728275eaffaaaf",
+      "reference_commit": "c70eb0dce47964e1d24e6acba4e0d81288a96805",
+      "git_blob": "c66d4c6854d0ee9663bb582434f41c3427356b9e",
+      "origin_commitment": ""
+    },
+    {
+      "file": "results/MORPHOLOGY/CENTROIDS_READER2_COMMITMENT.csv",
+      "sha256": "4469317161b9f1038021e66022378f089be4065f09f9b3d169b65faadd002664",
+      "reference_commit": "c70eb0dce47964e1d24e6acba4e0d81288a96805",
+      "git_blob": "4c43db2a122da9516bc37df98292da331fd1c59d",
+      "origin_commitment": ""
+    },
+    {
+      "file": "results/MORPHOLOGY/CODE_MAP.csv",
+      "sha256": "ba4818d0363bd6067ae65cda8288a329556cb83d24aac949eedbe5f56c695f99",
+      "reference_commit": "",
+      "git_blob": "aa553e763bf29d82cb54eeb79fa127760f48f0d0",
+      "origin_commitment": "CODE_MAP_COMMITMENT.csv"
+    },
+    {
+      "file": "results/MORPHOLOGY/CODE_MAP_COMMITMENT.csv",
+      "sha256": "9731998dc821b11b735fddaabb96f7882ec52467971c10010a7397c20aedb954",
+      "reference_commit": "c70eb0dce47964e1d24e6acba4e0d81288a96805",
+      "git_blob": "417811d56dd5efd7e0cb29bd2bd4a49418c71a78",
+      "origin_commitment": ""
+    },
+    {
+      "file": "results/MORPHOLOGY/LOCKED_READINGS/CALIBRATION_READER1.csv",
+      "sha256": "a851aaddb71fe58165a2bbea1b1d131b43d1e85aeb1a57054ad48bc18bb5b0c6",
+      "reference_commit": "",
+      "git_blob": "de0ffad20e271f0766fc5acd647bb54cd943ed79",
+      "origin_commitment": "CALIBRATION_READER1_COMMITMENT.csv"
+    },
+    {
+      "file": "results/MORPHOLOGY/LOCKED_READINGS/CALIBRATION_READER2.csv",
+      "sha256": "51f67b699cea122da8937c7b363b9e0ada2b0350c91c72c0f59f4ae0fec0a6e7",
+      "reference_commit": "",
+      "git_blob": "4b7f1cd36d8534a3fec8d661f4ab5f56818a1860",
+      "origin_commitment": "CALIBRATION_READER2_COMMITMENT.csv"
+    },
+    {
+      "file": "results/MORPHOLOGY/LOCKED_READINGS/CALIBRATION_READER2_META.json",
+      "sha256": "d954830fa06b7aaad316ff3b4197d1a3802ee8261fe7d2f811c932a079f2edb8",
+      "reference_commit": "",
+      "git_blob": "9aab2be31d0f4fd850a7e943a6d50df649808f96",
+      "origin_commitment": "CALIBRATION_READER2_COMMITMENT.csv"
+    },
+    {
+      "file": "results/MORPHOLOGY/LOCKED_READINGS/CENTROIDS_READER1.csv",
+      "sha256": "67b756b401d9bba0e7fad24413f7101fbe9bacf418ba43690a052d8a0e411e96",
+      "reference_commit": "",
+      "git_blob": "08b84a9708a9b01e33d0a5e293b522568a808abc",
+      "origin_commitment": "CENTROIDS_READER1_COMMITMENT.csv"
+    },
+    {
+      "file": "results/MORPHOLOGY/LOCKED_READINGS/CENTROIDS_READER2.csv",
+      "sha256": "7fc46899d42437be24090b0653f8ed96ee4b9202d2a1a8f2f74e2cc947a6dd97",
+      "reference_commit": "",
+      "git_blob": "b809f83c8d3df3b990bc916edc329fca59ff2603",
+      "origin_commitment": "CENTROIDS_READER2_COMMITMENT.csv"
+    },
+    {
+      "file": "results/MORPHOLOGY/LOCKED_READINGS/CENTROIDS_READER2_META.json",
+      "sha256": "022ff01e191f7c60fe6c2e5b22f873d23aed438f216c26659ffd8a2cb6b2abdd",
+      "reference_commit": "",
+      "git_blob": "985a76afcad6b0f32fdd975ecba6c41162ecc6ad",
+      "origin_commitment": "CENTROIDS_READER2_COMMITMENT.csv"
+    },
+    {
+      "file": "results/MORPHOLOGY/LOCKED_READINGS/PRIMARY_READER2.csv",
+      "sha256": "2e8fd1de8c5f348cdd5bb71a91544478795adbb9d88691e03079741fbf83b2b7",
+      "reference_commit": "",
+      "git_blob": "e33310373e09cf4d6c9d1c5d74f94103558811ce",
+      "origin_commitment": "PRIMARY_READER2_COMMITMENT.csv"
+    },
+    {
+      "file": "results/MORPHOLOGY/LOCKED_READINGS/PRIMARY_READER2_META.json",
+      "sha256": "1552cb8afdda2788e0c5a4787bae0c770bbc0184aed07db99f42e9fc882db066",
+      "reference_commit": "",
+      "git_blob": "810d6d4e8800de5cc1547c893c2fce304a617fec",
+      "origin_commitment": "PRIMARY_READER2_COMMITMENT.csv"
+    },
+    {
+      "file": "results/MORPHOLOGY/LOCKED_READINGS/READING_READER1.csv",
+      "sha256": "fe9b537bc283de4755cf925404d793c0cb54854b406b87402ed1219c50e92589",
+      "reference_commit": "",
+      "git_blob": "814d6ec047a9eea99e664a07a9d091b2d348929c",
+      "origin_commitment": "READING_READER1_COMMITMENT.csv"
+    },
+    {
+      "file": "results/MORPHOLOGY/PRIMARY_READER2_COMMITMENT.csv",
+      "sha256": "a456d082853f386fdc7449b538801886008aa043f4fb13a68c167076369bfd55",
+      "reference_commit": "c70eb0dce47964e1d24e6acba4e0d81288a96805",
+      "git_blob": "c316d2a0d8845c487fb56e43d6e3f7f58636ad4a",
+      "origin_commitment": ""
+    },
+    {
+      "file": "results/MORPHOLOGY/READING_ORDER_READER1.csv",
+      "sha256": "496ede63483567bc8b663a8bfc6896f5da2d34fd4a0e61ac2a925b1cae2d600f",
+      "reference_commit": "c70eb0dce47964e1d24e6acba4e0d81288a96805",
+      "git_blob": "7143ac1104739498209c88d2fd4db8147b43ac0a",
+      "origin_commitment": ""
+    },
+    {
+      "file": "results/MORPHOLOGY/READING_ORDER_READER2.csv",
+      "sha256": "331edb9315515a6432a0715a84a9e0d58dd26c2bc9f551c6db58610d961f62ad",
+      "reference_commit": "c70eb0dce47964e1d24e6acba4e0d81288a96805",
+      "git_blob": "63b0dd1d867019bfa59966201d2797c3f5273a8f",
+      "origin_commitment": ""
+    },
+    {
+      "file": "results/MORPHOLOGY/READING_READER1_COMMITMENT.csv",
+      "sha256": "1159ed4663e608a634b6105ea8ecea9e77fab3cc08c9f44bdee45613ed17ad1f",
+      "reference_commit": "c70eb0dce47964e1d24e6acba4e0d81288a96805",
+      "git_blob": "0b6297e2bf789ea54b84097f3225c6fadf6fbd67",
+      "origin_commitment": ""
+    },
+    {
+      "file": "results/P1/P1_SBL_CATALOG_BY_HARP.csv",
+      "sha256": "67dc6a74a27b44f9ddd958f5a5dcc972a564300af89444c781665926ca0488af",
+      "reference_commit": "c70eb0dce47964e1d24e6acba4e0d81288a96805",
+      "git_blob": "72096cbfa3ef8f917723d83d1e7edba57db6a123",
+      "origin_commitment": ""
+    }
+  ],
+  "operational_rule": {
+    "reader1_groups_at_10pct": 2,
+    "conservative_groups_at_10pct": 2,
+    "source_condition_reader1": true,
+    "source_condition_conservative": true,
+    "primary_agreement_at_least_24": true,
+    "reader1_U_at_most_3": true,
+    "reader2_U_at_most_3": true,
+    "reader_changes_source_condition": false,
+    "all_operational_conditions_met": true,
+    "status": "propose_separate_representative_S_design_only"
+  },
+  "output_hashes": {
+    "AGREEMENT.csv": "203dbcd763960047158e976cf21cc124f243e60eef76ac1d8dcfc4bec742dbbb",
+    "CHECKS.csv": "fb326bfbd3965465137d8967a0b1572768b131c2f97b88d7596448191e9ba6f8",
+    "CLASS_SOURCE.csv": "807bb1ed757b507055406f8f7d25452f6fd1a736c62d1d098a60ea5a16c02912",
+    "COMPARISON.csv": "9811e58188f4720058a35105892437f82f5a3a3f9aad39569b2656c63d452ecb",
+    "COMPARISON_COMPOSITION.csv": "471817b0ba0e0c3272d70a5287cf10330615b9c8f49f5c99d8b9af6b0abfc55f",
+    "CONFUSION_C.csv": "8ae64ddaaeabe7549bcad0773531d7d17235242f59f434296544f2854a6405e5",
+    "CONFUSION_PRIMARY.csv": "bea7cb50e58b302c323b4b6c5f69e62af2e62b8c56f1cf536f2caef0e5b37e7c",
+    "HISTORICAL_25S_FROM_DOCUMENT.csv": "c89e61299e61d3ffa6900140c720828d1d95fc779247fa975b149a9c1e028f4b",
+    "LOCK_VERIFICATION.csv": "ee8c223c6cfd2639106608a75b1fbdb37b901b65aaef37382fa2ac2958f95c9d",
+    "PRIORITY_DECISION.csv": "6e0547de6a40cc178c9abdb105f8e252c38b66b963c75f9c7b5b2e1c4f647614",
+    "PRIORITY_GROUPS.csv": "0e527a69b7de5335d44170bb4a6383c947762164a29f21e50549c58f83992b00",
+    "REGISTER.csv": "93be6eb937c94f9080f2b91df366d48260321a1157583909e8232e007462fd77",
+    "SENSITIVITY_BY_CLASS.csv": "6fec613a256e6b7b9eba1d97f4f9d6cd0de8df23c8c2d5b4a1743b4aebcad504"
+  },
+  "versions": {
+    "numpy": "2.2.6",
+    "pandas": "2.3.3"
+  },
+  "limits": [
+    "Shared calibration and known project; independent of new labels before locks.",
+    "Historical 25S categories kept separate; no conversion to A2.",
+    "Selection is not representative of all P1 or S; no quenching test.",
+    "C agreement all30 includes matching NV; both-evaluable denominator separately reported.",
+    "Border judgement ancillary and visual, not a pixel-count audit."
+  ]
+}
