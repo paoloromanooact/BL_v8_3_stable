@@ -22,12 +22,14 @@ completo.
   di cui 101 appartengono anche al campione S di P2.
 - Le 20 dominanti portano il 21,5 % (24N), 29,9 % (24S), 29,1 % (25N) e 35,1 % (25S) di Σ|S_BL| del
   gruppo (denominatore: somma dei valori assoluti su tutta la base del gruppo).
-- Riproduzione: per tutte le 120 HARP i valori P1 sono riprodotti dai FITS (scarto relativo massimo
-  su S_BL 2·10⁻¹⁶; centroidi con pesi |Br| identici a `measure_v84`).
+- Riproduzione: per tutte le 120 HARP i valori P1 sono riprodotti dai FITS numericamente entro la
+  precisione macchina (scarto relativo massimo su S_BL 2·10⁻¹⁶; centroidi con pesi |Br| con scarto
+  nullo rispetto a `measure_v84`).
 
 ## 2. Livello 1 — segnalazioni (proprietà da esaminare, non errori)
 
-Numero di HARP con ciascun flag (dominanti su 20 / controlli su 10):
+Numero di HARP con ciascun flag (dominanti su 20 / controlli su 10; le due numerosità sono diverse,
+quindi si confrontano le frazioni n/20 e n/10, senza alcun test inferenziale):
 
 | Flag | 24N | 24S | 25N | 25S |
 |---|---|---|---|---|
@@ -46,10 +48,11 @@ Numero di HARP con ciascun flag (dominanti su 20 / controlli su 10):
 - R2 è «non disponibile» per 1 HARP (senza record di controllo valido); nessun caso «non valutabile».
 - Quota di Σ|S_BL| del gruppo portata da HARP esaminate con almeno una segnalazione di misura (M1–M3,
   P2, C1–C2): 13,6 % (24N), 22,2 % (24S), 22,8 % (25N), **29,6 % (25S)**. Per la regola del piano,
-  il gruppo **25S è una priorità di approfondimento** (> 25 %); questo non dimostra che la somma
-  cambi.
+  il gruppo **25S è una priorità di approfondimento** (> 25 %): una priorità operativa, non una
+  percentuale di errore nella serie; non dimostra che la somma cambi.
 - Le segnalazioni più frequenti tra le dominanti sono N1 (più regioni NOAA nella HARP), M2 e M3, cioè
-  regioni grandi e complesse: sono proprietà attese delle regioni più intense, non errori.
+  regioni grandi e complesse: sono segnalazioni che da sole non dimostrano errori; che riflettano
+  solo complessità fisica non è stabilito prima dell'esame visivo.
 
 ## 3. Livello 2 — sensibilità misurate (differenze ricalcolate)
 
@@ -73,30 +76,62 @@ rispetto a Σ|S_BL| e alla somma netta dell'intero gruppo. Vale solo per le HARP
 
 - Nei gruppi sud il segno di S_BL è negativo, quindi una variazione positiva rispetto a Σ|S_BL|
   riduce il modulo della somma netta.
+- **Compensazioni tra HARP.** La differenza netta Δ non misura l'instabilità delle singole HARP:
+  contributi di segno opposto si compensano. Aggregazione descrittiva aggiunta dopo la revisione
+  esterna (post hoc, non un criterio del piano): somma dei moduli delle differenze per HARP rispetto
+  a Σ|S_BL| del gruppo, contro la differenza netta.
+
+  | Gruppo | Soglia 300 G: netto / somma dei moduli | Bitmap ≥ 1: netto / somma dei moduli | Pesi uniformi: netto / somma dei moduli |
+  |---|---|---|---|
+  | 24N | −3,3 % / 6,1 % | −1,0 % / 3,4 % | −1,3 % / 3,0 % |
+  | 24S | +4,6 % / 10,2 % | −3,4 % / 5,5 % | −0,4 % / 2,6 % |
+  | 25N | −7,1 % / 9,7 % | +1,5 % / 3,4 % | +0,9 % / 2,8 % |
+  | 25S | +6,8 % / 9,7 % | **+0,09 % / 13,1 %** | +1,7 % / 5,7 % |
+
+  In 25S con bitmap ≥ 1 il netto è quasi nullo mentre la somma dei moduli è il 13,1 %: la somma
+  cambia poco perché le variazioni si compensano, non perché le singole misure siano stabili. I
+  contributi maggiori, di segno opposto, vengono dalle HARP 11786 (+3,64 % di Σ|S_BL|) e 11662
+  (−2,89 %), poi 12094 (−1,15 %), 11887 (+1,14 %) e 11930 (+0,92 %), tutte dominanti e in S: sono
+  casi influenti, non errori accertati.
 - **Soglia 300 G**: in 9 HARP su 120 il confronto è impossibile (una polarità senza pixel sopra
   300 G) e resta fuori dalla somma. La soglia più alta riduce il flusso contato (variazione relativa
-  di S_BL per HARP con mediana −32 %), quindi questa variante misura soprattutto la dipendenza di Φ
-  dalla soglia, che è una scelta del protocollo P1; le sue Δ (fino al 7,1 % di Σ|S_BL| e al 14,2 %
-  della somma netta) non indicano un errore.
+  per HARP: mediana −32,5 % su S_BL e −30,2 % su Φ nelle 111 confrontabili), coerente con un ruolo
+  importante del flusso, che è una scelta del protocollo P1; cambiano però anche i centroidi, e le
+  cause non sono separate per HARP. Le Δ a 300 G (fino al 7,1 % di Σ|S_BL| e al 14,2 % della somma
+  netta) non indicano un errore.
 - **Bitmap ≥ 1 e pesi uniformi**: Δ entro il 3,4 % di Σ|S_BL| e il 6,9 % della somma netta in tutti i
   gruppi; la HARP singola più influente sposta Σ|S_BL| del gruppo al massimo del 3,6 % (bitmap ≥ 1,
   25S).
-- Le sensibilità non certificano le HARP non esaminate (circa il 65–78 % di Σ|S_BL| di ogni gruppo).
+- Le sensibilità non certificano le HARP non esaminate (circa il 65–78 % di Σ|S_BL| di ogni gruppo),
+  né le somme per CR, l'efficienza, T3 o la scala assoluta della sorgente rispetto a BARD.
 
 ## 4. Livello 3 — errori confermati
 
-**Nessun errore confermato.** Un errore richiede un'evidenza specifica per HARP (per esempio una
-maschera che include campo di un'altra regione visibile nella scheda, o polarità invertite rispetto
-alla mappa); l'esame visivo delle 120 schede non è stato ancora fatto. Le schede sono in
-`figures/DOMINANT/`; l'esame, se si fa, va documentato HARP per HARP con il motivo.
+**Nessun errore confermato finora dai controlli automatici; verifica visiva non eseguita.** Un errore
+richiede un'evidenza specifica per HARP (per esempio una maschera che include campo di un'altra
+regione visibile nella scheda, o polarità invertite rispetto alla mappa). Le schede sono in
+`figures/DOMINANT/`; l'esame visivo, documentato HARP per HARP con il motivo, è in
+`docs/DOMINANT_HARP_VISUAL_25S.md` per il gruppo 25S (§6).
 
 ## 5. Che cosa si può dire
 
 - Le regioni dominanti sono soprattutto HARP grandi e complesse (più regioni NOAA, flusso fuori
-  maschera, multipolarità): sono segnalazioni attese, non errori.
-- Con le varianti di maschera e di pesatura dei centroidi, le somme dei gruppi cambiano poco nelle
-  HARP esaminate (≤ 3,4 % di Σ|S_BL|); la soglia su |Br| cambia di più, come atteso perché cambia il
-  flusso contato.
+  maschera, multipolarità): segnalazioni che da sole non dimostrano errori.
+- Con le varianti di maschera e di pesatura dei centroidi, le **somme firmate** dei gruppi cambiano
+  poco nelle HARP esaminate (≤ 3,4 % di Σ|S_BL|), ma per compensazione: le variazioni per HARP
+  sommate in modulo arrivano al 13,1 % (25S, bitmap ≥ 1). La soglia su |Br| cambia di più, con un
+  ruolo importante del flusso contato.
 - Il gruppo 25S supera la soglia di priorità del 25 %: è il primo candidato per un esame visivo
   delle schede e, solo con errori confermati o sensibilità rilevanti, per un piano di emendamento a
   P1. Nessun emendamento scatta da questi flag.
+
+## 6. Revisione esterna (2026-11-13, ZIP `9344e14`, SHA-256 `0c307451…`)
+
+101 controlli superati con uno script indipendente (campione, ordinamenti ed estrazioni ricostruiti
+dal catalogo, flag ricalcolati dalle quantità salvate, provenienza, piano e codice immutati, SHA-256 dei
+240 FITS coincidenti); nessun esame visivo e nessuna riesecuzione di `measure_v84`. Richieste recepite
+senza cambiare output: compensazioni tra HARP esplicitate (§3), «segnalazioni che da sole non
+dimostrano errori», «nessun errore confermato finora dai controlli automatici», riproduzione «entro la
+precisione macchina», frazioni n/20 e n/10, soglia del 25 % come priorità operativa, nessuna
+attribuzione esclusiva al flusso per la soglia 300 G, nessuna convalida del resto della serie.
+Passo successivo consigliato dal revisore: esame visivo delle 30 schede di 25S, documentato per HARP.
