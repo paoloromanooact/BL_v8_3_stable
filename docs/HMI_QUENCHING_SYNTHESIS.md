@@ -49,13 +49,14 @@ Fonti: [sensibilità P2f](P2F_RESULTS.md#3-sensibilità-stesse-formule-non-valid
 
 ## 4. Due priorità HMI, con scopi distinti
 
-1. **T5: candidato prioritario per una risposta sull'efficienza.** Preparare
-   il piano della diagnosi mirata del fallimento sui salti: stima della scala,
-   forma della covarianza, componente individuale e code dell'intervallo sono
-   ipotesi da separare. La [traccia diagnostica](T5_JUMPS_DIAGNOSTIC_DESIGN.md)
-   propone prima l'uso degli output sintetici esistenti, senza nuovi dati reali.
-   Un metodo successivo richiederebbe protocollo e validazione indipendente;
-   nessuna garanzia di successo e nessuna esclusione dello scenario 7.
+1. **T5: priorità scelta per una risposta sull'efficienza.** La bozza
+   [T5-D1](PROTOCOL_T5_DIAGNOSTIC_SAVED_OUTPUTS.md) specifica la prima diagnosi
+   dagli output sintetici già salvati: bias, scala, code e rapporto errore–SE.
+   Nessun nuovo calcolo eseguito; piano da rivedere e congelare prima del codice.
+   La [traccia generale](T5_JUMPS_DIAGNOSTIC_DESIGN.md) conserva le domande sulla
+   separazione delle componenti individuale e temporale, che questa prima fase
+   non può risolvere da sola. Un metodo successivo richiederebbe protocollo e
+   validazione indipendente; nessuna esclusione dello scenario 7.
 2. **Morfologia: interpretabilità della misura.** Completare, dopo revisione
    e congelamento del piano, le letture delle 90 schede mancanti. Versioni
    prive di diagnostiche numeriche, ordine casuale e seconda lettura indipendente

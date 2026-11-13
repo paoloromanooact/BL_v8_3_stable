@@ -2,6 +2,14 @@
 
 ## v8.4 (Python, branch `v8.4-python-gianluca`) — in corso
 
+- 2026-11-13: preparata la bozza completa T5-D1 per la diagnosi del fallimento
+  sui salti dagli output sintetici P2f salvati: 17 gruppi previsti, formule,
+  denominatori/code, prodotti, controlli e arresto fissati per revisione.
+  Lista degli otto input/riferimenti con hash e blob Git; nessun codice
+  diagnostico o analisi eseguiti. T5 resta descrittivo; le componenti vere
+  richiederebbero controlli separati. Aggiornata la priorità nel passaggio
+  di consegne. Protocollo ancora da rivedere e congelare, nessun push richiesto.
+
 - 2026-11-13: recepita la revisione del riordino HMI. Bozza morfologica rev. 2:
   mappe senza annotazioni di esito, ordine casuale, seconda lettura di 30 casi,
   morfologia primaria separata dall'indicatore dei centroidi e regola operativa

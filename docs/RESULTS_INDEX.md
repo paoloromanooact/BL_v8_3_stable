@@ -21,7 +21,10 @@ Sintesi correnti HMI: [misura](HMI_MEASUREMENT_ASSESSMENT.md) e
 [quenching](HMI_QUENCHING_SYNTHESIS.md). La [bozza morfologica](PROTOCOL_HMI_MORPHOLOGY_DRAFT.md)
 propone un nuovo controllo descrittivo, con letture separate e concordanza;
 non contiene nuovi risultati. La [traccia T5 sui salti](T5_JUMPS_DIAGNOSTIC_DESIGN.md)
-è un documento di progettazione, non un'analisi già eseguita.
+è un documento di progettazione. La prima fase è specificata in
+[T5-D1](PROTOCOL_T5_DIAGNOSTIC_SAVED_OUTPUTS.md) e nella
+[lista input con hash](T5_DIAGNOSTIC_INPUTS_SHA256.csv): bozza non congelata,
+nessuna analisi già eseguita.
 
 | Elemento | File | Dati tracciati / input | Script | Commit | Stato |
 |---|---|---|---|---|---|

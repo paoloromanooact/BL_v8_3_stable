@@ -17,20 +17,26 @@ Sono pronti i documenti di lavoro:
 - `docs/PROTOCOL_HMI_MORPHOLOGY_DRAFT.md`: bozza limitata alle 120 schede già
   prodotte (30 25S storiche, 90 da leggere). Nessuna nuova classificazione,
   selezione o aggregazione eseguita; nessun protocollo nuovo congelato.
-- `docs/T5_JUMPS_DIAGNOSTIC_DESIGN.md`: traccia di diagnosi del blocco
-  metodologico dell’efficienza, ancora da trasformare in protocollo.
+- `docs/T5_JUMPS_DIAGNOSTIC_DESIGN.md`: traccia del blocco metodologico T5;
+- `docs/PROTOCOL_T5_DIAGNOSTIC_SAVED_OUTPUTS.md`: bozza completa T5-D1,
+  con lista input `docs/T5_DIAGNOSTIC_INPUTS_SHA256.csv`, da rivedere e congelare
+  prima del codice diagnostico. Nessuna nuova analisi eseguita.
 
 T3 è già applicato una volta: −3,59° per unità di attività, intervallo nominale
 97,5% [−10,58°; +3,41°], **non deciso**. T5 non è validato e resta descrittivo.
 Le sensibilità non sono nuove conferme. Il filtro S4 «una NOAA» non è una
 classificazione di bipoli. Nessuna nuova applicazione di T3 o modifica a P1.
 
-**Due candidati prioritari:**
-- **T5, per l'efficienza:** registrare il protocollo della diagnosi mirata
-  del fallimento sui salti, a partire dalla traccia non congelata
-  `docs/T5_JUMPS_DIAGNOSTIC_DESIGN.md`. Nessun nuovo calcolo avviato. Output e
-  semi P2f diventano materiale di sviluppo T5; un metodo modificato richiede
-  una nuova validazione indipendente.
+**Priorità corrente e percorso complementare:**
+- **T5, scelto dall'utente come prossimo lavoro:** bozza T5-D1 pronta per
+  revisione e congelamento, prima del codice. Usa solo output sintetici P2f
+  esistenti: 17 gruppi previsti, 74000 righe T5 comprese quelle errore;
+  bias, scala di SE, quantili/code e dipendenza errore–SE. Nessun fit,
+  simulazione o risposta reale. Definizioni esplicite delle due code e della
+  statistica centrata sotto effetto. Questo passo non può separare la varianza
+  individuale e temporale vera: eventuali oracoli richiedono un piano distinto.
+  Output e semi P2f sono sviluppo T5; un metodo modificato richiede una nuova
+  validazione indipendente. Nessun nuovo calcolo avviato.
 - **Morfologia, per interpretare la misura:** rivedere e congelare la bozza
   revisione 2 prima di figure o letture. Sono proposti mappe senza risultati
   numerici, ordine casuale, seconda lettura indipendente di 30 casi e due
@@ -52,9 +58,10 @@ dell'utente. Nessun push senza richiesta. Preservare il CSV non tracciato
 > Riprendi SHARP BL in /home/gianluca/BL_v8_3_stable. Leggi AGENTS.md,
 > questa sezione e i documenti HMI indicati sopra. Verifica Git. MDI e
 > degradazione rinviati. T3 già eseguito, non deciso; T5 descrittivo. Il passo
-> proposto è scegliere fra il piano diagnostico T5 sui salti e la revisione
-> finale della bozza morfologica. Entrambi richiedono un piano congelato prima
-> di eseguire nuove analisi; nessuna simulazione o nuovo fit è avviato.
+> scelto è la diagnosi T5 dagli output già salvati. La bozza completa è
+> docs/PROTOCOL_T5_DIAGNOSTIC_SAVED_OUTPUTS.md, con lista input associata;
+> rivederla e congelarla prima del codice. Nessuna analisi nuova, simulazione
+> o fit è avviato. La morfologia resta un percorso complementare.
 > Prima consigliami il modello e attendi la mia scelta. Nessun push richiesto.
 
 ---
