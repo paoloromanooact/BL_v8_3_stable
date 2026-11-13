@@ -38,3 +38,15 @@ decidere, nessuna applicata):
    nella regola per lo studio successivo.
 3. **Emendamento che assegna a D** le configurazioni di sola plage frammentata in più isole senza
    macchie, riservando B a sistemi con concentrazioni forti. Più conservativo per la regola del 10 %.
+
+## Decisione registrata (emendamento A2)
+
+Scelta l'opzione 2, motivata dall'organizzazione del campo e non dalle conseguenze sui risultati
+(`docs/PROTOCOL_HMI_MORPHOLOGY_A2.md`). Le classificazioni originali restano invariate; la colonna
+seguente riporta la classe secondo la regola emendata, decisa in comune dopo il confronto.
+
+| Codice | Lettore 1 (originale) | Lettore 2 (originale) | Secondo A2 (decisione comune) |
+|---|---|---|---|
+| R11 | U: B o D | U: B o D | B |
+
+Le altre dieci schede non cambiano con A2 (A resta A, B resta B, D quasi unipolare resta D).
