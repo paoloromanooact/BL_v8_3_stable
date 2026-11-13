@@ -1,5 +1,18 @@
 # Cold restart — SHARP BL
 
+## Morfologia: lettore 2, secondo passaggio bloccato — 2026-11-13
+
+Il lettore 2 (gpt-6.1-sol, ragionamento alto richiesto) ha completato i
+30 indicatori C e le note visive sul contatto della maschera con il bordo.
+Sono in `results/MORPHOLOGY/private/CENTROIDS_READER2.csv`, con metadati
+separati; impegni pubblici in `CENTROIDS_READER2_COMMITMENT.csv` e descrizione
+in `docs/MORPHOLOGY_READER2_CENTROIDS_RECEIPT.md`. Avvio dopo il blocco delle
+classi primarie di entrambi. File primari e taratura del lettore 2 invariati
+nei loro hash. Nessuna etichetta del lettore 1 o corrispondenza codice–HARP
+consultata. I giudizi C restano privati fino al blocco del lettore 1; poi
+confronto originale prima della discussione dei disaccordi. Nessun push.
+
+
 ## Morfologia: lettore 2, 30 classi primarie bloccate — 2026-11-13
 
 Questa sessione Codex (`gpt-6.1-sol`, ragionamento alto richiesto) ha letto

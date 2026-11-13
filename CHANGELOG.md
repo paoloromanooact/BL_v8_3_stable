@@ -2,6 +2,12 @@
 
 ## v8.4 (Python, branch `v8.4-python-gianluca`) — in corso
 
+- 2026-11-13: lettore 2, secondo passaggio sui 30 casi con centroidi,
+  successivo ai blocchi primari di entrambi i lettori. Indicatore C e
+  contatto visivo della maschera con il bordo in un file distinto, bloccato
+  con hash pubblico e contenuti privati. Classi primarie e taratura
+  originali verificate invariate; nessun confronto con le etichette altrui.
+
 - 2026-11-13: lettore 2, 30 classi morfologiche primarie sotto A2 registrate
   nell'ordine fissato e bloccate con hash prima di accedere alle etichette
   del lettore 1 o alle immagini con centroidi. Classi e metadati privati,
