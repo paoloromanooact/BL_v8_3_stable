@@ -159,11 +159,14 @@ si adottano.
 
 ---
 
-**Aggiornamento 2026-11-13 (pomeriggio):** dopo T5-D1 (`1b52769`, pubblicato) è pronta la **bozza
-non congelata del piano T5-D2** (`docs/PROTOCOL_T5_ORACLE.md`): bracci oracolo sugli stessi
-cataloghi della validazione (varianza individuale vera, covarianza temporale vera dei salti
-K(τ) = max(0, 1 − |τ|/L), entrambe), con riproduzione A0 come porta e regole di lettura fissate prima.
-Da rivedere e congelare prima del codice; nessun calcolo avviato.
+**Aggiornamento 2026-11-13 (pomeriggio):** dopo T5-D1 (`1b52769`) il piano T5-D2 dei controlli oracolo
+(`docs/PROTOCOL_T5_ORACLE.md`) è stato **congelato in `f77d39b` senza revisione esterna**, perché
+l'utente era assente e aveva chiesto di procedere. La revisione esterna successiva ha portato
+l'**emendamento A1** (`docs/PROTOCOL_T5_ORACLE_A1.md`): A1 diviso in A1a (sola varianza individuale
+vera, parametri temporali di A0) e A1b (con ristima REML), regole di lettura come compatibilità e
+non come attribuzione causale, A2' come approssimazione AR(1) lag per lag con il limite κ = 0,98.
+A1 è non cieco rispetto a una prova tecnica su 4 cataloghi. Poi codice, controlli preliminari,
+esecuzione unica, controllo indipendente e risultati; T5 resta descrittivo.
 
 ---
 
