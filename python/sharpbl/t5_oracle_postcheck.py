@@ -387,7 +387,10 @@ def finished(log):
 
 def receipt_ok(path, code_sha, spec_sha):
     x = json.loads(path.read_text())
-    return (x.get("all_passed") is True and integer(x.get("tests", 0)) >= 30
+    rows = read_csv(path.parent / "SELFTEST.csv")
+    return (x.get("all_passed") is True and integer(x.get("tests", 0)) == len(rows) >= 30
+            and all(r.get("passed") == "True" for r in rows)
+            and len({r.get("test") for r in rows}) == len(rows)
             and x.get("code_sha256") == code_sha and x.get("spec_sha256") == spec_sha
             and x.get("selftest_sha256") == sha(path.parent / "SELFTEST.csv"))
 
@@ -587,22 +590,50 @@ def selftest(out):
     for name,i,mut,target in mutations:
         obj=copy.deepcopy(base);mut(obj[i]);bad=audit_tables(*obj)
         add(name,any(x["check"]==target and not x["passed"] for x in bad.checks),[x["check"] for x in bad.checks if not x["passed"]])
-    # Valid coverage endpoints are closed; verdict boundaries at zero are undecided.
+    # Test the validator at closed endpoints, including a zero endpoint for verdicts.
     for which in ("lo","hi"):
-        raw=copy.deepcopy(base[0]);r=next(x for x in raw if x["arm"]=="A3")
-        b=number(r["beta_true"])+(Q*number(r["se"]) if which=="lo" else -Q*number(r["se"]))
-        # Set the endpoint explicitly to avoid pretending subtraction rounds exactly.
-        r.update(beta=b,lo=number(r["beta_true"]) if which=="lo" else b-Q*number(r["se"]),
-                 hi=number(r["beta_true"]) if which=="hi" else b+Q*number(r["se"]))
-        add("closed_coverage_"+which,number(r["lo"])<=number(r["beta_true"])<=number(r["hi"]))
+        raw=copy.deepcopy(base[0]); j=key(raw[0])[:-1]
+        b=(Q*ETA if which=="lo" else -Q*ETA)
+        target=None
+        for r in raw:
+            if key(r)[:-1]!=j:continue
+            se=number(r["se"]); lo,hi=b-Q*se,b+Q*se
+            if r["arm"]=="A3":
+                if which=="lo":lo=0.0
+                else:hi=0.0
+                target=r
+            r.update(beta=b,lo=lo,hi=hi,covered=int(lo<=0<=hi),below=int(lo>0),above=int(hi<0),
+                verdict="supportato" if hi<0 else "opposto" if lo>0 else "non deciso")
+        edge=Audit()
+        try:verify_raw(edge,raw,base[5])
+        except StopAudit:pass
+        add("closed_coverage_"+which,all(x["passed"] for x in edge.checks) and target["verdict"]=="non deciso")
+        target.update(covered=0,below=int(which=="lo"),above=int(which=="hi"))
+        edge=Audit()
+        try:verify_raw(edge,raw,base[5])
+        except StopAudit:pass
+        add("reject_open_endpoint_"+which,any(x["check"]=="raw_coverage_tails" and not x["passed"] for x in edge.checks))
     with tempfile.TemporaryDirectory() as td:
         t=Path(td);p=t/"table.csv"
+        # Exercise every parsed numeric/key/provenance field after actual CSV/GZIP IO.
+        frames=[]
+        for i in (0,1,2,4):
+            f=t/f"fixture_{i}.csv";write_csv(f,base[i])
+            if i==0:
+                gz=f.with_suffix(".csv.gz")
+                with gzip.open(gz,"wb") as z:z.write(f.read_bytes())
+                f=gz
+            frames.append(read_csv(f))
+        roundtrip=audit_tables(frames[0],frames[1],frames[2],json.loads(json.dumps(base[3])),
+                               frames[3],base[5],base[6],base[7])
+        add("full_csv_gzip_roundtrip",all(r["passed"] for r in roundtrip.checks))
         write_csv(p,[dict(kind="null",beta="0",note="")]);add("csv_preserves_null",read_csv(p)[0]["kind"]=="null")
         p=t/"log";p.write_text("2000/32000 cataloghi\n")
         add("unfinished_log_rejected_without_output_read",not finished(p))
         p.write_text("32000/32000 cataloghi\nfatto\n");add("finished_marker_accepted",finished(p))
-        p=t/"receipt.json";write_csv(t/"SELFTEST.csv",[dict(test="fixture",passed=True)])
+        p=t/"receipt.json";write_csv(t/"SELFTEST.csv",[dict(test=f"fixture_{i}",passed=True) for i in range(50)])
         p.write_text(json.dumps(dict(all_passed=True,tests=50,code_sha256="wrong",spec_sha256="spec",selftest_sha256=sha(t/"SELFTEST.csv"))))
+        add("valid_selftest_receipt",receipt_ok(p,"wrong","spec"))
         add("stale_selftest_code_rejected",not receipt_ok(p,"code","spec"))
         add("stale_selftest_spec_rejected",not receipt_ok(p,"wrong","different"))
         (t/"docs").mkdir(); (t/SPEC).write_text("hand-built specification")
