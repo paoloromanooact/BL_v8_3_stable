@@ -1,5 +1,14 @@
 # Cold restart — SHARP BL
 
+## T5-D2: specifica del controllo separato registrata — 2026-11-13
+
+Prima del nuovo codice, registrati `docs/T5_ORACLE_POSTCHECK_SPEC.md` e la
+fotografia SHA-256 degli input. Nasce dalla revisione del sorgente: parsing
+di `null` e controlli incompleti nel verificatore storico. Nessun output
+scientifico T5-D2 letto, nessuna simulazione o modifica al produttore.
+Prossimo: implementare e provare il verificatore su casi costruiti a mano;
+non eseguirlo ancora sulla corsa. T5 resta descrittivo. Nessun push.
+
 ## Morfologia: verifica interna del rapporto conclusa — 2026-11-13
 
 Il rapporto `84099c2` è stato riesaminato dal medesimo autore con un codice
