@@ -45,7 +45,10 @@ richiesta dell'utente il 2026-11-13** (`e6f7419`). Poi **verifica di riproducibi
 (`docs/REPRO_PHASE1_RESULTS.md`): i 5 CSV delle figure P1 rigenerati byte-identici da `120f852`;
 comparatore corretto due volte prima dei confronti successivi (regola §2 sulle chiavi mancanti; NUL
 rifiutati e confronti esatti senza float64 dopo la revisione esterna), tre confronti conservati.
-Prossimo: studio MDI/SMARP in bozza, nota per Paolo, eventuali fasi successive di riproducibilità.
+Poi **studio di fattibilità MDI/SMARP** completato (`docs/MDI_SMARP_FEASIBILITY.md`): fonti primarie
+verificate, tabella delle differenze strumentali, 11 questioni da verificare; esito: fattibilità
+plausibile, confrontabilità e guadagno statistico non misurati; passo consigliato: esperimento solo
+HMI (Br contro LOS/μ e LOS degradato a MDI). Prossimo: revisione esterna dello studio, nota per Paolo.
 
 **(Storico) Dopo:** controllo delle HARP dominanti (piano `f805c5a`, codice pronto, prova tecnica in
 `results/DOMINANT_TRIAL_2HARP/`; eseguire da commit pulito con
@@ -63,7 +66,7 @@ si adottano.
 > v8.4-python-gianluca. Leggi AGENTS.md e docs/HANDOFF.md (sezione "Passaggio di consegne del
 > 2026-11-13"), poi docs/P2F_VALIDATION_RESULTS.md e docs/PROTOCOL_P2F_VALIDATED_TEST.md §7.
 > Verifica lo stato di Git. T3 è già stato applicato ai dati reali (docs/P2F_RESULTS.md); prossimo
-> passo: studio MDI/SMARP (docs/MDI_SMARP_FEASIBILITY.md, bozza) o nota per Paolo. Prima di ogni compito consigliami il modello e aspetta. Non fare il push senza
+> passo: revisione esterna di docs/MDI_SMARP_FEASIBILITY.md, poi nota per Paolo. Prima di ogni compito consigliami il modello e aspetta. Non fare il push senza
 > la mia richiesta.
 
 ---

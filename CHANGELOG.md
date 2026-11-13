@@ -94,6 +94,11 @@
   `results/P2F_PILOT/DESIGN_CHECKS.csv` (`p2f_checks.py design`), controllo di finitezza e
   riconteggio indipendente da eseguire prima dell'interpretazione (`p2f_checks.py raw`, output
   del pilota mai modificati).
+- 2026-11-13, studio di fattibilità MDI/SMARP completato (documentale, nessun dato scaricato): fonti
+  primarie (Bobra et al. 2021, Liu et al. 2012, Scherrer et al. 1995, Schou et al. 2012, Bobra et al.
+  2014, Hoeksema et al. 2014, BARD), differenze strumentali (solo LOS in MDI, sovrapposizione
+  maggio–ottobre 2010, griglia 0,12° contro 0,03°, MDI = −0,18 + 1,40 × HMI, rumore circa 4 volte),
+  11 questioni aperte e percorso proposto. `docs/MDI_SMARP_FEASIBILITY.md`.
 - 2026-11-13, verifica di riproducibilità fase 1 (piano `0f51e61`): `figures_p1.py` di `120f852` in un
   clone pulito e in un ambiente separato rigenera i 5 CSV delle figure P1 (e i 3 PNG) byte-identici;
   confronto formale superato dopo una correzione dichiarata del comparatore (chiavi mancanti per schema,
