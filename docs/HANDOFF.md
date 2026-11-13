@@ -1,5 +1,19 @@
 # Cold restart — SHARP BL
 
+## Morfologia: lettore 2, 30 classi primarie bloccate — 2026-11-13
+
+Questa sessione Codex (`gpt-6.1-sol`, ragionamento alto richiesto) ha letto
+le 30 sole mappe nell'ordine `READING_ORDER_READER2.csv`, applicando A2.
+Classi e motivazioni in `results/MORPHOLOGY/private/PRIMARY_READER2.csv`;
+metadati nel file `PRIMARY_READER2_META.json`. Hash pubblici in
+`results/MORPHOLOGY/PRIMARY_READER2_COMMITMENT.csv`, registrazione in
+`docs/MORPHOLOGY_READER2_PRIMARY_RECEIPT.md`. Nessuna etichetta o riepilogo
+delle 90 nuove del lettore 1 consultato; corrispondenza codice–HARP non
+aperta; nessuna immagine con centroidi aperta. Le classi restano private
+per non influenzare il lettore 1. Prima dei centroidi verificare il blocco
+di entrambe le letture primarie. Gli originali non si modificano. Nessun push.
+
+
 ## Taratura morfologica lettore 2 — 2026-11-13
 
 Le 11 mappe di riferimento sono state lette da questa sessione Codex,

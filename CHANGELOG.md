@@ -2,6 +2,12 @@
 
 ## v8.4 (Python, branch `v8.4-python-gianluca`) — in corso
 
+- 2026-11-13: lettore 2, 30 classi morfologiche primarie sotto A2 registrate
+  nell'ordine fissato e bloccate con hash prima di accedere alle etichette
+  del lettore 1 o alle immagini con centroidi. Classi e metadati privati,
+  impegni pubblici; controllati codici, ordine, hash e blob degli ingressi.
+  Nessuna modifica alle regole o ai file della taratura gia bloccati.
+
 - 2026-11-13: taratura individuale del lettore 2 sulle sole 11 mappe
   morfologiche di riferimento; modello gpt-6.1-sol, ragionamento alto
   richiesto. Classi e motivazioni bloccate fuori da Git prima del confronto,
