@@ -94,6 +94,10 @@
   `results/P2F_PILOT/DESIGN_CHECKS.csv` (`p2f_checks.py design`), controllo di finitezza e
   riconteggio indipendente da eseguire prima dell'interpretazione (`p2f_checks.py raw`, output
   del pilota mai modificati).
+- 2026-11-13, esame visivo delle 30 schede del gruppo 25S (un solo lettore): nessun errore confermato;
+  classificazione per HARP (bipolo singolo, complesso multiregione, centroide tra regioni, quasi
+  unipolare); le classi non sono errori e non autorizzano azioni sul catalogo.
+  `docs/DOMINANT_HARP_VISUAL_25S.md`.
 - 2026-11-13, controllo delle HARP dominanti (piano `f805c5a`, esecuzione su `1a22e09`): 120 HARP
   (20 dominanti + 10 controlli per ciclo × emisfero), valori P1 riprodotti; segnalazioni frequenti di
   complessità (più regioni NOAA, flusso fuori maschera, multipolarità); sensibilità a maschera e
