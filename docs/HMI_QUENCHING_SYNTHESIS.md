@@ -54,16 +54,16 @@ Fonti: [sensibilità P2f](P2F_RESULTS.md#3-sensibilità-stesse-formule-non-valid
    superati. Nei salti di 20 CR, media(SE²)/varianza empirica vale circa 0,86;
    il bias è piccolo rispetto alla dispersione e la forma delle code conta.
    La componente responsabile non è identificata: [risultati](T5_DIAGNOSTIC_RESULTS.md).
-   Dopo revisione, il passo motivato è eventualmente un piano distinto con
-   componenti del generatore note. Nessuna correzione o nuova applicazione reale;
-   un metodo successivo richiede protocollo e validazione indipendente.
-2. **Morfologia: interpretabilità della misura.** Completare, dopo revisione
-   e congelamento del piano, le letture delle 90 schede mancanti. Versioni
-   prive di diagnostiche numeriche, ordine casuale e seconda lettura indipendente
-   di 30 casi; descrizione della sola mappa prima di vedere i centroidi.
-   [Bozza revisionata](PROTOCOL_HMI_MORPHOLOGY.md). Una regola operativa
-   proposta delimita quando progettare uno studio sulla popolazione S; non
-   autorizza un nuovo fit o l'eliminazione di HARP complesse.
+   Il seguito è [T5-D2](PROTOCOL_T5_ORACLE.md), con A1, avviato nell'altra
+   sessione con componenti note. I suoi output non sono stati esaminati in
+   questo lavoro. Nessuna correzione o nuova applicazione reale; un metodo
+   successivo richiede protocollo e validazione indipendente.
+2. **Morfologia: controllo completato.** Le 90 letture nuove e le 30
+   doppie sono bloccate; accordo primario 24/30, C 23/27 nei casi valutabili
+   da entrambi. [Risultati](MORPHOLOGY_RESULTS.md): condizioni operative
+   soddisfatte per la sola proposta di uno studio distinto su S; nessuna
+   esclusione, nuovo fit o interpretazione delle classi come errori. Le quote
+   di sorgente dei casi esaminati non stimano la prevalenza nell'intera serie.
 
 La morfologia affronta solo indirettamente il quenching. Un sottocampione
 ridurrebbe i dati disponibili, ma la sua potenza non è determinata dal solo

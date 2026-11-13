@@ -140,9 +140,13 @@ I dati non sono in Git. `data/sharp` può essere un link a un disco capiente
   17 gruppi e 74000 righe. Nei salti di 20 CR emerge una carenza di scala;
   le componenti responsabili restano da separare (`docs/T5_DIAGNOSTIC_RESULTS.md`).
   T5 resta descrittivo, senza nuova applicazione reale.
-- [ ] Revisione di T5-D1, poi eventuale piano per componenti note. Controllo
-  morfologico complementare ancora in bozza (`docs/PROTOCOL_HMI_MORPHOLOGY.md`),
-  nessuna nuova lettura avviata. Stato in `docs/HANDOFF.md`.
+- [x] Controllo morfologico A2: 90 nuove letture e 30 doppie, classi primarie
+  coincidenti in 24/30; C coincide in 23/27 casi entrambi valutabili.
+  Quote della sorgente e sensibilità per classe riportate separatamente da
+  25S storico (`docs/MORPHOLOGY_RESULTS.md`). Regola operativa soddisfatta
+  per la sola proposta di uno studio distinto su S; nessuna esclusione.
+- [ ] Revisione dei risultati morfologici; T5-D2 seguito nell'altra sessione.
+  Stato corrente in `docs/HANDOFF.md`.
 
 ## Ancillari
 

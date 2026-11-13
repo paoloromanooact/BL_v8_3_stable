@@ -16,6 +16,7 @@ concordata è HMI; MDI/SMARP e l'esperimento di degradazione sono rinviati.
 | Efficienza della sorgente, T5 | **non validato** per il fallimento sui salti di livello; resta descrittivo |
 | Diagnosi T5-D1 | esecuzione unica su 74000 righe sintetiche salvate; 201 controlli superati. Carenza di scala nello scenario 7, attribuzione alle componenti ancora aperta |
 | HARP dominanti | 120 controllate numericamente; 30 schede 25S esaminate, nessun errore macroscopico riconosciuto; interpretazione del tilt più debole nei complessi |
+| Morfologia HMI A2 | completata: 90 nuove letture, 30 doppie; accordo primario 24/30, C 23/27 casi entrambi valutabili; condizioni operative per la sola proposta di uno studio distinto su S soddisfatte |
 | Riproducibilità fase 1 | cinque CSV delle figure P1 rigenerati byte-identici, condizionatamente agli input distribuiti; non verifica tutta la catena |
 
 La misura è al record selezionato vicino al meridiano centrale, non
@@ -25,11 +26,12 @@ separate. Le classi complesse non autorizzano esclusioni a posteriori.
 
 Quadro operativo: [misura HMI](HMI_MEASUREMENT_ASSESSMENT.md),
 [quenching e sensibilità](HMI_QUENCHING_SYNTHESIS.md),
-[bozza di controllo morfologico](PROTOCOL_HMI_MORPHOLOGY.md).
-La bozza morfologica revisionata non è congelata né eseguita. Candidato
-prioritario accanto alla morfologia: revisione dei
-[risultati T5-D1](T5_DIAGNOSTIC_RESULTS.md), poi eventuale piano distinto con
-componenti note. Nessuna nuova procedura validata. MDI resta una possibile estensione futura,
+[risultati del controllo morfologico](MORPHOLOGY_RESULTS.md).
+Il controllo morfologico è concluso, senza classi concordate o modifiche
+alla serie. Il passo consentito è proporre un piano separato su S, non
+avviarlo automaticamente. Resta distinto il percorso T5: D1 ha motivato il piano
+[T5-D2](PROTOCOL_T5_ORACLE.md), con A1, seguito nell'altra sessione;
+i suoi output non sono stati esaminati nel lavoro morfologico. Nessuna nuova procedura validata. MDI resta una possibile estensione futura,
 subordinata alla confrontabilità e al beneficio statistico atteso.
 Prossimi passi e cronologia:
 [HANDOFF](HANDOFF.md). Risultati originali: [indice](RESULTS_INDEX.md).

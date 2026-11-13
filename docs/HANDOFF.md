@@ -1,5 +1,31 @@
 # Cold restart — SHARP BL
 
+## Morfologia HMI conclusa — 2026-11-13
+
+Confronto dei lettori e tabelle finali completati; rapporto
+`docs/MORPHOLOGY_RESULTS.md`, dati `results/MORPHOLOGY/ANALYSIS/`.
+229 verifiche superate; dieci impegni hash verificati prima del confronto,
+originali intatti e copie pubblicate in `LOCKED_READINGS/`. Corrispondenza
+codice–HARP pubblicata con hash originale. Codice/input `5d9094a`, primo
+tentativo fermato dal controllo di unicita sui codici storici vuoti e
+conservato; correzione `744eeec` prima del tentativo completato; output
+`b660836` prima dell'interpretazione.
+
+Classi primarie: 24/30 coincidenti, esattamente il minimo operativo; U
+2/30 per lettore 1 e 3/30 per lettore 2. C: 24/30 sulle tre categorie
+(incluso un NV concorde), 23/27 sui casi valutabili da entrambi. Quote B
+del proxy totale del gruppo: 8,10%, 15,19%, 16,19% in 24N, 24S, 25N;
+conteggio conservativo 7,09%, 15,186%, 16,194%. Regola soddisfatta in due
+gruppi su tre: consente soltanto di proporre un piano distinto su S.
+Nessuna classe di consenso o esclusione; 25S storico mantenuto separato.
+Il compito si arresta qui. Prossimo: revisione del rapporto; nessun nuovo
+studio su S o quenching avviato. T5-D2 gestito dall'altra sessione,
+output non letti in questo lavoro. T3/T5 invariati. Nessun push.
+
+Le sezioni di passaggio precedenti sotto sono cronologiche e superate
+quanto allo stato delle letture morfologiche.
+
+
 ## Morfologia: lettore 2, secondo passaggio bloccato — 2026-11-13
 
 Il lettore 2 (gpt-6.1-sol, ragionamento alto richiesto) ha completato i

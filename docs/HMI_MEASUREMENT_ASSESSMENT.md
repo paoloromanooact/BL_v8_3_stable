@@ -37,26 +37,24 @@ Esempio importante: in 25S la variante bitmap ≥ 1 cambia la somma di circa
 +0,09% di Σ|S_BL| del gruppo, ma la somma dei moduli delle variazioni è 13,1%.
 Una somma stabile non implica misure individuali stabili.
 
-## 3. Il controllo HMI che aggiungerebbe informazione
+## 3. Morfologia HMI: controllo completato
 
-La lacuna concreta è la rappresentazione fisica del tilt: **quanto spesso i due
-centroidi descrivono un bipolo riconoscibile e quanto spesso un complesso?**
-Il filtro «una NOAA» già esistente non risponde a questa domanda.
+Il [controllo morfologico](MORPHOLOGY_RESULTS.md) ha completato le 90 nuove
+letture nei gruppi 24N, 24S e 25N, con una seconda lettura di 30 casi,
+prima sulla sola mappa e poi sui centroidi. Le classi primarie coincidono
+in 24/30 casi; l'indicatore C in 23/27 casi valutabili da entrambi.
+Gli originali bloccati e i sei disaccordi primari sono conservati.
 
-Il primo passo proposto è completare la lettura delle schede già prodotte,
-coprendo anche 24N, 24S e 25N. La bozza revisionata prevede figure senza
-annotazioni di esito e due passaggi: sola morfologia, poi posizione dei
-centroidi; seconda lettura indipendente su 30 delle 90 nuove schede.
-Le classi si collegano alle sensibilità solo dopo il blocco delle letture;
-le 30 classificazioni 25S storiche restano separate.
-Non richiede nuovi FITS. Il prodotto utile sarebbe una tabella HARP per HARP
-che distingua interpretabilità dell'asse e sensibilità della misura, senza
-trasformare le classi in errori o eliminare casi dal catalogo.
+Le HARP B del primo lettore portano l'8,10%, il 15,19% e il 16,19% della
+Σ|S_BL| delle intere basi P1 dei tre gruppi; nel conteggio conservativo
+sono il 7,09%, il 15,186% e il 16,194%. Sono contributi dei casi esaminati,
+non stime di prevalenza sulla serie o di errore nella sorgente.
 
-La [bozza di studio morfologico](PROTOCOL_HMI_MORPHOLOGY.md) delimita questo
-passo. Non è ancora congelata e non è stata eseguita. Una verifica sulla
-popolazione completa del campione S richiederebbe successivamente un disegno
-proprio: le dominanti e i controlli selezionati non sono un campione casuale di S.
+La regola operativa è soddisfatta, esattamente alla soglia per l'accordo:
+consente soltanto di proporre uno studio rappresentativo distinto su S.
+Il filtro «una NOAA» resta diverso dalla classificazione magnetica; non
+si deducono identità di regioni fisiche, non si escludono HARP e non si
+rilanciano test. Le 30 classi storiche 25S restano separate dalla griglia A2.
 
 Questo controllo serve all'interpretazione della misura. Per una risposta
 sul quenching dell'efficienza, il candidato prioritario distinto è la

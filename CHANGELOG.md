@@ -2,6 +2,15 @@
 
 ## v8.4 (Python, branch `v8.4-python-gianluca`) — in corso
 
+- 2026-11-13: confronto morfologico e tabelle finali dopo tutti i blocchi:
+  24/30 classi primarie coincidenti, C 24/30 o 23/27 sui casi entrambi
+  valutabili; condizioni operative soddisfatte per la sola proposta di
+  uno studio distinto su S. Originali e mapping verificati con dieci hash
+  e pubblicati, 229 controlli superati. Primo tentativo fermato da codici
+  storici vuoti nel join, corretto e conservato senza cambiare letture.
+  Nessuna modifica a P1/T3/T5 o classe di consenso; rapporto e limiti in
+  docs/MORPHOLOGY_RESULTS.md.
+
 - 2026-11-13: lettore 2, secondo passaggio sui 30 casi con centroidi,
   successivo ai blocchi primari di entrambi i lettori. Indicatore C e
   contatto visivo della maschera con il bordo in un file distinto, bloccato

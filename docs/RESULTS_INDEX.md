@@ -18,9 +18,9 @@ agli input distribuiti. `docs/MDI_SMARP_FEASIBILITY.md` è uno studio documental
 non un risultato di calibrazione o un'estensione della serie; il seguito MDI è rinviato.
 
 Sintesi correnti HMI: [misura](HMI_MEASUREMENT_ASSESSMENT.md) e
-[quenching](HMI_QUENCHING_SYNTHESIS.md). La [bozza morfologica](PROTOCOL_HMI_MORPHOLOGY.md)
-propone un nuovo controllo descrittivo, con letture separate e concordanza;
-non contiene nuovi risultati. La [traccia T5 sui salti](T5_JUMPS_DIAGNOSTIC_DESIGN.md)
+[quenching](HMI_QUENCHING_SYNTHESIS.md). Il [controllo morfologico](PROTOCOL_HMI_MORPHOLOGY.md), con A1/A2, è
+concluso: [rapporto](MORPHOLOGY_RESULTS.md), confronto 24/30 e tabelle
+descrittive, con 25S storico separato e limiti espliciti. La [traccia T5 sui salti](T5_JUMPS_DIAGNOSTIC_DESIGN.md)
 è un documento di progettazione storico. La prima fase
 [T5-D1](PROTOCOL_T5_DIAGNOSTIC_SAVED_OUTPUTS.md) è congelata ed eseguita,
 con [lista input](T5_DIAGNOSTIC_INPUTS_SHA256.csv) e
@@ -28,6 +28,7 @@ con [lista input](T5_DIAGNOSTIC_INPUTS_SHA256.csv) e
 
 | Elemento | File | Dati tracciati / input | Script | Commit | Stato |
 |---|---|---|---|---|---|
+| Morfologia HMI, confronto e contributi per classe | `results/MORPHOLOGY/ANALYSIS/*.csv` | letture bloccate pubblicate, mapping verificato, P1 e controlli dominanti | `morphology_compare.py` | codice `744eeec`, output `b660836` | descrittivo, 229 verifiche; regola solo per proporre uno studio distinto |
 | Fig. diagramma a farfalla | `figures/P1/fig1_butterfly.png` | `figures/P1/data/fig1_butterfly.csv` ← catalogo P1 | `figures_p1.py` | `120f852` | protocollo P1–P1e |
 | Fig. serie per CR e dipolo cumulato | `figures/P1/fig2_series_by_cr.png` | `figures/P1/data/fig2_*.csv` ← `P1_SBL_BY_CR_HEMISPHERE.csv` | `figures_p1.py` | `120f852` | protocollo |
 | Fig. v8.3 contro v8.4 | `figures/P1/fig3_legacy_vs_v84.png` | `figures/P1/data/fig3*.csv` ← `P1_LEGACY_VS_V84.csv` | `figures_p1.py` | `120f852` | protocollo |
