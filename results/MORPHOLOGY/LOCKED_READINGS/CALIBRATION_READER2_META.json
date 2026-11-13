@@ -1,0 +1,99 @@
+{
+  "status": "reader2 calibration locked before comparison; no consensus labels",
+  "reader": "reader2_codex_session",
+  "model": "gpt-6.1-sol",
+  "reasoning_effort_requested": "high",
+  "locked_utc": "2026-11-13T13:48:05Z",
+  "git_commit_at_reading": "15eaf3e860086cb88717ea4aa5821046b99dfb00",
+  "git_tracked_dirty_before_registration": 0,
+  "reading_file": "CALIBRATION_READER2.csv",
+  "sha256_reading_file": "51f67b699cea122da8937c7b363b9e0ada2b0350c91c72c0f59f4ae0fec0a6e7",
+  "protocol_hashes": {
+    "docs/PROTOCOL_HMI_MORPHOLOGY.md": "2547aeebf4ba4b9762768a01b3cb9624e9d1aec93e48ad0679e76441f5e0743f",
+    "docs/PROTOCOL_HMI_MORPHOLOGY_A1.md": "0163bdac7bf47f520d1a5d96eed92c7aafc368c2666742df6d8671f1d1738b74"
+  },
+  "images": [
+    {
+      "code": "R01",
+      "file": "figures/MORPHOLOGY/map_R01.png",
+      "sha256": "a5ae5d9b091ec063c6d4e916600159a891257df73cd911807b63c3eb6a1418b1",
+      "git_blob": "c1dfa9d113387004843a47cf9a65fcae780df442"
+    },
+    {
+      "code": "R02",
+      "file": "figures/MORPHOLOGY/map_R02.png",
+      "sha256": "72aa14b22e151da6c816ba8cbdf61fb32bd8fb12579f3219596feb5a8f118dd8",
+      "git_blob": "44db35dd2439a89d7255ac4f6ba75bdd2e74ca92"
+    },
+    {
+      "code": "R03",
+      "file": "figures/MORPHOLOGY/map_R03.png",
+      "sha256": "0f7af8af4a9732ebc31666d4f86f16e51158889dbf8b832df7ba5b2c23e1e3d1",
+      "git_blob": "a4c181bd9609437cb47592c343e0620303b2398e"
+    },
+    {
+      "code": "R04",
+      "file": "figures/MORPHOLOGY/map_R04.png",
+      "sha256": "9de25c2eb85cd3c3b63a7f0fca45fb7a93b2f84c5ec6a67ce4322a598bbe41f5",
+      "git_blob": "9a9f395a88bbaf08efa2adc86fda4e9daa3aebdc"
+    },
+    {
+      "code": "R05",
+      "file": "figures/MORPHOLOGY/map_R05.png",
+      "sha256": "0e68e7d02f73c2c6aa735fee75d846bffc328779624a5d5552994b6fd3f81d34",
+      "git_blob": "a8175acef049ec99d014430275f638b7ae166477"
+    },
+    {
+      "code": "R06",
+      "file": "figures/MORPHOLOGY/map_R06.png",
+      "sha256": "0153df1d2247d06b4c13d9942de02600ba134e90e3c3fa611d2c88bb498e3ea3",
+      "git_blob": "aa750f6aa7a33fe6be5f3af0071e4b418bb81cba"
+    },
+    {
+      "code": "R07",
+      "file": "figures/MORPHOLOGY/map_R07.png",
+      "sha256": "d50dcef6591bb7c4b71237bae2e239815812743c2d06710a7609de4ceb06be6e",
+      "git_blob": "16ed7b14d20d14932927ec23c525d3f495e31739"
+    },
+    {
+      "code": "R08",
+      "file": "figures/MORPHOLOGY/map_R08.png",
+      "sha256": "486daa0645328afe89828357eec4a1ffaa82aa10b914815db270665faf02ae0e",
+      "git_blob": "8cad5fe79a0a7dd810af5fdfdee4a994cf812b3f"
+    },
+    {
+      "code": "R09",
+      "file": "figures/MORPHOLOGY/map_R09.png",
+      "sha256": "13b1d14f10fb81b662355f2d0a031aafd4d3c655473213645f68e308b76c4b12",
+      "git_blob": "0403164bb99d01448a85796160b81d306f5d19b1"
+    },
+    {
+      "code": "R10",
+      "file": "figures/MORPHOLOGY/map_R10.png",
+      "sha256": "ff4b9ce44f75d8991a3db90608a8d47234cb16b536811a832526fa6f5b96ad7c",
+      "git_blob": "bb6cc895a9e139b9682f8cda307a30fc7b455e36"
+    },
+    {
+      "code": "R11",
+      "file": "figures/MORPHOLOGY/map_R11.png",
+      "sha256": "bd9fdb86590949b8dcbf4c31d27ee9a43d992d03e78f341f19ece027fd7f69a8",
+      "git_blob": "19791e9c0fac1e113a92853bcb2c4cd9b88fb65c"
+    }
+  ],
+  "reference_list_sha256": "4691b281650930d21cd0425d293e08cb25de00b0a762e177bfb8c99cf0df70e1",
+  "reader1_commitment_sha256": "1394b6dbf807217d1557bd175d2f5f5fb06173698f96182304bdc755589f44c0",
+  "reader1_label_file_opened": false,
+  "code_to_harp_mapping_opened": false,
+  "new_90_sheets_opened": false,
+  "centroid_sheets_opened": false,
+  "exposures": [
+    "Scientific questions, T3/T5 results and numerical dominant-HARP tables known.",
+    "Historical 25S classifications and review notes known from project documents and conversation.",
+    "Historical annotated images 13169, 8950 and 11786 reopened during the preceding plan review.",
+    "Before this reading the user reported reader1 aggregate results: ten unambiguous sheets and one U differing from its historical class; no per-sheet reader1 labels or alternatives were supplied.",
+    "REFERENCE_SHEETS.csv includes historical classes; they were visible before this reading.",
+    "Only map_R01 through map_R11 were opened in this task, each with the two fixed field scales."
+  ],
+  "scope": "visual primary classes only; no centroid C reading, no rule change, no new 90 classification",
+  "reasoning_effort_note": "High effort was requested by the user; no separate runtime setting audit is available."
+}

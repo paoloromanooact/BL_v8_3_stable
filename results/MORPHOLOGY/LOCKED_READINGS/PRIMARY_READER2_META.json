@@ -1,0 +1,269 @@
+{
+  "status": "reader2 primary labels locked before access to reader1 labels or centroid sheets",
+  "reader": "reader2_codex_session",
+  "model": "gpt-6.1-sol",
+  "reasoning_effort_requested": "high",
+  "locked_utc": "2026-11-13T14:03:51Z",
+  "git_commit_at_start_of_reading": "9a4c4cd2e5501652c32497840fc747eb3a7ffd2b",
+  "git_commit_before_registration": "144513331fab8f1e875f17e2e9fb93fb97e054a8",
+  "git_tracked_dirty_before_registration": 0,
+  "reading_file": "PRIMARY_READER2.csv",
+  "sha256_reading_file": "2e8fd1de8c5f348cdd5bb71a91544478795adbb9d88691e03079741fbf83b2b7",
+  "inputs": {
+    "docs/PROTOCOL_HMI_MORPHOLOGY.md": {
+      "sha256": "2547aeebf4ba4b9762768a01b3cb9624e9d1aec93e48ad0679e76441f5e0743f",
+      "git_blob": "af1930266e22e4f310c4e0cea4d11898bb1def9a"
+    },
+    "docs/PROTOCOL_HMI_MORPHOLOGY_A1.md": {
+      "sha256": "0163bdac7bf47f520d1a5d96eed92c7aafc368c2666742df6d8671f1d1738b74",
+      "git_blob": "20040805de7d88983dadbebf24f3adf12108dd7a"
+    },
+    "docs/PROTOCOL_HMI_MORPHOLOGY_A2.md": {
+      "sha256": "14c7e0bb8acdb71d9dfadf1d50f8f6de928c69ed5c98d3246a5c12dd5f8de52c",
+      "git_blob": "6c409a2851f834d9477ffb549fd26beddbf40688"
+    },
+    "results/MORPHOLOGY/READING_ORDER_READER2.csv": {
+      "sha256": "331edb9315515a6432a0715a84a9e0d58dd26c2bc9f551c6db58610d961f62ad",
+      "git_blob": "63b0dd1d867019bfa59966201d2797c3f5273a8f"
+    },
+    "results/MORPHOLOGY/CODE_MAP_COMMITMENT.csv": {
+      "sha256": "9731998dc821b11b735fddaabb96f7882ec52467971c10010a7397c20aedb954",
+      "git_blob": "417811d56dd5efd7e0cb29bd2bd4a49418c71a78"
+    },
+    "results/MORPHOLOGY/CALIBRATION_READER2_COMMITMENT.csv": {
+      "sha256": "83bef9492a7a661b546dffb497a6e731dbe7f96796f397a197417c8e9f6fcfd7",
+      "git_blob": "cfe8abf2954dc5ee22327bda0328f0a62ac4b733"
+    }
+  },
+  "images": [
+    {
+      "order": 1,
+      "code": "M028",
+      "file": "figures/MORPHOLOGY/map_M028.png",
+      "sha256": "ce82a29767fbe5dc3b8dd5c49f3f6e48c77f6901168816066162532c1e2d187b",
+      "git_blob": "7e9de8c845168dde92906835d7d17902689858aa"
+    },
+    {
+      "order": 2,
+      "code": "M039",
+      "file": "figures/MORPHOLOGY/map_M039.png",
+      "sha256": "6eedc37865d54317ff6f85f7e956eea17a45323477888ad2b97a0a62ada3aca8",
+      "git_blob": "6e8ccae469d150fd26642538a1c998d8b1014757"
+    },
+    {
+      "order": 3,
+      "code": "M015",
+      "file": "figures/MORPHOLOGY/map_M015.png",
+      "sha256": "6d992e1b67d09ceb2bbe098d01a723f525d215e84f296cfe5556c878fb4014ce",
+      "git_blob": "dfc87a7258550c5def5538687795fb61c8628c5a"
+    },
+    {
+      "order": 4,
+      "code": "M010",
+      "file": "figures/MORPHOLOGY/map_M010.png",
+      "sha256": "ccd4ff5cdec2a055d5e69df8522a8828dbabb6579594b276fb6919080302ebf3",
+      "git_blob": "afaa33975892ac01050e9c2066b714b3161aa153"
+    },
+    {
+      "order": 5,
+      "code": "M089",
+      "file": "figures/MORPHOLOGY/map_M089.png",
+      "sha256": "3071f10626251f72489f4dcafd7966e31ddbb753d349a76f1a3be1d5a6f2d4b7",
+      "git_blob": "012527843dccd2314951db69d550cf2ea81370d9"
+    },
+    {
+      "order": 6,
+      "code": "M002",
+      "file": "figures/MORPHOLOGY/map_M002.png",
+      "sha256": "ede9f515f98d79ea6f29663f25ecc9e5503eb83a87d4183fc45756f998dfd128",
+      "git_blob": "464c97032aa0b423571318f198289f256d1d0d8a"
+    },
+    {
+      "order": 7,
+      "code": "M018",
+      "file": "figures/MORPHOLOGY/map_M018.png",
+      "sha256": "ce6b3201fab47933ad4538d71f389b41f59ba009030f56221ca9409c48488395",
+      "git_blob": "442ce357b8696d76cfcae5cd807bb915f559fcb0"
+    },
+    {
+      "order": 8,
+      "code": "M077",
+      "file": "figures/MORPHOLOGY/map_M077.png",
+      "sha256": "e5f4cad1dd020aeffb6dfa4fd0483bf1f2945b0bb541f30ad584274a3b83c21d",
+      "git_blob": "30d74f7d3ccf2a54d1db5ba1e07b0f65931c70c6"
+    },
+    {
+      "order": 9,
+      "code": "M087",
+      "file": "figures/MORPHOLOGY/map_M087.png",
+      "sha256": "a824c958bd3cfc2c4095a1f7b43b807ef981d5293f848a4cbdf71971dab51c28",
+      "git_blob": "ba7a7b5b221643b7c3f47b4788f4d33a7789d4a1"
+    },
+    {
+      "order": 10,
+      "code": "M084",
+      "file": "figures/MORPHOLOGY/map_M084.png",
+      "sha256": "0b41501fc1bd468438402def7c395f949dbf3707f995840e069ee106cc496342",
+      "git_blob": "96427e680330a229a2a50c8bdb8835f03b402233"
+    },
+    {
+      "order": 11,
+      "code": "M083",
+      "file": "figures/MORPHOLOGY/map_M083.png",
+      "sha256": "a482fa1d325f29df2158ddbe46969eb46f687a612805abe0f9a1f3a63587daaf",
+      "git_blob": "9d054bdc6468ebf6822c17cdb9c2ca3095851ca2"
+    },
+    {
+      "order": 12,
+      "code": "M056",
+      "file": "figures/MORPHOLOGY/map_M056.png",
+      "sha256": "e6acfd113444bbe4fbed194fbbb4018ef21e5b271962a065bef5e2e9ef31e68f",
+      "git_blob": "b9d6530504d25419819dc17608860094462c784a"
+    },
+    {
+      "order": 13,
+      "code": "M055",
+      "file": "figures/MORPHOLOGY/map_M055.png",
+      "sha256": "b546d6b5378e3b4c9444d52f9975270db42402fe98492a47c1ee7afc65a436e3",
+      "git_blob": "283e72fb6cc9fb69a76d3cade27784f9453f01b7"
+    },
+    {
+      "order": 14,
+      "code": "M043",
+      "file": "figures/MORPHOLOGY/map_M043.png",
+      "sha256": "ff93246e04c969b365468037aa3b3a1cf1189fc730ce193d6e3f537b9a83c402",
+      "git_blob": "adf39477cb3dec252631a68da89c56f08199cb21"
+    },
+    {
+      "order": 15,
+      "code": "M073",
+      "file": "figures/MORPHOLOGY/map_M073.png",
+      "sha256": "067dd68ce24e760fe34b8d59f868b7c50c8fb1fe0bd7ce17f416a2e1e0c14ff6",
+      "git_blob": "c37f654c91bc83d3f784d9449205841fea702ef3"
+    },
+    {
+      "order": 16,
+      "code": "M068",
+      "file": "figures/MORPHOLOGY/map_M068.png",
+      "sha256": "e07eb87100cf9c28e6b361ccd69a015cd85be6f8ce988fec7f54027a6b59c236",
+      "git_blob": "4d5ee74777ba0886dbe94d22369c528e3bb9f6c1"
+    },
+    {
+      "order": 17,
+      "code": "M088",
+      "file": "figures/MORPHOLOGY/map_M088.png",
+      "sha256": "d44060d4272e087d7ca72aedc9122d3d4169c0b62217f4bfb36d30474766d5bb",
+      "git_blob": "f3412cf09506b4471220276377a734c71fbba64c"
+    },
+    {
+      "order": 18,
+      "code": "M047",
+      "file": "figures/MORPHOLOGY/map_M047.png",
+      "sha256": "a28aad547150b99e31b1b670fcb22e5e7d8d3c224a6f395e599e53ab45dfedd4",
+      "git_blob": "8f94ee3b3e560521f9fb187b54d1384810be1835"
+    },
+    {
+      "order": 19,
+      "code": "M076",
+      "file": "figures/MORPHOLOGY/map_M076.png",
+      "sha256": "f84e027c98ecbc1cef8c00cbf41565a0e8a0b7879a8d34e9c36e2544e677190b",
+      "git_blob": "52c55cf4063a463316e1a3b1c19ce88e5209259d"
+    },
+    {
+      "order": 20,
+      "code": "M045",
+      "file": "figures/MORPHOLOGY/map_M045.png",
+      "sha256": "e506c0e8e73df8d3482628d1c49fe4703f0dbb968d9250dc67f2c376185650ae",
+      "git_blob": "897793aaff694ef0c41c975f6d599548c7a0b364"
+    },
+    {
+      "order": 21,
+      "code": "M034",
+      "file": "figures/MORPHOLOGY/map_M034.png",
+      "sha256": "81208fedb1c01983d1ce554a20659dc22f09e3593c20063d02638926c7429fc0",
+      "git_blob": "6e01cda5f9bf1190fd9e44fa56c2417c8b2e5b39"
+    },
+    {
+      "order": 22,
+      "code": "M074",
+      "file": "figures/MORPHOLOGY/map_M074.png",
+      "sha256": "8cd9ea27f30c259a5d6b737e11b3974fe66fa7b50a6b5aa4ca8008d954f0977c",
+      "git_blob": "27393c6a262a92ac7c6c9c76b0229cbe2f857d79"
+    },
+    {
+      "order": 23,
+      "code": "M059",
+      "file": "figures/MORPHOLOGY/map_M059.png",
+      "sha256": "2fb66d3a46c3f1624c71c35564bdabdd8a6c8b4942f6f4305626020a4e46bf81",
+      "git_blob": "24b6fe8e855b07bce7729a8f027ed21edc772740"
+    },
+    {
+      "order": 24,
+      "code": "M029",
+      "file": "figures/MORPHOLOGY/map_M029.png",
+      "sha256": "f4bd4f6b7234f427c10875b345a5a048e7cdc665d81f6694892a141d5e06063a",
+      "git_blob": "aaae109640436e13dce761686c083b41ea29c920"
+    },
+    {
+      "order": 25,
+      "code": "M005",
+      "file": "figures/MORPHOLOGY/map_M005.png",
+      "sha256": "4ed200db9bd559cbff5c83bfb20bb1e8597c2c3e8cddd409f36e9d232dbea4f7",
+      "git_blob": "8bf3ee765a87edf587351ca15521f8636b195e66"
+    },
+    {
+      "order": 26,
+      "code": "M086",
+      "file": "figures/MORPHOLOGY/map_M086.png",
+      "sha256": "5d054089856907b25094f5dc0ff28823a8aa70b71b297369cd696cc6fd616b1f",
+      "git_blob": "5a394b15836466d309651ad0f7602d31f60ceb10"
+    },
+    {
+      "order": 27,
+      "code": "M051",
+      "file": "figures/MORPHOLOGY/map_M051.png",
+      "sha256": "609c55a3f966904db3830e694cc2a899a313a0e1742b3e3b74b3da1cc43782b6",
+      "git_blob": "93485bdbdee2fd68eded71b112ecfcb3af295d81"
+    },
+    {
+      "order": 28,
+      "code": "M035",
+      "file": "figures/MORPHOLOGY/map_M035.png",
+      "sha256": "a86092c5fbaa14bf1e573bca9eaf533e155148994631195ab426a47edc498e6d",
+      "git_blob": "ef8c7ed3cb6e33b8620368cf5b0d87935bac12d0"
+    },
+    {
+      "order": 29,
+      "code": "M069",
+      "file": "figures/MORPHOLOGY/map_M069.png",
+      "sha256": "5001ec0649458e8ea6829b59c738c3667f6c1293cb3c257d3f8181c4216376d2",
+      "git_blob": "e6995795fea0cd7efdcd479995b61527be8a24e6"
+    },
+    {
+      "order": 30,
+      "code": "M064",
+      "file": "figures/MORPHOLOGY/map_M064.png",
+      "sha256": "095d52b24d97b67650fdb2ec6a8e9eee534110de20906c104994c09c5c5a2192",
+      "git_blob": "54e2644a03fabe92bea712571402732d0620c673"
+    }
+  ],
+  "row_count": 30,
+  "order_matches_frozen_reader2_list": true,
+  "reader1_primary_labels_or_motivations_opened": false,
+  "reader1_new90_aggregate_results_known": false,
+  "code_to_harp_mapping_opened": false,
+  "centroid_sheets_opened": false,
+  "other60_new_sheets_opened": false,
+  "numeric_catalogue_opened_during_reading": false,
+  "previous_calibration_files_hashes_verified_unchanged": true,
+  "exposures": [
+    "Scientific questions, T3/T5 results, numerical dominant-HARP tables and historical 25S classifications known before this task.",
+    "Three annotated historical 25S images (13169, 8950, 11786) were reopened during the preceding plan review.",
+    "The eleven map-only reference sheets were independently classified and locked in the prior reader2 calibration.",
+    "The calibration agreement and common R11 ambiguity were subsequently communicated; amendment A2 is shared training and not blind to calibration.",
+    "The reader1 aggregate calibration report was known before calibration, as previously declared. No new90 reader1 aggregate or per-sheet labels were supplied.",
+    "Anonymous codes were not decoded; no metadata identifying group, selection rank, HARP, S_BL, tilt or numerical sensitivity was read for these thirty sheets."
+  ],
+  "scope": "thirty fixed primary readings under A2, in frozen order; no centroid C reading, no consensus, no rule change",
+  "reasoning_effort_note": "High effort requested by the user; no separate runtime setting audit is available."
+}
