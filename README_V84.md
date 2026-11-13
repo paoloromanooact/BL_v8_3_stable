@@ -136,8 +136,10 @@ I dati non sono in Git. `data/sharp` può essere un link a un disco capiente
   T3 e T5 senza verdetto. Una pendenza negativa non dimostra il quenching; una
   pendenza vicina a zero non dimostra un'efficienza costante.
 - [ ] Discussione con Paolo.
-- [ ] Prossimo controllo proposto: bozza morfologica HMI, ancora da rivedere e
-  congelare (`docs/PROTOCOL_HMI_MORPHOLOGY_DRAFT.md`); stato in `docs/HANDOFF.md`.
+- [ ] Priorità HMI proposte: diagnosi T5 sui salti
+  (`docs/T5_JUMPS_DIAGNOSTIC_DESIGN.md`) e controllo morfologico revisionato
+  (`docs/PROTOCOL_HMI_MORPHOLOGY_DRAFT.md`). Piani ancora da congelare;
+  nessun nuovo calcolo o lettura avviato. Stato in `docs/HANDOFF.md`.
 
 ## Ancillari
 

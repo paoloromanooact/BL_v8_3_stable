@@ -47,21 +47,34 @@ della potenza sul processo reale. [Validazione](P2F_VALIDATION_RESULTS.md).
 Fonti: [sensibilità P2f](P2F_RESULTS.md#3-sensibilità-stesse-formule-non-validate-nessun-verdetto),
 [ricomparse e record](SENSITIVITY_SUMMARY.md), [dominanti](DOMINANT_HARP_RESULTS.md).
 
-## 4. Ordine di lavoro HMI
+## 4. Due priorità HMI, con scopi distinti
 
-1. **Ora: interpretabilità della misura.** Completare, dopo revisione del piano,
-   il controllo morfologico limitato alle schede esistenti. Verificare se il
-   problema è realmente visibile negli altri tre gruppi e come si accompagna
-   alle instabilità già misurate. È informazione nuova rispetto al solo filtro NOAA.
-2. **Poi: decisione scientifica sul campione.** Soltanto se il controllo motiva
-   uno studio più ampio, progettare la classificazione di un campione appropriato
-   di S. Un eventuale confronto delle pendenze fra morfologie sarebbe esplorativo
-   e richiederebbe un piano proprio; non eredita la validazione di T3 su S.
-3. **Per rispondere all'efficienza:** T5 richiede ancora una procedura che superi
-   la robustezza ai salti. Questo è il blocco metodologico residuo, distinto
-   dalla morfologia. Non viene risolto escludendo HARP complesse o lo scenario 7.
-   Un eventuale nuovo sviluppo richiederà protocollo e validazione indipendente.
+1. **T5: candidato prioritario per una risposta sull'efficienza.** Preparare
+   il piano della diagnosi mirata del fallimento sui salti: stima della scala,
+   forma della covarianza, componente individuale e code dell'intervallo sono
+   ipotesi da separare. La [traccia diagnostica](T5_JUMPS_DIAGNOSTIC_DESIGN.md)
+   propone prima l'uso degli output sintetici esistenti, senza nuovi dati reali.
+   Un metodo successivo richiederebbe protocollo e validazione indipendente;
+   nessuna garanzia di successo e nessuna esclusione dello scenario 7.
+2. **Morfologia: interpretabilità della misura.** Completare, dopo revisione
+   e congelamento del piano, le letture delle 90 schede mancanti. Versioni
+   prive di diagnostiche numeriche, ordine casuale e seconda lettura indipendente
+   di 30 casi; descrizione della sola mappa prima di vedere i centroidi.
+   [Bozza revisionata](PROTOCOL_HMI_MORPHOLOGY_DRAFT.md). Una regola operativa
+   proposta delimita quando progettare uno studio sulla popolazione S; non
+   autorizza un nuovo fit o l'eliminazione di HARP complesse.
+
+La morfologia affronta solo indirettamente il quenching. Un sottocampione
+ridurrebbe i dati disponibili, ma la sua potenza non è determinata dal solo
+numero di record; non eredita la validazione di T3 su S. La bassa potenza
+osservata nei generatori non permette di prevedere con certezza un nuovo
+esito reale né di attribuire il limite al solo numero di cicli.
 
 Il risultato T3 e il catalogo P1 restano i riferimenti. MDI/SMARP e la
-degradazione HMI verso MDI sono rinviati per decisione dell'utente; nessuna
-prova di precisione o acquisizione collegata è avviata.
+degradazione HMI verso MDI sono **rinviati, non abbandonati**. L'aggiunta del
+ciclo 23 potrebbe ampliare sostanzialmente la serie e l'intervallo di attività;
+non garantisce maggiore potenza: confrontabilità strumentale, dipendenza
+residua e disegno del test vanno verificati. Non è l'unica via concepibile
+(maturazione della serie HMI e possibili miglioramenti della misura o del
+metodo), né questi miglioramenti sono già dimostrati. Nessuna prova di
+precisione o acquisizione MDI è avviata.

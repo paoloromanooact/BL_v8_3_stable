@@ -1,93 +1,145 @@
 # HMI: interpretabilità del bipolo nelle schede esistenti — bozza
 
-**BOZZA NON CONGELATA — 2026-11-13. Nessuna nuova classificazione eseguita.**
-Studio descrittivo limitato, da rivedere prima del congelamento. Non cambia P1,
-P2 o P2f. Nessun nuovo test del quenching né selezione di un campione «che passa».
+**BOZZA NON CONGELATA, revisione 2 — 2026-11-13.** Nessuna nuova scheda,
+classificazione o estrazione è stata prodotta. Le scelte numeriche sotto sono
+proposte operative da rivedere prima del congelamento, non criteri fisici validati.
+Studio descrittivo; P1, P2 e P2f restano invariati.
 
 ## 1. Domanda e informazione nuova
 
-Quando i due centroidi della misura P1 descrivono un bipolo riconoscibile nella
-mappa e quando riassumono più concentrazioni? Queste situazioni si accompagnano
-alle sensibilità di maschera e centroidi già misurate?
+Quanto spesso una misura a due centroidi rappresenta un bipolo riconoscibile
+e quanto spesso riassume più concentrazioni? Come si accompagnano queste
+configurazioni alle sensibilità già misurate?
 
-S4 ha già confrontato HARP con una sola NOAA, ma è un filtro di metadati.
-La lettura visuale esistente riguarda solo 25S. L'informazione nuova di questo
-passo sarebbe l'estensione agli altri tre gruppi e il collegamento documentato
-fra morfologia e controlli numerici esistenti, non una nuova pendenza di T3.
+S4 («una NOAA») è un filtro di metadati, non una classificazione magnetica.
+Questo passo completa il controllo negli altri tre gruppi e distingue la
+morfologia della mappa dalla posizione dei centroidi. Non misura nuovamente
+il quenching e non seleziona HARP in base al segno del risultato.
 
-## 2. Campione e input già disponibili
+## 2. Campione e preparazione delle schede
 
-Usare le **120 HARP già selezionate** dal piano dominanti: 20 dominanti e 10
-controlli per 24N, 24S, 25N, 25S. Selezione, record e FITS restano quelli del
-[piano congelato](DOMINANT_HARP_PLAN.md). Le 30 schede 25S già lette rimangono
-un blocco storico; le altre 90 sono il lavoro visuale da completare.
+Conservare le **120 HARP** del [piano dominanti](DOMINANT_HARP_PLAN.md):
+20 dominanti e 10 controlli per 24N, 24S, 25N, 25S; 101 appartengono a S.
+Le 30 letture 25S sono un blocco storico, le **90 degli altri gruppi** sono
+le nuove letture. Non estendere il campione o sostituire schede difficili.
 
-Input: `figures/DOMINANT/`, `results/DOMINANT/DOMINANT_HARP_SELECTION.csv`,
-`DOMINANT_HARP_CHECKS.csv`, `DOMINANT_HARP_VARIANTS.csv` e catalogo P1 per
-l'appartenenza a S. Non sono necessari nuovi segmenti o download.
+Rigenerare le 90 schede dagli stessi FITS e record, con identica geometria
+e maschera P1. Le immagini originali restano intatte. Preparare due versioni:
 
-Le 120 includono 101 record di S. La base originaria è quella dei primari
-validi P1, non S: separare sempre appartenenza a S e risultati per gruppo.
-Dominanti e controlli hanno meccanismi di selezione diversi; non aggregarli
-come se fossero rappresentativi dell'intero catalogo.
+- **Mappa:** Br con scala comune ±1500 G e contorni di maschera; nessun tilt,
+  S_BL, flusso integrato, flag, NOAA, data, gruppo o HARPNUM. Solo un codice
+  anonimo; nessun centroide o segmento fra centroidi.
+- **Centroidi:** la stessa immagine, aggiungendo soltanto i marker positivo
+  e negativo. Nessun valore numerico derivato o flag.
 
-## 3. Lettura e registrazione
+La scala del campo e le coordinate necessarie a leggere la mappa non sono
+diagnostiche di esito. La geometria può rivelare l'emisfero: l'anonimizzazione
+non garantisce cecità al gruppo. La domanda e i risultati del progetto sono
+già noti e parte delle immagini è stata vista (incluse 393 e 5249 nella prova
+tecnica); dichiarare la lettura non cieca e registrare le esposizioni note.
 
-Prima delle nuove letture fissare una scheda con HARPNUM, gruppo, lettore,
-data, classe, motivo visuale e valutabilità dei centroidi. Classi proposte:
+Dopo il congelamento, assegnare codici e mescolare le 90 schede con un
+generatore dedicato, seme proposto **2026111301**. Conservare la corrispondenza
+fra codice, HARPNUM e file con i relativi hash, senza passarla ai lettori prima
+del blocco delle etichette. La preparazione non modifica le misure P1.
 
-| Classe | Descrizione operativa |
+## 3. Classificazione in due passaggi: evitare circolarità
+
+**Passaggio 1, sola mappa.** Registrare classe primaria e motivazione visiva:
+
+| Classe | Definizione |
 |---|---|
-| A | Un sistema bipolare riconoscibile; i centroidi rappresentano le due concentrazioni principali. |
-| B | Più sistemi o concentrazioni; un asse globale è calcolabile, ma non è chiaramente quello di un solo bipolo. |
-| C | Almeno un centroide è tra concentrazioni distinte della stessa polarità; l'asse è una media fra strutture. |
-| D | Configurazione diffusa, frammentata o fortemente sbilanciata; coppia bipolare poco riconoscibile. |
-| U | Scheda insufficiente per giudicare. |
+| A | Un sistema bipolare riconoscibile, con due concentrazioni principali. |
+| B | Più sistemi o concentrazioni: non è riconoscibile una sola coppia bipolare dominante. |
+| D | Configurazione diffusa, frammentata o visivamente molto sbilanciata; coppia bipolare poco riconoscibile. |
+| U | Immagine insufficiente o giudizio di confine non risolto; conservare le alternative nel testo. |
 
-Conservare classi miste nei casi di confine e una motivazione testuale. Queste
-sono descrizioni della mappa, non identificazioni fisiche delle regioni né
-classi di errore. B e C possono coesistere. Per D distinguere sbilanciamento
-visibile e frammentazione; non dedurre «decadimento» da un solo istante.
+Non dedurre il decadimento da un istante. Non usare componenti connesse,
+sbilanciamenti calcolati, numero NOAA, soglie diagnostiche, tilt, Hale o
+S_BL per assegnare la classe. Il giudizio di sbilanciamento in D è soltanto
+visivo e non va poi trattato come verifica indipendente del flag numerico.
 
-Non usare segno o ampiezza di tilt, S_BL, anti-Hale, attività o risultato del
-fit per assegnare una classe favorevole. Il numero NOAA viene confrontato
-solo dopo aver registrato la descrizione della mappa. Le schede contengono
-già annotazioni numeriche e alcune sono già state viste: la lettura **non è
-cieca**. Non dichiararla tale, nemmeno se si evitano le annotazioni.
+**Passaggio 2, dopo il blocco delle classi primarie di entrambi i lettori.**
+Mostrare la versione con centroidi e registrare separatamente l'indicatore
+**C: almeno un centroide fra concentrazioni distinte della stessa polarità**
+(sì/no/non valutabile), più eventuale contatto al bordo. Non cambiare la
+classe primaria dopo aver visto i marker.
 
-Registrare separatamente: centroidi dentro concentrazioni o fra esse;
-possibile taglio al bordo; giudizio impossibile. Una scheda ritagliata non
-verifica l'appartenenza del campo ad altre patch. Richieste di contesto restano
-«non verificato», senza espandere automaticamente il campione o i dati.
+C è una proprietà della rappresentazione a centroidi, non una classe primaria
+indipendente. Il suo legame con la sensibilità dei centroidi è descrittivo e
+in parte legato alla definizione: non valida la misura. Nessuna classe prova
+un errore o l'appartenenza del campo ad altre regioni fisiche.
 
-## 4. Tabelle e lettura dei risultati
+Questa distinzione modifica la griglia della prima bozza: le etichette 25S
+storiche A/B/C/D, comprese quelle miste, restano conservate e **non vengono
+convertite automaticamente** nelle nuove classi. Riportarle separatamente;
+non usare le 30 letture come repliche delle nuove 90.
 
-Una volta registrate le classi, collegarle agli output esistenti e produrre:
+## 4. Seconda lettura indipendente
 
-1. Una riga per HARP, distinguendo le 30 classificazioni storiche dalle 90 nuove;
-   eventuali rettifiche delle prime conservano etichetta precedente e motivo.
-2. Conteggi per gruppo, dominanti/controlli e appartenenza a S; confronto con
-   il numero NOAA. Nessun test di significatività o soglia di accettazione.
-3. Per classe, contributi netti e Σ|S_BL|, sempre con denominatore esplicito,
-   e le differenze già calcolate per bitmap ≥ 1 e pesi uniformi: sia ΣΔ sia
-   Σ|Δ|. Riportare anche confronti mancanti; non sostituirli con zero.
+Un secondo lettore classifica **30 delle 90** schede, senza vedere le etichette
+o motivazioni del primo. Estrarre 10 per gruppo nuovo: 7 dominanti e 3 controlli,
+senza reimmissione, nell'ordine 24N, 24S, 25N, con seme **2026111302**; ordine
+di presentazione separato con seme **2026111303**. Nessuna scelta per difficoltà
+o disaccordo. Se manca il secondo lettore, questa parte resta incompleta.
 
-La classificazione visiva non ha una validazione contro una verità fisica.
-Con un solo lettore, dichiararlo; non inferire riproducibilità tra lettori.
-Il campione può illustrare un limite della definizione HARP e individuare casi
-da approfondire; non stima la prevalenza dei complessi in S o nell'era HMI.
+Ogni lettore registra codice, data, classe primaria, motivazione e poi C.
+Bloccare i file di ciascun passaggio con hash prima di mostrare marker,
+etichette altrui o tabelle numeriche. Dichiarare identità e precedenti esposizioni
+dei lettori; una seconda lettura dopo aver visto la prima non è indipendente.
 
-## 5. Limite del passo e decisione successiva
+Prima di discutere i disaccordi, produrre matrice di confusione A/B/D/U,
+accordo esatto n/30 e accordo sull'indicatore C, con denominatori e non valutabili.
+Riportare anche la composizione del sottocampione: l'accordo grezzo dipende
+dalle frequenze delle classi e non prova validità fisica. Eventuali etichette
+concordate dopo confronto restano una colonna separata.
 
-Completare le 120 righe e le tabelle descrittive, poi fermarsi. Nessuna
-segmentazione, esclusione di HARP, ricalcolo di P1, nuova applicazione T3 o
-modifica T5. Una classe complessa non prova un errore, né spiega da sola il
-risultato «non deciso» del quenching.
+## 5. Tabelle finali e uso operativo prefissato
 
-Prima dell'esecuzione: revisione della griglia di lettura, congelamento con
-commit e hash, poi eventuale codice di aggregazione. Le soglie dei vecchi
-controlli numerici restano quelle del piano dominanti. Questo passo non
-richiede simulazioni di potenza, degradazione HMI o nuovi dati MDI.
+Solo dopo aver bloccato tutte le letture collegare metadati e numeri:
 
-Un eventuale studio successivo sulla popolazione S e sulle pendenze per
-morfologia richiede una decisione distinta e un nuovo piano non cieco.
+1. Registro HARP per HARP, distinguendo letture storiche e nuove, dominanti e
+   controlli, appartenenza a S; confronto successivo con il numero NOAA.
+2. Conteggi per gruppo e contributi netti e Σ|S_BL| per classe. Ogni quota
+   indica se il denominatore è il campione esaminato o l'intera base P1 del gruppo.
+3. Sensibilità già calcolate per bitmap ≥ 1 e pesi uniformi: sia ΣΔ sia Σ|Δ|,
+   confronti mancanti espliciti, nessuno zero sostitutivo. Associazioni
+   descrittive, non prove causali né test del quenching.
+
+**Proposta di regola per motivare uno studio sulla popolazione S:**
+
+- La classe primaria **B** porta almeno il **10% di Σ|S_BL| dell'intera base
+  P1 del gruppo**, contando solo le HARP qui esaminate, in almeno **due dei
+  tre gruppi nuovi**. Il 10% è una soglia di priorità operativa (un decimo
+  del proxy in configurazioni senza una coppia unica), non un budget d'errore.
+- Sulle 30 doppie letture, almeno **24/30** classi primarie coincidono e
+  ciascun lettore assegna U ad al massimo **3/30** schede. Sono requisiti
+  pratici proposti, non una validazione della tassonomia.
+- Per le schede doppie, verificare la prima condizione sia con le classi del
+  primo lettore sia contando B solo quando entrambi assegnano B. Se la scelta
+  del lettore cambia il superamento, il criterio è inconclusivo.
+
+Questa regola propone soltanto **di progettare** uno studio rappresentativo
+di S. Se le condizioni non si verificano, completare il rapporto e fermarsi;
+con disaccordi rilevanti, rivedere prima la griglia in un piano distinto.
+Nessuna esclusione dal catalogo o nuova pendenza è autorizzata dalla regola.
+Il gruppo 25S, già noto, è contesto e non parte della nuova verifica. C è
+escluso dal criterio per evitare la circolarità discussa sopra.
+
+La regola è scelta conoscendo i controlli numerici delle 120 HARP e la
+lettura 25S: è una scelta non cieca di priorità, non una verifica confermativa.
+La selezione di dominanti e controlli non stima la prevalenza di B in S.
+Non si richiede una quota del 25% in tutti i gruppi: in 24N le 30 schede
+coprono complessivamente circa il 21,9% di Σ|S_BL|, quindi una tale soglia
+sarebbe irraggiungibile già per costruzione.
+
+## 6. Arresto e revisione
+
+Prima di codice, estrazioni, figure o letture: rivedere e congelare il piano
+con commit e hash, inclusi griglia, semi e regola operativa proposta. Poi
+verificare che le nuove immagini corrispondano agli stessi record e che non
+contengano annotazioni escluse. Non toccare schede storiche, FITS o risultati.
+
+Completare registro e tabelle, poi fermarsi. Nessuna segmentazione, nuovo
+campione, nuova applicazione T3 o modifica T5. La robustezza di T5 ai salti
+rimane una priorità distinta: [traccia diagnostica](T5_JUMPS_DIAGNOSTIC_DESIGN.md).

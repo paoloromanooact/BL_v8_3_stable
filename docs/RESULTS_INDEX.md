@@ -19,7 +19,9 @@ non un risultato di calibrazione o un'estensione della serie; il seguito MDI è 
 
 Sintesi correnti HMI: [misura](HMI_MEASUREMENT_ASSESSMENT.md) e
 [quenching](HMI_QUENCHING_SYNTHESIS.md). La [bozza morfologica](PROTOCOL_HMI_MORPHOLOGY_DRAFT.md)
-propone un nuovo controllo descrittivo; non contiene nuovi risultati.
+propone un nuovo controllo descrittivo, con letture separate e concordanza;
+non contiene nuovi risultati. La [traccia T5 sui salti](T5_JUMPS_DIAGNOSTIC_DESIGN.md)
+è un documento di progettazione, non un'analisi già eseguita.
 
 | Elemento | File | Dati tracciati / input | Script | Commit | Stato |
 |---|---|---|---|---|---|

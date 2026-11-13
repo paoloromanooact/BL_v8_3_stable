@@ -2,6 +2,14 @@
 
 ## v8.4 (Python, branch `v8.4-python-gianluca`) — in corso
 
+- 2026-11-13: recepita la revisione del riordino HMI. Bozza morfologica rev. 2:
+  mappe senza annotazioni di esito, ordine casuale, seconda lettura di 30 casi,
+  morfologia primaria separata dall'indicatore dei centroidi e regola operativa
+  proposta prima delle letture. Diagnosi T5 sui salti indicata come candidato
+  prioritario e descritta in un documento di lavoro. MDI rinviato, non abbandonato;
+  beneficio statistico non garantito. Nessun piano congelato, codice scientifico,
+  immagine o output modificato; nessuna nuova analisi o classificazione.
+
 - 2026-11-13: priorità HMI confermata dall'utente; MDI/SMARP e degradazione
   rinviati. Aggiunte sintesi della misura e del quenching dai risultati esistenti,
   e bozza non congelata per completare la lettura delle schede HARP e collegarla

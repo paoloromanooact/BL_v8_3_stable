@@ -43,8 +43,12 @@ La lacuna concreta è la rappresentazione fisica del tilt: **quanto spesso i due
 centroidi descrivono un bipolo riconoscibile e quanto spesso un complesso?**
 Il filtro «una NOAA» già esistente non risponde a questa domanda.
 
-Il primo passo proposto è completare la lettura delle 120 schede già prodotte,
-coprendo anche 24N, 24S e 25N, e collegare le classi alle sensibilità già calcolate.
+Il primo passo proposto è completare la lettura delle schede già prodotte,
+coprendo anche 24N, 24S e 25N. La bozza revisionata prevede figure senza
+annotazioni di esito e due passaggi: sola morfologia, poi posizione dei
+centroidi; seconda lettura indipendente su 30 delle 90 nuove schede.
+Le classi si collegano alle sensibilità solo dopo il blocco delle letture;
+le 30 classificazioni 25S storiche restano separate.
 Non richiede nuovi FITS. Il prodotto utile sarebbe una tabella HARP per HARP
 che distingua interpretabilità dell'asse e sensibilità della misura, senza
 trasformare le classi in errori o eliminare casi dal catalogo.
@@ -53,3 +57,7 @@ La [bozza di studio morfologico](PROTOCOL_HMI_MORPHOLOGY_DRAFT.md) delimita ques
 passo. Non è ancora congelata e non è stata eseguita. Una verifica sulla
 popolazione completa del campione S richiederebbe successivamente un disegno
 proprio: le dominanti e i controlli selezionati non sono un campione casuale di S.
+
+Questo controllo serve all'interpretazione della misura. Per una risposta
+sul quenching dell'efficienza, il candidato prioritario distinto è la
+[diagnosi del fallimento T5 sui salti](T5_JUMPS_DIAGNOSTIC_DESIGN.md).

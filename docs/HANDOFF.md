@@ -5,8 +5,11 @@
 Decisione dell'utente: concentrarsi sulla misura della sorgente BL e sul
 quenching con HMI. **MDI/SMARP e la degradazione HMI→MDI sono rinviati**, inclusa
 la prova sintetica di precisione. Le bozze restano conservate, non congelate.
+Il rinvio non è abbandono: il ciclo 23 potrebbe estendere sostanzialmente la
+serie, ma confrontabilità e beneficio statistico restano da verificare.
+MDI non è una garanzia di potenza né l'unica via concepibile per migliorarla.
 
-Sono pronti tre documenti di lavoro:
+Sono pronti i documenti di lavoro:
 - `docs/HMI_MEASUREMENT_ASSESSMENT.md`: definizioni, controlli acquisiti e limite
   dell'interpretazione del tilt nei complessi HARP;
 - `docs/HMI_QUENCHING_SYNTHESIS.md`: risultati T3/T4/T5, sensibilità già fatte e
@@ -14,18 +17,31 @@ Sono pronti tre documenti di lavoro:
 - `docs/PROTOCOL_HMI_MORPHOLOGY_DRAFT.md`: bozza limitata alle 120 schede già
   prodotte (30 25S storiche, 90 da leggere). Nessuna nuova classificazione,
   selezione o aggregazione eseguita; nessun protocollo nuovo congelato.
+- `docs/T5_JUMPS_DIAGNOSTIC_DESIGN.md`: traccia di diagnosi del blocco
+  metodologico dell’efficienza, ancora da trasformare in protocollo.
 
 T3 è già applicato una volta: −3,59° per unità di attività, intervallo nominale
 97,5% [−10,58°; +3,41°], **non deciso**. T5 non è validato e resta descrittivo.
 Le sensibilità non sono nuove conferme. Il filtro S4 «una NOAA» non è una
 classificazione di bipoli. Nessuna nuova applicazione di T3 o modifica a P1.
 
-**Prossimo compito proposto:** revisione della bozza morfologica; poi, solo
-con il piano congelato, completamento della lettura delle schede e relazione
-con i controlli già disponibili. Obiettivo: interpretabilità della misura,
-non ricerca di un campione con un verdetto favorevole. Un eventuale studio di
-T3 per morfologia non eredita la validazione sul disegno S. Per l'efficienza
-resta separatamente aperto il problema di robustezza di T5 ai salti.
+**Due candidati prioritari:**
+- **T5, per l'efficienza:** registrare il protocollo della diagnosi mirata
+  del fallimento sui salti, a partire dalla traccia non congelata
+  `docs/T5_JUMPS_DIAGNOSTIC_DESIGN.md`. Nessun nuovo calcolo avviato. Output e
+  semi P2f diventano materiale di sviluppo T5; un metodo modificato richiede
+  una nuova validazione indipendente.
+- **Morfologia, per interpretare la misura:** rivedere e congelare la bozza
+  revisione 2 prima di figure o letture. Sono proposti mappe senza risultati
+  numerici, ordine casuale, seconda lettura indipendente di 30 casi e due
+  passaggi distinti: morfologia, poi posizione dei centroidi. La vecchia classe
+  C è un indicatore secondario e non entra nel criterio operativo. La regola
+  proposta per un eventuale studio su S è ancora da congelare; non autorizza
+  nuovi fit né esclusioni. Le 30 letture 25S restano storiche e separate.
+
+La potenza simulata non predice con certezza un futuro esito T3. Il problema
+metodologico di T5 e quello morfologico hanno scopi distinti; il secondo non
+risolve automaticamente il primo.
 
 Prima di ogni nuovo compito consigliare il modello e attendere la scelta
 dell'utente. Nessun push senza richiesta. Preservare il CSV non tracciato
@@ -34,9 +50,11 @@ dell'utente. Nessun push senza richiesta. Preservare il CSV non tracciato
 **Prompt di ripresa corrente:**
 
 > Riprendi SHARP BL in /home/gianluca/BL_v8_3_stable. Leggi AGENTS.md,
-> questa sezione e i tre documenti HMI indicati sopra. Verifica Git. MDI e
+> questa sezione e i documenti HMI indicati sopra. Verifica Git. MDI e
 > degradazione rinviati. T3 già eseguito, non deciso; T5 descrittivo. Il passo
-> proposto è rivedere la bozza morfologica, non avviare simulazioni o nuovi fit.
+> proposto è scegliere fra il piano diagnostico T5 sui salti e la revisione
+> finale della bozza morfologica. Entrambi richiedono un piano congelato prima
+> di eseguire nuove analisi; nessuna simulazione o nuovo fit è avviato.
 > Prima consigliami il modello e attendi la mia scelta. Nessun push richiesto.
 
 ---
