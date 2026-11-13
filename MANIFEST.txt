@@ -256,6 +256,7 @@ python/sharpbl/diag_c2_a1.py
 python/sharpbl/diag_c_individual.py
 python/sharpbl/diag_d_new_seeds.py
 python/sharpbl/diag_summary.py
+python/sharpbl/diag_t5_saved_outputs.py
 python/sharpbl/dominant_harp_check.py
 python/sharpbl/download_records.py
 python/sharpbl/exploratory.py

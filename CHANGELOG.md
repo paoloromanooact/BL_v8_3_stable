@@ -2,6 +2,12 @@
 
 ## v8.4 (Python, branch `v8.4-python-gianluca`) — in corso
 
+- 2026-11-13: implementato il diagnostico T5-D1, dopo il congelamento del
+  piano (`85df0e9`). Script autonomo senza import dei moduli scientifici,
+  prove su tabelle costruite a mano, controlli di provenienza/chiavi/code,
+  riconteggio e momenti indipendenti. Codice registrato prima di aprire i dati
+  sintetici per la nuova analisi; nessuna modifica alla procedura M.
+
 - 2026-11-13: congelato T5-D1 su autorizzazione dell'utente, con commit
   dedicato prima di scrivere il codice diagnostico. Nessuna modifica alle
   analisi previste; dati e risultati originali invariati.
