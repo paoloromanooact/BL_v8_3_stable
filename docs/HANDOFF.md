@@ -159,6 +159,14 @@ si adottano.
 
 ---
 
+**Aggiornamento 2026-11-13 (pomeriggio):** dopo T5-D1 (`1b52769`, pubblicato) è pronta la **bozza
+non congelata del piano T5-D2** (`docs/PROTOCOL_T5_ORACLE_DRAFT.md`): bracci oracolo sugli stessi
+cataloghi della validazione (varianza individuale vera, covarianza temporale vera dei salti
+K(τ) = max(0, 1 − |τ|/L), entrambe), con riproduzione A0 come porta e regole di lettura fissate prima.
+Da rivedere e congelare prima del codice; nessun calcolo avviato.
+
+---
+
 ## Passaggio di consegne del 2026-11-11, sera (storico)
 
 **Stato:** il **pilota di sviluppo di P2f** è terminato (esecuzione unica, 10:17–12:06, commit del
