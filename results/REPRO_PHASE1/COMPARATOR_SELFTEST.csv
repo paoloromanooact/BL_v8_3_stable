@@ -17,3 +17,13 @@ chiave vuota solo nel rilancio,False,False,True,chiave interamente mancante nel 
 componente mancante nel riferimento ma presente nel rilancio,False,False,True,"insieme delle chiavi diverso: mancanti 1, inattese 1"
 schema diverso (colonna in più),False,False,True,"schema diverso: rif ['id', 'n', 'x', 'eta', 'git_commit', 'status'] / nuovo ['id', 'n', 'x', 'eta', 'git_commit', 'status', 'extra']"
 schema diverso (ordine),False,False,True,"schema diverso: rif ['id', 'n', 'x', 'eta', 'git_commit', 'status'] / nuovo ['n', 'id', 'x', 'eta', 'git_commit', 'status']"
+byte: chiave vuota ammessa in entrambi,True,True,True,
+byte: NUL iniziale nel campo chiave,False,False,True,byte NUL nel CSV: rifiutato prima del parsing
+byte: marcatore interno scritto nel file,False,False,True,byte NUL nel CSV: rifiutato prima del parsing
+"byte: testo simile al marcatore, senza NUL",False,False,True,"insieme delle chiavi diverso: mancanti 1, inattese 1"
+byte: grandi interi diversi con mancante,False,False,True,
+byte: grandi interi diversi scritti con .0,False,False,True,
+byte: grandi interi uguali,True,True,True,
+byte: 5 contro 5.0 (stesso valore),True,True,True,
+byte: 1000 contro 1e3 (stesso valore),True,True,True,
+byte: zeri iniziali preservati (007 contro 7),False,False,True,

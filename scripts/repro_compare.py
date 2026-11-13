@@ -17,6 +17,9 @@ import subprocess
 import sys
 from pathlib import Path
 
+import re
+from decimal import Decimal
+
 import numpy as np
 import pandas as pd
 
@@ -30,8 +33,29 @@ def git_show(commit, path):
     return subprocess.run(["git", "-C", str(ROOT), "show", f"{commit}:{path}"], capture_output=True, check=True).stdout
 
 
+class InputRejected(Exception):
+    pass
+
+
 def read_csv_bytes(b):
+    # Revisione di ceb5d38: pandas legge un campo che inizia con NUL come vuoto; i NUL si rifiutano prima del parsing,
+    # così il marcatore interno di chiave mancante non può mai provenire da un file.
+    if b"\x00" in b:
+        raise InputRejected("byte NUL nel CSV: rifiutato prima del parsing")
     return pd.read_csv(io.BytesIO(b), dtype=str, keep_default_na=False, na_values=NA)
+
+
+_EXACT_NUM = re.compile(r"^[+-]?(0|[1-9][0-9]*)(\.[0-9]+)?([eE][+-]?[0-9]+)?$")
+
+
+def exact_equal(a, b):
+    """Uguaglianza esatta senza float64: testo uguale, oppure numeri decimali uguali (5 = 5.0 = 5e0) con Decimal;
+    stringhe con zeri iniziali (es. 007) restano testo."""
+    if a == b:
+        return True
+    if _EXACT_NUM.match(a) and _EXACT_NUM.match(b):
+        return Decimal(a) == Decimal(b)
+    return False
 
 
 def policy_for(file, scales_df):
@@ -97,12 +121,10 @@ def compare(ref, new, key, policy):
                              max_abs_diff=float(diff.max()) if diff.size else 0.0,
                              max_norm_diff=float((diff / S).max()) if diff.size else 0.0,
                              ok=bool(na_mismatch == 0 and nonnum == 0 and inf_bad == 0 and out == 0)))
-        else:  # exact, provenance: valori letti uguali (numeri come numeri, testo come testo)
-            an, bn = _num(a_txt), _num(b_txt)
-            numeric = an.notna() & bn.notna()
-            eq_num = (an == bn) | (np.isnan(an) & np.isnan(bn))
-            eq = (a_na & b_na) | (~a_na & ~b_na & ((numeric & eq_num) | (~numeric & (a_txt == b_txt))))
-            mism = int((~eq).sum())
+        else:  # exact, provenance: testo preservato; numeri confrontati con Decimal, mai via float64
+            eq = [(x_na and y_na) or (not x_na and not y_na and exact_equal(x, y))
+                  for x, y, x_na, y_na in zip(a_txt.tolist(), b_txt.tolist(), a_na.tolist(), b_na.tolist())]
+            mism = int(len(eq) - sum(eq))
             rows.append(dict(column=col, mode=mode, n=len(r), na_mismatch=na_mismatch, n_mismatch=mism, ok=bool(mism == 0)))
     return rows, summ
 
@@ -154,6 +176,31 @@ def selftest():
     del pol["grp"]
     case("schema diverso (colonna in più)", base.assign(extra=["a", "b", "c"]), False)
     case("schema diverso (ordine)", base[["n", "id", "x", "eta", "git_commit", "status"]], False)
+    # prove END-TO-END da byte CSV (revisione di ceb5d38)
+    polk = {"grp": {"mode": "exact_key"}, "id": {"mode": "exact_key"}, "n": {"mode": "exact"}}
+
+    def bcase(name, ref_b, new_b, expect_ok, key=("grp", "id")):
+        try:
+            rows, s_ = compare(read_csv_bytes(ref_b), read_csv_bytes(new_b), list(key), polk)
+            got, prob = verdict(rows, s_), "; ".join(s_["problems"])
+        except InputRejected as e:
+            got, prob = False, str(e)
+        cases.append(dict(case=name, expected_ok=expect_ok, got_ok=got, passed=got == expect_ok, problems=prob))
+
+    ref_b = b"grp,id,n\na,,5\nb,2,6\n"
+    bcase("byte: chiave vuota ammessa in entrambi", ref_b, b"grp,id,n\nb,2,6\na,,5\n", True)
+    bcase("byte: NUL iniziale nel campo chiave", ref_b, b"grp,id,n\na,\x00unexpected,5\nb,2,6\n", False)
+    bcase("byte: marcatore interno scritto nel file", ref_b, ("grp,id,n\na," + MISSING_KEY + ",5\nb,2,6\n").encode(), False)
+    bcase("byte: testo simile al marcatore, senza NUL", ref_b, b"grp,id,n\na,<CHIAVE MANCANTE>,5\nb,2,6\n", False)
+    bcase("byte: grandi interi diversi con mancante", b"grp,id,n\na,1,9007199254740992\nb,2,\n",
+          b"grp,id,n\na,1,9007199254740993\nb,2,\n", False)
+    bcase("byte: grandi interi diversi scritti con .0", b"grp,id,n\na,1,9007199254740992.0\n",
+          b"grp,id,n\na,1,9007199254740993.0\n", False)
+    bcase("byte: grandi interi uguali", b"grp,id,n\na,1,9007199254740993\nb,2,\n",
+          b"grp,id,n\na,1,9007199254740993\nb,2,\n", True)
+    bcase("byte: 5 contro 5.0 (stesso valore)", b"grp,id,n\na,1,5\n", b"grp,id,n\na,1,5.0\n", True)
+    bcase("byte: 1000 contro 1e3 (stesso valore)", b"grp,id,n\na,1,1000\n", b"grp,id,n\na,1,1e3\n", True)
+    bcase("byte: zeri iniziali preservati (007 contro 7)", b"grp,id,n\na,1,007\n", b"grp,id,n\na,1,7\n", False)
     t = pd.DataFrame(cases)
     print(t.to_string(index=False))
     return t
@@ -181,7 +228,11 @@ def phase1(run_dir: Path, out: Path):
             rep_rows.append(row); continue
         new_b = new_p.read_bytes()
         key = keys.loc[keys["file"] == path, "key"].iloc[0].split(";")
-        rows, s = compare(read_csv_bytes(ref_b), read_csv_bytes(new_b), key, policy_for(path, scales_num))
+        try:
+            rows, s = compare(read_csv_bytes(ref_b), read_csv_bytes(new_b), key, policy_for(path, scales_num))
+        except InputRejected as e:
+            row.update(regenerated_sha256=sha(new_b), byte_identical=sha(new_b) == sha(ref_b), values_ok=False, problems=str(e))
+            rep_rows.append(row); continue
         for r in rows:
             col_rows.append(dict(file=path, **r))
         row.update(regenerated_sha256=sha(new_b), byte_identical=sha(new_b) == sha(ref_b), rows_ref=s["rows_ref"],
