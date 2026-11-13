@@ -1,33 +1,32 @@
 # Stato del progetto
 
-## Branch `v8.4-python-gianluca` (aggiornato il 2026-11-09)
+## Branch `v8.4-python-gianluca` (aggiornato il 2026-11-13)
 
-Obiettivo scientifico: costruire una serie osservativa della sorgente
-Babcock–Leighton (S_BL) per l'era HMI e verificare come tilt, latitudine
-ed efficienza della sorgente variano rispetto all'attività. Dettagli:
-`README_V84.md`; passaggio di consegne e prossimi passi: `docs/HANDOFF.md`.
+Obiettivi: misurare un proxy osservativo della sorgente Babcock–Leighton dalle
+HARP HMI e studiarne il quenching rispetto all'attività solare. La priorità
+concordata è HMI; MDI/SMARP e l'esperimento di degradazione sono rinviati.
 
-S_BL è un proxy della sorgente BL misurato all'istante del record
-selezionato (il primario è il più vicino al meridiano centrale, non
-necessariamente all'emersione); non misura
-direttamente il campo polare che resterà al ciclo successivo (intervengono
-evoluzione, cancellazione e trasporto superficiale). La serie contiene una
-misura per HARP, che non equivale necessariamente a una misura per regione
-fisica (ricomparse, HARP complesse o con più regioni NOAA).
-
-Stato, distinto per livello:
-
-| Livello | Stato |
+| Livello | Stato attuale |
 |---|---|
-| Elaborazione dei record selezionati | completa: 14195 record, 7133 HARP (2010-05 → 2026-09) |
-| Controlli interni obbligatori | superati (`complete_series` = `validation_passed` = 1; il metodo legacy riproduce la v8.3 sul caso 2024-05-08) |
-| Confronto esterno con BARD (P3 C1) | accordo su geometria e convenzioni magnetiche nel campione confrontato (999 regioni, ~69% di BARD); C2 riportato senza esito formale |
-| Ampiezza della sorgente (Φ, S_BL, D) | **senza** validazione esterna equivalente (flusso nostro/BARD 1,67 in C1) |
-| Inferenza sul quenching (P2d/P2e) | validazione **non superata**; T3 e T5 solo descrittivi; cause non ancora diagnosticate |
+| Elaborazione P1 | completa: 14195 record, 7133 HARP (2010-05 → 2026-09); una misura per HARP, non necessariamente per regione fisica |
+| Controlli interni e BARD | controlli interni superati; accordo BARD su geometria e convenzioni nel campione confrontato |
+| Ampiezza della sorgente | senza validazione esterna equivalente: rapporto dei flussi nostro/BARD-HMI circa 1,67, non una calibrazione |
+| Diagnosi P2d/P2e | svolte le analisi A–D; hanno motivato lo sviluppo della procedura M, senza riabilitare i verdetti delle procedure storiche |
+| Quenching del tilt, P2f T3 | criteri di validazione superati negli scenari provati; applicazione unica: −3,59° per unità di attività, intervallo nominale 97,5% [−10,58°; +3,41°], **non deciso**; nessun effetto della griglia escluso |
+| Efficienza della sorgente, T5 | **non validato** per il fallimento sui salti di livello; resta descrittivo |
+| HARP dominanti | 120 controllate numericamente; 30 schede 25S esaminate, nessun errore macroscopico riconosciuto; interpretazione del tilt più debole nei complessi |
+| Riproducibilità fase 1 | cinque CSV delle figure P1 rigenerati byte-identici, condizionatamente agli input distribuiti; non verifica tutta la catena |
 
-Documenti dei risultati: `docs/P3_RESULTS_C1.md`, `docs/P2_RESULTS_DESCRIPTIVE.md`,
-`docs/P2_DECISION_DESCRIPTIVE_FALLBACK.md`, `docs/EXPLORATORY_RESULTS.md`,
-indice in `docs/RESULTS_INDEX.md`.
+La misura è al record selezionato vicino al meridiano centrale, non
+necessariamente all'emersione; S_BL non è il campo polare dopo il trasporto.
+Il controllo numerico e la classificazione morfologica rispondono a domande
+separate. Le classi complesse non autorizzano esclusioni a posteriori.
+
+Quadro operativo: [misura HMI](HMI_MEASUREMENT_ASSESSMENT.md),
+[quenching e sensibilità](HMI_QUENCHING_SYNTHESIS.md),
+[bozza di controllo morfologico](PROTOCOL_HMI_MORPHOLOGY_DRAFT.md).
+La bozza non è congelata e non è stata eseguita. Prossimi passi e cronologia:
+[HANDOFF](HANDOFF.md). Risultati originali: [indice](RESULTS_INDEX.md).
 
 ---
 

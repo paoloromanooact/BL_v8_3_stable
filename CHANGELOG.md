@@ -2,6 +2,13 @@
 
 ## v8.4 (Python, branch `v8.4-python-gianluca`) — in corso
 
+- 2026-11-13: priorità HMI confermata dall'utente; MDI/SMARP e degradazione
+  rinviati. Aggiunte sintesi della misura e del quenching dai risultati esistenti,
+  e bozza non congelata per completare la lettura delle schede HARP e collegarla
+  ai controlli già calcolati. Aggiornati stato, README, indice e passaggio di
+  consegne: T3 P2f non deciso, T5 non validato. Nessun dato, codice scientifico,
+  protocollo congelato o output modificato; nessun nuovo calcolo scientifico.
+
 - 2026-11-13: revisione2 della bozza soloHMI: prova di precisione preventiva,
   code dell'attività sovracampionate con fascia centrale, campioni annidati per
   rami economici e sottoinsieme ottico, pesiΦ principali, esclusioni per attività,

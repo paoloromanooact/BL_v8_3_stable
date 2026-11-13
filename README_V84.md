@@ -6,8 +6,10 @@ singolo istante a una **serie di tutta l'era HMI (2010–2026), con una misura
 per HARP**.
 
 **Obiettivo scientifico.** Costruire una serie osservativa della sorgente
-Babcock–Leighton (S_BL) e verificare come tilt, latitudine ed
-efficienza della sorgente variano rispetto all'attività.
+Babcock–Leighton (S_BL) e studiarne il **quenching**: verificare come tilt,
+latitudine ed efficienza della sorgente variano rispetto all'attività.
+Priorità corrente HMI: [misura](docs/HMI_MEASUREMENT_ASSESSMENT.md) e
+[risultati sul quenching](docs/HMI_QUENCHING_SYNTHESIS.md). MDI è rinviato.
 
 Note sulle definizioni:
 - *Una misura per HARP* non equivale necessariamente a una misura per regione
@@ -120,14 +122,22 @@ I dati non sono in Git. `data/sharp` può essere un link a un disco capiente
   confrontato (999 regioni, circa il 69% di BARD) (`docs/P3_RESULTS_C1.md`); C2 riportato.
 - [ ] L'**ampiezza** della sorgente (Φ, S_BL, D) non ha ancora una validazione
   esterna equivalente: il rapporto dei flussi nostro/BARD è 1,67 in C1.
-- [x] Validazione della procedura P2d/P2e: criterio **non** soddisfatto; T3 e T5 solo descrittivi
-  (`docs/P2_DECISION_DESCRIPTIVE_FALLBACK.md`). Le cause del mancato superamento
-  non sono ancora state diagnosticate.
+- [x] P2d/P2e storici: criterio di validazione **non** soddisfatto; diagnosi A–D
+  svolte e documentate. I risultati delle procedure storiche restano descrittivi.
+- [x] P2f, procedura M: T3 supera i criteri negli scenari provati; applicazione
+  reale unica con esito **non deciso**, β̂_T = −3,59°, intervallo nominale 97,5%
+  [−10,58°; +3,41°], nessun effetto della griglia escluso (`docs/P2F_RESULTS.md`).
+  T5 non supera la validazione sui salti di livello e resta descrittivo.
+- [x] Controllo numerico di 120 HARP dominanti/controlli e lettura di 30 schede
+  25S; limiti fisici della rappresentazione a due centroidi documentati.
+- [x] Riproducibilità fase 1: cinque CSV delle figure P1 byte-identici agli
+  originali, condizionatamente agli input distribuiti (`docs/REPRO_PHASE1_RESULTS.md`).
 - [x] P2 descrittivo sui dati reali (`docs/P2_RESULTS_DESCRIPTIVE.md`): legge di Joy presente;
   T3 e T5 senza verdetto. Una pendenza negativa non dimostra il quenching; una
   pendenza vicina a zero non dimostra un'efficienza costante.
 - [ ] Discussione con Paolo.
-- [ ] Prossimi controlli: `docs/HANDOFF.md`, "Prossimi passi".
+- [ ] Prossimo controllo proposto: bozza morfologica HMI, ancora da rivedere e
+  congelare (`docs/PROTOCOL_HMI_MORPHOLOGY_DRAFT.md`); stato in `docs/HANDOFF.md`.
 
 ## Ancillari
 

@@ -13,8 +13,13 @@ dell'identità del produttore o della riproduzione numerica. Regole e scale prop
 
 Revisione di queste regole: `docs/REPRO_REVIEW_21E7210.md`. La prima verifica è
 congelata in `docs/REPRO_PHASE1_PLAN.md` e comprende soltanto cinque CSV delle figure P1:
-non è ancora stata eseguita. `docs/MDI_SMARP_FEASIBILITY.md` è uno studio documentale,
-non un risultato di calibrazione o un'estensione della serie.
+è stata eseguita e superata (`docs/REPRO_PHASE1_RESULTS.md`), condizionatamente
+agli input distribuiti. `docs/MDI_SMARP_FEASIBILITY.md` è uno studio documentale,
+non un risultato di calibrazione o un'estensione della serie; il seguito MDI è rinviato.
+
+Sintesi correnti HMI: [misura](HMI_MEASUREMENT_ASSESSMENT.md) e
+[quenching](HMI_QUENCHING_SYNTHESIS.md). La [bozza morfologica](PROTOCOL_HMI_MORPHOLOGY_DRAFT.md)
+propone un nuovo controllo descrittivo; non contiene nuovi risultati.
 
 | Elemento | File | Dati tracciati / input | Script | Commit | Stato |
 |---|---|---|---|---|---|

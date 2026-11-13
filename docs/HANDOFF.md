@@ -1,6 +1,47 @@
 # Cold restart — SHARP BL
 
-## ⇒ Passaggio di consegne del 2026-11-13 (leggere per primo)
+## Priorità corrente — HMI e quenching (2026-11-13)
+
+Decisione dell'utente: concentrarsi sulla misura della sorgente BL e sul
+quenching con HMI. **MDI/SMARP e la degradazione HMI→MDI sono rinviati**, inclusa
+la prova sintetica di precisione. Le bozze restano conservate, non congelate.
+
+Sono pronti tre documenti di lavoro:
+- `docs/HMI_MEASUREMENT_ASSESSMENT.md`: definizioni, controlli acquisiti e limite
+  dell'interpretazione del tilt nei complessi HARP;
+- `docs/HMI_QUENCHING_SYNTHESIS.md`: risultati T3/T4/T5, sensibilità già fatte e
+  lacuna residua; distingue P2 storico da P2f;
+- `docs/PROTOCOL_HMI_MORPHOLOGY_DRAFT.md`: bozza limitata alle 120 schede già
+  prodotte (30 25S storiche, 90 da leggere). Nessuna nuova classificazione,
+  selezione o aggregazione eseguita; nessun protocollo nuovo congelato.
+
+T3 è già applicato una volta: −3,59° per unità di attività, intervallo nominale
+97,5% [−10,58°; +3,41°], **non deciso**. T5 non è validato e resta descrittivo.
+Le sensibilità non sono nuove conferme. Il filtro S4 «una NOAA» non è una
+classificazione di bipoli. Nessuna nuova applicazione di T3 o modifica a P1.
+
+**Prossimo compito proposto:** revisione della bozza morfologica; poi, solo
+con il piano congelato, completamento della lettura delle schede e relazione
+con i controlli già disponibili. Obiettivo: interpretabilità della misura,
+non ricerca di un campione con un verdetto favorevole. Un eventuale studio di
+T3 per morfologia non eredita la validazione sul disegno S. Per l'efficienza
+resta separatamente aperto il problema di robustezza di T5 ai salti.
+
+Prima di ogni nuovo compito consigliare il modello e attendere la scelta
+dell'utente. Nessun push senza richiesta. Preservare il CSV non tracciato
+`results/P2/P2E_VALIDATION_RAW.csv`.
+
+**Prompt di ripresa corrente:**
+
+> Riprendi SHARP BL in /home/gianluca/BL_v8_3_stable. Leggi AGENTS.md,
+> questa sezione e i tre documenti HMI indicati sopra. Verifica Git. MDI e
+> degradazione rinviati. T3 già eseguito, non deciso; T5 descrittivo. Il passo
+> proposto è rivedere la bozza morfologica, non avviare simulazioni o nuovi fit.
+> Prima consigliami il modello e attendi la mia scelta. Nessun push richiesto.
+
+---
+
+## Cronologia del 2026-11-13 (storica; priorità corrente sopra)
 
 **Stato:** la **validazione P2f è terminata** (esecuzione unica, 2026-11-11 14:46 → 2026-11-12
 13:45, provenienza `5c3b664`, albero pulito, protocollo `8f030010…`). Controllo indipendente
@@ -71,7 +112,7 @@ selezione o download svolto; nessuna nuova applicazioneT3. Push non fatto.
 consiglia e aspetta). Le osservazioni del revisore esterno arrivano incollate dall'utente; di norma
 si adottano.
 
-**Prompt da incollare nella nuova sessione:**
+**Prompt precedente (superato dalla priorità HMI sopra):**
 
 > Riprendi SHARP BL v8.4 nel repository /home/gianluca/BL_v8_3_stable, branch
 > v8.4-python-gianluca. Leggi AGENTS.md e docs/HANDOFF.md (sezione "Passaggio di consegne del

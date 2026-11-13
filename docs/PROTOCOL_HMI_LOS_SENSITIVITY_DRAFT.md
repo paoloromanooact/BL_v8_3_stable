@@ -1,5 +1,10 @@
 # HMI: sensibilità della misura BL a LOS, risoluzione e rumore — bozza H1
 
+**RINVIATA per decisione dell'utente (2026-11-13).** La priorità è lo studio
+HMI della sorgente e del quenching. La degradazione verso MDI e la prova di
+precisione qui proposta non si avviano. Il testo seguente conserva la bozza
+non congelata; non è il piano operativo corrente. Vedi [HANDOFF](HANDOFF.md).
+
 **BOZZA NON CONGELATA, revisione 2 — 2026-11-13.** Richiesta dell'utente: preparare prima il
 protocollo, poi revisione e congelamento, codice e prove sintetiche, infine esecuzione.
 Questo documento propone scelte concrete da rivedere. Nessuna selezione è stata
