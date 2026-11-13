@@ -1,0 +1,25 @@
+{
+  "fig_width_in": 14.0,
+  "dpi": 110,
+  "views": [
+    "vista \u00b11500 G",
+    "vista \u00b1300 G"
+  ],
+  "seeds": {
+    "codes": 2026111301,
+    "subset": 2026111302,
+    "order2": 2026111303
+  },
+  "n_reference": 11,
+  "n_new": 90,
+  "n_reader2": 30,
+  "sha256_P1": "72f24c684dfd60f284c9f01c5e566a88d2474d8c305e2a4e279079ae908800d6",
+  "sha256_P1b": "4e8891cfe64582c2fcafb961e7c19dcdb4b4825475c9f653d744032d5f8125c6",
+  "sha256_P1c": "ed80f135cd1c1ca48bc77ba77c6083e12434bd9a7b2b777264671ae0e8ba6fab",
+  "sha256_P1d": "5434ffe8b3bc63d5a3b9a7dc3ccdd1a47df5d4257d74bce15cca5a7c7979697b",
+  "sha256_P1e": "ea1abb0e42e2b1eb472c249ddc53184609e29c08c1f76ddb3e7add941d233c90",
+  "git_commit": "2d7d513fc7702b8e859f31c53f1fd3afc65667d0",
+  "git_dirty": 0,
+  "sha256_PROTOCOL_HMI_MORPHOLOGY": "2547aeebf4ba4b9762768a01b3cb9624e9d1aec93e48ad0679e76441f5e0743f",
+  "sha256_PROTOCOL_HMI_MORPHOLOGY_A1": "0163bdac7bf47f520d1a5d96eed92c7aafc368c2666742df6d8671f1d1738b74"
+}

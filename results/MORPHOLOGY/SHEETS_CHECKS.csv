@@ -1,0 +1,9 @@
+check,value,passed
+counts_11_ref_90_new,11/90,True
+records_equal_selection,101,True
+new_cover_three_groups_30_each,"{'24N': 30, '24S': 30, '25N': 30}",True
+png_hashes_match,0,True
+png_no_text_metadata,0,True
+png_width_fixed,[1540],True
+reader2_subset_7_3_per_group,"{('24N', 'controllo'): 3, ('24N', 'dominante'): 7, ('24S', 'controllo'): 3, ('24S', 'dominante'): 7, ('25N', 'controllo'): 3, ('25N', 'dominante'): 7}",True
+reader_files_without_harpnum,,True
