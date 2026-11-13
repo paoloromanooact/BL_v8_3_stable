@@ -1,9 +1,11 @@
-# T5-D2 — controlli oracolo sulla procedura M nello scenario a salti — bozza
+# T5-D2 — controlli oracolo sulla procedura M nello scenario a salti
 
-**BOZZA NON CONGELATA — 2026-11-13.** Diagnostica, **non cieca** (T5-D1 e gli output della
-validazione P2f sono già stati letti). Non cambia lo stato di T5 (descrittivo), non modifica la
-procedura M, il protocollo P2f o i suoi output, e non usa risposte reali. Si congela con un commit
-dopo la revisione; il codice si scrive dopo.
+**CONGELATO il 2026-11-13, prima del codice, SENZA revisione esterna**: l'utente, assente, ha chiesto
+di procedere; le decisioni aperte della bozza (`6deddb7`) sono state chiuse dall'agente (§7). Una
+revisione successiva potrà esaminare piano, codice ed esecuzione; ogni cambiamento sarà un emendamento.
+Diagnostica, **non cieca** (T5-D1 e gli output della validazione P2f sono già stati letti). Non cambia
+lo stato di T5 (descrittivo), non modifica la procedura M, il protocollo P2f o i suoi output, e non usa
+risposte reali.
 
 ## 1. Domanda
 
@@ -46,6 +48,15 @@ pezzi della varianza indicati. β̂ è identico in tutti i bracci (dipende solo 
 | A1 | **vera** (σ_i² = η̄²) | stimata (REML AR(1) ristimata con la v vera) | effetto della sola componente individuale |
 | A2 | stimata | **vera** (σ_x² K_steps, o AR(1) vero negli scenari di controllo) | effetto della sola componente temporale |
 | A3 | vera | vera | controllo: la formula della varianza diventa esatta; atteso R ≈ 1 per costruzione |
+| A2' | stimata | **migliore approssimazione AR(1)** della covarianza vera (§3.1), con σ_x² vera | separa «AR(1) stimato male» da «AR(1) inadatto ai salti»; solo scenari 7 e 10 |
+
+### 3.1 Migliore approssimazione AR(1) (A2')
+
+φ* = argmin_{φ ∈ [0; 0,98]} Σ_{τ=0}^{τ_max} (φ^τ − K_steps(τ))², con τ_max il ritardo massimo tra celle
+del disegno T5 (prima CR 2097, ultima 2315: τ_max = 218), ricerca su una griglia di passo 10⁻⁴.
+κ* = 0 nello scenario 7; nello scenario 10 κ* = 0,98 (limite dei vincoli di M, perché la covarianza
+vera tra emisferi è uguale a quella interna, κ = 1). σ_x² vera. È un'approssimazione scelta qui, non
+la proiezione ottimale in un senso statistico più forte.
 
 Nessun braccio introduce nuovi numeri casuali: non servono semi nuovi. La riproduzione A0 è una porta:
 se anche una sola riga non coincide entro la precisione fissata (§6), ci si ferma.
@@ -55,12 +66,13 @@ se anche una sola riga non coincide entro la precisione fissata (§6), ci si fer
 | Scenario | Ruolo | Cataloghi |
 |---|---|---|
 | 7, nulla | caso fallito (decisivo per questa diagnosi) | 10 000 (tutti) |
-| 7, effetto −0,3·η̄ | combinazione fallita (copertura, coda inferiore) | 2000 (tutti) |
+| 7, effetti −0,1, −0,2, −0,3, −0,35·η̄ | −0,3 è la combinazione fallita (copertura, coda inferiore); gli altri come contesto | 2000 ciascuno (tutti) |
 | 10, nulla | salti comuni tra emisferi (contrasto) | 10 000 (tutti) |
 | 1 e 2, nulla | controlli AR(1), dove A2 usa i parametri AR(1) veri | 2000 ciascuno (k = 0…1999) |
 
-Solo T5. Costo stimato: la REML (A0, A1) è la parte cara, circa 1 s per catalogo; circa 2 × 26 000
-stime REML, 1–1,5 ore su 12 processi. A2 e A3 non richiedono ottimizzazione.
+Solo T5. In tutto 32 000 cataloghi. Costo stimato: la REML (A0, A1) è la parte cara, circa 1 s per
+catalogo e braccio; circa 64 000 stime REML, 1,5–2,5 ore su 12 processi. A2, A2' e A3 non richiedono
+ottimizzazione. Esecuzione distaccata, unica.
 
 ## 5. Grandezze e regole di lettura (fissate prima)
 
@@ -98,11 +110,14 @@ questi risultati.
    relativo ≤ 10⁻⁹, verdetti identici) **prima** dell'esecuzione completa; poi su tutti, come porta.
 4. Provenienza: commit pulito, SHA-256 di questo piano, di `VALIDATION_RAW.csv.gz` e del codice
    negli output; controllo indipendente e riconteggio prima di leggere le sintesi.
+5. Esito `errore`: un braccio che non può calcolare la varianza (funzione di varianza o REML non
+   valide, come in M) dà `errore` per quel braccio; non si sostituisce con un altro braccio. A3 non
+   richiede stime e non dà errori.
 
-## 7. Da decidere in revisione
+## 7. Decisioni chiuse dall'agente senza revisione (2026-11-13)
 
-- Se aggiungere un braccio A2' con la **migliore approssimazione AR(1)** della covarianza dei salti (φ,
-  κ, σ_x² che minimizzano la distanza da K_steps), per separare «AR(1) stimato male» da «AR(1)
-  inadatto in ogni caso».
-- Se includere gli effetti −0,1, −0,2 e −0,35 dello scenario 7 (oggi solo −0,3).
-- Numerosità dei controlli 1 e 2 (2000 proposti).
+- Braccio A2' **incluso** (§3.1), solo negli scenari 7 e 10.
+- Effetti dello scenario 7: **tutti e quattro** (−0,1, −0,2, −0,3, −0,35), 2000 cataloghi ciascuno.
+- Controlli 1 e 2: **2000** cataloghi ciascuno (k = 0…1999), sotto nulla.
+- Lettura di A2': se A2' è vicino ad A2, l'AR(1) basta come forma e il problema è la stima dei suoi
+  parametri; se A2' resta vicino ad A0, la forma AR(1) è inadatta ai salti.

@@ -148,7 +148,7 @@
   riconteggio indipendente da eseguire prima dell'interpretazione (`p2f_checks.py raw`, output
   del pilota mai modificati).
 - 2026-11-13, bozza (non congelata) del piano T5-D2: controlli oracolo sulla procedura M nello scenario a
-  salti, con la covarianza vera del processo a salti al posto dei parametri AR(1). `docs/PROTOCOL_T5_ORACLE_DRAFT.md`.
+  salti, con la covarianza vera del processo a salti al posto dei parametri AR(1). `docs/PROTOCOL_T5_ORACLE.md`.
 - 2026-11-13, studio di fattibilità MDI/SMARP completato (documentale, nessun dato scaricato): fonti
   primarie (Bobra et al. 2021, Liu et al. 2012, Scherrer et al. 1995, Schou et al. 2012, Bobra et al.
   2014, Hoeksema et al. 2014, BARD), differenze strumentali (solo LOS in MDI, sovrapposizione
