@@ -1,5 +1,20 @@
 # Cold restart — SHARP BL
 
+## T5-D2: struttura del rapporto e richiesta di revisione pronte — 2026-11-13
+
+Preparati `docs/T5_ORACLE_RESULTS.md` (BOZZA DI SOLA STRUTTURA) e
+`docs/T5_ORACLE_REVIEW_REQUEST.md`. Le 46 righe delle tabelle, 22 sotto
+nulla e 24 sotto effetto, contengono soltanto numerosita previste e campi
+DA INSERIRE. Non attestano completamento o controlli della corsa.
+Nessun output scientifico T5-D2 o tabella nel log aperto; nessun nuovo
+calcolo e stato del processo non ricontrollato per questa preparazione.
+Richiesta in due fasi: ora revisione del verificatore e della struttura
+senza leggere risultati; dopo fine e controllo effettivo, revisione
+dell'interpretazione. Per la morfologia resta la revisione incrociata del
+rapporto gia disponibile, senza nuove classi o consenso. Nessun push.
+I protocolli congelati e il produttore sono invariati. T5 descrittivo,
+T3 non deciso; nessuna nuova applicazione reale autorizzata da questi file.
+
 ## T5-D2: verificatore separato pronto — 2026-11-13
 
 Specifica `bd3616a` registrata prima del codice. Nuovo verificatore

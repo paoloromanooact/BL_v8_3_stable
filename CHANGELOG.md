@@ -2,6 +2,12 @@
 
 ## v8.4 (Python, branch `v8.4-python-gianluca`) — in corso
 
+- 2026-11-13: preparata la sola struttura del rapporto T5-D2 e la richiesta
+  di revisione in due fasi: verificatore prima dei risultati, interpretazione
+  dopo fine e controllo della corsa. Tabelle vuote sui 46 gruppi previsti,
+  regole di lettura tratte da A1 e limiti degli oracoli. Nessun output
+  scientifico aperto, calcolo avviato o protocollo modificato.
+
 - 2026-11-13: preparato un verificatore T5-D2 separato, dopo specifica e
   fotografia degli input registrate prima del codice. 77 prove costruite
   a mano superate, inclusi parsing null, code, momenti, appaiamenti,
