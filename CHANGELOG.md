@@ -94,6 +94,11 @@
   `results/P2F_PILOT/DESIGN_CHECKS.csv` (`p2f_checks.py design`), controllo di finitezza e
   riconteggio indipendente da eseguire prima dell'interpretazione (`p2f_checks.py raw`, output
   del pilota mai modificati).
+- 2026-11-13, controllo delle HARP dominanti (piano `f805c5a`, esecuzione su `1a22e09`): 120 HARP
+  (20 dominanti + 10 controlli per ciclo × emisfero), valori P1 riprodotti; segnalazioni frequenti di
+  complessità (più regioni NOAA, flusso fuori maschera, multipolarità); sensibilità a maschera e
+  pesatura ≤ 3,4 % di Σ|S_BL|, alla soglia fino al 7,1 %; nessun errore confermato; 25S priorità di
+  approfondimento. `docs/DOMINANT_HARP_RESULTS.md`.
 - 2026-11-13, applicazione di T3 ai dati reali con la procedura M validata (una esecuzione, `42fcd01`):
   β̂_T = −3,59° per unità di attività, intervallo a livello nominale 97,5 % [−10,58°; +3,41°], esito
   «non deciso»; nessun effetto della griglia escluso; potenza validata bassa, quindi non è evidenza

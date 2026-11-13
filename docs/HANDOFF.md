@@ -31,7 +31,14 @@ attribuisce un meccanismo; «non deciso» non è assenza (potenza 5–11 % a −
 quenching ≥ δ solo se l'estremo inferiore dell'intervallo è > −δ·γ0; sensibilità non validate.
 Poi ZIP e revisione. Push solo su richiesta dell'utente.
 
-**Dopo:** controllo delle HARP dominanti (piano `f805c5a`, codice pronto, prova tecnica in
+**Fatto il 2026-11-13:** correzioni di formulazione di `docs/P2F_RESULTS.md` dopo la revisione esterna
+(`1a22e09`); **controllo completo delle HARP dominanti** (`36676a9`, `docs/DOMINANT_HARP_RESULTS.md`):
+120 HARP, valori P1 riprodotti, nessun errore confermato (esame visivo delle schede non ancora
+fatto), sensibilità a maschera e pesatura ≤ 3,4 % di Σ|S_BL|, gruppo 25S sopra la soglia di
+priorità del 25 %. Prossimo: revisione esterna di questi risultati; eventuale esame visivo delle
+schede di 25S.
+
+**(Storico) Dopo:** controllo delle HARP dominanti (piano `f805c5a`, codice pronto, prova tecnica in
 `results/DOMINANT_TRIAL_2HARP/`; eseguire da commit pulito con
 `nice -n 10 .venv/bin/python python/sharpbl/dominant_harp_check.py`); fase 1 della verifica di
 riproducibilità (`docs/REPRO_PHASE1_PLAN.md`, congelato in `0f51e61`, solo dopo P2f); studio
@@ -47,7 +54,7 @@ si adottano.
 > v8.4-python-gianluca. Leggi AGENTS.md e docs/HANDOFF.md (sezione "Passaggio di consegne del
 > 2026-11-13"), poi docs/P2F_VALIDATION_RESULTS.md e docs/PROTOCOL_P2F_VALIDATED_TEST.md §7.
 > Verifica lo stato di Git. T3 è già stato applicato ai dati reali (docs/P2F_RESULTS.md); prossimo
-> passo: revisione esterna di quei risultati, poi HARP dominanti. Prima di ogni compito consigliami il modello e aspetta. Non fare il push senza
+> passo: revisione esterna di docs/P2F_RESULTS.md e docs/DOMINANT_HARP_RESULTS.md. Prima di ogni compito consigliami il modello e aspetta. Non fare il push senza
 > la mia richiesta.
 
 ---
