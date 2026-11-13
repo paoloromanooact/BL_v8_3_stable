@@ -165,8 +165,11 @@ l'utente era assente e aveva chiesto di procedere. La revisione esterna successi
 l'**emendamento A1** (`docs/PROTOCOL_T5_ORACLE_A1.md`): A1 diviso in A1a (sola varianza individuale
 vera, parametri temporali di A0) e A1b (con ristima REML), regole di lettura come compatibilità e
 non come attribuzione causale, A2' come approssimazione AR(1) lag per lag con il limite κ = 0,98.
-A1 è non cieco rispetto a una prova tecnica su 4 cataloghi. Poi codice, controlli preliminari,
-esecuzione unica, controllo indipendente e risultati; T5 resta descrittivo.
+A1 è non cieco rispetto a una prova tecnica su 4 cataloghi. Codice `2bf262f`; controlli preliminari
+superati (A0 riproduce la validazione su 50 cataloghi, covarianza dei salti verificata). **Esecuzione
+unica in corso**: avviata il 2026-11-13 alle 13:56:57, PID 1141311, log `logs/t5_oracle.log`
+(32 000 cataloghi, stima 1,5–3 ore). A fine esecuzione: `diag_t5_oracle.py --check` **prima** di
+leggere le sintesi, poi commit degli output e `docs/T5_ORACLE_RESULTS.md`. T5 resta descrittivo.
 
 ---
 
