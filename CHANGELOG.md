@@ -2,6 +2,11 @@
 
 ## v8.4 (Python, branch `v8.4-python-gianluca`) — in corso
 
+- 2026-11-14: controllo effettivo T5-D2 con il verificatore separato: 54/54
+  controlli tecnici superati, nessuna discrepanza. Output della corsa e
+  controlli conservati prima della lettura dei risultati; interpretazione
+  non ancora eseguita. T5 resta descrittivo.
+
 - 2026-11-14: revisione incrociata (fase 1) di verificatore T5-D2, scheletro
   del rapporto e morfologia, senza aprire gli output T5-D2: nessun problema
   bloccante per le attività esaminate; conclusioni T5-D2 non ancora valutabili. Conservata una prova esterna del verificatore (10/10, fuori dalla

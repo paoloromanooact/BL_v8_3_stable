@@ -1,0 +1,609 @@
+kind,scenario,effect,arm,A0_verdict,arm_verdict,n
+effect,7,-0.1,A1a,supportato,supportato,164
+effect,7,-0.1,A1a,supportato,opposto,0
+effect,7,-0.1,A1a,supportato,non deciso,6
+effect,7,-0.1,A1a,supportato,errore,0
+effect,7,-0.1,A1a,opposto,supportato,0
+effect,7,-0.1,A1a,opposto,opposto,2
+effect,7,-0.1,A1a,opposto,non deciso,0
+effect,7,-0.1,A1a,opposto,errore,0
+effect,7,-0.1,A1a,non deciso,supportato,4
+effect,7,-0.1,A1a,non deciso,opposto,0
+effect,7,-0.1,A1a,non deciso,non deciso,1822
+effect,7,-0.1,A1a,non deciso,errore,0
+effect,7,-0.1,A1a,errore,supportato,0
+effect,7,-0.1,A1a,errore,opposto,0
+effect,7,-0.1,A1a,errore,non deciso,0
+effect,7,-0.1,A1a,errore,errore,2
+effect,7,-0.1,A1b,supportato,supportato,168
+effect,7,-0.1,A1b,supportato,opposto,0
+effect,7,-0.1,A1b,supportato,non deciso,2
+effect,7,-0.1,A1b,supportato,errore,0
+effect,7,-0.1,A1b,opposto,supportato,0
+effect,7,-0.1,A1b,opposto,opposto,2
+effect,7,-0.1,A1b,opposto,non deciso,0
+effect,7,-0.1,A1b,opposto,errore,0
+effect,7,-0.1,A1b,non deciso,supportato,1
+effect,7,-0.1,A1b,non deciso,opposto,0
+effect,7,-0.1,A1b,non deciso,non deciso,1825
+effect,7,-0.1,A1b,non deciso,errore,0
+effect,7,-0.1,A1b,errore,supportato,0
+effect,7,-0.1,A1b,errore,opposto,0
+effect,7,-0.1,A1b,errore,non deciso,2
+effect,7,-0.1,A1b,errore,errore,0
+effect,7,-0.1,A2,supportato,supportato,116
+effect,7,-0.1,A2,supportato,opposto,0
+effect,7,-0.1,A2,supportato,non deciso,54
+effect,7,-0.1,A2,supportato,errore,0
+effect,7,-0.1,A2,opposto,supportato,0
+effect,7,-0.1,A2,opposto,opposto,0
+effect,7,-0.1,A2,opposto,non deciso,2
+effect,7,-0.1,A2,opposto,errore,0
+effect,7,-0.1,A2,non deciso,supportato,13
+effect,7,-0.1,A2,non deciso,opposto,0
+effect,7,-0.1,A2,non deciso,non deciso,1813
+effect,7,-0.1,A2,non deciso,errore,0
+effect,7,-0.1,A2,errore,supportato,0
+effect,7,-0.1,A2,errore,opposto,0
+effect,7,-0.1,A2,errore,non deciso,0
+effect,7,-0.1,A2,errore,errore,2
+effect,7,-0.1,A2p,supportato,supportato,141
+effect,7,-0.1,A2p,supportato,opposto,0
+effect,7,-0.1,A2p,supportato,non deciso,29
+effect,7,-0.1,A2p,supportato,errore,0
+effect,7,-0.1,A2p,opposto,supportato,0
+effect,7,-0.1,A2p,opposto,opposto,0
+effect,7,-0.1,A2p,opposto,non deciso,2
+effect,7,-0.1,A2p,opposto,errore,0
+effect,7,-0.1,A2p,non deciso,supportato,39
+effect,7,-0.1,A2p,non deciso,opposto,0
+effect,7,-0.1,A2p,non deciso,non deciso,1787
+effect,7,-0.1,A2p,non deciso,errore,0
+effect,7,-0.1,A2p,errore,supportato,0
+effect,7,-0.1,A2p,errore,opposto,0
+effect,7,-0.1,A2p,errore,non deciso,0
+effect,7,-0.1,A2p,errore,errore,2
+effect,7,-0.1,A3,supportato,supportato,119
+effect,7,-0.1,A3,supportato,opposto,0
+effect,7,-0.1,A3,supportato,non deciso,51
+effect,7,-0.1,A3,supportato,errore,0
+effect,7,-0.1,A3,opposto,supportato,0
+effect,7,-0.1,A3,opposto,opposto,0
+effect,7,-0.1,A3,opposto,non deciso,2
+effect,7,-0.1,A3,opposto,errore,0
+effect,7,-0.1,A3,non deciso,supportato,13
+effect,7,-0.1,A3,non deciso,opposto,0
+effect,7,-0.1,A3,non deciso,non deciso,1813
+effect,7,-0.1,A3,non deciso,errore,0
+effect,7,-0.1,A3,errore,supportato,0
+effect,7,-0.1,A3,errore,opposto,0
+effect,7,-0.1,A3,errore,non deciso,2
+effect,7,-0.1,A3,errore,errore,0
+effect,7,-0.2,A1a,supportato,supportato,543
+effect,7,-0.2,A1a,supportato,opposto,0
+effect,7,-0.2,A1a,supportato,non deciso,4
+effect,7,-0.2,A1a,supportato,errore,0
+effect,7,-0.2,A1a,opposto,supportato,0
+effect,7,-0.2,A1a,opposto,opposto,0
+effect,7,-0.2,A1a,opposto,non deciso,0
+effect,7,-0.2,A1a,opposto,errore,0
+effect,7,-0.2,A1a,non deciso,supportato,2
+effect,7,-0.2,A1a,non deciso,opposto,0
+effect,7,-0.2,A1a,non deciso,non deciso,1450
+effect,7,-0.2,A1a,non deciso,errore,0
+effect,7,-0.2,A1a,errore,supportato,0
+effect,7,-0.2,A1a,errore,opposto,0
+effect,7,-0.2,A1a,errore,non deciso,0
+effect,7,-0.2,A1a,errore,errore,1
+effect,7,-0.2,A1b,supportato,supportato,546
+effect,7,-0.2,A1b,supportato,opposto,0
+effect,7,-0.2,A1b,supportato,non deciso,1
+effect,7,-0.2,A1b,supportato,errore,0
+effect,7,-0.2,A1b,opposto,supportato,0
+effect,7,-0.2,A1b,opposto,opposto,0
+effect,7,-0.2,A1b,opposto,non deciso,0
+effect,7,-0.2,A1b,opposto,errore,0
+effect,7,-0.2,A1b,non deciso,supportato,1
+effect,7,-0.2,A1b,non deciso,opposto,0
+effect,7,-0.2,A1b,non deciso,non deciso,1451
+effect,7,-0.2,A1b,non deciso,errore,0
+effect,7,-0.2,A1b,errore,supportato,0
+effect,7,-0.2,A1b,errore,opposto,0
+effect,7,-0.2,A1b,errore,non deciso,1
+effect,7,-0.2,A1b,errore,errore,0
+effect,7,-0.2,A2,supportato,supportato,427
+effect,7,-0.2,A2,supportato,opposto,0
+effect,7,-0.2,A2,supportato,non deciso,120
+effect,7,-0.2,A2,supportato,errore,0
+effect,7,-0.2,A2,opposto,supportato,0
+effect,7,-0.2,A2,opposto,opposto,0
+effect,7,-0.2,A2,opposto,non deciso,0
+effect,7,-0.2,A2,opposto,errore,0
+effect,7,-0.2,A2,non deciso,supportato,12
+effect,7,-0.2,A2,non deciso,opposto,0
+effect,7,-0.2,A2,non deciso,non deciso,1440
+effect,7,-0.2,A2,non deciso,errore,0
+effect,7,-0.2,A2,errore,supportato,0
+effect,7,-0.2,A2,errore,opposto,0
+effect,7,-0.2,A2,errore,non deciso,0
+effect,7,-0.2,A2,errore,errore,1
+effect,7,-0.2,A2p,supportato,supportato,490
+effect,7,-0.2,A2p,supportato,opposto,0
+effect,7,-0.2,A2p,supportato,non deciso,57
+effect,7,-0.2,A2p,supportato,errore,0
+effect,7,-0.2,A2p,opposto,supportato,0
+effect,7,-0.2,A2p,opposto,opposto,0
+effect,7,-0.2,A2p,opposto,non deciso,0
+effect,7,-0.2,A2p,opposto,errore,0
+effect,7,-0.2,A2p,non deciso,supportato,58
+effect,7,-0.2,A2p,non deciso,opposto,0
+effect,7,-0.2,A2p,non deciso,non deciso,1394
+effect,7,-0.2,A2p,non deciso,errore,0
+effect,7,-0.2,A2p,errore,supportato,0
+effect,7,-0.2,A2p,errore,opposto,0
+effect,7,-0.2,A2p,errore,non deciso,0
+effect,7,-0.2,A2p,errore,errore,1
+effect,7,-0.2,A3,supportato,supportato,433
+effect,7,-0.2,A3,supportato,opposto,0
+effect,7,-0.2,A3,supportato,non deciso,114
+effect,7,-0.2,A3,supportato,errore,0
+effect,7,-0.2,A3,opposto,supportato,0
+effect,7,-0.2,A3,opposto,opposto,0
+effect,7,-0.2,A3,opposto,non deciso,0
+effect,7,-0.2,A3,opposto,errore,0
+effect,7,-0.2,A3,non deciso,supportato,13
+effect,7,-0.2,A3,non deciso,opposto,0
+effect,7,-0.2,A3,non deciso,non deciso,1439
+effect,7,-0.2,A3,non deciso,errore,0
+effect,7,-0.2,A3,errore,supportato,0
+effect,7,-0.2,A3,errore,opposto,0
+effect,7,-0.2,A3,errore,non deciso,1
+effect,7,-0.2,A3,errore,errore,0
+effect,7,-0.3,A1a,supportato,supportato,1046
+effect,7,-0.3,A1a,supportato,opposto,0
+effect,7,-0.3,A1a,supportato,non deciso,8
+effect,7,-0.3,A1a,supportato,errore,0
+effect,7,-0.3,A1a,opposto,supportato,0
+effect,7,-0.3,A1a,opposto,opposto,0
+effect,7,-0.3,A1a,opposto,non deciso,0
+effect,7,-0.3,A1a,opposto,errore,0
+effect,7,-0.3,A1a,non deciso,supportato,6
+effect,7,-0.3,A1a,non deciso,opposto,0
+effect,7,-0.3,A1a,non deciso,non deciso,937
+effect,7,-0.3,A1a,non deciso,errore,0
+effect,7,-0.3,A1a,errore,supportato,0
+effect,7,-0.3,A1a,errore,opposto,0
+effect,7,-0.3,A1a,errore,non deciso,0
+effect,7,-0.3,A1a,errore,errore,3
+effect,7,-0.3,A1b,supportato,supportato,1050
+effect,7,-0.3,A1b,supportato,opposto,0
+effect,7,-0.3,A1b,supportato,non deciso,4
+effect,7,-0.3,A1b,supportato,errore,0
+effect,7,-0.3,A1b,opposto,supportato,0
+effect,7,-0.3,A1b,opposto,opposto,0
+effect,7,-0.3,A1b,opposto,non deciso,0
+effect,7,-0.3,A1b,opposto,errore,0
+effect,7,-0.3,A1b,non deciso,supportato,6
+effect,7,-0.3,A1b,non deciso,opposto,0
+effect,7,-0.3,A1b,non deciso,non deciso,937
+effect,7,-0.3,A1b,non deciso,errore,0
+effect,7,-0.3,A1b,errore,supportato,1
+effect,7,-0.3,A1b,errore,opposto,0
+effect,7,-0.3,A1b,errore,non deciso,2
+effect,7,-0.3,A1b,errore,errore,0
+effect,7,-0.3,A2,supportato,supportato,920
+effect,7,-0.3,A2,supportato,opposto,0
+effect,7,-0.3,A2,supportato,non deciso,134
+effect,7,-0.3,A2,supportato,errore,0
+effect,7,-0.3,A2,opposto,supportato,0
+effect,7,-0.3,A2,opposto,opposto,0
+effect,7,-0.3,A2,opposto,non deciso,0
+effect,7,-0.3,A2,opposto,errore,0
+effect,7,-0.3,A2,non deciso,supportato,24
+effect,7,-0.3,A2,non deciso,opposto,0
+effect,7,-0.3,A2,non deciso,non deciso,919
+effect,7,-0.3,A2,non deciso,errore,0
+effect,7,-0.3,A2,errore,supportato,0
+effect,7,-0.3,A2,errore,opposto,0
+effect,7,-0.3,A2,errore,non deciso,0
+effect,7,-0.3,A2,errore,errore,3
+effect,7,-0.3,A2p,supportato,supportato,979
+effect,7,-0.3,A2p,supportato,opposto,0
+effect,7,-0.3,A2p,supportato,non deciso,75
+effect,7,-0.3,A2p,supportato,errore,0
+effect,7,-0.3,A2p,opposto,supportato,0
+effect,7,-0.3,A2p,opposto,opposto,0
+effect,7,-0.3,A2p,opposto,non deciso,0
+effect,7,-0.3,A2p,opposto,errore,0
+effect,7,-0.3,A2p,non deciso,supportato,57
+effect,7,-0.3,A2p,non deciso,opposto,0
+effect,7,-0.3,A2p,non deciso,non deciso,886
+effect,7,-0.3,A2p,non deciso,errore,0
+effect,7,-0.3,A2p,errore,supportato,0
+effect,7,-0.3,A2p,errore,opposto,0
+effect,7,-0.3,A2p,errore,non deciso,0
+effect,7,-0.3,A2p,errore,errore,3
+effect,7,-0.3,A3,supportato,supportato,918
+effect,7,-0.3,A3,supportato,opposto,0
+effect,7,-0.3,A3,supportato,non deciso,136
+effect,7,-0.3,A3,supportato,errore,0
+effect,7,-0.3,A3,opposto,supportato,0
+effect,7,-0.3,A3,opposto,opposto,0
+effect,7,-0.3,A3,opposto,non deciso,0
+effect,7,-0.3,A3,opposto,errore,0
+effect,7,-0.3,A3,non deciso,supportato,20
+effect,7,-0.3,A3,non deciso,opposto,0
+effect,7,-0.3,A3,non deciso,non deciso,923
+effect,7,-0.3,A3,non deciso,errore,0
+effect,7,-0.3,A3,errore,supportato,1
+effect,7,-0.3,A3,errore,opposto,0
+effect,7,-0.3,A3,errore,non deciso,2
+effect,7,-0.3,A3,errore,errore,0
+effect,7,-0.35,A1a,supportato,supportato,1281
+effect,7,-0.35,A1a,supportato,opposto,0
+effect,7,-0.35,A1a,supportato,non deciso,4
+effect,7,-0.35,A1a,supportato,errore,0
+effect,7,-0.35,A1a,opposto,supportato,0
+effect,7,-0.35,A1a,opposto,opposto,0
+effect,7,-0.35,A1a,opposto,non deciso,0
+effect,7,-0.35,A1a,opposto,errore,0
+effect,7,-0.35,A1a,non deciso,supportato,4
+effect,7,-0.35,A1a,non deciso,opposto,0
+effect,7,-0.35,A1a,non deciso,non deciso,711
+effect,7,-0.35,A1a,non deciso,errore,0
+effect,7,-0.35,A1a,errore,supportato,0
+effect,7,-0.35,A1a,errore,opposto,0
+effect,7,-0.35,A1a,errore,non deciso,0
+effect,7,-0.35,A1a,errore,errore,0
+effect,7,-0.35,A1b,supportato,supportato,1283
+effect,7,-0.35,A1b,supportato,opposto,0
+effect,7,-0.35,A1b,supportato,non deciso,2
+effect,7,-0.35,A1b,supportato,errore,0
+effect,7,-0.35,A1b,opposto,supportato,0
+effect,7,-0.35,A1b,opposto,opposto,0
+effect,7,-0.35,A1b,opposto,non deciso,0
+effect,7,-0.35,A1b,opposto,errore,0
+effect,7,-0.35,A1b,non deciso,supportato,3
+effect,7,-0.35,A1b,non deciso,opposto,0
+effect,7,-0.35,A1b,non deciso,non deciso,712
+effect,7,-0.35,A1b,non deciso,errore,0
+effect,7,-0.35,A1b,errore,supportato,0
+effect,7,-0.35,A1b,errore,opposto,0
+effect,7,-0.35,A1b,errore,non deciso,0
+effect,7,-0.35,A1b,errore,errore,0
+effect,7,-0.35,A2,supportato,supportato,1152
+effect,7,-0.35,A2,supportato,opposto,0
+effect,7,-0.35,A2,supportato,non deciso,133
+effect,7,-0.35,A2,supportato,errore,0
+effect,7,-0.35,A2,opposto,supportato,0
+effect,7,-0.35,A2,opposto,opposto,0
+effect,7,-0.35,A2,opposto,non deciso,0
+effect,7,-0.35,A2,opposto,errore,0
+effect,7,-0.35,A2,non deciso,supportato,18
+effect,7,-0.35,A2,non deciso,opposto,0
+effect,7,-0.35,A2,non deciso,non deciso,697
+effect,7,-0.35,A2,non deciso,errore,0
+effect,7,-0.35,A2,errore,supportato,0
+effect,7,-0.35,A2,errore,opposto,0
+effect,7,-0.35,A2,errore,non deciso,0
+effect,7,-0.35,A2,errore,errore,0
+effect,7,-0.35,A2p,supportato,supportato,1222
+effect,7,-0.35,A2p,supportato,opposto,0
+effect,7,-0.35,A2p,supportato,non deciso,63
+effect,7,-0.35,A2p,supportato,errore,0
+effect,7,-0.35,A2p,opposto,supportato,0
+effect,7,-0.35,A2p,opposto,opposto,0
+effect,7,-0.35,A2p,opposto,non deciso,0
+effect,7,-0.35,A2p,opposto,errore,0
+effect,7,-0.35,A2p,non deciso,supportato,58
+effect,7,-0.35,A2p,non deciso,opposto,0
+effect,7,-0.35,A2p,non deciso,non deciso,657
+effect,7,-0.35,A2p,non deciso,errore,0
+effect,7,-0.35,A2p,errore,supportato,0
+effect,7,-0.35,A2p,errore,opposto,0
+effect,7,-0.35,A2p,errore,non deciso,0
+effect,7,-0.35,A2p,errore,errore,0
+effect,7,-0.35,A3,supportato,supportato,1152
+effect,7,-0.35,A3,supportato,opposto,0
+effect,7,-0.35,A3,supportato,non deciso,133
+effect,7,-0.35,A3,supportato,errore,0
+effect,7,-0.35,A3,opposto,supportato,0
+effect,7,-0.35,A3,opposto,opposto,0
+effect,7,-0.35,A3,opposto,non deciso,0
+effect,7,-0.35,A3,opposto,errore,0
+effect,7,-0.35,A3,non deciso,supportato,19
+effect,7,-0.35,A3,non deciso,opposto,0
+effect,7,-0.35,A3,non deciso,non deciso,696
+effect,7,-0.35,A3,non deciso,errore,0
+effect,7,-0.35,A3,errore,supportato,0
+effect,7,-0.35,A3,errore,opposto,0
+effect,7,-0.35,A3,errore,non deciso,0
+effect,7,-0.35,A3,errore,errore,0
+null,1,0,A1a,supportato,supportato,31
+null,1,0,A1a,supportato,opposto,0
+null,1,0,A1a,supportato,non deciso,2
+null,1,0,A1a,supportato,errore,0
+null,1,0,A1a,opposto,supportato,0
+null,1,0,A1a,opposto,opposto,24
+null,1,0,A1a,opposto,non deciso,0
+null,1,0,A1a,opposto,errore,0
+null,1,0,A1a,non deciso,supportato,4
+null,1,0,A1a,non deciso,opposto,1
+null,1,0,A1a,non deciso,non deciso,1935
+null,1,0,A1a,non deciso,errore,0
+null,1,0,A1a,errore,supportato,0
+null,1,0,A1a,errore,opposto,0
+null,1,0,A1a,errore,non deciso,0
+null,1,0,A1a,errore,errore,3
+null,1,0,A1b,supportato,supportato,32
+null,1,0,A1b,supportato,opposto,0
+null,1,0,A1b,supportato,non deciso,1
+null,1,0,A1b,supportato,errore,0
+null,1,0,A1b,opposto,supportato,0
+null,1,0,A1b,opposto,opposto,24
+null,1,0,A1b,opposto,non deciso,0
+null,1,0,A1b,opposto,errore,0
+null,1,0,A1b,non deciso,supportato,3
+null,1,0,A1b,non deciso,opposto,1
+null,1,0,A1b,non deciso,non deciso,1936
+null,1,0,A1b,non deciso,errore,0
+null,1,0,A1b,errore,supportato,0
+null,1,0,A1b,errore,opposto,0
+null,1,0,A1b,errore,non deciso,3
+null,1,0,A1b,errore,errore,0
+null,1,0,A2,supportato,supportato,26
+null,1,0,A2,supportato,opposto,0
+null,1,0,A2,supportato,non deciso,7
+null,1,0,A2,supportato,errore,0
+null,1,0,A2,opposto,supportato,0
+null,1,0,A2,opposto,opposto,22
+null,1,0,A2,opposto,non deciso,2
+null,1,0,A2,opposto,errore,0
+null,1,0,A2,non deciso,supportato,5
+null,1,0,A2,non deciso,opposto,7
+null,1,0,A2,non deciso,non deciso,1928
+null,1,0,A2,non deciso,errore,0
+null,1,0,A2,errore,supportato,0
+null,1,0,A2,errore,opposto,0
+null,1,0,A2,errore,non deciso,0
+null,1,0,A2,errore,errore,3
+null,1,0,A3,supportato,supportato,26
+null,1,0,A3,supportato,opposto,0
+null,1,0,A3,supportato,non deciso,7
+null,1,0,A3,supportato,errore,0
+null,1,0,A3,opposto,supportato,0
+null,1,0,A3,opposto,opposto,20
+null,1,0,A3,opposto,non deciso,4
+null,1,0,A3,opposto,errore,0
+null,1,0,A3,non deciso,supportato,4
+null,1,0,A3,non deciso,opposto,7
+null,1,0,A3,non deciso,non deciso,1929
+null,1,0,A3,non deciso,errore,0
+null,1,0,A3,errore,supportato,0
+null,1,0,A3,errore,opposto,0
+null,1,0,A3,errore,non deciso,3
+null,1,0,A3,errore,errore,0
+null,2,0,A1a,supportato,supportato,32
+null,2,0,A1a,supportato,opposto,0
+null,2,0,A1a,supportato,non deciso,0
+null,2,0,A1a,supportato,errore,0
+null,2,0,A1a,opposto,supportato,0
+null,2,0,A1a,opposto,opposto,35
+null,2,0,A1a,opposto,non deciso,1
+null,2,0,A1a,opposto,errore,0
+null,2,0,A1a,non deciso,supportato,0
+null,2,0,A1a,non deciso,opposto,1
+null,2,0,A1a,non deciso,non deciso,1930
+null,2,0,A1a,non deciso,errore,0
+null,2,0,A1a,errore,supportato,0
+null,2,0,A1a,errore,opposto,0
+null,2,0,A1a,errore,non deciso,0
+null,2,0,A1a,errore,errore,1
+null,2,0,A1b,supportato,supportato,31
+null,2,0,A1b,supportato,opposto,0
+null,2,0,A1b,supportato,non deciso,1
+null,2,0,A1b,supportato,errore,0
+null,2,0,A1b,opposto,supportato,0
+null,2,0,A1b,opposto,opposto,35
+null,2,0,A1b,opposto,non deciso,1
+null,2,0,A1b,opposto,errore,0
+null,2,0,A1b,non deciso,supportato,0
+null,2,0,A1b,non deciso,opposto,0
+null,2,0,A1b,non deciso,non deciso,1931
+null,2,0,A1b,non deciso,errore,0
+null,2,0,A1b,errore,supportato,0
+null,2,0,A1b,errore,opposto,0
+null,2,0,A1b,errore,non deciso,1
+null,2,0,A1b,errore,errore,0
+null,2,0,A2,supportato,supportato,22
+null,2,0,A2,supportato,opposto,0
+null,2,0,A2,supportato,non deciso,10
+null,2,0,A2,supportato,errore,0
+null,2,0,A2,opposto,supportato,0
+null,2,0,A2,opposto,opposto,23
+null,2,0,A2,opposto,non deciso,13
+null,2,0,A2,opposto,errore,0
+null,2,0,A2,non deciso,supportato,3
+null,2,0,A2,non deciso,opposto,6
+null,2,0,A2,non deciso,non deciso,1922
+null,2,0,A2,non deciso,errore,0
+null,2,0,A2,errore,supportato,0
+null,2,0,A2,errore,opposto,0
+null,2,0,A2,errore,non deciso,0
+null,2,0,A2,errore,errore,1
+null,2,0,A3,supportato,supportato,21
+null,2,0,A3,supportato,opposto,0
+null,2,0,A3,supportato,non deciso,11
+null,2,0,A3,supportato,errore,0
+null,2,0,A3,opposto,supportato,0
+null,2,0,A3,opposto,opposto,24
+null,2,0,A3,opposto,non deciso,12
+null,2,0,A3,opposto,errore,0
+null,2,0,A3,non deciso,supportato,3
+null,2,0,A3,non deciso,opposto,6
+null,2,0,A3,non deciso,non deciso,1922
+null,2,0,A3,non deciso,errore,0
+null,2,0,A3,errore,supportato,0
+null,2,0,A3,errore,opposto,0
+null,2,0,A3,errore,non deciso,1
+null,2,0,A3,errore,errore,0
+null,7,0,A1a,supportato,supportato,155
+null,7,0,A1a,supportato,opposto,0
+null,7,0,A1a,supportato,non deciso,5
+null,7,0,A1a,supportato,errore,0
+null,7,0,A1a,opposto,supportato,0
+null,7,0,A1a,opposto,opposto,174
+null,7,0,A1a,opposto,non deciso,1
+null,7,0,A1a,opposto,errore,0
+null,7,0,A1a,non deciso,supportato,0
+null,7,0,A1a,non deciso,opposto,3
+null,7,0,A1a,non deciso,non deciso,9658
+null,7,0,A1a,non deciso,errore,0
+null,7,0,A1a,errore,supportato,0
+null,7,0,A1a,errore,opposto,0
+null,7,0,A1a,errore,non deciso,0
+null,7,0,A1a,errore,errore,4
+null,7,0,A1b,supportato,supportato,157
+null,7,0,A1b,supportato,opposto,0
+null,7,0,A1b,supportato,non deciso,3
+null,7,0,A1b,supportato,errore,0
+null,7,0,A1b,opposto,supportato,0
+null,7,0,A1b,opposto,opposto,172
+null,7,0,A1b,opposto,non deciso,3
+null,7,0,A1b,opposto,errore,0
+null,7,0,A1b,non deciso,supportato,1
+null,7,0,A1b,non deciso,opposto,3
+null,7,0,A1b,non deciso,non deciso,9657
+null,7,0,A1b,non deciso,errore,0
+null,7,0,A1b,errore,supportato,0
+null,7,0,A1b,errore,opposto,0
+null,7,0,A1b,errore,non deciso,4
+null,7,0,A1b,errore,errore,0
+null,7,0,A2,supportato,supportato,85
+null,7,0,A2,supportato,opposto,0
+null,7,0,A2,supportato,non deciso,75
+null,7,0,A2,supportato,errore,0
+null,7,0,A2,opposto,supportato,0
+null,7,0,A2,opposto,opposto,91
+null,7,0,A2,opposto,non deciso,84
+null,7,0,A2,opposto,errore,0
+null,7,0,A2,non deciso,supportato,9
+null,7,0,A2,non deciso,opposto,9
+null,7,0,A2,non deciso,non deciso,9643
+null,7,0,A2,non deciso,errore,0
+null,7,0,A2,errore,supportato,0
+null,7,0,A2,errore,opposto,0
+null,7,0,A2,errore,non deciso,0
+null,7,0,A2,errore,errore,4
+null,7,0,A2p,supportato,supportato,107
+null,7,0,A2p,supportato,opposto,0
+null,7,0,A2p,supportato,non deciso,53
+null,7,0,A2p,supportato,errore,0
+null,7,0,A2p,opposto,supportato,0
+null,7,0,A2p,opposto,opposto,130
+null,7,0,A2p,opposto,non deciso,45
+null,7,0,A2p,opposto,errore,0
+null,7,0,A2p,non deciso,supportato,28
+null,7,0,A2p,non deciso,opposto,37
+null,7,0,A2p,non deciso,non deciso,9596
+null,7,0,A2p,non deciso,errore,0
+null,7,0,A2p,errore,supportato,0
+null,7,0,A2p,errore,opposto,0
+null,7,0,A2p,errore,non deciso,0
+null,7,0,A2p,errore,errore,4
+null,7,0,A3,supportato,supportato,83
+null,7,0,A3,supportato,opposto,0
+null,7,0,A3,supportato,non deciso,77
+null,7,0,A3,supportato,errore,0
+null,7,0,A3,opposto,supportato,0
+null,7,0,A3,opposto,opposto,90
+null,7,0,A3,opposto,non deciso,85
+null,7,0,A3,opposto,errore,0
+null,7,0,A3,non deciso,supportato,8
+null,7,0,A3,non deciso,opposto,9
+null,7,0,A3,non deciso,non deciso,9644
+null,7,0,A3,non deciso,errore,0
+null,7,0,A3,errore,supportato,0
+null,7,0,A3,errore,opposto,0
+null,7,0,A3,errore,non deciso,4
+null,7,0,A3,errore,errore,0
+null,10,0,A1a,supportato,supportato,102
+null,10,0,A1a,supportato,opposto,0
+null,10,0,A1a,supportato,non deciso,1
+null,10,0,A1a,supportato,errore,0
+null,10,0,A1a,opposto,supportato,0
+null,10,0,A1a,opposto,opposto,88
+null,10,0,A1a,opposto,non deciso,4
+null,10,0,A1a,opposto,errore,0
+null,10,0,A1a,non deciso,supportato,2
+null,10,0,A1a,non deciso,opposto,2
+null,10,0,A1a,non deciso,non deciso,9793
+null,10,0,A1a,non deciso,errore,0
+null,10,0,A1a,errore,supportato,0
+null,10,0,A1a,errore,opposto,0
+null,10,0,A1a,errore,non deciso,0
+null,10,0,A1a,errore,errore,8
+null,10,0,A1b,supportato,supportato,101
+null,10,0,A1b,supportato,opposto,0
+null,10,0,A1b,supportato,non deciso,2
+null,10,0,A1b,supportato,errore,0
+null,10,0,A1b,opposto,supportato,0
+null,10,0,A1b,opposto,opposto,91
+null,10,0,A1b,opposto,non deciso,1
+null,10,0,A1b,opposto,errore,0
+null,10,0,A1b,non deciso,supportato,0
+null,10,0,A1b,non deciso,opposto,0
+null,10,0,A1b,non deciso,non deciso,9797
+null,10,0,A1b,non deciso,errore,0
+null,10,0,A1b,errore,supportato,0
+null,10,0,A1b,errore,opposto,0
+null,10,0,A1b,errore,non deciso,8
+null,10,0,A1b,errore,errore,0
+null,10,0,A2,supportato,supportato,50
+null,10,0,A2,supportato,opposto,0
+null,10,0,A2,supportato,non deciso,53
+null,10,0,A2,supportato,errore,0
+null,10,0,A2,opposto,supportato,0
+null,10,0,A2,opposto,opposto,43
+null,10,0,A2,opposto,non deciso,49
+null,10,0,A2,opposto,errore,0
+null,10,0,A2,non deciso,supportato,6
+null,10,0,A2,non deciso,opposto,7
+null,10,0,A2,non deciso,non deciso,9784
+null,10,0,A2,non deciso,errore,0
+null,10,0,A2,errore,supportato,0
+null,10,0,A2,errore,opposto,0
+null,10,0,A2,errore,non deciso,0
+null,10,0,A2,errore,errore,8
+null,10,0,A2p,supportato,supportato,70
+null,10,0,A2p,supportato,opposto,0
+null,10,0,A2p,supportato,non deciso,33
+null,10,0,A2p,supportato,errore,0
+null,10,0,A2p,opposto,supportato,0
+null,10,0,A2p,opposto,opposto,60
+null,10,0,A2p,opposto,non deciso,32
+null,10,0,A2p,opposto,errore,0
+null,10,0,A2p,non deciso,supportato,27
+null,10,0,A2p,non deciso,opposto,33
+null,10,0,A2p,non deciso,non deciso,9737
+null,10,0,A2p,non deciso,errore,0
+null,10,0,A2p,errore,supportato,0
+null,10,0,A2p,errore,opposto,0
+null,10,0,A2p,errore,non deciso,0
+null,10,0,A2p,errore,errore,8
+null,10,0,A3,supportato,supportato,49
+null,10,0,A3,supportato,opposto,0
+null,10,0,A3,supportato,non deciso,54
+null,10,0,A3,supportato,errore,0
+null,10,0,A3,opposto,supportato,0
+null,10,0,A3,opposto,opposto,42
+null,10,0,A3,opposto,non deciso,50
+null,10,0,A3,opposto,errore,0
+null,10,0,A3,non deciso,supportato,6
+null,10,0,A3,non deciso,opposto,7
+null,10,0,A3,non deciso,non deciso,9784
+null,10,0,A3,non deciso,errore,0
+null,10,0,A3,errore,supportato,0
+null,10,0,A3,errore,opposto,0
+null,10,0,A3,errore,non deciso,8
+null,10,0,A3,errore,errore,0

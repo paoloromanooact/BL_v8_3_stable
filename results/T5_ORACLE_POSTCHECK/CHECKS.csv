@@ -1,0 +1,55 @@
+check,passed,detail
+checker_tracked_tree_clean,True,
+input_manifest_unique,True,
+input_hash:python/sharpbl/diag_t5_oracle.py,True,
+input_hash:python/sharpbl/p2f_validation.py,True,
+input_hash:python/sharpbl/p2f_pilot.py,True,
+input_hash:python/sharpbl/p2d.py,True,
+input_hash:python/sharpbl/run_p2.py,True,
+input_hash:python/sharpbl/provenance.py,True,
+input_hash:python/sharpbl/__init__.py,True,
+input_hash:requirements-v84.txt,True,
+input_hash:docs/PROTOCOL_T5_ORACLE.md,True,
+input_hash:docs/PROTOCOL_T5_ORACLE_A1.md,True,
+input_hash:docs/PROTOCOL_P2F_VALIDATED_TEST.md,True,
+input_hash:docs/PROTOCOL_P2_QUENCHING.md,True,
+input_hash:docs/PROTOCOL_P2D_SIMULATION_CALIBRATED_TEST.md,True,
+input_hash:docs/PROTOCOL_P2E_ATTENUATION_CORRECTION.md,True,
+input_hash:results/P2F/VALIDATION_RAW.csv.gz,True,
+input_hash:results/P1/P1_SBL_CATALOG_BY_HARP.csv,True,
+input_hash:ancillary/SILSO_HEMI/SN_m_hem_V2.0.csv,True,
+input_hash:results/T5_ORACLE/PRELIM_TESTS.csv,True,
+preliminary_ten_passed,True,
+preliminary_provenance,True,
+raw_provenance,True,
+summary_provenance,True,
+paired_provenance,True,
+metadata_provenance,True,
+metadata_values,True,constants and job count
+raw_keys_exact,True,"rows=188000, expected=188000"
+raw_schema,True,
+raw_numeric_fields,True,bad rows=0; examples=[]
+raw_truth,True,bad rows=0; examples=[]
+raw_binary_flags,True,bad rows=0; examples=[]
+raw_states,True,bad rows=0; examples=[]
+raw_error_rows,True,bad rows=0; examples=[]
+raw_A3_no_error,True,bad rows=0; examples=[]
+raw_finite_intervals,True,bad rows=0; examples=[]
+raw_half_widths,True,bad rows=0; examples=[]
+raw_verdicts,True,bad rows=0; examples=[]
+raw_coverage_tails,True,bad rows=0; examples=[]
+raw_beta_equal_across_arms,True,
+raw_A3_SE_fixed_by_scenario,True,
+A0_reference_keys_exact,True,"matched=32000, expected=32000"
+A0_reference_provenance,True,
+A0_reproduces_reference,True,{}
+A0_missing_reference_beta_declared,True,22
+summary_keys_exact,True,
+paired_keys_exact,True,
+summary_schema,True,
+paired_schema,True,
+summary_all_fields_recounted,True,mismatched fields=0
+paired_all_fields_recounted,True,mismatched fields=0
+paired_no_sign_reversal,True,
+paired_full_transition_count,True,
+outputs_unchanged_while_reading,True,

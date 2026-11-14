@@ -1,0 +1,23 @@
+{
+  "phi_star": {
+    "7": 0.9106,
+    "10": 0.8657
+  },
+  "kappa_star": {
+    "7": 0.0,
+    "10": 0.98
+  },
+  "sx2_true": 3.1684e-50,
+  "sig2_true": 1.26736e-49,
+  "n_jobs": 32000,
+  "sha256_P2": "bb8bb080b7753835caf76f6bcf28233c14023674d2202d6181596e5bbbc76e3b",
+  "sha256_P2d": "7caeee609de79c0988b87c3ef36736c8a47edbbcaaf8e1a439664b49078d0d33",
+  "sha256_P2e": "65d966694e52d6629f81f7b84e1971f94a13e4632100e597b0342b8536c017ad",
+  "git_commit": "2bf262f1b99d6a884ed72686047dc089911e5eff",
+  "git_dirty": 0,
+  "sha256_PROTOCOL_T5_ORACLE": "c5763829131dc44c732414f3c52142f3f06f1ca331ea100d46fd2ed9d1e3e656",
+  "sha256_PROTOCOL_T5_ORACLE_A1": "a6ed15b1c331d556b03185bdeede1799d0ff52ed58b425d72bc35336fc026d65",
+  "sha256_PROTOCOL_P2F": "8f030010ddedb28131a79ea72edd2fe6077c9a04dd236854a86fb170f1cb3ab1",
+  "sha256_VALIDATION_RAW": "9553f49ac4e0ec7a7209f366062552a1d3a6cd0933449b9002658aa80cff4178",
+  "status": "diagnostica T5-D2, non cieca, nessun verdetto"
+}

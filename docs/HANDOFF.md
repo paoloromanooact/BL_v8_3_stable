@@ -1,5 +1,15 @@
 # Cold restart — SHARP BL
 
+## T5-D2: controllo effettivo superato e output conservati — 2026-11-14
+
+Corsa conclusa il 13/11 alle 18:45 (marcatore `fatto`). `t5_oracle_postcheck.py --check`
+sul commit pulito `94606c6`: **54/54 controlli superati**, nessuna discrepanza, file
+invariati durante la lettura; 22 righe A0 errore senza beta nel riferimento, dichiarate.
+Quattro output `ORACLE_*`, `PRELIM_TESTS.csv` e `results/T5_ORACLE_POSTCHECK/` conservati
+in Git **prima di leggere i risultati**: riepiloghi e riconteggi non ancora aperti né
+interpretati. Prossimo: compilare `T5_ORACLE_RESULTS.md` e lettura secondo A1 (punto 4,
+parte interpretativa), poi punto 5. Limite: SE dei bracci non ricalcolati. Nessun push.
+
 ## Revisione incrociata fase 1 (verificatore, scheletro, morfologia) — 2026-11-14
 
 Claude Opus 5.5 ha esaminato `f38d351` in sola lettura, senza aprire gli

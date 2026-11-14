@@ -32,11 +32,11 @@ nuova procedura. Gli oracoli usano quantità note soltanto nelle simulazioni.
 | Emendamento da applicare nella lettura | [PROTOCOL_T5_ORACLE_A1.md](PROTOCOL_T5_ORACLE_A1.md), `2b334bb`; prevale sui punti sostituiti |
 | Produttore atteso | `2bf262f1b99d6a884ed72686047dc089911e5eff`, albero tracciato pulito: da confermare sugli output |
 | Avvio registrato | 2026-11-13 13:56:57 Europe/Rome, nota `d284592`; PID wrapper 1141311, PID Python 1141317 |
-| Fine, durata, uscita | DA INSERIRE dalla sessione di esecuzione e dai controlli tecnici |
+| Fine, durata, uscita | Log `logs/t5_oracle.log`: «32000/32000 cataloghi» e marcatore `fatto`, ultimo aggiornamento 2026-11-13 18:45:25 Europe/Rome; durata circa 4 h 48 min (stima del piano 1,5–2,5 h). Codice di uscita del processo non registrato |
 | Ricevuta preliminare | Dieci prove passate, già registrate; hash atteso in [fotografia degli input](T5_ORACLE_POSTCHECK_INPUTS_SHA256.csv) |
 | Codice del verificatore separato | `9bd1e2e`; 77 prove costruite a mano passate; ricevuta legata allo SHA del codice, non all'HEAD documentale successivo |
-| Controllo effettivo sui risultati | NON ESEGUITO in questa preparazione; esito e commit DA INSERIRE |
-| Conservazione degli output | Commit e hash dei quattro file DA INSERIRE dopo il controllo |
+| Controllo effettivo sui risultati | Eseguito il 2026-11-14 sul commit pulito `94606c6` con `t5_oracle_postcheck.py --check` (codice `ac591b47…`, ricevuta 77/77): **54/54 controlli superati**, nessuna discrepanza; esiti in `results/T5_ORACLE_POSTCHECK/` |
+| Conservazione degli output | Quattro output, ricevuta preliminare e controllo conservati nel commit successivo al controllo, prima di leggere i risultati; hash prima/dopo identici in `results/T5_ORACLE_POSTCHECK/META.json` |
 | Interpretazione e revisione | Data, autore/modello, esposizioni precedenti e rilievi DA INSERIRE |
 
 Distinguere il produttore degli output T5-D2, quello della validazione P2f
@@ -114,13 +114,13 @@ sufficienza dipende dalle conclusioni che si vorranno sostenere.
 
 | Verifica effettiva | Esito da inserire |
 |---|---|
-| Integrità, provenienza e impronta degli input | DA INSERIRE |
-| Chiavi, numerosità e assenza di duplicati | DA INSERIRE |
-| Riproduzione A0 su tutte le 32000 chiavi pertinenti | DA INSERIRE |
-| Pendenze uguali fra bracci, verità, stati, intervalli e code | DA INSERIRE |
-| Riconteggio completo del riepilogo e delle matrici appaiate | DA INSERIRE |
-| A3 senza errori e SE costante per scenario sul disegno fisso | DA INSERIRE |
-| File invariati durante la lettura | DA INSERIRE |
+| Integrità, provenienza e impronta degli input | Superato: 18 hash degli input, produttore `2bf262f` pulito su ogni riga e nei metadati, 10 prove preliminari |
+| Chiavi, numerosità e assenza di duplicati | Superato: 188000 righe, 46 gruppi, 38 confronti, chiavi esatte |
+| Riproduzione A0 su tutte le 32000 chiavi pertinenti | Superato; 22 righe errore senza beta nel riferimento P2f, dichiarate e non confrontate numericamente |
+| Pendenze uguali fra bracci, verità, stati, intervalli e code | Superato |
+| Riconteggio completo del riepilogo e delle matrici appaiate | Superato: tutte le colonne, nessuna inversione di segno, 16 celle per confronto |
+| A3 senza errori e SE costante per scenario sul disegno fisso | Superato (controllo strutturale, non di normalità) |
+| File invariati durante la lettura | Superato: hash identici prima e dopo |
 | SE dei bracci A1a, A1b, A2, A2p | Non ricalcolati dal verificatore: solo coerenza interna (vedi sopra) |
 | Rilievi della revisione e loro risoluzione | DA INSERIRE |
 

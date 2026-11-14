@@ -1,0 +1,25 @@
+{
+  "code_sha256": "ac591b47cf36b9557887b0ac6d1632dfab2ad1572fb822563c43eaf8621c3715",
+  "spec_sha256": "9b0e61093a8786811510f57421611203057566f5d2407d108f40e369cafa6dfc",
+  "inputs_manifest_sha256": "f728c19496abec98dbb4f5c35cf1795e224b7844843af52fa226058c75d75b19",
+  "selftest_receipt_sha256": "d608db3d6562dd73ab9e4e0fabd2f8bc115a5929e6580ec108d8e6cf24c0c9c7",
+  "producer_commit_expected": "2bf262f1b99d6a884ed72686047dc089911e5eff",
+  "checker_commit": "94606c645259ec6c022d8af4e7502d190eaf5189",
+  "checker_git_dirty": 0,
+  "input_output_hashes_before": {
+    "ORACLE_RAW.csv.gz": "d6d6400f364f85e2491332249f365eef8950c239a46dcd98b6279676ff76edaf",
+    "ORACLE_SUMMARY.csv": "b9a4d086c5be5c4fdc80415d689114bfaddf4749fa1023d71a65d8198755f488",
+    "ORACLE_PAIRED_VS_A0.csv": "b1d3610eebb1009b3d5bbc2fd8169362b0e34b24e919ec057f56ecd581894366",
+    "ORACLE_META.json": "7f4529a1765e0cf2fe9f8dbc02115864aa1a35883a0bd3d1f2f89b441bfd5147"
+  },
+  "A0_missing_reference_beta": 22,
+  "input_output_hashes_after": {
+    "ORACLE_RAW.csv.gz": "d6d6400f364f85e2491332249f365eef8950c239a46dcd98b6279676ff76edaf",
+    "ORACLE_SUMMARY.csv": "b9a4d086c5be5c4fdc80415d689114bfaddf4749fa1023d71a65d8198755f488",
+    "ORACLE_PAIRED_VS_A0.csv": "b1d3610eebb1009b3d5bbc2fd8169362b0e34b24e919ec057f56ecd581894366",
+    "ORACLE_META.json": "7f4529a1765e0cf2fe9f8dbc02115864aa1a35883a0bd3d1f2f89b441bfd5147"
+  },
+  "all_passed": true,
+  "checks": 54,
+  "meaning": "technical audit only; T5 remains descriptive"
+}
