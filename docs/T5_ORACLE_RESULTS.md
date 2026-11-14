@@ -12,7 +12,8 @@ ricontrollato durante questa preparazione. `DA INSERIRE` non significa zero.
 T5 studia la dipendenza dell'efficienza del proxy della sorgente BL
 rispetto all'attività. La procedura M non ha superato la validazione P2f
 nello scenario 7, con livelli ±1 su blocchi di 20 CR. T5-D1 ha rilevato,
-nei cataloghi di sviluppo, R = media(SE²)/varianza empirica(beta) circa
+negli output salvati della validazione P2f (`5c3b664`), ora materiale di
+sviluppo, R = media(SE²)/varianza empirica(beta) circa
 0,858 sotto nulla. Si tratta di una carenza di circa il 14,2% nella media
 di SE², non nel valore di SE e non in una componente già identificata.
 R da solo non descrive le code o i falsi verdetti.
@@ -43,8 +44,8 @@ originale (`5c3b664`) e il commit del verificatore. Non richiedere che siano
 lo stesso HEAD. Registrare versioni dell'ambiente e ricevute effettivamente
 usate; non attribuire alla corsa un ambiente dedotto solo dal file dei requisiti.
 
-L'emendamento A1 dichiara una prova tecnica su quattro cataloghi di sviluppo
-prima della registrazione dell'emendamento e del commit del codice. Questo
+L'emendamento A1 dichiara una prova tecnica su quattro cataloghi sintetici
+della validazione P2f prima della registrazione dell'emendamento e del commit del codice. Questo
 limite di cecità resta dichiarato, senza ripresentare il lavoro come cieco.
 
 ## 3. Bracci e quantità sostituite
@@ -97,6 +98,20 @@ e 38 confronti appaiati. Sono numerosità del piano, non conteggi verificati
 in questo documento. Le 77 prove del verificatore e i 60 test ordinari del
 repository non sono il controllo effettivo di questi output.
 
+**Limite del verificatore, da riportare con i risultati.** Per i bracci
+A1a, A1b, A2 e A2p il verificatore controlla soltanto la coerenza interna
+(intervalli centrati, semi-intervalli, verdetti, code, riconteggi): non
+ricalcola i loro SE. Un SE sbagliato ma usato in modo coerente passerebbe.
+Solo A0 ha un riferimento esterno (raw P2f); A3 ha il solo controllo
+strutturale dell'SE costante per scenario. Inoltre 77/77 non equivale a 77
+verifiche indipendenti: circa nove prove hanno valori attesi fissati a mano,
+le altre sono alterazioni o confronti del riconteggio con sé stesso. Un caso
+con una riga errore e valori calcolati a mano è stato provato esternamente il
+2026-11-14 (`scripts/t5_postcheck_external_probe.py`, fuori dalla ricevuta;
+[revisione incrociata](CROSS_REVIEW_2026-11-14.md)).
+La prova migliora la trasparenza ma non colma il limite sugli SE: la sua
+sufficienza dipende dalle conclusioni che si vorranno sostenere.
+
 | Verifica effettiva | Esito da inserire |
 |---|---|
 | Integrità, provenienza e impronta degli input | DA INSERIRE |
@@ -106,6 +121,7 @@ repository non sono il controllo effettivo di questi output.
 | Riconteggio completo del riepilogo e delle matrici appaiate | DA INSERIRE |
 | A3 senza errori e SE costante per scenario sul disegno fisso | DA INSERIRE |
 | File invariati durante la lettura | DA INSERIRE |
+| SE dei bracci A1a, A1b, A2, A2p | Non ricalcolati dal verificatore: solo coerenza interna (vedi sopra) |
 | Rilievi della revisione e loro risoluzione | DA INSERIRE |
 
 ## 5. Numerosità, denominatori e definizioni
@@ -249,6 +265,14 @@ la stessa componente individuale stimata e cambia la covarianza temporale
 specificata. Nessuna conclusione va dedotta dal solo R, né da una sola
 combinazione scelta dopo aver visto i risultati.
 
+Il §7 del protocollo congelato legge A2′ in modo generale («se A2′ resta
+vicino ad A0, la forma AR(1) è inadatta ai salti»). In base ad A1 §3, che
+qualifica A2′ come la specifica approssimazione lag per lag, quella lettura
+generale **non si adotta**: l'esito di A2′ descrive solo questa
+approssimazione. Allo stesso modo l'«indizio» del protocollo §1 (eccesso di
+falsi verdetti dovuto all'errore standard stimato) è più forte di quanto
+T5-D1 ha stabilito e non va riportato come risultato.
+
 **Interpretazione effettiva: DA SCRIVERE soltanto dopo i controlli.**
 
 ## 8. Incidenti, discrepanze ed esposizioni da rendicontare
@@ -293,6 +317,13 @@ restano distinti dalla diagnosi sintetica qui preparata.
 ## 10. Revisione e conservazione
 
 Richiesta per l'altro agente in [T5_ORACLE_REVIEW_REQUEST.md](T5_ORACLE_REVIEW_REQUEST.md).
+
+Fase 1 svolta il 2026-11-14 da Claude Opus 5.5 sul commit `f38d351`, senza
+aprire gli output: [revisione incrociata](CROSS_REVIEW_2026-11-14.md). Nessun
+problema bloccante per le attività esaminate, senza approvare conclusioni
+T5-D2; verificatore e protocolli invariati; precisazioni
+documentali applicate. Un secondo revisore ne ha condiviso le conclusioni.
+Non è una revisione cieca né la revisione dell'interpretazione (fase 2).
 
 **DA INSERIRE:** autore e commit esaminato, esito della revisione del
 verificatore, esito della revisione scientifica successiva, rilievi e

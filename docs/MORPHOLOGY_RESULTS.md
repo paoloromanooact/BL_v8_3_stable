@@ -32,6 +32,15 @@ distinto per uno studio rappresentativo di S.
   Hash delle tabelle e versioni in [META.json](../results/MORPHOLOGY/ANALYSIS/META.json).
   Questi controlli hanno lo stesso autore dello script: non sono una revisione
   esterna indipendente del codice.
+- **Ruoli (precisazione del 2026-11-14).** Il lettore 2 (GPT-6.1 Sol) è anche
+  autore del comparatore, di questo rapporto e della verifica interna. La
+  revisione incrociata del 2026-11-14 è di Claude Opus 5.5, lo stesso modello
+  del lettore 1.
+- **Sequenza dei blocchi C.** La lettura C del lettore 1 è stata bloccata alle
+  14:20:51Z, circa quattro minuti dopo quella del lettore 2 (14:16:29Z), il cui
+  file era sullo stesso disco, privato ma accessibile. Che il lettore 1 non
+  l'abbia consultato dipende dalla procedura seguita e non è verificabile dai
+  file. La riproducibilità dei numeri non dimostra l'indipendenza delle letture.
 
 La [lista degli input](MORPHOLOGY_COMPARISON_INPUTS_SHA256.csv) distingue i
 riferimenti Git preesistenti dalle copie delle letture bloccate. Il produttore

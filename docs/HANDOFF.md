@@ -1,5 +1,21 @@
 # Cold restart — SHARP BL
 
+## Revisione incrociata fase 1 (verificatore, scheletro, morfologia) — 2026-11-14
+
+Claude Opus 5.5 ha esaminato `f38d351` in sola lettura, senza aprire gli
+output `ORACLE_*`: [CROSS_REVIEW_2026-11-14.md](CROSS_REVIEW_2026-11-14.md).
+Nessun problema bloccante per i punti 1–3 (non approva conclusioni T5-D2;
+la prova esterna non colma il limite sugli SE dei bracci). Verificatore, ricevuta e protocolli invariati;
+selftest ripetuto 77/77. Prova esterna conservata in
+`scripts/t5_postcheck_external_probe.py` (10/10, fuori dalla ricevuta).
+Morfologia: numeri riprodotti in modo indipendente, ma l'indipendenza delle
+letture non è dimostrabile dai file. Precisazioni documentali applicate in
+`T5_ORACLE_RESULTS.md` e `MORPHOLOGY_RESULTS.md`: limite degli SE dei bracci
+non ricalcolati, lettura generale di A2′ del protocollo §7 non adottata (A1 §3),
+ruoli dei lettori e sequenza dei blocchi C. Un secondo revisore ha condiviso
+le conclusioni. Prossimi passi: punto 4 (`--check` in cartella nuova, poi
+interpretazione) e punto 5 (coerenza finale). Nessun push.
+
 ## T5-D2: struttura del rapporto e richiesta di revisione pronte — 2026-11-13
 
 Preparati `docs/T5_ORACLE_RESULTS.md` (BOZZA DI SOLA STRUTTURA) e

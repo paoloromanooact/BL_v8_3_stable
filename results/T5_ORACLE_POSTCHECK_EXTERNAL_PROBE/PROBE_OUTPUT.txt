@@ -1,0 +1,17 @@
+command: PYTHONDONTWRITEBYTECODE=1 python3 scripts/t5_postcheck_external_probe.py
+run_utc: 2026-11-14T12:53:26Z
+repository_head_at_run: f38d351cb27b9ef572b37feb2b23231f611505e8 (probe script not yet committed)
+python: Python 3.10.12
+checker_sha256 ac591b47cf36b9557887b0ac6d1632dfab2ad1572fb822563c43eaf8621c3715
+PASS baseline_fixture accepted
+PASS summary_R_shift_1e-7_rel ['summary_all_fields_recounted']
+PASS summary_R_shift_1e-11_rel_within_tolerance accepted
+PASS summary_quantile_sign_flip ['summary_all_fields_recounted']
+PASS summary_null_kind_to_empty ['summary_keys_exact']
+PASS raw_null_kind_to_NULL ['raw_keys_exact']
+PASS paired_decided_count_plus_one ['paired_all_fields_recounted']
+PASS equivalent_effect_spelling_-0.20 accepted
+PASS A0_error_vs_valid_reference ['input_structure_exception']
+PASS hand_computed_group_with_error_row all 16 fields equal
+10/10 probes as expected
+exit_code: 0

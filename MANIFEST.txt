@@ -14,6 +14,7 @@ ancillary/SILSO_HEMI/SN_m_hem_V2.0.csv
 data/.gitkeep
 docs/ARTICLE_OUTLINE.md
 docs/CATALOGUE_DICTIONARY.md
+docs/CROSS_REVIEW_2026-11-14.md
 docs/DIAGNOSTIC_A_PLAN.md
 docs/DIAGNOSTIC_A_RESULTS.md
 docs/DIAGNOSTIC_B_PLAN.md
@@ -705,6 +706,7 @@ results/T5_DIAGNOSTIC/T5D_META.json
 results/T5_DIAGNOSTIC/T5D_NUISANCE.csv
 results/T5_DIAGNOSTIC/T5D_QUANTILES.csv
 results/T5_DIAGNOSTIC/T5D_SE_QUINTILES.csv
+results/T5_ORACLE_POSTCHECK_EXTERNAL_PROBE/PROBE_OUTPUT.txt
 results/T5_ORACLE_POSTCHECK_SELFTEST/REPOSITORY_CHECKS.json
 results/T5_ORACLE_POSTCHECK_SELFTEST/RUN1/SELFTEST.csv
 results/T5_ORACLE_POSTCHECK_SELFTEST/RUN1/SELFTEST_META.json
@@ -717,6 +719,7 @@ scripts/repro_compare.py
 scripts/repro_draft_tables.py
 scripts/review_morphology.py
 scripts/run_pipeline.sh
+scripts/t5_postcheck_external_probe.py
 test/test_process_day.pro
 test/test_sharp_bl_source_single.pro
 tests/test_geometry.py

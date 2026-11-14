@@ -2,6 +2,13 @@
 
 ## v8.4 (Python, branch `v8.4-python-gianluca`) — in corso
 
+- 2026-11-14: revisione incrociata (fase 1) di verificatore T5-D2, scheletro
+  del rapporto e morfologia, senza aprire gli output T5-D2: nessun problema
+  bloccante per le attività esaminate; conclusioni T5-D2 non ancora valutabili. Conservata una prova esterna del verificatore (10/10, fuori dalla
+  ricevuta). Precisazioni documentali sui limiti del verificatore, sulla
+  lettura di A2′ secondo A1 e sui ruoli dei lettori morfologici. Codice,
+  protocolli, letture e tabelle invariati.
+
 - 2026-11-13: preparata la sola struttura del rapporto T5-D2 e la richiesta
   di revisione in due fasi: verificatore prima dei risultati, interpretazione
   dopo fine e controllo della corsa. Tabelle vuote sui 46 gruppi previsti,
