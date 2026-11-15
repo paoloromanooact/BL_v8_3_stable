@@ -156,7 +156,7 @@ simulazioni non sono incertezze sul processo solare osservato.
 Valori da `results/T5_ORACLE_POSTCHECK/RECOUNTS.csv`, `PAIR_RECOUNTS.csv` e
 `PAIRED_TRANSITIONS.csv` (riconteggio separato). Prima della lettura si è
 confrontato `ORACLE_SUMMARY.csv` con `RECOUNTS.csv`: 46 gruppi in entrambi, conteggi
-identici, momenti con scarto massimo 3·10⁻¹⁶. Percentuali sui tentativi,
+identici, momenti con scarto inferiore a 10⁻¹⁵ (3·10⁻¹⁶ con pandas, 4,4·10⁻¹⁶ con csv/float nella revisione). Percentuali sui tentativi,
 MCSE binomiale = sqrt(f(1−f)/N). Il quantile normale di riferimento è
 ±Phi⁻¹(0,9875) = ±2,2414. Come termine di paragone si citano le soglie P2f
 (falsi ≤ 3,0 % e ≤ 1,75 % per verso; copertura ≥ 96,5 %; coda inferiore,
@@ -192,8 +192,9 @@ Gli oracoli usano quantità vere note solo nelle simulazioni.
 
 A0 riproduce i valori P2f e T5-D1 (scenario 7: 335/10000, R = 0,8580).
 Tutte le righe errore riguardano i bracci che usano la funzione di varianza
-stimata (A0, A1a, A2, A2p); A1b e A3 non ne hanno. Gli errori sono al massimo
-8 su 10000 (0,08 %).
+stimata (A0, A1a, A2, A2p); A1b e A3 non ne hanno. Il conteggio massimo di
+errori è 8 su 10000 (0,08 %) fra i gruppi da 10000; la frequenza massima fra
+tutti i gruppi è 3/2000 (0,15 %), nel controllo 1 e a −0,3.
 
 ### 6.2 Scenario 7 sotto effetto: copertura e code
 
@@ -412,12 +413,16 @@ leggono insieme varianza, falsi verdetti, code, copertura e cambiamenti appaiati
 
 **Fatti osservati, scenario 7 (livelli ±1 indipendenti fra emisferi, fase dei salti condivisa).**
 
-1. *Varianza individuale vera (A1a, A1b).* Non cambia nulla di misurabile
-   rispetto ad A0. Sotto nulla: R = 0,857 in entrambi; falsi 3,32 % e 3,33 %
+1. *Varianza individuale vera (A1a, A1b).* Produce cambiamenti piccoli
+   rispetto ad A0 nelle misure considerate. Sotto nulla: R = 0,857 in entrambi; falsi 3,32 % e 3,33 %
    contro 3,35 %; al massimo 10 su 10000 cataloghi cambiano stato decisionale.
    Sotto effetto −0,3: copertura 96,05 % e 96,30 % contro 96,10 %, `below`
-   2,25 % e 2,20 % contro 2,30 %. A1b non differisce da A1a: la ristima
-   temporale con la varianza individuale vera non cambia il risultato.
+   2,25 % e 2,20 % contro 2,30 %. A1b è simile ad A1a, non identico:
+   nello scenario 7 sotto nulla 23 cataloghi su 10000 cambiano stato; la differenza
+   dei falsi A1b−A1a è +0,01 punti (errore appaiato circa 0,044), a −0,3 quella di mancata copertura
+   −0,25 punti (circa 0,18). La ristima temporale con la varianza individuale
+   vera cambia poco il risultato. Nessuno di questi confronti dimostra
+   un'equivalenza o l'assenza di un contributo individuale.
 2. *Componente temporale vera (A2).* R = 0,981, SD(z) = 1,010, falsi
    194/10000 = 1,94 ± 0,14 % (0,94 % e 1,00 % per verso). Sotto −0,3:
    copertura 97,90 ± 0,32 %, `below` 1,20 %. Il cambiamento è appaiato e
@@ -435,23 +440,26 @@ leggono insieme varianza, falsi verdetti, code, copertura e cambiamenti appaiati
    piccola ma non nulla: −0,33 punti di falsi (rapporto −2,6, §6.5) e −0,85
    punti di mancata copertura a −0,3 (rapporto −2,8). Per A2 i valori sono
    −1,41 e −1,80. I verdetti di A2p si rimescolano (98 persi, 65 nuovi)
-   invece di restringersi soltanto. Nello scenario 10 la differenza da A0 è nulla (−0,05).
+   invece di restringersi soltanto. Nello scenario 10 la differenza da A0 è piccola e non risolta (−0,05 ± 0,11).
 5. *Code.* Con la varianza vera (A2, A3) i quantili di z sono −2,11 e +2,18
-   sotto nulla, dentro ±2,24. La distribuzione standardizzata ha quindi code
-   più leggere del riferimento normale, e l'intervallo nominale al 97,5 % dà
-   meno falsi verdetti del nominale (1,9 % contro 2,5 %). Lo stesso succede
-   nello scenario 10 (quantili ±2,03, falsi 1,04 %). Il segno della non
-   normalità è opposto a quello che avrebbe fatto fallire anche A3.
+   sotto nulla, dentro ±2,24. Ai livelli e alle soglie esaminati
+   (quantili 1,25 % e 98,75 %, intervallo al 97,5 %) la distribuzione
+   standardizzata è quindi meno estrema del riferimento normale, e i falsi
+   verdetti sono meno del nominale (1,9 % contro 2,5 %). Lo stesso succede
+   nello scenario 10 (quantili ±2,03, falsi 1,04 %). A quelle soglie lo
+   scarto va nel verso opposto a quello che avrebbe fatto fallire anche A3.
+   Non è una descrizione dell'intera forma delle code né una prova di
+   normalità o non normalità.
 
 **Scenario 10 (livelli comuni).** A0 era già nelle soglie: R = 0,917, falsi
-1,95 %. A2 e A3 portano R a 0,986 e i falsi all'1,06 % e all'1,04 %. A2p dà
+1,95 %. A2 e A3 portano R a 0,986 e 0,985 e i falsi all'1,06 % e all'1,04 %. A2p dà
 invece R = 0,864, più basso di A0, con falsi 1,90 %. Qui l'approssimazione usa
 kappa = 0,98, mentre il generatore ha kappa = 1. Il limite resta dichiarato e
 non è separabile dal resto.
 
 **Controlli 1 e 2 (AR(1)).** A0, A2 e A3 sono vicini, come atteso dal
 protocollo. Scenario 1: R da 0,984 a 0,987, falsi da 2,85 % a 3,00 %.
-Scenario 2: R di A0 0,953 con falsi 3,40 ± 0,41 %, A2/A3 0,968 con 2,70 %.
+Scenario 2: R di A0 0,953 con falsi 3,40 ± 0,41 %, A2 0,969 e A3 0,968, entrambi con 2,70 %.
 Nello scenario 2 lo scarto A0–A2 è di 23 contro 9 decisioni appaiate,
 −0,70 punti con errore appaiato 0,28 (rapporto −2,5, §6.5). Una prima
 stesura di questo rapporto lo descriveva come «circa 1–2 MCSE»: quel calcolo
@@ -463,17 +471,19 @@ solo per la stima dei parametri temporali (phi = 0,9). Lo scarto **suggerisce** 
 contributo della stima REML alla perdita di calibrazione anche quando la forma
 è corretta. È circa metà, in punti, di quello dello scenario 7 (−1,41), ma gli
 scenari differiscono anche per altro e il confronto non scompone le cause.
-Nello scenario 1 (phi = 0,5) non c'è scarto (+0,15, rapporto +0,7).
-Seguendo il protocollo, lo si riporta e si legge la diagnosi con cautela. Come indicazione grossolana non pre-registrata, l'errore
-Monte Carlo di R in approssimazione gaussiana, sqrt(2/(N−1)), vale circa
-0,014 per N = 10000 e 0,032 per N = 2000.
+Nello scenario 1 (phi = 0,5) lo scarto è piccolo e non risolto (+0,15 ± 0,23, rapporto +0,7).
+Seguendo il protocollo, lo si riporta e si legge la diagnosi con cautela. Come riferimento ideale, non come errore Monte Carlo misurato
+di R, la varianza campionaria di dati gaussiani indipendenti ha errore
+relativo sqrt(2/(N−1)), circa 0,014 per N = 10000 e 0,032 per N = 2000.
+Per questi bracci non vale come MCSE di R: il numeratore di R è stimato e
+può essere correlato con il denominatore, e gli scenari a salti non sono gaussiani.
 
 **Lettura secondo A1 §2.** Si realizza la prima riga della griglia: A2 è
 vicino al riferimento (R ≈ 1, falsi entro il 3,0 % e per verso entro
 l'1,75 %; sotto il nominale, quindi conservativo), A1a no. L'esito è **compatibile con un ruolo principale della
 componente temporale (modello AR(1) e sua stima) nello scenario a salti, in
 questi cataloghi**. Non identifica un difetto unico e non costituisce un
-metodo correttivo. A1b uguale ad A1a: la terza riga non si attiva. Non si
+metodo correttivo. A1b simile ad A1a (scarti piccoli, non nulli): la terza riga non si attiva. Non si
 realizzano né «solo A3» né «neppure A3», perché A2 basta e A3 non aggiunge.
 Il §1 del protocollo congelato parlava di un «indizio» e il §5 di «la causa
 principale è»: queste formulazioni non si adottano.
@@ -481,8 +491,9 @@ principale è»: queste formulazioni non si adottano.
 **A2p.** In base ad A1 §3, a parità di scala temporale vera e di varianza
 individuale stimata, sostituire K_steps con *questa* approssimazione AR(1)
 (criterio lag per lag a pesi uguali, non proiettato sul contrasto di beta)
-conserva solo una parte minore del miglioramento di A2 (§6.5): sotto nulla
-−0,33 contro −1,41 punti, a −0,3 −0,85 contro −1,80, nello scenario 10 nulla.
+conserva una parte minore del miglioramento di A2 (§6.5): sotto nulla
+−0,33 contro −1,41 punti (circa un quarto), a −0,3 −0,85 contro −1,80
+(circa metà), nello scenario 10 −0,05 ± 0,11 (non risolto).
 Ciò restringe le spiegazioni ma non chiude la questione, e descrive solo questa
 approssimazione. Non dimostra che ogni AR(1) sia inadatta ai salti. La lettura
 generale del §7 del protocollo congelato resta non adottata. Il confronto
@@ -502,9 +513,18 @@ gli SE di A1a, A1b, A2 e A2p: ne ha controllato soltanto la coerenza interna.
 Per A3 c'è solo il controllo strutturale (SE costante per scenario). Un SE di
 A2 sbagliato ma usato coerentemente avrebbe superato i controlli. La
 concordanza A2 ≈ A3 e il comportamento atteso nei controlli 1–2
-(A0 ≈ A2 ≈ A3) sono coerenze indirette, non un ricalcolo indipendente. Il
-ricalcolo facoltativo dell'SE di A3 coprirebbe solo A3. Per A2 servirebbe
-ricostruire i cataloghi, cioè rieseguire il produttore, che è escluso.
+(A0 ≈ A2 ≈ A3) sono coerenze indirette, non un ricalcolo indipendente. Una
+stesura precedente diceva che per A2 servisse rieseguire il produttore: è
+inesatto. Il sorgente (`diag_t5_oracle.py`, righe 90–130) separa generazione
+dei cataloghi, funzione di varianza e costruzione degli oracoli. A2 e A3 non
+richiedono la REML; A2 richiede comunque la stima della funzione di varianza
+(`P.varfun_fit`), quindi non è privo di ottimizzazione. È proposto un
+controllo separato: rigenerazione di tutti i cataloghi dai semi e ricalcolo
+indipendente della costruzione degli oracoli, con componenti, contrasto e
+beta. **Non è ancora pianificato né svolto.** Se superato, verificherebbe la
+costruzione degli oracoli entro le dipendenze condivise (generatore, celle,
+funzione di varianza), non tutta la catena. Fino ad allora vale il limite
+descritto sopra.
 
 ## 8. Incidenti, discrepanze ed esposizioni da rendicontare
 
@@ -540,13 +560,16 @@ retroattivamente il protocollo congelato.
 - *Cosa cambia negli oracoli.* Rendere vera la componente temporale (scala e
   covarianza dei salti) riporta R vicino a 1 e i falsi verdetti sotto il
   nominale nello scenario 7. Rendere vera la sola varianza individuale, con o
-  senza ristima, non cambia nulla. L'approssimazione AR(1) lag per lag
+  senza ristima, produce cambiamenti piccoli. L'approssimazione AR(1) lag per lag
   specificata, con scala vera, ne riproduce solo una parte minore. Con la
   varianza vera l'intervallo diventa conservativo, non esatto.
 - *Quali spiegazioni restano compatibili.* Un ruolo principale della
   componente temporale come modellata e stimata da M (AR(1) + REML) nello
-  scenario a salti. Un ruolo principale della funzione di varianza
-  individuale non è compatibile con l'invarianza di A1a e A1b. Non si attribuisce una causa unica.
+  scenario a salti. La sostituzione della varianza individuale, con o
+  senza ristima temporale, produce cambiamenti piccoli nelle misure considerate
+  e non sostiene un suo ruolo principale in questa diagnosi. Non è una
+  dimostrazione di equivalenza né dell'assenza di un contributo individuale.
+  Non si attribuisce una causa unica.
 - *Cosa non è distinguibile.* Non si separano le quote della forma AR(1) in sé
   e della stima dei suoi parametri; lo scenario 2 suggerisce che la stima possa
   contare anche con la forma giusta. Non si distingue l'effetto della specifica
@@ -606,6 +629,26 @@ Entrambe le richieste sono recepite nel commit successivo a `3a4add9`. Per il
 ricalcolo degli SE preferisce tutti i cataloghi, il confronto anche delle
 componenti della varianza e del contrasto, e la distinzione fra errori attesi
 e inattesi. Questo parere non è l'esito della revisione di fase 2.
+
+**Revisione di fase 2 (Codex, 2026-11-15, commit `8c7801a`)**, non cieca;
+artefatti in `MWO-HMI-MDI-Polar-Flux-Signed-Sunspots/reviews/T5_D2_CODEX_8c7801a/`,
+fuori da questo repository. Codex ha ripetuto il verificatore separato (54/54) e
+ha fatto un riconteggio indipendente con la sola libreria standard di tutte le
+tabelle §6.1–6.5, delle 608 celle e delle 38 righe dell'indicatore appaiato.
+Ha confrontato A0 con le 32000 chiavi P2f e verificato gli hash: nessuna
+discrepanza. Esito: nessun problema bloccante nell'integrità degli output, nei
+riconteggi o nelle tabelle. La lettura centrale (prima riga di A1) è coerente,
+condizionata alla correttezza degli SE salvati. Non verifica la diagnosi in
+ogni sua parte, perché resta aperto il ricalcolo indipendente degli SE degli oracoli. Rilievi
+*da correggere*: (1) la conclusione sulla varianza individuale era più forte
+dell'evidenza; (2) la spiegazione tecnica del limite sugli SE era superata.
+Rilievi *minori*: (3) imprecisioni numeriche nella prosa; (4) «nullo» invece di
+«piccolo/non risolto» e descrizione delle code da circoscrivere; (5)
+sqrt(2/(N−1)) non è una MCSE di R; (6) note di preparazione da riallineare.
+Risoluzione: (1)–(5) corretti nel commit successivo a `8c7801a`; (6) rinviato
+al punto 5 (coerenza documentale), senza trasformare in fatto verificato la
+segnalazione del secondo avvio interrotto. Ricalcolo degli SE: da pianificare
+con una nota congelata prima, solo dopo il via dell'utente.
 **DA INSERIRE:** revisione di fase 2 dell'interpretazione (autore, commit
 esaminato, rilievi e risoluzioni con commit distinti). Lo stesso agente che ha partecipato al
 progetto offre una revisione incrociata, non una verifica cieca dell'intero
