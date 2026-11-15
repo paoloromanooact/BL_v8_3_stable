@@ -509,7 +509,8 @@ migliore AR(1) per il contrasto, e nessun braccio usa una forma AR(1)
 ottimizzata con i parametri veri. Resta anche aperto quanto della leggerezza
 delle code dipenda dai livelli ±1 e quanto dal disegno fisso.
 
-**Limite degli SE dei bracci, da leggere con quanto sopra.** La lettura poggia
+**Limite degli SE dei bracci, da leggere con quanto sopra** (descrive lo stato prima del controllo
+aggiuntivo del §7.2, che lo chiude per A2, A3 e A2p). La lettura poggia
 soprattutto sugli SE di A2 e A3. Il verificatore separato non ha ricalcolato
 gli SE di A1a, A1b, A2 e A2p: ne ha controllato soltanto la coerenza interna.
 Per A3 c'è solo il controllo strutturale (SE costante per scenario). Un SE di
@@ -535,7 +536,12 @@ congelata in `61f8884` prima del codice, e chiarimento
 revisione dello script e prima dell'esecuzione. Lo script è
 `scripts/t5_oracle_se_recompute.py` (`39b7837`): selftest 59/59, revisionato da
 Codex in due passaggi senza rilievi bloccanti residui. L'esecuzione è stata
-unica, su commit pulito, con 12 processi (circa 12 minuti). Gli output sono
+unica, su commit pulito, con 12 processi (circa 12 minuti). Il codice di uscita
+del processo non è stato catturato dal wrapper: `META.json` e il log riportano
+«superato» e «fatto». Episodio operativo dichiarato dall'operatore, non
+verificato dal revisore e distinto dall'incidente della corsa T5-D2 originale:
+il primo ciclo di attesa controllava il PID di `setsid`, che termina subito,
+invece del processo Python. Non c'è stato nessun secondo avvio. Gli output sono
 conservati in `results/T5_ORACLE_SE_RECOMPUTE/` (`330d007`).
 
 | Controllo | Esito |
@@ -701,4 +707,11 @@ progetto e i riepiloghi.
 revisionato da Codex (4 rilievi bloccanti e 2 da correggere). Correzioni:
 chiarimento C1 (`ed43694`) e script `39b7837`, verificati da Codex senza
 rilievi bloccanti. Esecuzione unica con esito superato (§7.2), output in `330d007`.
-L'esito è da inviare a Codex.
+Verifica dell'esito (Codex, 2026-11-15, su `217a678`, output contro `330d007`):
+riconteggio indipendente con la sola libreria standard di tutte le 92000 righe,
+di SUMMARY e META, più gli hash. Esiti: nessuna discrepanza, criteri di nota e
+C1 soddisfatti, §7.2 correttamente delimitato. Il limite sulla costruzione degli
+SE di A2, A3 e A2p è colmato entro l'ambito dichiarato. Restano condivisi e non
+verificati generatore, aggregazione e funzione di varianza, e restano esclusi
+A1a e A1b. Non certifica codice di uscita, tempi o storia dei PID. Artefatti in
+`MWO-HMI-MDI-Polar-Flux-Signed-Sunspots/reviews/T5_D2_SE_ESITO_217a678/`.

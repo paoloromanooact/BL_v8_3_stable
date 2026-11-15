@@ -8,8 +8,8 @@ A1a e A1b con cambiamenti piccoli rispetto ad A0; A2 R 0,981, falsi 1,94 % (cons
 Prima riga della griglia A1: risultato compatibile con un ruolo principale della componente
 temporale, senza una causa unica. A2p descrive solo l'approssimazione specificata. Con la
 varianza vera, ai quantili 1,25/98,75 % e all'intervallo al 97,5 %, z è meno estremo del
-riferimento normale (non è una descrizione dell'intera forma delle code). Limite: gli SE dei bracci non
-sono stati ricalcolati e la lettura poggia su A2 e A3. T5 descrittivo, T3 non deciso.
+riferimento normale (non è una descrizione dell'intera forma delle code). La lettura poggia su A2 e A3: i loro
+SE (e quelli di A2p) sono stati poi ricalcolati in modo indipendente con esito superato (sotto); A1a e A1b no. T5 descrittivo, T3 non deciso.
 Revisione: tre pareri di Codex e revisione di fase 2 su `8c7801a`, senza problemi bloccanti;
 correzioni in `3a4add9`, `8c7801a` e `6e48f3c` (indicatore appaiato §6.5, formulazioni più caute),
 verificate da Codex; rilievo 6 (segnaposto) chiuso nel commit successivo.
