@@ -1,7 +1,8 @@
 # T5 — sensibilità del proxy del dipolo a uno spostamento prescritto della legge di Joy: nota metodologica
 
-Stato: **bozza del 2026-11-15, da rivedere (Codex) e congelare prima di scrivere il codice ed eseguire.**
-Non è un protocollo inferenziale e non contiene risultati. Segue la
+Stato: **congelata il 2026-11-15, prima di scrivere il codice ed eseguire**, dopo due revisioni di Codex
+(contenuto proposto; bozza `5c65f53`), le cui correzioni sono recepite. Non è un protocollo inferenziale e
+non contiene risultati. Segue la
 [nota di fattibilità](T5_FEASIBILITY_NOTE_DRAFT.md) (revisione 2) e le revisioni di Codex dei «prossimi
 passi» e del «contenuto proposto», le cui indicazioni sono recepite qui. Non cieca: le potenze esistenti
 (validazione P2f, T5-D2) sono note.
@@ -50,11 +51,18 @@ Proxy per il record i, in G:
 - **Raggio.** Il catalogo non contiene R. Si usa R = 6,96e10 cm (`geometry.RSUN_CM_DEFAULT`, valore
   nominale di `RSUN_REF` delle SHARP), dichiarato come ipotesi: il catalogo non registra per ogni record il
   valore dell'header.
-  - Se R dell'header coincide con quello nominale, P* è esatto rispetto a questa definizione.
-  - Se differisse di un fattore (1 + ε), d_cm/R cambierebbe di +ε e C di circa −2ε, quindi P* e Δβ
-    cambierebbero di circa −ε in proporzione, senza cambiare segni o confronti relativi.
-- **Latitudine nulla.** Se lat_i = 0, sign = 0 e quindi γ_i = 0 come in `run_p2`. Il caso si conta e si
-  riporta, senza escluderlo.
+  - A catalogo fissato (Φ_i e d_cm_i salvati), P* = hale_i·[3/(8π)]·Φ_i·cos λ_i·d_cm_i·sin γ_i / R³.
+    Sostituire R con R(1 + ε) moltiplica P*, ΔD, Δβ ed e_ref (con ETA_BAR fisso) per (1 + ε)⁻³ ≈ 1 − 3ε.
+  - Rispetto al raggio dell'header di ciascun record vale P*(R_nominale)/P*(R_header,i) = (R_header,i/R_nominale)³.
+    Se i raggi differissero fra record, non sarebbe un unico fattore comune: pendenze e confronti aggregati
+    potrebbero cambiare.
+  - Diverso è ricalcolare la misura da una stessa mappa con un altro raggio: Φ scala come R² e d_cm come R,
+    e nel proxy questi fattori cancellano R⁻³. Questa nota usa le colonne salvate, senza ricalcolare.
+- **Latitudine nulla.** Se lat_i = 0, sign = 0 e quindi γ_i = 0 come in `run_p2`; poiché anche
+  μ_i = γ0·sin|lat_i| = 0, ne seguono P*_i = 0 e ΔD_i = 0. È una convenzione degenere da contare e
+  riportare, senza escludere il record. Non afferma che il dipolo fisico sia nullo: per esempio due
+  polarità di flusso uguale a ±θ hanno latitudine media 0 ma D_bal ≠ 0. L'identità −s_ciclo·L·h = hale
+  vale solo per h = ±1.
 - **Natura del proxy.** P* è un'approssimazione di coppia compatta, non una nuova definizione del D_bal
   misurato e non il suo ricalcolo esatto. Anche un buon accordo al livello osservato non dimostra che la
   sua derivata rispetto al tilt sia quella del vero D_bal.
@@ -86,27 +94,45 @@ Proxy per il record i, in G:
 - **Residuo di proiezione.** Si stima per WLS (pesi W_c) Δη sul modello completo Xf_c, cioè intercetti
   ciclo-emisfero più (Â − 1), e si prende il residuo r_c. Si riportano:
   - RMS_W(r) = sqrt(Σ W_c r_c² / Σ W_c);
-  - il rapporto RMS_W(r)/RMS_W(Δη − media pesata di Δη), se il denominatore non è nullo.
+  - il rapporto RMS_W(r)/RMS_W(Δη − media pesata di Δη); con denominatore nullo si riporta NA con il
+    motivo, non inf. Dal rapporto non si ricava nessuna soglia di decisione.
 - **Conteggi:**
   - attraversamenti dello zero di γ (sign γ' ≠ sign γ) e casi con |γ'| > 90°;
-  - cambi di segno di ΔD dovuti allo scenario. Sono attesi; non si correggono e non si confondono con
-    errori di convenzione.
+  - numero di ΔD positivi, negativi e nulli;
+  - veri cambi di segno del proxy (sign P*(γ') ≠ sign P*(γ)), con gli zeri contati a parte.
+  Sono conseguenze attese dello scenario: non si correggono e non si confondono con errori di convenzione.
 - **Qualità del proxy, solo descrittiva**, al livello osservato e con grandezze orientate nelle stesse
-  unità:
-  - P*_i(γ_i) contro d*_i: correlazione, rapporto mediano, scarto;
-  - Σ P*/ΣΦ contro η_c per cella;
-  - frazione di record con segno concorde.
+  unità (G per record, G/Mx per cella):
+  - **per record**, pesi uniformi: correlazione di Pearson fra P*_i(γ_i) e d*_i; RMS di (P*_i − d*_i)
+    in G; mediana di P*_i/d*_i sui record con d*_i ≠ 0, con il numero di record con d*_i = 0 riportato a
+    parte (nessun ε e nessuna esclusione di valori piccoli); frazione di segni concordi, con gli zeri a
+    parte;
+  - **per cella**, pesi W_c: correlazione di Pearson pesata e RMS pesata della differenza fra
+    ΣP*/ΣΦ e η_c, in G/Mx.
 
-## 6. Controlli prima dell'esecuzione (selftest, nessun dato reale)
+## 6. Controlli
 
-- Algebra del proxy su configurazioni sintetiche: nord e sud, ciclo 24 e 25, Hale e anti-Hale, tilt nullo,
-  latitudine nulla. Il segno di P* deve coincidere con quello di S_CYCLE·D_bal di una coppia compatta
-  costruita a mano. La differenza ΔD deve essere esatta in casi calcolati a mano.
-- Identità sul catalogo, senza usare l'attività: P*_i(γ_i) = 3·s_star_i/(8πR³), dove
-  s_star = sign(lat)·s_bl di `run_p2.prepare`. Uguaglianza entro la precisione di macchina.
-- g riprodotto: g·η_c deve dare la pendenza T5 di `p2d.design_t5` sui dati del campione. È un controllo di
-  coerenza tecnica; il valore si registra ma non si legge come risultato.
-- Rampa δ ai bordi e fuori intervallo; Δβ = 0 per δ_max = 0.
+**6.1 Selftest sintetici, senza dati reali, prima dell'esecuzione:**
+- lat ≠ 0: il segno di P* coincide con quello di S_CYCLE·D_bal di una coppia compatta costruita a mano,
+  per nord e sud, ciclo 24 e 25, Hale e anti-Hale, tilt nullo;
+- lat = 0: γ, P* e ΔD sono nulli secondo la convenzione del §3, senza pretendere di riprodurre un D_bal
+  fisico non nullo;
+- ΔD esatto in casi calcolati a mano;
+- rampa δ ai bordi e fuori intervallo; Δβ = 0 per δ_max = 0;
+- proiezione: g·Xf_c uguale al vettore che seleziona la colonna dell'attività (rango pieno), e g·y uguale
+  alla pendenza di una soluzione WLS separata, su risposte sintetiche note; stesso controllo per il
+  residuo di proiezione;
+- valori non finiti (NaN, inf) trattati come errori tecnici, mai come controlli superati.
+
+**6.2 Controlli tecnici in esecuzione, sul catalogo, senza usare l'attività:**
+- identità P*_i(γ_i) = 3·s_star_i/(8πR³), con s_star = sign(lat)·s_bl di `run_p2.prepare`. La tolleranza
+  è relativa alla scala del singolo record: |differenza| ≤ 1e-12·max(|P*_i|, |3 s_star_i/(8πR³)|), con
+  uguaglianza esatta richiesta quando entrambi sono 0. È un controllo delle formule derivate da s_bl, non
+  una validazione indipendente dell'approssimazione rispetto a D_bal;
+- numerosità attese (2375 record, 318 celle): una differenza è un errore da risolvere, non un cambiamento
+  silenzioso del campione.
+
+La pendenza reale g·η_c **non** si calcola.
 
 ## 7. Uscite e limiti
 
@@ -129,7 +155,12 @@ Proxy per il record i, in G:
 
 ## 8. Esecuzione
 
-Script `scripts/t5_proxy_sensitivity.py`, scritto dopo il congelamento di questa nota. Prima il selftest
-(§6), poi una sola esecuzione su commit pulito. Uscite in `results/T5_PROXY_SENSITIVITY/`, con SHA-256 di
-nota, script e catalogo. Nessuna simulazione, nessun fit sui dati oltre alla proiezione WLS di Δη,
-nessun push senza richiesta.
+Script `scripts/t5_proxy_sensitivity.py`, scritto dopo il congelamento di questa nota e rivisto rispetto
+a essa. Prima i selftest (§6.1), poi una sola esecuzione su commit pulito, con i controlli del §6.2. Uscite
+in `results/T5_PROXY_SENSITIVITY/`. Si registrano:
+- commit;
+- SHA-256 di nota, script e catalogo effettivamente letto;
+- definizioni e fonte del disegno;
+- numerosità ottenute.
+Nessuna simulazione, nessun fit sui dati oltre alla proiezione WLS di Δη, nessuna pendenza reale, nessun
+push senza richiesta.
