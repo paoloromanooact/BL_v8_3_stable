@@ -346,17 +346,23 @@ nessuna soglia, coerentemente con §6.4. Script `scripts/t5_reading_paired_indic
 output `results/T5_ORACLE_READING/PAIRED_INDICATOR.csv`; legge `ORACLE_RAW.csv.gz` senza modificarlo.
 L'evento è il verdetto deciso sotto nulla e la mancata copertura sotto effetto
 (errore = mancata copertura). b = evento solo in A0, c = evento solo nel braccio.
-La differenza delle frequenze è (c − b)/N, con errore Monte Carlo appaiato
-sqrt(b + c)/N (approssimazione di tipo McNemar). Questo errore è più piccolo
-della MCSE della singola frequenza e va usato per le differenze fra bracci.
+La differenza delle frequenze è delta = (c − b)/N. Il suo errore Monte Carlo
+appaiato è l'errore standard campionario delle differenze
+D_i = evento_braccio_i − evento_A0_i, cioè sqrt((b + c − (c − b)²/N)/(N(N − 1))).
+La formula presuppone repliche indipendenti e coppie allineate. N comprende
+tutti i tentativi appaiati, errori inclusi. La versione in `3a4add9` usava
+l'approssimazione di tipo McNemar sqrt(b + c)/N; il revisore ha indicato la
+formula completa, che cambia gli errori al più di 0,003 punti e i rapporti
+al più di 0,1. Questo errore è più piccolo della MCSE della singola frequenza
+e va usato per le differenze fra bracci.
 
 | Gruppo | Braccio | b / c | Differenza (punti %) | Errore appaiato | Rapporto |
 |---|---|---|---|---|---|
 | 7 nulla | A1a / A1b | 6/3; 6/4 | −0,03; −0,02 | 0,03 | −1,0; −0,6 |
-| 7 nulla | A2 / A3 | 159/18; 162/17 | −1,41; −1,45 | 0,13 | −10,6; −10,8 |
+| 7 nulla | A2 / A3 | 159/18; 162/17 | −1,41; −1,45 | 0,13 | −10,7; −10,9 |
 | 7 nulla | A2p | 98/65 | −0,33 | 0,13 | −2,6 |
 | 7, −0,3 | A1a / A1b | 2/3; 6/2 | +0,05; −0,20 | 0,11; 0,14 | +0,4; −1,4 |
-| 7, −0,3 | A2 / A3 | 38/2; 41/2 | −1,80; −1,95 | 0,32; 0,33 | −5,7; −5,9 |
+| 7, −0,3 | A2 / A3 | 38/2; 41/2 | −1,80; −1,95 | 0,31; 0,33 | −5,7; −6,0 |
 | 7, −0,3 | A2p | 27/10 | −0,85 | 0,30 | −2,8 |
 | 10 nulla | A2 / A3 | 102/13; 104/13 | −0,89; −0,91 | 0,11 | −8,3; −8,4 |
 | 10 nulla | A2p | 65/60 | −0,05 | 0,11 | −0,4 |
@@ -364,6 +370,8 @@ della MCSE della singola frequenza e va usato per le differenze fra bracci.
 | 2 nulla | A2 / A3 | 23/9; 23/9 | −0,70; −0,70 | 0,28 | −2,5; −2,5 |
 
 Le 38 righe complete sono nel CSV. Per A1a e A1b il rapporto resta entro ±1,8 in tutti i gruppi.
+Sono 38 confronti descrittivi: un singolo rapporto intorno a 2,5 non va
+letto come un risultato forte.
 
 ## 7. Lettura vincolata all'emendamento A1
 
@@ -448,9 +456,10 @@ Nello scenario 2 lo scarto A0–A2 è di 23 contro 9 decisioni appaiate,
 −0,70 punti con errore appaiato 0,28 (rapporto −2,5, §6.5). Una prima
 stesura di questo rapporto lo descriveva come «circa 1–2 MCSE»: quel calcolo
 usava la MCSE della singola frequenza e sottostimava lo scarto, come ha
-rilevato la revisione. Lo scarto non è grande, ma non è trascurabile. Nello
+rilevato la revisione. Lo scarto non è grande, ma non è trascurabile; resta
+uno fra molti confronti descrittivi e non è una conclusione forte. Nello
 scenario 2 la forma AR(1) di M è quella giusta, quindi A0 e A2 differiscono
-solo per la stima dei parametri temporali (phi = 0,9). Lo scarto è compatibile con un
+solo per la stima dei parametri temporali (phi = 0,9). Lo scarto **suggerisce** un
 contributo della stima REML alla perdita di calibrazione anche quando la forma
 è corretta. È circa metà, in punti, di quello dello scenario 7 (−1,41), ma gli
 scenari differiscono anche per altro e il confronto non scompone le cause.
@@ -481,7 +490,7 @@ A2p–A0 cambia sia la scala sia la forma e non si attribuisce a phi o kappa.
 
 **Che cosa resta non distinto.** Non si sa quanto A0 perda calibrazione per la
 forma AR(1) in sé e quanto per la stima REML dei suoi parametri. Lo scarto
-dello scenario 2 indica che la stima può contare anche con la forma giusta,
+dello scenario 2 suggerisce che la stima possa contare anche con la forma giusta,
 ma non misura la sua quota nello scenario 7. A2p non è la
 migliore AR(1) per il contrasto, e nessun braccio usa una forma AR(1)
 ottimizzata con i parametri veri. Resta anche aperto quanto della leggerezza
@@ -539,8 +548,8 @@ retroattivamente il protocollo congelato.
   scenario a salti. Un ruolo principale della funzione di varianza
   individuale non è compatibile con l'invarianza di A1a e A1b. Non si attribuisce una causa unica.
 - *Cosa non è distinguibile.* Non si separano le quote della forma AR(1) in sé
-  e della stima dei suoi parametri; lo scenario 2 indica che la stima può contare
-  anche con la forma giusta. Non si distingue l'effetto della specifica
+  e della stima dei suoi parametri; lo scenario 2 suggerisce che la stima possa
+  contare anche con la forma giusta. Non si distingue l'effetto della specifica
   proiezione A2p da quello di un'AR(1) qualunque. Non si separa l'origine
   delle code leggere.
 - *Cosa mancherebbe per un metodo sui dati reali.* Una stima della
@@ -590,6 +599,13 @@ Risposte in questo commit: (1) e (2) recepiti in §7.1 e §9; per (3) è stato
 aggiunto l'indicatore appaiato in §6.5, che corregge la frase sullo scenario 2
 (prima «1–2 MCSE», ora rapporto −2,5) e la descrizione di A2p (piccola
 riduzione appaiata, prima «vicina ad A0»). Il punto (4) resta aperto.
+Secondo parere di Codex, 2026-11-15, ancora senza revisione completa del
+commit: chiede di non leggere il rapporto −2,5 dello scenario 2 come
+conclusione forte e di usare la formula completa dell'errore appaiato.
+Entrambe le richieste sono recepite nel commit successivo a `3a4add9`. Per il
+ricalcolo degli SE preferisce tutti i cataloghi, il confronto anche delle
+componenti della varianza e del contrasto, e la distinzione fra errori attesi
+e inattesi. Questo parere non è l'esito della revisione di fase 2.
 **DA INSERIRE:** revisione di fase 2 dell'interpretazione (autore, commit
 esaminato, rilievi e risoluzioni con commit distinti). Lo stesso agente che ha partecipato al
 progetto offre una revisione incrociata, non una verifica cieca dell'intero
