@@ -3,8 +3,9 @@
 **Struttura preparata il 2026-11-13 prima dell'apertura degli output.
 Risultati e interpretazione inseriti il 2026-11-15 (§6, §7.1, §9), dopo il
 controllo separato 54/54 e la conservazione degli output (`27a9c7d`).**
-Il file non è un protocollo e non congela nuovi criteri. La revisione
-dell'interpretazione (fase 2) non è ancora svolta. `DA INSERIRE` non significa zero.
+Il file non è un protocollo e non congela nuovi criteri. Revisione di fase 2
+(Codex) svolta su `8c7801a`; correzioni in `6e48f3c`, verificate da Codex su
+`0cdabc3` (§10). Resta aperto il ricalcolo indipendente degli SE degli oracoli (§7.1).
 
 ## 1. Domanda e stato scientifico
 
@@ -25,18 +26,18 @@ nuova procedura. Gli oracoli usano quantità note soltanto nelle simulazioni.
 
 ## 2. Provenienza e ordine dei passaggi
 
-| Elemento | Riferimento documentato o campo da completare |
+| Elemento | Riferimento documentato |
 |---|---|
 | Protocollo storico congelato | [PROTOCOL_T5_ORACLE.md](PROTOCOL_T5_ORACLE.md), `f77d39b`; conservato invariato |
 | Emendamento da applicare nella lettura | [PROTOCOL_T5_ORACLE_A1.md](PROTOCOL_T5_ORACLE_A1.md), `2b334bb`; prevale sui punti sostituiti |
-| Produttore atteso | `2bf262f1b99d6a884ed72686047dc089911e5eff`, albero tracciato pulito: da confermare sugli output |
+| Produttore atteso | `2bf262f1b99d6a884ed72686047dc089911e5eff`, albero tracciato pulito: confermato su ogni riga e nei metadati degli output (§4) |
 | Avvio registrato | 2026-11-13 13:56:57 Europe/Rome, nota `d284592`; PID wrapper 1141311, PID Python 1141317 |
 | Fine, durata, uscita | Log `logs/t5_oracle.log`: «32000/32000 cataloghi» e marcatore `fatto`, ultimo aggiornamento 2026-11-13 18:45:25 Europe/Rome; durata circa 4 h 48 min (stima del piano 1,5–2,5 h). Codice di uscita del processo non registrato |
 | Ricevuta preliminare | Dieci prove passate, già registrate; hash atteso in [fotografia degli input](T5_ORACLE_POSTCHECK_INPUTS_SHA256.csv) |
 | Codice del verificatore separato | `9bd1e2e`; 77 prove costruite a mano passate; ricevuta legata allo SHA del codice, non all'HEAD documentale successivo |
 | Controllo effettivo sui risultati | Eseguito il 2026-11-14 sul commit pulito `94606c6` con `t5_oracle_postcheck.py --check` (codice `ac591b47…`, ricevuta 77/77): **54/54 controlli superati**, nessuna discrepanza; esiti in `results/T5_ORACLE_POSTCHECK/` |
 | Conservazione degli output | Quattro output, ricevuta preliminare e controllo conservati nel commit successivo al controllo, prima di leggere i risultati; hash prima/dopo identici in `results/T5_ORACLE_POSTCHECK/META.json` |
-| Interpretazione e revisione | Interpretazione 2026-11-15, Claude Opus 5.5, su `27a9c7d`; non cieca (§8). Revisione di fase 2: DA INSERIRE |
+| Interpretazione e revisione | Interpretazione 2026-11-15, Claude Opus 5.5, su `27a9c7d`; non cieca (§8). Revisione di fase 2: Codex su `8c7801a`, correzioni `6e48f3c` verificate (§10) |
 
 Distinguere il produttore degli output T5-D2, quello della validazione P2f
 originale (`5c3b664`) e il commit del verificatore. Non richiedere che siano
@@ -79,12 +80,12 @@ Il controllore storico non basta come unica verifica finale: parsing di
 `null` e controlli incompleti sono rilievi sul sorgente, non difetti già
 osservati nelle tabelle della corsa.
 
-Sequenza da completare dopo la fine della corsa:
+Sequenza prevista dopo la fine della corsa, svolta come registrato nella tabella sotto e in §10:
 
 1. Accertare fine, quattro file completi e assenza di modifiche in corso;
    annotare eventuali esposizioni accidentali a risultati nel log.
 2. Rivedere il nuovo verificatore rispetto alla specifica, prima della
-   lettura scientifica; la revisione della preparazione non è ancora conclusa.
+   lettura scientifica (fase 1 della revisione, 2026-11-14, §10).
 3. Eseguire il controllo separato in una cartella nuova. Conservare anche
    ogni eventuale rapporto fallito, senza sovrascrivere gli originali.
 4. Verificare provenienza, hash prima/dopo, chiavi esatte, A0 contro P2f,
@@ -93,8 +94,8 @@ Sequenza da completare dopo la fine della corsa:
    sintesi. Se passa, conservare output e controlli prima dell'interpretazione.
 
 Il contratto prevede 32000 cataloghi, 188000 righe raw, 46 gruppi di riepilogo
-e 38 confronti appaiati. Sono numerosità del piano, non conteggi verificati
-in questo documento. Le 77 prove del verificatore e i 60 test ordinari del
+e 38 confronti appaiati. Queste numerosità sono state verificate dal
+controllo separato (tabella sotto) e dal riconteggio di revisione (§10). Le 77 prove del verificatore e i 60 test ordinari del
 repository non sono il controllo effettivo di questi output.
 
 **Limite del verificatore, da riportare con i risultati.** Per i bracci
@@ -111,7 +112,7 @@ con una riga errore e valori calcolati a mano è stato provato esternamente il
 La prova migliora la trasparenza ma non colma il limite sugli SE: la sua
 sufficienza dipende dalle conclusioni che si vorranno sostenere.
 
-| Verifica effettiva | Esito da inserire |
+| Verifica effettiva | Esito |
 |---|---|
 | Integrità, provenienza e impronta degli input | Superato: 18 hash degli input, produttore `2bf262f` pulito su ogni riga e nei metadati, 10 prove preliminari |
 | Chiavi, numerosità e assenza di duplicati | Superato: 188000 righe, 46 gruppi, 38 confronti, chiavi esatte |
@@ -121,7 +122,7 @@ sufficienza dipende dalle conclusioni che si vorranno sostenere.
 | A3 senza errori e SE costante per scenario sul disegno fisso | Superato (controllo strutturale, non di normalità) |
 | File invariati durante la lettura | Superato: hash identici prima e dopo |
 | SE dei bracci A1a, A1b, A2, A2p | Non ricalcolati dal verificatore: solo coerenza interna (vedi sopra) |
-| Rilievi della revisione e loro risoluzione | Fase 1 in §10; fase 2 (interpretazione) DA INSERIRE |
+| Rilievi della revisione e loro risoluzione | Fase 1 e fase 2 in §10; rilievi 1–5 della fase 2 corretti in `6e48f3c` |
 
 ## 5. Numerosità, denominatori e definizioni
 
@@ -534,9 +535,11 @@ retroattivamente il protocollo congelato.
 
 - Prova tecnica su quattro cataloghi: già dichiarata nell'emendamento A1.
 - Confusione wrapper/Python e secondo avvio interrotto senza scrittura:
-  episodio riferito dalla sessione di esecuzione; confermare i dettagli
-  tecnici prima del consuntivo, senza trasformare la segnalazione in un
-  secondo run scientifico completato.
+  episodio riferito dalla sessione di esecuzione. Resta una segnalazione
+  dell'operatore: i dettagli tecnici non sono ricostruibili dai file e
+  nessuna revisione li ha certificati. Il log conferma soltanto i 16 contatori
+  e il marcatore finale, non il codice di uscita né l'intera storia dei
+  processi. Non è un secondo run scientifico completato.
 - Fascia di semi della verifica preliminare di covarianza dello scenario
   10: il codice usa 28200000+k, mentre la formulazione generale del piano
   indica 28000000+k. Dichiarare la differenza del solo pretest, senza
@@ -645,11 +648,16 @@ dell'evidenza; (2) la spiegazione tecnica del limite sugli SE era superata.
 Rilievi *minori*: (3) imprecisioni numeriche nella prosa; (4) «nullo» invece di
 «piccolo/non risolto» e descrizione delle code da circoscrivere; (5)
 sqrt(2/(N−1)) non è una MCSE di R; (6) note di preparazione da riallineare.
-Risoluzione: (1)–(5) corretti nel commit successivo a `8c7801a`; (6) rinviato
-al punto 5 (coerenza documentale), senza trasformare in fatto verificato la
-segnalazione del secondo avvio interrotto. Ricalcolo degli SE: da pianificare
-con una nota congelata prima, solo dopo il via dell'utente.
-**DA INSERIRE:** revisione di fase 2 dell'interpretazione (autore, commit
-esaminato, rilievi e risoluzioni con commit distinti). Lo stesso agente che ha partecipato al
-progetto offre una revisione incrociata, non una verifica cieca dell'intero
-studio. La preparazione di questo scheletro non sostituisce quelle revisioni.
+Risoluzione: (1)–(5) corretti in `6e48f3c`; (6) chiuso nel commit successivo
+(segnaposto e note di preparazione riallineati), senza trasformare in fatto
+verificato la segnalazione del secondo avvio interrotto.
+
+**Verifica delle correzioni (Codex, 2026-11-15, su `6e48f3c` e `0cdabc3`).**
+Rilievi 1–5 recepiti; nessun'altra correzione sostanziale. Hash dei 19 file
+pertinenti invariati, tabelle non modificate: il riconteggio e il 54/54
+restano validi. Codex considera la parte interpretativa revisionata entro
+l'ambito dichiarato, con la conclusione condizionata agli SE salvati. Il
+ricalcolo indipendente degli SE di A2 e A3 è un controllo distinto, con
+nota tecnica congelata prima dell'esecuzione; non è considerato superato.
+Nessuna di queste revisioni è cieca: revisore e autore conoscevano il
+progetto e i riepiloghi.

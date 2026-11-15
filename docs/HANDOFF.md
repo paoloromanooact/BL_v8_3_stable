@@ -7,12 +7,15 @@
 A1a e A1b con cambiamenti piccoli rispetto ad A0; A2 R 0,981, falsi 1,94 % (conservativo); A3 simile ad A2; A2p R 0,855, falsi 3,02 %.
 Prima riga della griglia A1: risultato compatibile con un ruolo principale della componente
 temporale, senza una causa unica. A2p descrive solo l'approssimazione specificata. Con la
-varianza vera le code di z sono più leggere del normale. Limite: gli SE dei bracci non
+varianza vera, ai quantili 1,25/98,75 % e all'intervallo al 97,5 %, z è meno estremo del
+riferimento normale (non è una descrizione dell'intera forma delle code). Limite: gli SE dei bracci non
 sono stati ricalcolati e la lettura poggia su A2 e A3. T5 descrittivo, T3 non deciso.
 Revisione: tre pareri di Codex e revisione di fase 2 su `8c7801a`, senza problemi bloccanti;
-correzioni in `3a4add9`, `8c7801a` e `6e48f3c` (indicatore appaiato §6.5, formulazioni più caute).
-Prossimo: ricalcolo indipendente degli SE di A2 e A3 su tutti i cataloghi (nota congelata prima;
-solo con il via dell'utente), poi punto 5 (include il rilievo 6 di Codex), poi comparatore. Nessun push.
+correzioni in `3a4add9`, `8c7801a` e `6e48f3c` (indicatore appaiato §6.5, formulazioni più caute),
+verificate da Codex; rilievo 6 (segnaposto) chiuso nel commit successivo.
+Prossimo: ricalcolo indipendente degli SE di A2 e A3 su tutti i cataloghi
+(`docs/T5_ORACLE_SE_RECOMPUTE_NOTE.md`, congelata prima dell'esecuzione), poi resto del punto 5,
+poi comparatore. Nessun push.
 
 ## T5-D2: controllo effettivo superato e output conservati — 2026-11-14
 
