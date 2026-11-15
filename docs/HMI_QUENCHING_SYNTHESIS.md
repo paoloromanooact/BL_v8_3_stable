@@ -56,12 +56,15 @@ Fonti: [sensibilità P2f](P2F_RESULTS.md#3-sensibilità-stesse-formule-non-valid
    La componente responsabile non è identificata: [risultati](T5_DIAGNOSTIC_RESULTS.md).
    Il seguito [T5-D2](PROTOCOL_T5_ORACLE.md), con A1, sostituisce le componenti
    con quelle vere, note solo nelle simulazioni ([risultati](T5_ORACLE_RESULTS.md)).
-   Con la componente temporale vera R ≈ 0,98 e falsi verdetti 1,9 %: intervalli
-   conservativi, non esatti, con potenza più bassa. Con la sola varianza
-   individuale vera i cambiamenti sono piccoli. L'esito è compatibile con un
-   ruolo principale della componente temporale (AR(1) e stima REML) nei salti;
-   non separa forma e stima e non identifica una causa unica. Gli SE di A2, A3
-   e A2p sono stati ricalcolati in modo indipendente. Nessuna correzione o nuova
+   Nello scenario 7 sotto nulla (salti di 20 CR), con la componente temporale
+   vera R ≈ 0,98 e falsi verdetti 1,90–1,94 %: intervalli conservativi, non
+   esatti, con potenza più bassa. Nello scenario 10, dove A0 era già entro le
+   soglie, i falsi scendono all'1,04–1,06 %. Con la sola varianza individuale
+   vera i cambiamenti sono piccoli. In questa diagnosi e in questi cataloghi
+   l'esito è compatibile con un ruolo principale della componente temporale
+   (AR(1) e stima REML) nello scenario 7; non separa forma e stima e non
+   identifica una causa unica. Gli SE di A2, A3 e A2p sono stati ricalcolati in
+   modo indipendente, entro le dipendenze condivise dichiarate. Nessuna correzione o nuova
    applicazione reale; un metodo successivo richiede protocollo e validazione
    indipendente, scenario 7 compreso.
 2. **Morfologia: controllo completato.** Le 90 letture nuove e le 30

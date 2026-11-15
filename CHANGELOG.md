@@ -3,13 +3,15 @@
 ## v8.4 (Python, branch `v8.4-python-gianluca`) — in corso
 
 - 2026-11-15: T5-D2 letto e interpretato secondo A1 (`docs/T5_ORACLE_RESULTS.md`).
-  Con la componente temporale vera R ≈ 0,98 e falsi 1,9 % (conservativo); con la
-  sola varianza individuale vera cambiamenti piccoli; compatibile con un ruolo
-  principale della componente temporale, senza causa unica né metodo correttivo.
-  Indicatore appaiato descrittivo (§6.5). Revisione esterna di fase 2 (Codex) e
-  correzioni. Ricalcolo indipendente degli SE di A2, A3 e A2p su tutti i 32000
+  Nello scenario 7 sotto nulla, con la componente temporale vera R ≈ 0,98 e falsi
+  1,90–1,94 % (conservativo); con la sola varianza individuale vera cambiamenti
+  piccoli; in questi cataloghi compatibile con un ruolo principale della
+  componente temporale, senza causa unica né metodo correttivo. Indicatore
+  appaiato descrittivo (§6.5). Revisione incrociata di fase 2 (Codex, non cieca)
+  e correzioni. Ricalcolo indipendente degli SE di A2, A3 e A2p su tutti i 32000
   cataloghi (nota `61f8884`, C1 `ed43694`, script `39b7837`): superato, output
-  `330d007`, verificato da Codex. A1a/A1b non ricalcolati. T5 resta descrittivo,
+  `330d007`, verificato da Codex; vale entro le dipendenze condivise dichiarate.
+  A1a/A1b non ricalcolati. T5 resta descrittivo,
   T3 non deciso. Coerenza dei documenti di sintesi riallineata (punto 5).
 
 - 2026-11-14: controllo effettivo T5-D2 con il verificatore separato: 54/54

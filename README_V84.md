@@ -140,12 +140,14 @@ I dati non sono in Git. `data/sharp` può essere un link a un disco capiente
   17 gruppi e 74000 righe. Nei salti di 20 CR emerge una carenza di scala;
   le componenti sono state esaminate poi da T5-D2 (`docs/T5_DIAGNOSTIC_RESULTS.md`).
   T5 resta descrittivo, senza nuova applicazione reale.
-- [x] Diagnosi T5-D2 con controlli oracolo su 32000 cataloghi sintetici: con la
-  componente temporale vera R ≈ 0,98 e falsi verdetti 1,9 % (conservativo), con la
-  sola varianza individuale vera cambiamenti piccoli. Compatibile con un ruolo
-  principale della componente temporale, senza causa unica né metodo correttivo.
-  SE di A2/A3/A2p ricalcolati in modo indipendente; revisione esterna (Codex)
-  (`docs/T5_ORACLE_RESULTS.md`). T5 resta descrittivo.
+- [x] Diagnosi T5-D2 con controlli oracolo su 32000 cataloghi sintetici. Nello
+  scenario 7 sotto nulla (salti di 20 CR), con la componente temporale vera
+  R ≈ 0,98 e falsi verdetti 1,90–1,94 %, sotto il nominale (conservativo); con la
+  sola varianza individuale vera cambiamenti piccoli. In questa diagnosi e in
+  questi cataloghi è compatibile con un ruolo principale della componente
+  temporale, senza causa unica né metodo correttivo. SE di A2/A3/A2p ricalcolati
+  in modo indipendente, entro le dipendenze condivise dichiarate (A1a/A1b esclusi);
+  revisione incrociata Codex, non cieca (`docs/T5_ORACLE_RESULTS.md`). T5 resta descrittivo.
 - [x] Controllo morfologico A2: 90 nuove letture e 30 doppie, classi primarie
   coincidenti in 24/30; C coincide in 23/27 casi entrambi valutabili.
   Quote della sorgente e sensibilità per classe riportate separatamente da

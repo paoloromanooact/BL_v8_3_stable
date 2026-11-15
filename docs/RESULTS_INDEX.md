@@ -78,7 +78,7 @@ e interpretata: [rapporto](T5_ORACLE_RESULTS.md). Anch'essa non valida T5.
 | `results/P2/P2E_VALIDATION_RAW.csv.gz` | `3da29da` | `p2d.py --validate` scrive il `.csv` non compresso; compresso a mano (il `.csv` non tracciato resta sul disco) | tracciato compresso |
 | `results/DIAGNOSTIC/C_*_RUN1.*` | `c092068` (2026-11-09) | `diag_c_individual.py`, rinominati a mano (esecuzione 1, C2-T3 non valido) | esecuzione conservata |
 | `results/P2F_PILOT/PRELIM_*_RUN1.csv` | `0eb7bd6` | `p2f_pilot.py --selftest` su `e98b3bf`, test 2 fallito, rinominati a mano | esecuzione conservata |
-| `results/P2F/PRELIM_*_ed90e15.csv` | (da committare con la validazione) | `p2f_validation.py --selftest` su `ed90e15`, rinominati a mano prima della riesecuzione su `5c3b664`; tracciati in `11b71f4` | esecuzione conservata |
+| `results/P2F/PRELIM_*_ed90e15.csv` | `11b71f4` | `p2f_validation.py --selftest` su `ed90e15`, rinominati a mano prima della riesecuzione su `5c3b664` | esecuzione conservata |
 | `results/DOMINANT_TRIAL_2HARP/*` | `9b762f5` | `dominant_harp_check.py --limit 2 --out <scratchpad>` su `a41c451` non pulito, copiati | prova tecnica, non il controllo |
 
 Riproduzione: comandi in `docs/CATALOGUE_DICTIONARY.md`; analisi esplorative:

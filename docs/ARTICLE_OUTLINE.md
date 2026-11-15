@@ -63,8 +63,9 @@ regge a un controllo della calibrazione inferenziale?
    procedura non validata. Perché questo conta per gli studi di quenching
    basati su serie brevi e autocorrelate. Poi P2f: la procedura M supera i
    criteri per T3 negli scenari provati, non per T5. Diagnosi sintetiche T5-D1
-   e T5-D2 [diagnostico]: carenza di scala nei salti, compatibile con un ruolo
-   principale della componente temporale; nessun metodo correttivo validato.
+   e T5-D2 [diagnostico]: carenza di scala nello scenario 7 (salti di 20 CR),
+   compatibile, in quei cataloghi sintetici, con un ruolo principale della
+   componente temporale; nessun metodo correttivo validato.
 9. **Discussione.** Cosa regge (elaborazione e controlli interni, effetto della maschera,
    accordo con BARD su geometria e convenzioni; l'ampiezza non è validata
    esternamente); cosa resta

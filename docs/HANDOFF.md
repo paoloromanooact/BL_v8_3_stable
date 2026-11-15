@@ -17,7 +17,9 @@ Ricalcolo indipendente degli SE di A2, A3 e A2p su tutti i 32000 cataloghi (nota
 script `39b7837`), esito **superato**: 91960 ok, 40 errori attesi concordanti, 0 discrepanze, 0 inattesi;
 output `330d007`; rapporto §7.2, verificato da Codex. Limite residuo: A1a e A1b non ricalcolati.
 Punto 5 (coerenza dei documenti di sintesi) fatto il 2026-11-15: PROJECT_STATUS, RESULTS_INDEX
-(righe T5-D2, due commit segnaposto risolti), README_V84, sintesi HMI, ARTICLE_OUTLINE, CHANGELOG.
+(righe T5-D2, due commit segnaposto risolti), README_V84, sintesi HMI, ARTICLE_OUTLINE, CHANGELOG;
+precisazioni di perimetro (scenario 7, dipendenze condivise, revisione non cieca) dopo la revisione Codex di `3ed58b2`;
+nota storica in REPRODUCIBILITY_V84.
 Il «comparatore» della riproducibilità di fase 1 era già concluso il 2026-11-13 (`ceb5d38`,
 `3e24bc4`); non è un passo aperto. Aperti, da decidere con l'utente: nota per Paolo; revisione
 esterna dello studio MDI/SMARP (rinviato); eventuale proposta di studio distinto su S; un eventuale

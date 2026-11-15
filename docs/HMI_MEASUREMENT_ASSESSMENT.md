@@ -60,6 +60,6 @@ Questo controllo serve all'interpretazione della misura. Per una risposta
 sul quenching dell'efficienza, il candidato prioritario distinto è la
 [diagnosi del fallimento T5 sui salti](T5_JUMPS_DIAGNOSTIC_DESIGN.md).
 La prima fase è conclusa: [risultati T5-D1](T5_DIAGNOSTIC_RESULTS.md).
-La seconda, [T5-D2](T5_ORACLE_RESULTS.md), indica un ruolo principale compatibile
-della componente temporale, senza separare forma e stima né identificare una
-causa unica. T5 resta descrittivo.
+Nella seconda, [T5-D2](T5_ORACLE_RESULTS.md), l'esito è compatibile con un ruolo
+principale della componente temporale nello scenario 7 dei cataloghi sintetici
+esaminati, senza separare forma e stima né identificare una causa unica. T5 resta descrittivo.

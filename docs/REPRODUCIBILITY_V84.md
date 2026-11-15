@@ -1,5 +1,11 @@
 # Riproducibilità della v8.4 — inventario (2026-11-11)
 
+> **Nota del 2026-11-15.** È un inventario storico, conservato così com'era. La verifica di fase 1
+> è stata poi eseguita e superata per i cinque CSV delle figure P1
+> ([risultati](REPRO_PHASE1_RESULTS.md)); per gli sviluppi successivi, compresi T5-D1 e T5-D2,
+> vedere l'[indice dei risultati](RESULTS_INDEX.md). Il «lavoro da fare» del §7 descrive lo stato
+> del 2026-11-11.
+
 Inventario (non ancora verifica) di sola lettura di comandi, dipendenze, input e output del branch `v8.4-python-gianluca`
 (HEAD `a518115` al momento della ricognizione). **Non è una verifica eseguita**: nessuno script è
 stato rilanciato per questo documento (la validazione P2f occupava la macchina). Distingue ciò che
