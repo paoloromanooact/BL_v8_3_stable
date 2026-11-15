@@ -1,0 +1,55 @@
+{
+  "note": "docs/T5_ORACLE_SE_RECOMPUTE_NOTE.md",
+  "sha256_note": "db53b45fc72ae91a628f29e91aa95559a456d5acc4e4cb9afe421ce7af2325e3",
+  "clarification": "docs/T5_ORACLE_SE_RECOMPUTE_NOTE_C1.md",
+  "sha256_clarification": "72966103cc195f7efe314225d81743f206db51afe6fbc1ef9f69c43f95475b6c",
+  "sha256_script": "833f8e6e3709943d56dee09cd2a39397cf8f66d51bed204b2c85af99accddeb4",
+  "sha256_raw_before": "d6d6400f364f85e2491332249f365eef8950c239a46dcd98b6279676ff76edaf",
+  "git_commit": "39b7837a7b3b974971ccfd7418c9adbcf6c66261",
+  "rtol": 1e-09,
+  "atol_factor": 1e-12,
+  "n_catalogues": 32000,
+  "env": {
+    "python": "3.10.12",
+    "numpy": "2.2.6",
+    "pandas": "2.3.3",
+    "scipy": "1.15.3"
+  },
+  "outcome": "superato",
+  "constants": {
+    "eta0_equal": true,
+    "sx2_equal": true,
+    "sig2_equal": true,
+    "z_equal": true,
+    "ar1_equal": true,
+    "phi_star": {
+      "7": 0.9106,
+      "10": 0.8657
+    },
+    "phi_star_doc_equal": true,
+    "phi_star_producer_equal": true,
+    "kappa_star_equal": true
+  },
+  "keys": {
+    "n_expected": 92000,
+    "n_rows": 92000,
+    "rows_unique": true,
+    "rows_exact": true,
+    "n_raw": 92000,
+    "raw_unique": true,
+    "raw_exact": true,
+    "n_a0": 32000,
+    "a0_unique": true,
+    "a0_exact": true,
+    "n_all_rows": 0,
+    "passed": true
+  },
+  "beta_regeneration_check": true,
+  "constants_ok": true,
+  "ok": 91960,
+  "errore_atteso": 40,
+  "mismatch": 0,
+  "unexpected": 0,
+  "outcome_missing": 0,
+  "sha256_raw_after": "d6d6400f364f85e2491332249f365eef8950c239a46dcd98b6279676ff76edaf"
+}
