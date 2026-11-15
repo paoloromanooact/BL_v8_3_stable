@@ -1,11 +1,10 @@
-# T5-D2 — rapporto dei risultati: struttura preparata
+# T5-D2 — rapporto dei risultati
 
-**BOZZA DI SOLA STRUTTURA — 2026-11-13. Nessun risultato T5-D2 inserito.**
-Questo file è preparato prima dell'apertura degli output scientifici della
-corsa, per raccogliere poi controlli, risultati e limiti senza cambiare le
-regole di lettura. Non è un protocollo, non congela nuovi criteri e non
-attesta che la corsa sia terminata. Lo stato del processo non è stato
-ricontrollato durante questa preparazione. `DA INSERIRE` non significa zero.
+**Struttura preparata il 2026-11-13 prima dell'apertura degli output.
+Risultati e interpretazione inseriti il 2026-11-15 (§6, §7.1, §9), dopo il
+controllo separato 54/54 e la conservazione degli output (`27a9c7d`).**
+Il file non è un protocollo e non congela nuovi criteri. La revisione
+dell'interpretazione (fase 2) non è ancora svolta. `DA INSERIRE` non significa zero.
 
 ## 1. Domanda e stato scientifico
 
@@ -37,7 +36,7 @@ nuova procedura. Gli oracoli usano quantità note soltanto nelle simulazioni.
 | Codice del verificatore separato | `9bd1e2e`; 77 prove costruite a mano passate; ricevuta legata allo SHA del codice, non all'HEAD documentale successivo |
 | Controllo effettivo sui risultati | Eseguito il 2026-11-14 sul commit pulito `94606c6` con `t5_oracle_postcheck.py --check` (codice `ac591b47…`, ricevuta 77/77): **54/54 controlli superati**, nessuna discrepanza; esiti in `results/T5_ORACLE_POSTCHECK/` |
 | Conservazione degli output | Quattro output, ricevuta preliminare e controllo conservati nel commit successivo al controllo, prima di leggere i risultati; hash prima/dopo identici in `results/T5_ORACLE_POSTCHECK/META.json` |
-| Interpretazione e revisione | Data, autore/modello, esposizioni precedenti e rilievi DA INSERIRE |
+| Interpretazione e revisione | Interpretazione 2026-11-15, Claude Opus 5.5, su `27a9c7d`; non cieca (§8). Revisione di fase 2: DA INSERIRE |
 
 Distinguere il produttore degli output T5-D2, quello della validazione P2f
 originale (`5c3b664`) e il commit del verificatore. Non richiedere che siano
@@ -122,7 +121,7 @@ sufficienza dipende dalle conclusioni che si vorranno sostenere.
 | A3 senza errori e SE costante per scenario sul disegno fisso | Superato (controllo strutturale, non di normalità) |
 | File invariati durante la lettura | Superato: hash identici prima e dopo |
 | SE dei bracci A1a, A1b, A2, A2p | Non ricalcolati dal verificatore: solo coerenza interna (vedi sopra) |
-| Rilievi della revisione e loro risoluzione | DA INSERIRE |
+| Rilievi della revisione e loro risoluzione | Fase 1 in §10; fase 2 (interpretazione) DA INSERIRE |
 
 ## 5. Numerosità, denominatori e definizioni
 
@@ -152,95 +151,193 @@ I due nomi descrivono la posizione del parametro rispetto all'intervallo,
 non il verso fisico del quenching. Errori Monte Carlo e dispersioni delle
 simulazioni non sono incertezze sul processo solare osservato.
 
-## 6. Tabelle dei risultati — tutte da compilare
+## 6. Risultati
 
-Tutte le celle scientifiche qui sotto sono segnaposto. I soli numeri già
-riportati sono quelli previsti dal piano. Inserire N osservato, validi ed
-errori prima dei momenti; confermare la concordanza con i riconteggi.
+Valori da `results/T5_ORACLE_POSTCHECK/RECOUNTS.csv`, `PAIR_RECOUNTS.csv` e
+`PAIRED_TRANSITIONS.csv` (riconteggio separato). Prima della lettura si è
+confrontato `ORACLE_SUMMARY.csv` con `RECOUNTS.csv`: 46 gruppi in entrambi, conteggi
+identici, momenti con scarto massimo 3·10⁻¹⁶. Percentuali sui tentativi,
+MCSE binomiale = sqrt(f(1−f)/N). Il quantile normale di riferimento è
+±Phi⁻¹(0,9875) = ±2,2414. Come termine di paragone si citano le soglie P2f
+(falsi ≤ 3,0 % e ≤ 1,75 % per verso; copertura ≥ 96,5 %; coda inferiore,
+qui `below`, ≤ 2,0 %): **non sono criteri di T5-D2 e non validano nessun braccio**.
+Gli oracoli usano quantità vere note solo nelle simulazioni.
 
 ### 6.1 Nulla: frequenze e varianza per scenario e braccio
 
 | Scenario | Braccio | N previsto | N osservato / valido / errori | R | Falsi: supportato / opposto / totale | Frequenza ± MCSE |
 |---|---|---|---|---|---|---|
-| 7 | A0 | 10000 | DA INSERIRE | DA INSERIRE | DA INSERIRE | DA INSERIRE |
-| 7 | A1a | 10000 | DA INSERIRE | DA INSERIRE | DA INSERIRE | DA INSERIRE |
-| 7 | A1b | 10000 | DA INSERIRE | DA INSERIRE | DA INSERIRE | DA INSERIRE |
-| 7 | A2 | 10000 | DA INSERIRE | DA INSERIRE | DA INSERIRE | DA INSERIRE |
-| 7 | A3 | 10000 | DA INSERIRE | DA INSERIRE | DA INSERIRE | DA INSERIRE |
-| 7 | A2p | 10000 | DA INSERIRE | DA INSERIRE | DA INSERIRE | DA INSERIRE |
-| 10 | A0 | 10000 | DA INSERIRE | DA INSERIRE | DA INSERIRE | DA INSERIRE |
-| 10 | A1a | 10000 | DA INSERIRE | DA INSERIRE | DA INSERIRE | DA INSERIRE |
-| 10 | A1b | 10000 | DA INSERIRE | DA INSERIRE | DA INSERIRE | DA INSERIRE |
-| 10 | A2 | 10000 | DA INSERIRE | DA INSERIRE | DA INSERIRE | DA INSERIRE |
-| 10 | A3 | 10000 | DA INSERIRE | DA INSERIRE | DA INSERIRE | DA INSERIRE |
-| 10 | A2p | 10000 | DA INSERIRE | DA INSERIRE | DA INSERIRE | DA INSERIRE |
-| 1 | A0 | 2000 | DA INSERIRE | DA INSERIRE | DA INSERIRE | DA INSERIRE |
-| 1 | A1a | 2000 | DA INSERIRE | DA INSERIRE | DA INSERIRE | DA INSERIRE |
-| 1 | A1b | 2000 | DA INSERIRE | DA INSERIRE | DA INSERIRE | DA INSERIRE |
-| 1 | A2 | 2000 | DA INSERIRE | DA INSERIRE | DA INSERIRE | DA INSERIRE |
-| 1 | A3 | 2000 | DA INSERIRE | DA INSERIRE | DA INSERIRE | DA INSERIRE |
-| 2 | A0 | 2000 | DA INSERIRE | DA INSERIRE | DA INSERIRE | DA INSERIRE |
-| 2 | A1a | 2000 | DA INSERIRE | DA INSERIRE | DA INSERIRE | DA INSERIRE |
-| 2 | A1b | 2000 | DA INSERIRE | DA INSERIRE | DA INSERIRE | DA INSERIRE |
-| 2 | A2 | 2000 | DA INSERIRE | DA INSERIRE | DA INSERIRE | DA INSERIRE |
-| 2 | A3 | 2000 | DA INSERIRE | DA INSERIRE | DA INSERIRE | DA INSERIRE |
+| 7 | A0 | 10000 | 10000 / 9996 / 4 | 0,8580 | 160 / 175 / 335 | 3,35 ± 0,18 % |
+| 7 | A1a | 10000 | 10000 / 9996 / 4 | 0,8574 | 155 / 177 / 332 | 3,32 ± 0,18 % |
+| 7 | A1b | 10000 | 10000 / 10000 / 0 | 0,8569 | 158 / 175 / 333 | 3,33 ± 0,18 % |
+| 7 | A2 | 10000 | 10000 / 9996 / 4 | 0,9809 | 94 / 100 / 194 | 1,94 ± 0,14 % |
+| 7 | A3 | 10000 | 10000 / 10000 / 0 | 0,9806 | 91 / 99 / 190 | 1,90 ± 0,14 % |
+| 7 | A2p | 10000 | 10000 / 9996 / 4 | 0,8547 | 135 / 167 / 302 | 3,02 ± 0,17 % |
+| 10 | A0 | 10000 | 10000 / 9992 / 8 | 0,9165 | 103 / 92 / 195 | 1,95 ± 0,14 % |
+| 10 | A1a | 10000 | 10000 / 9992 / 8 | 0,9157 | 104 / 90 / 194 | 1,94 ± 0,14 % |
+| 10 | A1b | 10000 | 10000 / 10000 / 0 | 0,9155 | 101 / 91 / 192 | 1,92 ± 0,14 % |
+| 10 | A2 | 10000 | 10000 / 9992 / 8 | 0,9860 | 56 / 50 / 106 | 1,06 ± 0,10 % |
+| 10 | A3 | 10000 | 10000 / 10000 / 0 | 0,9847 | 55 / 49 / 104 | 1,04 ± 0,10 % |
+| 10 | A2p | 10000 | 10000 / 9992 / 8 | 0,8639 | 97 / 93 / 190 | 1,90 ± 0,14 % |
+| 1 | A0 | 2000 | 2000 / 1997 / 3 | 0,9872 | 33 / 24 / 57 | 2,85 ± 0,37 % |
+| 1 | A1a | 2000 | 2000 / 1997 / 3 | 0,9861 | 35 / 25 / 60 | 3,00 ± 0,38 % |
+| 1 | A1b | 2000 | 2000 / 2000 / 0 | 0,9872 | 35 / 25 / 60 | 3,00 ± 0,38 % |
+| 1 | A2 | 2000 | 2000 / 1997 / 3 | 0,9840 | 31 / 29 / 60 | 3,00 ± 0,38 % |
+| 1 | A3 | 2000 | 2000 / 2000 / 0 | 0,9840 | 30 / 27 / 57 | 2,85 ± 0,37 % |
+| 2 | A0 | 2000 | 2000 / 1999 / 1 | 0,9527 | 32 / 36 / 68 | 3,40 ± 0,41 % |
+| 2 | A1a | 2000 | 2000 / 1999 / 1 | 0,9521 | 32 / 36 / 68 | 3,40 ± 0,41 % |
+| 2 | A1b | 2000 | 2000 / 2000 / 0 | 0,9523 | 31 / 35 / 66 | 3,30 ± 0,40 % |
+| 2 | A2 | 2000 | 2000 / 1999 / 1 | 0,9685 | 25 / 29 / 54 | 2,70 ± 0,36 % |
+| 2 | A3 | 2000 | 2000 / 2000 / 0 | 0,9680 | 24 / 30 / 54 | 2,70 ± 0,36 % |
+
+A0 riproduce i valori P2f e T5-D1 (scenario 7: 335/10000, R = 0,8580).
+Tutte le righe errore riguardano i bracci che usano la funzione di varianza
+stimata (A0, A1a, A2, A2p); A1b e A3 non ne hanno. Gli errori sono al massimo
+8 su 10000 (0,08 %).
 
 ### 6.2 Scenario 7 sotto effetto: copertura e code
 
-Gli effetti sono coefficienti in unità eta0; beta_vero = effetto*eta0.
-Riportare copertura anche in conteggi e MCSE, oltre alla percentuale;
-conservare separati i due versi delle mancate coperture.
-
 | Effetto | Braccio | N previsto | N osservato / valido / errori | R | Coperti/N; copertura ± MCSE | Below/N | Above/N |
 |---|---|---|---|---|---|---|---|
-| -0,1 | A0 | 2000 | DA INSERIRE | DA INSERIRE | DA INSERIRE | DA INSERIRE | DA INSERIRE |
-| -0,1 | A1a | 2000 | DA INSERIRE | DA INSERIRE | DA INSERIRE | DA INSERIRE | DA INSERIRE |
-| -0,1 | A1b | 2000 | DA INSERIRE | DA INSERIRE | DA INSERIRE | DA INSERIRE | DA INSERIRE |
-| -0,1 | A2 | 2000 | DA INSERIRE | DA INSERIRE | DA INSERIRE | DA INSERIRE | DA INSERIRE |
-| -0,1 | A3 | 2000 | DA INSERIRE | DA INSERIRE | DA INSERIRE | DA INSERIRE | DA INSERIRE |
-| -0,1 | A2p | 2000 | DA INSERIRE | DA INSERIRE | DA INSERIRE | DA INSERIRE | DA INSERIRE |
-| -0,2 | A0 | 2000 | DA INSERIRE | DA INSERIRE | DA INSERIRE | DA INSERIRE | DA INSERIRE |
-| -0,2 | A1a | 2000 | DA INSERIRE | DA INSERIRE | DA INSERIRE | DA INSERIRE | DA INSERIRE |
-| -0,2 | A1b | 2000 | DA INSERIRE | DA INSERIRE | DA INSERIRE | DA INSERIRE | DA INSERIRE |
-| -0,2 | A2 | 2000 | DA INSERIRE | DA INSERIRE | DA INSERIRE | DA INSERIRE | DA INSERIRE |
-| -0,2 | A3 | 2000 | DA INSERIRE | DA INSERIRE | DA INSERIRE | DA INSERIRE | DA INSERIRE |
-| -0,2 | A2p | 2000 | DA INSERIRE | DA INSERIRE | DA INSERIRE | DA INSERIRE | DA INSERIRE |
-| -0,3 | A0 | 2000 | DA INSERIRE | DA INSERIRE | DA INSERIRE | DA INSERIRE | DA INSERIRE |
-| -0,3 | A1a | 2000 | DA INSERIRE | DA INSERIRE | DA INSERIRE | DA INSERIRE | DA INSERIRE |
-| -0,3 | A1b | 2000 | DA INSERIRE | DA INSERIRE | DA INSERIRE | DA INSERIRE | DA INSERIRE |
-| -0,3 | A2 | 2000 | DA INSERIRE | DA INSERIRE | DA INSERIRE | DA INSERIRE | DA INSERIRE |
-| -0,3 | A3 | 2000 | DA INSERIRE | DA INSERIRE | DA INSERIRE | DA INSERIRE | DA INSERIRE |
-| -0,3 | A2p | 2000 | DA INSERIRE | DA INSERIRE | DA INSERIRE | DA INSERIRE | DA INSERIRE |
-| -0,35 | A0 | 2000 | DA INSERIRE | DA INSERIRE | DA INSERIRE | DA INSERIRE | DA INSERIRE |
-| -0,35 | A1a | 2000 | DA INSERIRE | DA INSERIRE | DA INSERIRE | DA INSERIRE | DA INSERIRE |
-| -0,35 | A1b | 2000 | DA INSERIRE | DA INSERIRE | DA INSERIRE | DA INSERIRE | DA INSERIRE |
-| -0,35 | A2 | 2000 | DA INSERIRE | DA INSERIRE | DA INSERIRE | DA INSERIRE | DA INSERIRE |
-| -0,35 | A3 | 2000 | DA INSERIRE | DA INSERIRE | DA INSERIRE | DA INSERIRE | DA INSERIRE |
-| -0,35 | A2p | 2000 | DA INSERIRE | DA INSERIRE | DA INSERIRE | DA INSERIRE | DA INSERIRE |
+| -0,1 | A0 | 2000 | 2000 / 1998 / 2 | 0,8817 | 1940/2000; 97,00 ± 0,38 % | 29/2000 (1,45 %) | 29/2000 (1,45 %) |
+| -0,1 | A1a | 2000 | 2000 / 1998 / 2 | 0,8812 | 1941/2000; 97,05 ± 0,38 % | 30/2000 (1,50 %) | 27/2000 (1,35 %) |
+| -0,1 | A1b | 2000 | 2000 / 2000 / 0 | 0,8806 | 1941/2000; 97,05 ± 0,38 % | 30/2000 (1,50 %) | 29/2000 (1,45 %) |
+| -0,1 | A2 | 2000 | 2000 / 1998 / 2 | 1,0072 | 1965/2000; 98,25 ± 0,29 % | 15/2000 (0,75 %) | 18/2000 (0,90 %) |
+| -0,1 | A3 | 2000 | 2000 / 2000 / 0 | 1,0067 | 1967/2000; 98,35 ± 0,28 % | 15/2000 (0,75 %) | 18/2000 (0,90 %) |
+| -0,1 | A2p | 2000 | 2000 / 1998 / 2 | 0,8775 | 1948/2000; 97,40 ± 0,36 % | 26/2000 (1,30 %) | 24/2000 (1,20 %) |
+| -0,2 | A0 | 2000 | 2000 / 1999 / 1 | 0,8706 | 1935/2000; 96,75 ± 0,40 % | 24/2000 (1,20 %) | 40/2000 (2,00 %) |
+| -0,2 | A1a | 2000 | 2000 / 1999 / 1 | 0,8701 | 1934/2000; 96,70 ± 0,40 % | 24/2000 (1,20 %) | 41/2000 (2,05 %) |
+| -0,2 | A1b | 2000 | 2000 / 2000 / 0 | 0,8695 | 1937/2000; 96,85 ± 0,39 % | 23/2000 (1,15 %) | 40/2000 (2,00 %) |
+| -0,2 | A2 | 2000 | 2000 / 1999 / 1 | 0,9934 | 1969/2000; 98,45 ± 0,28 % | 12/2000 (0,60 %) | 18/2000 (0,90 %) |
+| -0,2 | A3 | 2000 | 2000 / 2000 / 0 | 0,9932 | 1970/2000; 98,50 ± 0,27 % | 12/2000 (0,60 %) | 18/2000 (0,90 %) |
+| -0,2 | A2p | 2000 | 2000 / 1999 / 1 | 0,8655 | 1944/2000; 97,20 ± 0,37 % | 24/2000 (1,20 %) | 31/2000 (1,55 %) |
+| -0,3 | A0 | 2000 | 2000 / 1997 / 3 | 0,8591 | 1922/2000; 96,10 ± 0,43 % | 46/2000 (2,30 %) | 29/2000 (1,45 %) |
+| -0,3 | A1a | 2000 | 2000 / 1997 / 3 | 0,8596 | 1921/2000; 96,05 ± 0,44 % | 45/2000 (2,25 %) | 31/2000 (1,55 %) |
+| -0,3 | A1b | 2000 | 2000 / 2000 / 0 | 0,8558 | 1926/2000; 96,30 ± 0,42 % | 44/2000 (2,20 %) | 30/2000 (1,50 %) |
+| -0,3 | A2 | 2000 | 2000 / 1997 / 3 | 0,9859 | 1958/2000; 97,90 ± 0,32 % | 24/2000 (1,20 %) | 15/2000 (0,75 %) |
+| -0,3 | A3 | 2000 | 2000 / 2000 / 0 | 0,9848 | 1961/2000; 98,05 ± 0,31 % | 24/2000 (1,20 %) | 15/2000 (0,75 %) |
+| -0,3 | A2p | 2000 | 2000 / 1997 / 3 | 0,8588 | 1939/2000; 96,95 ± 0,38 % | 34/2000 (1,70 %) | 24/2000 (1,20 %) |
+| -0,35 | A0 | 2000 | 2000 / 2000 / 0 | 0,8519 | 1932/2000; 96,60 ± 0,41 % | 36/2000 (1,80 %) | 32/2000 (1,60 %) |
+| -0,35 | A1a | 2000 | 2000 / 2000 / 0 | 0,8516 | 1933/2000; 96,65 ± 0,40 % | 37/2000 (1,85 %) | 30/2000 (1,50 %) |
+| -0,35 | A1b | 2000 | 2000 / 2000 / 0 | 0,8500 | 1933/2000; 96,65 ± 0,40 % | 38/2000 (1,90 %) | 29/2000 (1,45 %) |
+| -0,35 | A2 | 2000 | 2000 / 2000 / 0 | 0,9728 | 1965/2000; 98,25 ± 0,29 % | 18/2000 (0,90 %) | 17/2000 (0,85 %) |
+| -0,35 | A3 | 2000 | 2000 / 2000 / 0 | 0,9725 | 1964/2000; 98,20 ± 0,30 % | 18/2000 (0,90 %) | 18/2000 (0,90 %) |
+| -0,35 | A2p | 2000 | 2000 / 2000 / 0 | 0,8475 | 1944/2000; 97,20 ± 0,37 % | 24/2000 (1,20 %) | 32/2000 (1,60 %) |
 
-### 6.3 Dispersione e quantili di z
+Potenza descrittiva (`supportato`/2000, dagli stati appaiati), effetto −0,3:
+A0 52,7 %, A1a 52,6 %, A1b 52,9 %, A2 47,2 %, A3 47,0 %, A2p 51,8 %;
+effetto −0,35: A0 64,25 %, A2 58,50 %, A3 58,55 %, A2p 64,0 %. Non è un criterio.
 
-Tabella da collegare a tutti i 46 gruppi di `RECOUNTS.csv`, includendo
-N valido, SD(z), q0,0125 e q0,9875. Non usare beta/SE sotto effetto:
-la centratura corretta è (beta - beta_vero)/SE.
+### 6.3 Dispersione e quantili di z (46 gruppi)
 
-**DA INSERIRE: tabella completa o allegato con i 46 gruppi, dopo verifica.**
+z = (beta − beta_vero)/SE sui casi validi; riferimento normale ±2,2414.
 
-### 6.4 Confronti appaiati rispetto ad A0
+| Tipo | Scenario | Effetto | Braccio | N valido | SD(z) | q0,0125 | q0,9875 |
+|---|---|---|---|---|---|---|---|
+| nulla | 1 | 0 | A0 | 1997 | 1,0237 | -2,3835 | 2,1995 |
+| nulla | 1 | 0 | A1a | 1997 | 1,0245 | -2,3446 | 2,2245 |
+| nulla | 1 | 0 | A1b | 2000 | 1,0238 | -2,3585 | 2,2178 |
+| nulla | 1 | 0 | A2 | 1997 | 1,0087 | -2,2937 | 2,2933 |
+| nulla | 1 | 0 | A3 | 2000 | 1,0081 | -2,2993 | 2,2902 |
+| nulla | 2 | 0 | A0 | 1999 | 1,0401 | -2,3341 | 2,3599 |
+| nulla | 2 | 0 | A1a | 1999 | 1,0401 | -2,3183 | 2,3802 |
+| nulla | 2 | 0 | A1b | 2000 | 1,0401 | -2,3324 | 2,3805 |
+| nulla | 2 | 0 | A2 | 1999 | 1,0168 | -2,2220 | 2,2977 |
+| nulla | 2 | 0 | A3 | 2000 | 1,0164 | -2,2105 | 2,2766 |
+| nulla | 7 | 0 | A0 | 9996 | 1,0944 | -2,3276 | 2,3900 |
+| nulla | 7 | 0 | A1a | 9996 | 1,0951 | -2,3263 | 2,3943 |
+| nulla | 7 | 0 | A1b | 10000 | 1,0953 | -2,3220 | 2,3919 |
+| nulla | 7 | 0 | A2 | 9996 | 1,0098 | -2,1136 | 2,1787 |
+| nulla | 7 | 0 | A3 | 10000 | 1,0099 | -2,1131 | 2,1760 |
+| nulla | 7 | 0 | A2p | 9996 | 1,0819 | -2,2660 | 2,3335 |
+| nulla | 10 | 0 | A0 | 9992 | 1,0565 | -2,1593 | 2,1603 |
+| nulla | 10 | 0 | A1a | 9992 | 1,0570 | -2,1624 | 2,1560 |
+| nulla | 10 | 0 | A1b | 10000 | 1,0571 | -2,1520 | 2,1645 |
+| nulla | 10 | 0 | A2 | 9992 | 1,0071 | -2,0331 | 2,0187 |
+| nulla | 10 | 0 | A3 | 10000 | 1,0077 | -2,0315 | 2,0279 |
+| nulla | 10 | 0 | A2p | 9992 | 1,0760 | -2,1725 | 2,1584 |
+| effetto | 7 | -0,1 | A0 | 1998 | 1,0750 | -2,2859 | 2,2737 |
+| effetto | 7 | -0,1 | A1a | 1998 | 1,0752 | -2,2721 | 2,2886 |
+| effetto | 7 | -0,1 | A1b | 2000 | 1,0757 | -2,2810 | 2,2651 |
+| effetto | 7 | -0,1 | A2 | 1998 | 0,9968 | -2,0712 | 2,1184 |
+| effetto | 7 | -0,1 | A3 | 2000 | 0,9967 | -2,0614 | 2,1013 |
+| effetto | 7 | -0,1 | A2p | 1998 | 1,0680 | -2,2204 | 2,2649 |
+| effetto | 7 | -0,2 | A0 | 1999 | 1,0897 | -2,3827 | 2,2242 |
+| effetto | 7 | -0,2 | A1a | 1999 | 1,0905 | -2,3581 | 2,2195 |
+| effetto | 7 | -0,2 | A1b | 2000 | 1,0904 | -2,4025 | 2,1963 |
+| effetto | 7 | -0,2 | A2 | 1999 | 1,0032 | -2,1663 | 2,0460 |
+| effetto | 7 | -0,2 | A3 | 2000 | 1,0034 | -2,1613 | 2,0361 |
+| effetto | 7 | -0,2 | A2p | 1999 | 1,0748 | -2,3216 | 2,1941 |
+| effetto | 7 | -0,3 | A0 | 1997 | 1,0981 | -2,2801 | 2,4313 |
+| effetto | 7 | -0,3 | A1a | 1997 | 1,0980 | -2,2992 | 2,4218 |
+| effetto | 7 | -0,3 | A1b | 2000 | 1,1003 | -2,2803 | 2,4247 |
+| effetto | 7 | -0,3 | A2 | 1997 | 1,0072 | -2,0597 | 2,2010 |
+| effetto | 7 | -0,3 | A3 | 2000 | 1,0077 | -2,0680 | 2,2191 |
+| effetto | 7 | -0,3 | A2p | 1997 | 1,0792 | -2,2056 | 2,3577 |
+| effetto | 7 | -0,35 | A0 | 2000 | 1,0968 | -2,3196 | 2,3275 |
+| effetto | 7 | -0,35 | A1a | 2000 | 1,0972 | -2,3162 | 2,3275 |
+| effetto | 7 | -0,35 | A1b | 2000 | 1,0981 | -2,3332 | 2,3421 |
+| effetto | 7 | -0,35 | A2 | 2000 | 1,0141 | -2,1339 | 2,0802 |
+| effetto | 7 | -0,35 | A3 | 2000 | 1,0141 | -2,1346 | 2,0766 |
+| effetto | 7 | -0,35 | A2p | 2000 | 1,0865 | -2,2862 | 2,2285 |
 
-Usare le stesse chiavi di catalogo. Riportare le 38 combinazioni previste
-con N tentativi, N entrambi validi, stati uguali e due conteggi deciso/non
-deciso. Conservare anche le 16 celle della matrice completa degli stati
-per ciascun confronto, comprese le transizioni da/a errore. Non trasformare
-`errore` in `non deciso` e non confrontare i bracci come campioni indipendenti.
+### 6.4 Confronti appaiati rispetto ad A0 (38)
 
-Le MCSE delle frequenze singole non sono automaticamente errori della loro
-differenza appaiata. Il presente schema non introduce test o soglie nuovi
-per tali differenze. Se A0 ha beta mancante nel riferimento P2f in una
-riga errore, indicare quanti valori non erano stati conservati: nessun
-confronto numerico fittizio.
+Stesse chiavi di catalogo. «Stati uguali» conta tutti i tentativi, comprese
+le coppie errore/errore. «Deciso solo in A0» e «deciso solo nel braccio»
+contano i passaggi fra deciso (`supportato` o `opposto`) e `non deciso`. L'ultima colonna conta
+le transizioni da errore di A0 a uno stato valido del braccio, e viceversa.
+Le 16 celle di ogni confronto sono in `PAIRED_TRANSITIONS.csv` (608 righe). Non ci sono
+inversioni di segno (`supportato` ↔ `opposto`) in nessun confronto.
+Le righe errore di A0 senza beta nel riferimento P2f sono 22. Non hanno un
+confronto numerico e compaiono qui solo come stati.
 
-**DA INSERIRE: tabella dei 38 confronti e riferimento alle matrici 4×4.**
+| Tipo | Scenario | Effetto | Braccio | N | Entrambi validi | Stati uguali | Deciso solo in A0 | Deciso solo nel braccio | Errore A0→valido / valido→errore A0 |
+|---|---|---|---|---|---|---|---|---|---|
+| nulla | 7 | 0 | A1a | 10000 | 9996 | 9991 | 6 | 3 | 0 / 0 |
+| nulla | 7 | 0 | A1b | 10000 | 9996 | 9986 | 6 | 4 | 4 / 0 |
+| nulla | 7 | 0 | A2 | 10000 | 9996 | 9823 | 159 | 18 | 0 / 0 |
+| nulla | 7 | 0 | A3 | 10000 | 9996 | 9817 | 162 | 17 | 4 / 0 |
+| nulla | 7 | 0 | A2p | 10000 | 9996 | 9837 | 98 | 65 | 0 / 0 |
+| nulla | 10 | 0 | A1a | 10000 | 9992 | 9991 | 5 | 4 | 0 / 0 |
+| nulla | 10 | 0 | A1b | 10000 | 9992 | 9989 | 3 | 0 | 8 / 0 |
+| nulla | 10 | 0 | A2 | 10000 | 9992 | 9885 | 102 | 13 | 0 / 0 |
+| nulla | 10 | 0 | A3 | 10000 | 9992 | 9875 | 104 | 13 | 8 / 0 |
+| nulla | 10 | 0 | A2p | 10000 | 9992 | 9875 | 65 | 60 | 0 / 0 |
+| nulla | 1 | 0 | A1a | 2000 | 1997 | 1993 | 2 | 5 | 0 / 0 |
+| nulla | 1 | 0 | A1b | 2000 | 1997 | 1992 | 1 | 4 | 3 / 0 |
+| nulla | 1 | 0 | A2 | 2000 | 1997 | 1979 | 9 | 12 | 0 / 0 |
+| nulla | 1 | 0 | A3 | 2000 | 1997 | 1975 | 11 | 11 | 3 / 0 |
+| nulla | 2 | 0 | A1a | 2000 | 1999 | 1998 | 1 | 1 | 0 / 0 |
+| nulla | 2 | 0 | A1b | 2000 | 1999 | 1997 | 2 | 0 | 1 / 0 |
+| nulla | 2 | 0 | A2 | 2000 | 1999 | 1968 | 23 | 9 | 0 / 0 |
+| nulla | 2 | 0 | A3 | 2000 | 1999 | 1967 | 23 | 9 | 1 / 0 |
+| effetto | 7 | -0,1 | A1a | 2000 | 1998 | 1990 | 6 | 4 | 0 / 0 |
+| effetto | 7 | -0,1 | A1b | 2000 | 1998 | 1995 | 2 | 1 | 2 / 0 |
+| effetto | 7 | -0,1 | A2 | 2000 | 1998 | 1931 | 56 | 13 | 0 / 0 |
+| effetto | 7 | -0,1 | A3 | 2000 | 1998 | 1932 | 53 | 13 | 2 / 0 |
+| effetto | 7 | -0,1 | A2p | 2000 | 1998 | 1930 | 31 | 39 | 0 / 0 |
+| effetto | 7 | -0,2 | A1a | 2000 | 1999 | 1994 | 4 | 2 | 0 / 0 |
+| effetto | 7 | -0,2 | A1b | 2000 | 1999 | 1997 | 1 | 1 | 1 / 0 |
+| effetto | 7 | -0,2 | A2 | 2000 | 1999 | 1868 | 120 | 12 | 0 / 0 |
+| effetto | 7 | -0,2 | A3 | 2000 | 1999 | 1872 | 114 | 13 | 1 / 0 |
+| effetto | 7 | -0,2 | A2p | 2000 | 1999 | 1885 | 57 | 58 | 0 / 0 |
+| effetto | 7 | -0,3 | A1a | 2000 | 1997 | 1986 | 8 | 6 | 0 / 0 |
+| effetto | 7 | -0,3 | A1b | 2000 | 1997 | 1987 | 4 | 6 | 3 / 0 |
+| effetto | 7 | -0,3 | A2 | 2000 | 1997 | 1842 | 134 | 24 | 0 / 0 |
+| effetto | 7 | -0,3 | A3 | 2000 | 1997 | 1841 | 136 | 20 | 3 / 0 |
+| effetto | 7 | -0,3 | A2p | 2000 | 1997 | 1868 | 75 | 57 | 0 / 0 |
+| effetto | 7 | -0,35 | A1a | 2000 | 2000 | 1992 | 4 | 4 | 0 / 0 |
+| effetto | 7 | -0,35 | A1b | 2000 | 2000 | 1995 | 2 | 3 | 0 / 0 |
+| effetto | 7 | -0,35 | A2 | 2000 | 2000 | 1849 | 133 | 18 | 0 / 0 |
+| effetto | 7 | -0,35 | A3 | 2000 | 2000 | 1848 | 133 | 19 | 0 / 0 |
+| effetto | 7 | -0,35 | A2p | 2000 | 2000 | 1879 | 63 | 58 | 0 / 0 |
+
+Composizione dei passaggi principali (scenario 7, nulla): A0→A2 perde 75
+`supportato` e 84 `opposto` e ne guadagna 9 + 9. A0→A3 perde 77 + 85 e ne
+guadagna 8 + 9. A0→A2p perde 53 + 45 e ne guadagna 28 + 37, quindi rimescola
+i verdetti invece di restringerli. Sotto effetto A2 e A3 convertono soprattutto
+`supportato` in `non deciso` (−0,3: 134 e 136 contro 24 e 20).
 
 ## 7. Lettura vincolata all'emendamento A1
 
@@ -273,7 +370,87 @@ approssimazione. Allo stesso modo l'«indizio» del protocollo §1 (eccesso di
 falsi verdetti dovuto all'errore standard stimato) è più forte di quanto
 T5-D1 ha stabilito e non va riportato come risultato.
 
-**Interpretazione effettiva: DA SCRIVERE soltanto dopo i controlli.**
+### 7.1 Interpretazione effettiva (2026-11-15, Claude Opus 5.5, su `27a9c7d`)
+
+Lettura scritta dopo il controllo 54/54 e la conservazione degli output.
+Riguarda soltanto i confronti fra bracci in questi cataloghi sintetici. Si
+leggono insieme varianza, falsi verdetti, code, copertura e cambiamenti appaiati.
+
+**Fatti osservati, scenario 7 (livelli ±1 indipendenti fra emisferi, fase dei salti condivisa).**
+
+1. *Varianza individuale vera (A1a, A1b).* Non cambia nulla di misurabile
+   rispetto ad A0. Sotto nulla: R = 0,857 in entrambi; falsi 3,32 % e 3,33 %
+   contro 3,35 %; al massimo 10 su 10000 cataloghi cambiano stato decisionale.
+   Sotto effetto −0,3: copertura 96,05 % e 96,30 % contro 96,10 %, `below`
+   2,25 % e 2,20 % contro 2,30 %. A1b non differisce da A1a: la ristima
+   temporale con la varianza individuale vera non cambia il risultato.
+2. *Componente temporale vera (A2).* R = 0,981, SD(z) = 1,010, falsi
+   194/10000 = 1,94 ± 0,14 % (0,94 % e 1,00 % per verso). Sotto −0,3:
+   copertura 97,90 ± 0,32 %, `below` 1,20 %. Il cambiamento è appaiato e
+   simmetrico fra i due versi: 159 decisioni di A0 diventano `non deciso`, 18
+   fanno il contrario.
+3. *Entrambe vere (A3).* Coincide con A2 entro pochi cataloghi: R = 0,981;
+   falsi 1,90 %; copertura a −0,3 98,05 %. Quando la componente temporale è
+   vera, rendere vera anche quella individuale non aggiunge nulla di osservabile.
+4. *Approssimazione AR(1) lag per lag con scala vera (A2p).* Resta vicina ad
+   A0 e lontana da A2: R = 0,855; falsi 3,02 ± 0,17 %; copertura a −0,3 96,95 %
+   con `below` 1,70 %. Rispetto ad A0 i verdetti si rimescolano (98 persi, 65
+   nuovi) invece di restringersi.
+5. *Code.* Con la varianza vera (A2, A3) i quantili di z sono −2,11 e +2,18
+   sotto nulla, dentro ±2,24. La distribuzione standardizzata ha quindi code
+   più leggere del riferimento normale, e l'intervallo nominale al 97,5 % dà
+   meno falsi verdetti del nominale (1,9 % contro 2,5 %). Lo stesso succede
+   nello scenario 10 (quantili ±2,03, falsi 1,04 %). Il segno della non
+   normalità è opposto a quello che avrebbe fatto fallire anche A3.
+
+**Scenario 10 (livelli comuni).** A0 era già nelle soglie: R = 0,917, falsi
+1,95 %. A2 e A3 portano R a 0,986 e i falsi all'1,06 % e all'1,04 %. A2p dà
+invece R = 0,864, più basso di A0, con falsi 1,90 %. Qui l'approssimazione usa
+kappa = 0,98, mentre il generatore ha kappa = 1. Il limite resta dichiarato e
+non è separabile dal resto.
+
+**Controlli 1 e 2 (AR(1)).** A0, A2 e A3 sono vicini, come atteso dal
+protocollo. Scenario 1: R da 0,984 a 0,987, falsi da 2,85 % a 3,00 %.
+Scenario 2: R di A0 0,953 con falsi 3,40 ± 0,41 %, A2/A3 0,968 con 2,70 %.
+Nello scenario 2 lo scarto A0–A2 è di 23 contro 9 decisioni appaiate, cioè
+circa 1–2 MCSE sulle frequenze. Non è un'anomalia nel senso del protocollo,
+ma lo si riporta. Come indicazione grossolana non pre-registrata, l'errore
+Monte Carlo di R in approssimazione gaussiana, sqrt(2/(N−1)), vale circa
+0,014 per N = 10000 e 0,032 per N = 2000.
+
+**Lettura secondo A1 §2.** Si realizza la prima riga della griglia: A2 è
+vicino al riferimento (R ≈ 1, falsi entro il 3,0 % e per verso entro
+l'1,75 %), A1a no. L'esito è **compatibile con un ruolo principale della
+componente temporale (modello AR(1) e sua stima) nello scenario a salti, in
+questi cataloghi**. Non identifica un difetto unico e non costituisce un
+metodo correttivo. A1b uguale ad A1a: la terza riga non si attiva. Non si
+realizzano né «solo A3» né «neppure A3», perché A2 basta e A3 non aggiunge.
+Il §1 del protocollo congelato parlava di un «indizio» e il §5 di «la causa
+principale è»: queste formulazioni non si adottano.
+
+**A2p.** In base ad A1 §3, a parità di scala temporale vera e di varianza
+individuale stimata, sostituire K_steps con *questa* approssimazione AR(1)
+(criterio lag per lag a pesi uguali, non proiettato sul contrasto di beta)
+annulla quasi tutto il miglioramento di A2. Ciò descrive solo questa
+approssimazione. Non dimostra che ogni AR(1) sia inadatta ai salti. La lettura
+generale del §7 del protocollo congelato resta non adottata. Il confronto
+A2p–A0 cambia sia la scala sia la forma e non si attribuisce a phi o kappa.
+
+**Che cosa resta non distinto.** Non si sa se A0 perda calibrazione per la
+forma AR(1) in sé o per la stima REML dei suoi parametri. A2p non è la
+migliore AR(1) per il contrasto, e nessun braccio usa una forma AR(1)
+ottimizzata con i parametri veri. Resta anche aperto quanto della leggerezza
+delle code dipenda dai livelli ±1 e quanto dal disegno fisso.
+
+**Limite degli SE dei bracci, da leggere con quanto sopra.** La lettura poggia
+soprattutto sugli SE di A2 e A3. Il verificatore separato non ha ricalcolato
+gli SE di A1a, A1b, A2 e A2p: ne ha controllato soltanto la coerenza interna.
+Per A3 c'è solo il controllo strutturale (SE costante per scenario). Un SE di
+A2 sbagliato ma usato coerentemente avrebbe superato i controlli. La
+concordanza A2 ≈ A3 e il comportamento atteso nei controlli 1–2
+(A0 ≈ A2 ≈ A3) sono coerenze indirette, non un ricalcolo indipendente. Il
+ricalcolo facoltativo dell'SE di A3 coprirebbe solo A3. Per A2 servirebbe
+ricostruire i cataloghi, cioè rieseguire il produttore, che è escluso.
 
 ## 8. Incidenti, discrepanze ed esposizioni da rendicontare
 
@@ -290,14 +467,44 @@ retroattivamente il protocollo congelato.
   10: il codice usa 28200000+k, mentre la formulazione generale del piano
   indica 28000000+k. Dichiarare la differenza del solo pretest, senza
   modificarlo né confonderla con i semi dei cataloghi dell'esecuzione.
-- Eventuali tabelle viste nel log prima del controllo, problemi del
-  verificatore o ricomputazioni: DA INSERIRE, anche se non cambiano i numeri.
+- Log della corsa (`logs/t5_oracle.log`, 17 righe): contiene soltanto i
+  contatori di avanzamento e `fatto`. Nessuna tabella o sintesi è stata vista
+  prima del controllo. Nel controllo e nella lettura nessuna ricomputazione ha
+  cambiato i numeri. Il riconteggio di questa lettura legge `null` come
+  stringa (`keep_default_na=False`). È una precauzione di lettura, non un
+  difetto degli output.
+- Esposizioni dell'interprete: Claude Opus 5.5 ha partecipato al progetto,
+  alla stesura dell'emendamento e alla revisione incrociata di fase 1.
+  L'interpretazione non è cieca. La griglia di lettura era fissata prima (A1 §2).
 - Già documentata la fase comune dei salti del 7: correggere nel rapporto
   eventuali descrizioni di indipendenza completa, lasciando il generatore intatto.
 
 ## 9. Conclusioni e possibili passi successivi
 
-**Conclusioni scientifiche nuove: NON ANCORA DISPONIBILI in questo file.**
+**Conclusioni (2026-11-15), descrittive e limitate a questi cataloghi sintetici.**
+
+- *Cosa cambia negli oracoli.* Rendere vera la componente temporale (scala e
+  covarianza dei salti) riporta R vicino a 1 e i falsi verdetti sotto il
+  nominale nello scenario 7. Rendere vera la sola varianza individuale, con o
+  senza ristima, non cambia nulla. L'approssimazione AR(1) lag per lag
+  specificata, con scala vera, non riproduce il miglioramento.
+- *Quali spiegazioni restano compatibili.* Un ruolo principale della
+  componente temporale come modellata e stimata da M (AR(1) + REML) nello
+  scenario a salti. Un ruolo principale della funzione di varianza
+  individuale non è compatibile con l'invarianza di A1a e A1b. Non si attribuisce una causa unica.
+- *Cosa non è distinguibile.* Non si distingue la forma AR(1) in sé dalla
+  stima dei suoi parametri. Non si distingue l'effetto della specifica
+  proiezione A2p da quello di un'AR(1) qualunque. Non si separa l'origine
+  delle code leggere.
+- *Cosa mancherebbe per un metodo sui dati reali.* Una stima della
+  covarianza temporale che non conosca la verità e catturi la dipendenza su
+  circa 20 CR. Esempi del protocollo, non scelti: una covarianza più
+  flessibile o un SE robusto alla dipendenza. Va considerato anche che
+  un'inferenza calibrata costa potenza in questi cataloghi: a −0,3, 47,2 %
+  con A2 contro 52,7 % di A0. Non si trasferisce questo numero ai dati reali.
+- La diagnosi non rende T5 irrisolvibile con HMI. Non si riscala nessun SE con
+  questi esiti e non si elimina lo scenario 7.
+- I risultati sono condizionati al limite degli SE dei bracci descritto in §7.1.
 
 Dopo la verifica, separare: cosa cambia negli oracoli, quali spiegazioni
 restano compatibili, cosa non è distinguibile e quali informazioni
@@ -325,8 +532,8 @@ T5-D2; verificatore e protocolli invariati; precisazioni
 documentali applicate. Un secondo revisore ne ha condiviso le conclusioni.
 Non è una revisione cieca né la revisione dell'interpretazione (fase 2).
 
-**DA INSERIRE:** autore e commit esaminato, esito della revisione del
-verificatore, esito della revisione scientifica successiva, rilievi e
-risoluzioni con commit distinti. Lo stesso agente che ha partecipato al
+Interpretazione inserita il 2026-11-15 (Claude Opus 5.5, su `27a9c7d`).
+**DA INSERIRE:** revisione di fase 2 dell'interpretazione (autore, commit
+esaminato, rilievi e risoluzioni con commit distinti). Lo stesso agente che ha partecipato al
 progetto offre una revisione incrociata, non una verifica cieca dell'intero
 studio. La preparazione di questo scheletro non sostituisce quelle revisioni.

@@ -1,5 +1,17 @@
 # Cold restart — SHARP BL
 
+## T5-D2: risultati letti e interpretati — 2026-11-15
+
+`docs/T5_ORACLE_RESULTS.md` compilato su `27a9c7d` (§6 tabelle, 46 gruppi e 38 confronti;
+§7.1 lettura secondo A1; §9 conclusioni). Scenario 7 sotto nulla: A0 R 0,858, falsi 3,35 %;
+A1a e A1b uguali ad A0; A2 R 0,981, falsi 1,94 %; A3 coincide con A2; A2p R 0,855, falsi 3,02 %.
+Prima riga della griglia A1: risultato compatibile con un ruolo principale della componente
+temporale, senza una causa unica. A2p descrive solo l'approssimazione specificata. Con la
+varianza vera le code di z sono più leggere del normale. Limite: gli SE dei bracci non
+sono stati ricalcolati e la lettura poggia su A2 e A3. T5 descrittivo, T3 non deciso.
+Prossimo: revisione di fase 2 dell'interpretazione, punto 5, comparatore di fase 1.
+Facoltativo, solo su richiesta: ricalcolo indipendente dell'SE di A3. Nessun push.
+
 ## T5-D2: controllo effettivo superato e output conservati — 2026-11-14
 
 Corsa conclusa il 13/11 alle 18:45 (marcatore `fatto`). `t5_oracle_postcheck.py --check`
