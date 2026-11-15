@@ -4,13 +4,15 @@
 
 `docs/T5_ORACLE_RESULTS.md` compilato su `27a9c7d` (§6 tabelle, 46 gruppi e 38 confronti;
 §7.1 lettura secondo A1; §9 conclusioni). Scenario 7 sotto nulla: A0 R 0,858, falsi 3,35 %;
-A1a e A1b uguali ad A0; A2 R 0,981, falsi 1,94 %; A3 coincide con A2; A2p R 0,855, falsi 3,02 %.
+A1a e A1b con cambiamenti piccoli rispetto ad A0; A2 R 0,981, falsi 1,94 % (conservativo); A3 simile ad A2; A2p R 0,855, falsi 3,02 %.
 Prima riga della griglia A1: risultato compatibile con un ruolo principale della componente
 temporale, senza una causa unica. A2p descrive solo l'approssimazione specificata. Con la
 varianza vera le code di z sono più leggere del normale. Limite: gli SE dei bracci non
 sono stati ricalcolati e la lettura poggia su A2 e A3. T5 descrittivo, T3 non deciso.
-Prossimo: revisione di fase 2 dell'interpretazione, punto 5, comparatore di fase 1.
-Facoltativo, solo su richiesta: ricalcolo indipendente dell'SE di A3. Nessun push.
+Revisione: tre pareri di Codex e revisione di fase 2 su `8c7801a`, senza problemi bloccanti;
+correzioni in `3a4add9`, `8c7801a` e `6e48f3c` (indicatore appaiato §6.5, formulazioni più caute).
+Prossimo: ricalcolo indipendente degli SE di A2 e A3 su tutti i cataloghi (nota congelata prima;
+solo con il via dell'utente), poi punto 5 (include il rilievo 6 di Codex), poi comparatore. Nessun push.
 
 ## T5-D2: controllo effettivo superato e output conservati — 2026-11-14
 
