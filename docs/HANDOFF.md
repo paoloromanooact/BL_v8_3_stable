@@ -13,9 +13,10 @@ sono stati ricalcolati e la lettura poggia su A2 e A3. T5 descrittivo, T3 non de
 Revisione: tre pareri di Codex e revisione di fase 2 su `8c7801a`, senza problemi bloccanti;
 correzioni in `3a4add9`, `8c7801a` e `6e48f3c` (indicatore appaiato §6.5, formulazioni più caute),
 verificate da Codex; rilievo 6 (segnaposto) chiuso nel commit successivo.
-Prossimo: ricalcolo indipendente degli SE di A2 e A3 su tutti i cataloghi
-(`docs/T5_ORACLE_SE_RECOMPUTE_NOTE.md`, congelata prima dell'esecuzione), poi resto del punto 5,
-poi comparatore. Nessun push.
+Ricalcolo indipendente degli SE di A2, A3 e A2p su tutti i 32000 cataloghi (nota `61f8884`, C1 `ed43694`,
+script `39b7837`), esito **superato**: 91960 ok, 40 errori attesi concordanti, 0 discrepanze, 0 inattesi;
+output `330d007`; rapporto §7.2. Limite residuo: A1a e A1b non ricalcolati. Prossimo: esito a Codex,
+resto del punto 5, comparatore. Nessun push.
 
 ## T5-D2: controllo effettivo superato e output conservati — 2026-11-14
 

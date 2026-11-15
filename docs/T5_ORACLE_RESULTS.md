@@ -5,7 +5,8 @@ Risultati e interpretazione inseriti il 2026-11-15 (§6, §7.1, §9), dopo il
 controllo separato 54/54 e la conservazione degli output (`27a9c7d`).**
 Il file non è un protocollo e non congela nuovi criteri. Revisione di fase 2
 (Codex) svolta su `8c7801a`; correzioni in `6e48f3c`, verificate da Codex su
-`0cdabc3` (§10). Resta aperto il ricalcolo indipendente degli SE degli oracoli (§7.1).
+`0cdabc3` (§10). Ricalcolo indipendente degli SE di A2, A3 e A2p superato il 2026-11-15 (§7.2);
+resta il limite per A1a e A1b.
 
 ## 1. Domanda e stato scientifico
 
@@ -121,7 +122,7 @@ sufficienza dipende dalle conclusioni che si vorranno sostenere.
 | Riconteggio completo del riepilogo e delle matrici appaiate | Superato: tutte le colonne, nessuna inversione di segno, 16 celle per confronto |
 | A3 senza errori e SE costante per scenario sul disegno fisso | Superato (controllo strutturale, non di normalità) |
 | File invariati durante la lettura | Superato: hash identici prima e dopo |
-| SE dei bracci A1a, A1b, A2, A2p | Non ricalcolati dal verificatore: solo coerenza interna (vedi sopra) |
+| SE dei bracci A1a, A1b, A2, A2p | Non ricalcolati dal verificatore: solo coerenza interna (vedi sopra). A2, A3 e A2p ricalcolati poi in modo indipendente, esito superato (§7.2); A1a e A1b no |
 | Rilievi della revisione e loro risoluzione | Fase 1 e fase 2 in §10; rilievi 1–5 della fase 2 corretti in `6e48f3c` |
 
 ## 5. Numerosità, denominatori e definizioni
@@ -522,10 +523,42 @@ richiedono la REML; A2 richiede comunque la stima della funzione di varianza
 (`P.varfun_fit`), quindi non è privo di ottimizzazione. È proposto un
 controllo separato: rigenerazione di tutti i cataloghi dai semi e ricalcolo
 indipendente della costruzione degli oracoli, con componenti, contrasto e
-beta. **Non è ancora pianificato né svolto.** Se superato, verificherebbe la
-costruzione degli oracoli entro le dipendenze condivise (generatore, celle,
-funzione di varianza), non tutta la catena. Fino ad allora vale il limite
-descritto sopra.
+beta. Il controllo è stato poi pianificato e svolto, con esito superato
+(§7.2). Copre A2, A3 e A2p. Per A1a e A1b, che richiedono la REML, il limite
+descritto sopra resta valido.
+
+### 7.2 Ricalcolo indipendente degli SE di A2, A3 e A2p (2026-11-15)
+
+Nota tecnica [T5_ORACLE_SE_RECOMPUTE_NOTE.md](T5_ORACLE_SE_RECOMPUTE_NOTE.md),
+congelata in `61f8884` prima del codice, e chiarimento
+[C1](T5_ORACLE_SE_RECOMPUTE_NOTE_C1.md) (`ed43694`), registrato dopo la
+revisione dello script e prima dell'esecuzione. Lo script è
+`scripts/t5_oracle_se_recompute.py` (`39b7837`): selftest 59/59, revisionato da
+Codex in due passaggi senza rilievi bloccanti residui. L'esecuzione è stata
+unica, su commit pulito, con 12 processi (circa 12 minuti). Gli output sono
+conservati in `results/T5_ORACLE_SE_RECOMPUTE/` (`330d007`).
+
+| Controllo | Esito |
+|---|---|
+| Chiavi | 92000 righe (32000 A2, 32000 A3, 28000 A2p) e 32000 chiavi A0: insiemi esatti, nessun duplicato, nessuna eccezione |
+| Rigenerazione (beta contro raw, anche A0) | Tutti i 32000 cataloghi entro tolleranza; è un controllo della rigenerazione, non una prova dell'identità del catalogo (C1 §1) |
+| SE, lo, hi, beta contro `ORACLE_RAW` | 91960 righe valide entro tolleranza: rapporto massimo 3,2·10⁻⁷ della tolleranza, scarto relativo massimo su SE 3,2·10⁻¹⁶; verdetti e flag identici |
+| Componenti contro il produttore ricalcolato | b, v_c, parte individuale, bᵀKb, sigma_x²·bᵀKb, varianza totale: rapporto massimo 0, cioè coincidenti alla precisione di macchina |
+| Errori | 40 attesi concordanti in tutte e tre le parti, tutti nella funzione di varianza: 22 in A2 e 18 in A2p, gli stessi cataloghi. Nessun errore di A3, nessun errore inatteso, nessuna discrepanza |
+| Costanti | eta0, sigma_x², sigma_i², Z, AR(1) degli scenari 1–2, phi* (0,9106 e 0,8657) e kappa*: coincidenti |
+| Integrità | SHA-256 di `ORACLE_RAW.csv.gz` identico prima e dopo |
+
+**Cosa significa.** La costruzione degli SE di A2, A3 e A2p negli output
+salvati è verificata entro le dipendenze condivise dichiarate: generatore,
+aggregazione in celle e funzione di varianza della validazione P2f, non
+verificati da questo controllo. Il limite del §7.1 si chiude per questi tre
+bracci. Resta per A1a e A1b, non ricalcolati perché richiedono la REML, e
+non riguarda tutta la catena. Il controllo non è una nuova validazione e non
+cambia la lettura: T5 resta descrittivo, T3 non deciso. I 40 errori
+concordanti non valgono come verifica numerica (nota §5).
+I componenti indipendenti coincidono esattamente con quelli del produttore. È plausibile, perché le
+formule sono le stesse operazioni in virgola mobile, ma non aggiunge nulla
+oltre alla concordanza entro tolleranza.
 
 ## 8. Incidenti, discrepanze ed esposizioni da rendicontare
 
@@ -586,7 +619,9 @@ retroattivamente il protocollo congelato.
   riduce la potenza: a −0,3, 47,2 % con A2 contro 52,7 % di A0. Non si trasferisce questo numero ai dati reali.
 - La diagnosi non rende T5 irrisolvibile con HMI. Non si riscala nessun SE con
   questi esiti e non si elimina lo scenario 7.
-- I risultati sono condizionati al limite degli SE dei bracci descritto in §7.1.
+- La costruzione degli SE di A2, A3 e A2p, su cui poggia la lettura, è stata ricalcolata in modo
+  indipendente con esito superato (§7.2), entro le dipendenze condivise. Per A1a e A1b resta il limite
+  descritto in §7.1.
 
 Dopo la verifica, separare: cosa cambia negli oracoli, quali spiegazioni
 restano compatibili, cosa non è distinguibile e quali informazioni
@@ -661,3 +696,9 @@ ricalcolo indipendente degli SE di A2 e A3 è un controllo distinto, con
 nota tecnica congelata prima dell'esecuzione; non è considerato superato.
 Nessuna di queste revisioni è cieca: revisore e autore conoscevano il
 progetto e i riepiloghi.
+
+**Ricalcolo degli SE (2026-11-15).** Nota `61f8884`, script `1e55cf8`
+revisionato da Codex (4 rilievi bloccanti e 2 da correggere). Correzioni:
+chiarimento C1 (`ed43694`) e script `39b7837`, verificati da Codex senza
+rilievi bloccanti. Esecuzione unica con esito superato (§7.2), output in `330d007`.
+L'esito è da inviare a Codex.
