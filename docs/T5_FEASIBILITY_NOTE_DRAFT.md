@@ -7,6 +7,9 @@ Usa risultati già salvati (validazione P2f, T5-D2), la letteratura e statistich
 
 **Non cieca.** Le potenze del §4 erano già note all'autore quando ha scritto i §2–§3.
 
+**Revisione 2 accettata da Codex** come bozza documentale corretta rispetto alla verifica delle fonti (2026-11-15).
+Non approva un protocollo e non dimostra la fattibilità di un nuovo T5.
+
 **Esito di questa revisione.** La prima versione concludeva che HMI da solo non può distinguere un
 quenching fisicamente interessante e che un nuovo metodo migliorerebbe solo la calibrazione. Questa
 conclusione **non è sostenuta** e viene ritirata (§5). Resta sostenuto soltanto: *con le procedure e i
@@ -41,7 +44,8 @@ da contribuire a limitare il ciclo? Prima di decidere se sviluppare un nuovo met
 | 318 celle T5 con peso uniforme | 0,40 | 2,65 | |
 
 La regressione T5 pesa ancora in un altro modo, per flusso. Le righe 2375 e 318 sono state
-calcolate da Codex sul disegno ricostruito; qui non sono state ricalcolate.
+calcolate da Codex sul disegno ricostruito (`MWO-HMI-MDI-Polar-Flux-Signed-Sunspots/reviews/T5_FATTIBILITA_72cd0c8/verifiche_numeriche.json`);
+qui non sono state ricalcolate.
 
 **Traduzione illustrativa**, con la prima popolazione (Â_bassa = 0,35, Â_alta = 2,70, ΔÂ = 2,35). Si
 distinguono due quantità:
