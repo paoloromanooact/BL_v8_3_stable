@@ -1,137 +1,176 @@
 # T5 — nota di fattibilità: quale quenching dell'efficienza è interessante, e HMI può distinguerlo?
 
-Stato: **bozza interna del 2026-11-15, per la revisione di Codex.** Non è un protocollo, non congela
-criteri e non contiene nuove simulazioni o applicazioni ai dati reali. Usa soltanto risultati già salvati
-(validazione P2f, T5-D2) e la letteratura già verificata per il protocollo P2f (§2 di
-[PROTOCOL_P2F_VALIDATED_TEST.md](PROTOCOL_P2F_VALIDATED_TEST.md)).
+Stato: **bozza interna, revisione 2 del 2026-11-15**, dopo la verifica delle fonti primarie di Codex
+(prima versione `72cd0c8`; revisione in `MWO-HMI-MDI-Polar-Flux-Signed-Sunspots/reviews/T5_FATTIBILITA_72cd0c8/`).
+Non è un protocollo, non congela criteri e non contiene nuove simulazioni o applicazioni ai dati reali.
+Usa risultati già salvati (validazione P2f, T5-D2), la letteratura e statistiche descrittive del disegno.
 
-**Non cieca.** Le potenze riportate al §4 erano già note all'autore quando ha scelto l'intervallo
-fisicamente interessante del §3. Per questo la scelta è motivata solo con la letteratura e con la
-conversione delle unità, mostrata per esteso.
+**Non cieca.** Le potenze del §4 erano già note all'autore quando ha scritto i §2–§3.
+
+**Esito di questa revisione.** La prima versione concludeva che HMI da solo non può distinguere un
+quenching fisicamente interessante e che un nuovo metodo migliorerebbe solo la calibrazione. Questa
+conclusione **non è sostenuta** e viene ritirata (§5). Resta sostenuto soltanto: *con le procedure e i
+generatori finora esaminati, la potenza per effetti piccoli è bassa; il caso a salti resta poco
+discriminante anche con gli SE oracolo. Non è dimostrato un limite generale della serie HMI.*
+**La fattibilità resta aperta.**
 
 ## 1. Domanda
 
 All'aumentare dell'attività, l'efficienza della sorgente BL per unità di flusso diminuisce abbastanza
-da contribuire a limitare il ciclo? Prima di sviluppare un nuovo metodo T5 si vuole sapere due cose:
-1. quale intensità di quenching dell'efficienza è fisicamente interessante;
-2. se i dati HMI, anche con un'inferenza ben calibrata, possono distinguerla.
+da contribuire a limitare il ciclo? Prima di decidere se sviluppare un nuovo metodo T5 servono tre cose:
+- un bersaglio fisico definito;
+- una mappa giustificata fra effetto fisico e pendenza testata;
+- una valutazione di quanto la fattibilità dipenda dalle ipotesi sul rumore.
 
 ## 2. Che cosa misura T5, e in quali unità
 
-- **Efficienza.** Per cella (CR, emisfero), η = ΣD*/ΣΦ. D* è il momento dipolare bilanciato misurato
-  al record selezionato vicino al meridiano centrale ([misura](HMI_MEASUREMENT_ASSESSMENT.md)).
-- **Attività.** Â è il numero di macchie emisferico mensile SILSO diviso per la sua media nella finestra
-  HMI 2010-05…2026-09. Le medie sono 33,7 (N) e 34,6 (S); la media del numero totale è 68,3. Una
-  unità di Â corrisponde quindi a circa 34 macchie emisferiche, cioè circa 68 del numero totale se i due
-  emisferi sono simili.
-- **Distribuzione della media di Â per cella**, pesata per record (2485 record del disegno): mediana 1,39,
-  quantili 5–95 % pari a 0,35–2,70, deviazione standard 0,72.
+- **Efficienza.** Per cella (CR, emisfero), η = ΣD*/ΣΦ. D* è il momento dipolare bilanciato al record
+  selezionato vicino al meridiano centrale, che non coincide necessariamente con l'emersione.
+- **Attività.** Â è il numero di macchie emisferico mensile SILSO diviso per la sua media temporale nella
+  finestra HMI (197 mesi, 2010-05…2026-09). Le medie sono N = 33,72, S = 34,57 e totale = 68,29: Â = 1 è
+  la media temporale HMI di ciascun emisfero.
 - **Modello dell'effetto** nel generatore P2f e T5-D2: η = η̄·[1 + e·(Â_cella − 1)]. L'effetto e è la
-  variazione relativa di efficienza per unità di Â.
+  variazione di efficienza, in unità di η̄, per unità di Â.
 
-Traduzione in variazione fra attività bassa e alta, cioè fra il 5° e il 95° percentile (ΔÂ ≈ 2,35):
+**Popolazione e pesi.** Non esiste un unico intervallo 5–95 % «del T5».
 
-| e (per unità di Â) | Δη/η̄ fra Â = 0,35 e 2,70 |
-|---|---|
-| −0,10 | −24 % |
-| −0,20 | −47 % |
-| −0,30 | −70 % |
-| −0,35 | −82 % |
+| Popolazione | q05 | q95 | Note |
+|---|---|---|---|
+| 2485 record del disegno completo (media di cella per record) | 0,35 | 2,70 | media 1,44, mediana 1,39 |
+| 2375 record usati da T5 (≥ 3 record per cella) | 0,50 | 2,76 | |
+| 318 celle T5 con peso uniforme | 0,40 | 2,65 | |
 
-**Ambito fisico di T5.** D* è misurato all'istante del record, quindi T5 è sensibile al quenching che
-agisce sul tilt (separazione in latitudine delle polarità) e sulla distribuzione del flusso al momento
-della misura. Il quenching in latitudine e gli afflussi verso le regioni attive agiscono soprattutto
-attraverso il trasporto successivo e il contributo finale al dipolo polare, che T5 non misura
-direttamente. Non sono quindi bersagli diretti di T5.
+La regressione T5 pesa ancora in un altro modo, per flusso. Le righe 2375 e 318 sono state
+calcolate da Codex sul disegno ricostruito; qui non sono state ricalcolate.
 
-## 3. Intensità fisicamente interessante (dalla letteratura, convertita in unità T5)
+**Traduzione illustrativa**, con la prima popolazione (Â_bassa = 0,35, Â_alta = 2,70, ΔÂ = 2,35). Si
+distinguono due quantità:
+- la variazione in unità di η̄, cioè e·ΔÂ;
+- la perdita relativa all'efficienza ad attività bassa, cioè −e·2,35/(1 − 0,65·e).
 
-a) **Quenching del tilt osservato fra cicli** (Jiao, Jiang & Wang 2021, eq. 11):
-   T = 0,61 − 0,00107·S_n, con S_n il massimo del numero totale lisciato su 13 mesi, cicli 15–24.
-   *Ipotesi di trasferimento*: si applica la stessa relazione all'attività mensile dentro il ciclo, e si
-   assume η proporzionale al coefficiente di tilt.
-   - Una unità di Â vale circa 68 nel numero totale, quindi dT/dÂ ≈ −0,073.
-   - Rispetto a T(68) ≈ 0,537 si ottiene **e ≈ −0,14**; alla mediana di Â (S ≈ 95) circa −0,144.
-   - Limiti: la relazione è misurata fra cicli e usa il massimo del ciclo, non l'attività mensile; η ∝ T è
-     un'approssimazione; si passa dall'attività emisferica a quella totale.
+| e | Δη/η̄ | Perdita rispetto a η(Â_bassa) |
+|---|---|---|
+| −0,10 | −23,5 % | 22,1 % |
+| −0,20 | −47,0 % | 41,6 % |
+| −0,30 | −70,5 % | 59,0 % |
+| −0,35 | −82,3 % | 67,0 % |
 
-b) **Quanto basta in un modello di dinamo** (Karak & Miesch 2017, citato da Jiang 2020). Una riduzione
-   del tilt di 1–2° basta a saturare il ciclo in quel modello. Con il tilt medio di circa 6,2° a 15° del
-   modello P2 (24°·sin|λ|) sono il 16–32 %.
-   - Distribuita sull'intervallo HMI 5–95 % (ΔÂ ≈ 2,35): **e ≈ −0,07 … −0,14**.
-   - Distribuita fra attività nulla e media (ΔÂ ≈ 1,4): e ≈ −0,11 … −0,23.
-   - Limiti: viene da un modello specifico, non è una soglia universale, e l'intervallo di attività su cui
-     si distribuisce la riduzione è una scelta.
+**Ambito fisico di T5.** T5 non misura il dipolo finale dopo il trasporto. Questo però **non** lo rende
+insensibile ai meccanismi citati:
+- *Latitudine.* Dalla definizione, D_bal/Φ = [3/(8πR²)]·(⟨sin λ⟩₊ − ⟨sin λ⟩₋), pesati per flusso; per
+  una coppia compatta è proporzionale a cos λ·(d/R)·sin α. La latitudine entra quindi già nella geometria
+  del dipolo istantaneo. T5 non isola il quenching in latitudine del dipolo finale, ma risente dei
+  cambiamenti della distribuzione in latitudine (Jiang 2020, §2).
+- *Afflussi.* Martin-Belda & Cameron 2016 (A&A 586, A73, §4.2 e fig. 8) mostrano che gli afflussi
+  modificano tilt, flusso e dipolo già nelle prime settimane. I loro effetti possono essere presenti al
+  record, senza che T5 li possa identificare o quantificare separatamente.
 
-c) **Afflussi** (Martin-Belda & Cameron 2017): riduzione del dipolo di circa il 9 % fra cicli deboli e
-   forti. Agisce soprattutto nel trasporto, quindi non è osservabile direttamente in D* (§2). Solo
-   contesto.
+Il bersaglio fisico va dunque fissato prima di ogni decisione: o il dipolo al record, o il contributo
+finale al dipolo polare, che richiederebbe un modello di trasporto.
 
-**Intervallo interessante per T5: circa e = −0,07 … −0,2 per unità di Â**, con valore centrale circa −0,14.
-Si propone come **minimo interessante e_min = −0,10**, il limite inferiore dell'effetto sufficiente nel
-modello e sotto la conversione di Jiao. È una proposta da discutere, non una soglia fisica. La stima
-storica T5 sui dati reali (circa −0,04) **non** entra nella scelta, perché sarebbe circolare.
+## 3. Letteratura: risultati pubblicati e conversioni condizionate
+
+Le conversioni in e sono **esercizi condizionati a ipotesi aggiuntive**, non stime pubblicate della
+pendenza mensile di T5.
+
+a) **Jiao, Jiang & Wang 2021** (A&A 653, A27; §2.2, §3.4.2, eq. 11, fig. 7). Il risultato pubblicato è
+   T = 0,61 − 0,00107·S_n nei cicli 15–24, con S_n il massimo del numero totale mensile lisciato su 13
+   mesi. È una relazione **fra cicli**.
+   - Conversione condizionata, con tre ipotesi: la relazione vale per l'attività mensile dentro il ciclo;
+     η è proporzionale a T; i due emisferi variano insieme, così che S_tot = 68,29·Â. Con queste ipotesi
+     e = −0,00107·68,29/(0,61 − 0,00107·68,29) = −0,136.
+   - Se varia un solo emisfero con l'altro fisso, dS_tot/dÂ_h ≈ 34 e |e| si dimezza circa.
+   - Anche coefficiente di Joy, popolazione e ponderazione differiscono dal T5 basato sul dipolo delle HARP.
+
+b) **Karak & Miesch 2017** (ApJ 847, 69; abstract, eq. 10), riportato da Jiang 2020. Il risultato
+   pubblicato è che una soppressione del tilt di 1–2° basta a limitare la crescita della loro dinamo.
+   - Nel modello il quenching dipende dal campo toroidale progenitore, non dalla nostra Â mensile, e la
+     legge di tilt ha δ0 = 35°.
+   - Conversione illustrativa: con il riferimento P2 (24°·sin 15° = 6,21°), 1–2° sono il 16,1–32,2 %;
+     distribuiti su ΔÂ = 2,35 danno e ≈ −0,069 … −0,137.
+   - La scelta di ΔÂ, della latitudine e del tilt di riferimento **non** è prescritta dal lavoro. Il
+     risultato motiva l'interesse per effetti piccoli, ma non fissa una soglia.
+
+c) **Martin-Belda & Cameron 2017** (A&A 597, A21; §3.3, §4.2, fig. 8). Nel caso di riferimento la
+   riduzione del dipolo rispetto al caso senza afflussi è circa il 30 %. Il circa 9 % è la variazione, con
+   il livello di attività, del **rapporto** fra dipolo con afflussi e dipolo senza afflussi. Non è una
+   pendenza per unità di Â né un valore di e per l'efficienza istantanea.
+
+**Conseguenza.** L'intervallo −0,07…−0,2 e un «minimo interessante» −0,10 sono **scelte di
+pianificazione** sotto ipotesi di trasferimento, non valori fissati dalla letteratura. Una scelta
+definitiva richiede prima il bersaglio fisico (§2) e una mappa giustificata fra effetto fisico e
+pendenza testata. La stima storica T5 sui dati reali (circa −0,04) resta esclusa, perché sarebbe circolare.
 
 ## 4. Potenza già nota (simulazioni sul disegno HMI, non il Sole)
 
 Frequenza di `supportato` su 2000 cataloghi per combinazione. Il riferimento sotto nulla per un solo
 verso è circa 1,25 %.
 
-| e | M, scenario 1 (AR(1) φ = 0,5) | M, scenario 2 (φ = 0,9) | M, scenario 9 (eterosch., t₄, componente temporale ×2) | M, scenario 7 (salti, M non calibrata) | Oracolo A3, scenario 7 | Oracolo A2, scenario 7 |
+| e | M, sc. 1 (AR(1) φ = 0,5) | M, sc. 2 (φ = 0,9) | M, sc. 9 (eterosch., t₄, temporale ×2) | M, sc. 7 (salti; M non calibrata) | Oracolo A3, sc. 7 | Oracolo A2, sc. 7 |
 |---|---|---|---|---|---|---|
-| −0,10 | 11,3 % | 7,8 % | 5,1 % | 8,5 % | 6,6 % | 6,5 % |
+| −0,10 | 11,25 % | 7,8 % | 5,1 % | 8,5 % | 6,6 % | 6,5 % |
 | −0,20 | 38,5 % | 26,3 % | 11,6 % | 27,4 % | 22,3 % | 22,0 % |
 | −0,30 | 75,1 % | 54,6 % | 30,0 % | 52,7 % | 47,0 % | 47,2 % |
 | −0,35 | 86,8 % | 67,7 % | 36,6 % | 64,3 % | 58,6 % | 58,5 % |
 
-Fonti: `results/P2F/VALIDATION_COVERAGE_POWER.csv` (M, test T5) e i riconteggi T5-D2
-(`results/T5_ORACLE_POSTCHECK/PAIRED_TRANSITIONS.csv`). Nello scenario 7 la potenza di M è gonfiata dalla
-sottocopertura. Gli oracoli usano varianze vere, impossibili sui dati reali: un metodo utilizzabile avrà
-in genere meno potenza dell'oracolo nello stesso scenario.
+Fonti: `results/P2F/VALIDATION_COVERAGE_POWER.csv` (M, test T5) e i riconteggi T5-D2. Le frequenze sono
+state ricontrollate da Codex.
 
-## 5. Lettura (descrittiva, provvisoria)
+Cosa queste potenze **non** sono:
+- **Non un limite superiore per HMI.** Gli oracoli A2 e A3 tengono la stessa stima WLS di beta e cambiano
+  solo la varianza dell'intervallo, con il riferimento normale; con la varianza vera sono anche
+  conservativi. Non è dimostrato che stima e test sfruttino in modo ottimale l'informazione del disegno.
+  Un metodo diverso (altra stima, altro peso, altra statistica) potrebbe avere potenza diversa, maggiore
+  o minore.
+- **Non la potenza sul processo reale.** Valgono per rumore individuale η̄, componente temporale 0,5·η̄ e
+  le strutture di dipendenza dei generatori. La scala e la forma reali della componente temporale non
+  sono note e incidono direttamente sulla fattibilità.
+- **Non una graduatoria generale dei metodi.** I confronti fra generatori diversi non la forniscono.
 
-- **Al minimo interessante e = −0,10** la potenza è al più dell'11 % in tutti gli scenari provati. Nello
-  scenario a salti è del 6,6 % anche per l'oracolo ideale.
-- **Al valore centrale −0,14**, che non è nella griglia simulata, la potenza sta fra quelle di −0,10 e
-  −0,20. Non si interpola formalmente.
-- **All'estremo alto −0,20** si va dal 12 al 39 %, sempre sotto il 50 %.
-- **Valori superiori al 50 %** compaiono solo a −0,30/−0,35, cioè con perdite di efficienza del 70–80 %
-  fra attività bassa e alta, sopra l'intervallo del §3.
+## 5. Lettura (descrittiva)
 
-Conclusione provvisoria: con la sola serie HMI (circa 1,5 cicli, 318 celle) un test T5, anche con
-un'incertezza temporale calibrata bene, difficilmente distinguerebbe un quenching dell'efficienza
-fisicamente interessante. Un «non deciso» sarebbe l'esito atteso qualunque sia il valore vero
-nell'intervallo del §3. Un nuovo metodo T5 migliorerebbe la calibrazione, non la capacità di rispondere
-alla domanda.
+**Sostenuto.** Con le procedure e i generatori esaminati:
+- a e = −0,10 la potenza è al più di circa l'11 %;
+- a e = −0,20 va dal 12 al 39 %;
+- nello scenario a salti resta bassa anche con gli SE oracolo (6,6 % e 22 %).
 
-## 6. Che cosa potrebbe cambiare la conclusione
+**Non sostenuto, e ritirato dalla versione 1:**
+- che HMI sia necessariamente insufficiente;
+- che un esito «non deciso» sia quasi certo per ogni valore dell'intervallo;
+- che un nuovo metodo migliorerebbe soltanto la calibrazione.
 
-- **Più cicli.** La componente temporale del generatore (scala 0,5·η̄) è persistente su molte rotazioni
-  (AR(1) per CR, oppure blocchi di 20 CR nei salti). La potenza dipende soprattutto dal numero di
-  blocchi temporali indipendenti e dall'escursione di attività coperta. Estendere la serie, per
-  esempio con MDI/SMARP sul ciclo 23, potrebbe aumentarla, ma il guadagno va stimato **prima**: sulla
-  confrontabilità e sul disegno pesa lo [studio di fattibilità](MDI_SMARP_FEASIBILITY.md).
-- **Misura migliore.** Ridurre il rumore individuale aiuta poco se domina la componente temporale; anche
-  questo va quantificato prima.
-- **Componente temporale reale.** La sua scala vera non è nota: con una variabilità reale più piccola di
-  quella simulata, la potenza sarebbe più alta. È un'incertezza del quadro, non un argomento per una
-  conclusione diversa.
+Non è neppure garantito che un metodo nuovo migliori abbastanza. La questione è aperta in entrambi i versi.
+
+## 6. Che cosa servirebbe per decidere
+
+1. **Bersaglio fisico:** dipolo al record oppure contributo finale (§2).
+2. **Mappa effetto → pendenza:** una relazione giustificata fra il meccanismo considerato (tilt, latitudine,
+   afflussi) e la pendenza e testata, con le ipotesi sugli emisferi e sulla popolazione esplicitate.
+3. **Sensibilità della fattibilità al rumore:** potenza in funzione di scala e forma della componente
+   temporale in un intervallo plausibile, non in un solo generatore.
+4. **Metodi considerati:** valutare anche stime e statistiche diverse da quella WLS attuale, non solo SE
+   diversi.
+5. **Confronto con una serie estesa, se lo si fa:** includere sempre come riferimento HMI da solo, nelle
+   stesse ipotesi e con metodi comparabili. Più cicli e MDI possono aiutare, ma le fonti citate non ne
+   dimostrano qui la necessità né il beneficio quantitativo.
+
+Ognuno di questi passi richiederebbe un piano proprio. Uno sviluppo di metodo richiede anche una
+validazione finale distinta dai cataloghi già visti. I protocolli congelati P2f e T5-D2 non si modificano.
 
 ## 7. Limiti della nota
 
-- Non è cieca (§ iniziale).
-- Le conversioni del §3 sono approssimate e dipendono da ipotesi di trasferimento dichiarate.
-- Le potenze vengono da generatori sul disegno HMI con ampiezze di rumore fissate (individuale η̄,
-  temporale 0,5·η̄), non dal processo reale.
-- La scelta di e_min è un giudizio.
-- Nessuna potenza è stata calcolata ex novo e nessun valore intermedio è stato interpolato.
+- Non è cieca.
+- Le conversioni del §3 sono condizionate a ipotesi dichiarate.
+- Le potenze vengono da generatori con ampiezze e dipendenze fissate.
+- Popolazione e pesi cambiano gli intervalli di Â (§2).
+- Non sono state calcolate potenze nuove e non è stato interpolato nessun valore.
 
-## 8. Decisione proposta
+## 8. Decisione: che cosa si può decidere oggi
 
-1. Accettare che HMI da solo non è discriminante per T5 nell'intervallo fisicamente interessante: T5
-   resta descrittivo e per ora non si sviluppa un nuovo metodo.
-2. Se si vuole perseguire la domanda, il prossimo esperimento è un **calcolo di potenza dedicato per una
-   serie estesa** (per esempio HMI + MDI, con disegno e rumore plausibili), con criterio di
-   prosecuzione fissato prima e senza acquisire dati. Solo se quel calcolo mostra un guadagno sufficiente
-   all'e_min concordato ha senso sviluppare e validare il metodo T5.
+- **Non** si può concludere che HMI sia insufficiente, né che MDI sia necessario.
+- Rimandare un nuovo T5 per priorità o risorse è legittimo, ma è una **decisione operativa**, distinta da
+  un'impossibilità dimostrata.
+- Se si vuole proseguire sulla fattibilità, il primo passo è definire bersaglio fisico e mappa
+  effetto → pendenza (§6, punti 1–2). Solo dopo ha senso un piano di sensibilità della potenza (punti 3–5),
+  con criterio di prosecuzione fissato prima.
+- T5 resta descrittivo e T3 non deciso.
