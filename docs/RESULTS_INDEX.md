@@ -24,7 +24,9 @@ descrittive, con 25S storico separato e limiti espliciti. La [traccia T5 sui sal
 è un documento di progettazione storico. La prima fase
 [T5-D1](PROTOCOL_T5_DIAGNOSTIC_SAVED_OUTPUTS.md) è congelata ed eseguita,
 con [lista input](T5_DIAGNOSTIC_INPUTS_SHA256.csv) e
-[risultati diagnostici](T5_DIAGNOSTIC_RESULTS.md). Non valida T5.
+[risultati diagnostici](T5_DIAGNOSTIC_RESULTS.md). Non valida T5. La seconda fase
+[T5-D2](PROTOCOL_T5_ORACLE.md) (con [A1](PROTOCOL_T5_ORACLE_A1.md)) è eseguita, verificata
+e interpretata: [rapporto](T5_ORACLE_RESULTS.md). Anch'essa non valida T5.
 
 | Elemento | File | Dati tracciati / input | Script | Commit | Stato |
 |---|---|---|---|---|---|
@@ -57,7 +59,11 @@ con [lista input](T5_DIAGNOSTIC_INPUTS_SHA256.csv) e
 | Validazione P2f: controllo indipendente | `results/P2F/POST_CHECKS*.csv` (colonna `status` con etichetta «pilota» ereditata, dichiarata) | output della validazione | `p2f_checks.py vraw` | `11b71f4` (codice `a518115`) | **verifica** |
 | P2f, applicazione di T3 ai dati reali | `results/P2F/REAL_T3.csv`, `REAL_T3_SENSITIVITY.csv` | catalogo P1, selezione, SILSO; decisione e controlli della validazione | `p2f_apply.py --test T3 --real` | `8ad8e61` (codice ed esecuzione `42fcd01`) | **test validato, esito «non deciso»**; sensibilità non validate (`docs/P2F_RESULTS.md`) |
 | Controllo delle HARP dominanti | `results/DOMINANT/*.csv`, `figures/DOMINANT/*.png` | catalogo P1, `PRIMARY_VS_CONTROL_BY_HARP.csv`, 240 FITS (SHA-256 in `DOMINANT_HARP_FITS_SHA256.csv`) | `dominant_harp_check.py` | `36676a9` (esecuzione `1a22e09`) | **descrittivo** (`docs/DOMINANT_HARP_PLAN.md`, `docs/DOMINANT_HARP_RESULTS.md`) |
-| Riproducibilità fase 1 (figure P1) | `results/REPRO_PHASE1/*` (prima esecuzione del confronto `*_RUN1.*`, artefatti del rilancio in `run/`) | `figures_p1.py` e input P1 a `120f852` in un clone pulito | `scripts/repro_compare.py` | (questo commit) | **verifica**: superata (`docs/REPRO_PHASE1_RESULTS.md`) |
+| Riproducibilità fase 1 (figure P1) | `results/REPRO_PHASE1/*` (prima esecuzione del confronto `*_RUN1.*`, artefatti del rilancio in `run/`) | `figures_p1.py` e input P1 a `120f852` in un clone pulito | `scripts/repro_compare.py` | `ceb5d38` (terzo confronto `3e24bc4`) | **verifica**: superata (`docs/REPRO_PHASE1_RESULTS.md`) |
+| T5-D2, controlli oracolo | `results/T5_ORACLE/ORACLE_RAW.csv.gz`, `ORACLE_SUMMARY.csv`, `ORACLE_PAIRED_VS_A0.csv`, `ORACLE_META.json`, `PRELIM_TESTS.csv` | cataloghi sintetici della validazione P2f, stessi semi, ricostruiti | `diag_t5_oracle.py --run` | `27a9c7d` (codice `2bf262f`) | **diagnostico**, non cieco; T5 resta descrittivo (`docs/T5_ORACLE_RESULTS.md`) |
+| T5-D2, verificatore separato | `results/T5_ORACLE_POSTCHECK/*` (selftest in `..._SELFTEST/`, prova esterna in `..._EXTERNAL_PROBE/`) | output T5-D2, riferimento P2f | `t5_oracle_postcheck.py --check` | `27a9c7d` (codice `9bd1e2e`) | **verifica**: 54/54; SE dei bracci non ricalcolati da questo controllo |
+| T5-D2, indicatore appaiato (lettura) | `results/T5_ORACLE_READING/PAIRED_INDICATOR.csv` | `ORACLE_RAW.csv.gz` | `scripts/t5_reading_paired_indicator.py` | `8c7801a` | **descrittivo**, non pre-registrato, nessuna soglia |
+| T5-D2, ricalcolo indipendente degli SE di A2, A3, A2p | `results/T5_ORACLE_SE_RECOMPUTE/*` (selftest in `..._SELFTEST/`) | cataloghi rigenerati dai semi, `ORACLE_RAW.csv.gz` | `scripts/t5_oracle_se_recompute.py --run` | `330d007` (codice `39b7837`, nota `61f8884`, C1 `ed43694`) | **verifica**: superata entro le dipendenze condivise; A1a/A1b esclusi |
 | T5-D1, diagnosi dagli output sintetici salvati | `results/T5_DIAGNOSTIC/T5D_*.csv`, `T5D_META.json`; `figures/T5_DIAGNOSTIC/*.png` | output P2f salvati, otto hash/blob nella lista input | `diag_t5_saved_outputs.py --run` | `dcc7219` (codice `3c73595`, piano `85df0e9`) | **diagnostico**: 201 controlli superati; T5 resta non validato (`docs/T5_DIAGNOSTIC_RESULTS.md`) |
 
 ## File storici, rinominati o senza produttore nel codice attuale
@@ -72,7 +78,7 @@ con [lista input](T5_DIAGNOSTIC_INPUTS_SHA256.csv) e
 | `results/P2/P2E_VALIDATION_RAW.csv.gz` | `3da29da` | `p2d.py --validate` scrive il `.csv` non compresso; compresso a mano (il `.csv` non tracciato resta sul disco) | tracciato compresso |
 | `results/DIAGNOSTIC/C_*_RUN1.*` | `c092068` (2026-11-09) | `diag_c_individual.py`, rinominati a mano (esecuzione 1, C2-T3 non valido) | esecuzione conservata |
 | `results/P2F_PILOT/PRELIM_*_RUN1.csv` | `0eb7bd6` | `p2f_pilot.py --selftest` su `e98b3bf`, test 2 fallito, rinominati a mano | esecuzione conservata |
-| `results/P2F/PRELIM_*_ed90e15.csv` | (da committare con la validazione) | `p2f_validation.py --selftest` su `ed90e15`, rinominati a mano prima della riesecuzione su `5c3b664` | esecuzione conservata |
+| `results/P2F/PRELIM_*_ed90e15.csv` | (da committare con la validazione) | `p2f_validation.py --selftest` su `ed90e15`, rinominati a mano prima della riesecuzione su `5c3b664`; tracciati in `11b71f4` | esecuzione conservata |
 | `results/DOMINANT_TRIAL_2HARP/*` | `9b762f5` | `dominant_harp_check.py --limit 2 --out <scratchpad>` su `a41c451` non pulito, copiati | prova tecnica, non il controllo |
 
 Riproduzione: comandi in `docs/CATALOGUE_DICTIONARY.md`; analisi esplorative:

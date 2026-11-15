@@ -50,20 +50,29 @@ regge a un controllo della calibrazione inferenziale?
    disaccordi in regioni compatte e sbilanciate.
 7. **Quenching [descrittivo].** Joy presente (γ0 ≈ 24°); pendenze del tilt,
    dell'efficienza e della latitudine rispetto all'attività con le loro
-   incertezze; nessun verdetto confermativo.
+   incertezze; nessun verdetto confermativo. T3 con la procedura M validata (P2f):
+   −3,59° per unità di attività, intervallo nominale 97,5% [−10,58°; +3,41°],
+   **non deciso**, nessun effetto della griglia escluso; potenza 4,55–11,10 % a
+   −0,2·γ0 solo nei generatori della validazione, non sul processo reale.
+   T5 non validato (salti di livello), quindi solo descrittivo.
 8. **Calibrazione dell'inferenza: un risultato negativo documentato.**
    Bootstrap per CR, blocchi mobili, test calibrato per simulazione (P2d/P2e);
    validazione su 7 scenari × 2000 cataloghi: criterio non superato
    (falsi verdetti 3,3–4,7% negli scenari con persistenza, contro il limite
    del 4% e il nominale del 2,5%); scenari mal specificati; potenza della
    procedura non validata. Perché questo conta per gli studi di quenching
-   basati su serie brevi e autocorrelate.
+   basati su serie brevi e autocorrelate. Poi P2f: la procedura M supera i
+   criteri per T3 negli scenari provati, non per T5. Diagnosi sintetiche T5-D1
+   e T5-D2 [diagnostico]: carenza di scala nei salti, compatibile con un ruolo
+   principale della componente temporale; nessun metodo correttivo validato.
 9. **Discussione.** Cosa regge (elaborazione e controlli interni, effetto della maschera,
    accordo con BARD su geometria e convenzioni; l'ampiezza non è validata
    esternamente); cosa resta
    aperto (inferenza sul quenching); possibili estensioni: diagnosi del fallimento della
-   validazione e un eventuale nuovo protocollo; MDI/SMARP (ciclo 23) solo dopo
-   uno studio di fattibilità sulla confrontabilità con SHARP; S_BL è la
+   validazione (svolta per T5 con T5-D1 e T5-D2) e un eventuale nuovo
+   protocollo con validazione propria; MDI/SMARP (ciclo 23) rinviato: lo
+   studio documentale di fattibilità non misura confrontabilità né guadagno
+   statistico; S_BL è la
    sorgente misurata all'istante del record selezionato, non il campo polare
    che resterà.
 10. **Conclusioni.**
@@ -89,6 +98,9 @@ congelamento; riproduzione.
 ## Messaggio da evitare
 
 Nessuna frase che presenti il quenching come rilevato o escluso; nessun
-"nullo" per T5; T4 come pendenza descrittiva negativa, non come
+"nullo" per T5; nessun trasferimento degli oracoli T5-D2 ai dati reali e
+nessuna "causa identificata"; la potenza delle simulazioni non è la potenza
+sul Sole; i controlli delle HARP dominanti valgono per le HARP esaminate;
+la riproducibilità di fase 1 copre cinque CSV delle figure P1; T4 come pendenza descrittiva negativa, non come
 contraddizione fisica; il dipolo cumulato somma i contributi all'istante dei record selezionati
 (primario vicino al meridiano centrale), non all'emersione né il dipolo polare.

@@ -1,6 +1,6 @@
 # HMI: risultati sul quenching e prossima domanda utile
 
-2026-11-13. Sintesi di risultati esistenti; nessuna nuova applicazione ai dati reali.
+2026-11-13, aggiornata il 2026-11-15 per T5-D2. Sintesi di risultati esistenti; nessuna nuova applicazione ai dati reali.
 Domanda: all'aumentare dell'attività, la sorgente BL si autolimita attraverso
 tilt, latitudine o efficienza per unità di flusso?
 
@@ -49,15 +49,21 @@ Fonti: [sensibilità P2f](P2F_RESULTS.md#3-sensibilità-stesse-formule-non-valid
 
 ## 4. Due priorità HMI, con scopi distinti
 
-1. **T5: prima diagnosi completata.** [T5-D1](PROTOCOL_T5_DIAGNOSTIC_SAVED_OUTPUTS.md)
+1. **T5: due diagnosi completate.** [T5-D1](PROTOCOL_T5_DIAGNOSTIC_SAVED_OUTPUTS.md)
    è congelato ed eseguito sugli output sintetici salvati, con 201 controlli
    superati. Nei salti di 20 CR, media(SE²)/varianza empirica vale circa 0,86;
    il bias è piccolo rispetto alla dispersione e la forma delle code conta.
    La componente responsabile non è identificata: [risultati](T5_DIAGNOSTIC_RESULTS.md).
-   Il seguito è [T5-D2](PROTOCOL_T5_ORACLE.md), con A1, avviato nell'altra
-   sessione con componenti note. I suoi output non sono stati esaminati in
-   questo lavoro. Nessuna correzione o nuova applicazione reale; un metodo
-   successivo richiede protocollo e validazione indipendente.
+   Il seguito [T5-D2](PROTOCOL_T5_ORACLE.md), con A1, sostituisce le componenti
+   con quelle vere, note solo nelle simulazioni ([risultati](T5_ORACLE_RESULTS.md)).
+   Con la componente temporale vera R ≈ 0,98 e falsi verdetti 1,9 %: intervalli
+   conservativi, non esatti, con potenza più bassa. Con la sola varianza
+   individuale vera i cambiamenti sono piccoli. L'esito è compatibile con un
+   ruolo principale della componente temporale (AR(1) e stima REML) nei salti;
+   non separa forma e stima e non identifica una causa unica. Gli SE di A2, A3
+   e A2p sono stati ricalcolati in modo indipendente. Nessuna correzione o nuova
+   applicazione reale; un metodo successivo richiede protocollo e validazione
+   indipendente, scenario 7 compreso.
 2. **Morfologia: controllo completato.** Le 90 letture nuove e le 30
    doppie sono bloccate; accordo primario 24/30, C 23/27 nei casi valutabili
    da entrambi. [Risultati](MORPHOLOGY_RESULTS.md): condizioni operative
