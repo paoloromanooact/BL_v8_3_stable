@@ -14,8 +14,11 @@ import hashlib
 import json
 import math
 import platform
+import re
 import subprocess
 import sys
+import tempfile
+import traceback
 from pathlib import Path
 
 import numpy as np
@@ -291,6 +294,7 @@ def selftest():
         ok("end-to-end: broken identity is a technical error", False)
     except TechnicalError:
         ok("end-to-end: broken identity is a technical error", True)
+    regression_tests(ok)
     for name, cond in res:
         print(("PASS " if cond else "FAIL ") + name)
     n_ok = sum(c for _, c in res)
@@ -310,11 +314,20 @@ def compute(r, dz, meta):
     gam = r["gamma"].to_numpy(float)
     s_star = r["s_star"].to_numpy(float)
     d_star = r["d_star"].to_numpy(float)
-    require_finite("record inputs", hale, phi, lat, dcm, gam, s_star, d_star)
-    if not np.allclose(gam, gamma_joy(lat, r["sintilt"].to_numpy(float)), rtol=0, atol=1e-12):
+    sintilt = r["sintilt"].to_numpy(float)
+    # inputs checked before any transformation (np.clip would turn inf into 1)
+    require_finite("record inputs", hale, phi, lat, dcm, gam, s_star, d_star, sintilt)
+    if np.any(np.abs(sintilt) > 1.0):
+        raise TechnicalError("sintilt outside [-1, 1]")
+    if not np.allclose(gam, gamma_joy(lat, sintilt), rtol=0, atol=1e-12):
         raise TechnicalError("gamma column differs from the Joy variable definition")
-    k = dz["k_of_i"]
-    Xf, W = dz["Xf_c"], dz["W_c"]
+    k = np.asarray(dz["k_of_i"])
+    Xf, W = np.asarray(dz["Xf_c"], float), np.asarray(dz["W_c"], float)
+    require_finite("design", Xf, W, dz["cell_eta"])
+    if np.any(W <= 0):
+        raise TechnicalError("cell weights must be strictly positive")
+    if len(k) != len(r) or k.min() < 0 or k.max() >= len(W) or len(np.unique(k)) != len(W):
+        raise TechnicalError("record-to-cell map inconsistent with the design")
     a_cell = Xf[:, -1] + 1.0
     # §6.2 identity on the catalogue, no activity used
     p_obs = proxy(hale, phi, lat, dcm, gam)
@@ -344,7 +357,27 @@ def compute(r, dz, meta):
                          **counts(gam, gnew, p_obs, proxy(hale, phi, lat, dcm, gnew), dd)))
         cells[f"delta_eta_dmax_{dmax:.2f}"] = d_eta
     quality = proxy_quality(p_obs, d_star, k, W, dz["cell_eta"])
+    validate_outputs(rows, cells, quality, a_lo, a_hi)
     return rows, cells, quality, dict(g=g, a_lo=a_lo, a_hi=a_hi)
+
+
+def validate_outputs(rows, cells, quality, a_lo, a_hi):
+    """Every reported number must be finite; the only allowed non-number is the residual ratio 'NA' with its
+    reason (note §5). Anything else is a technical error, never a silent success."""
+    require_finite("quantiles", [a_lo, a_hi])
+    for row in rows:
+        for key, v in row.items():
+            if key == "resid_ratio_reason":
+                continue
+            if key == "resid_ratio" and v == "NA":
+                if not row["resid_ratio_reason"]:
+                    raise TechnicalError("residual ratio NA without a reason")
+                continue
+            require_finite(f"summary {key}", [v])
+    for key, v in cells.items():
+        require_finite(f"cells {key}", v)
+    for key, v in quality.items():
+        require_finite(f"proxy quality {key}", [v])
 
 
 def synthetic_design(rng, n_cell=24, per_cell=4):
@@ -375,47 +408,176 @@ def sha(p):
     return hashlib.sha256(Path(p).read_bytes()).hexdigest()
 
 
-def git(*a):
-    return subprocess.run(["git", *a], cwd=ROOT, capture_output=True, text=True).stdout.strip()
+def git(*a, runner=subprocess.run):
+    """Run git and fail loudly: a failed command is never read as an empty (clean) answer."""
+    p = runner(["git", *a], cwd=ROOT, capture_output=True, text=True)
+    if p.returncode != 0:
+        raise TechnicalError(f"git {' '.join(a)} failed ({p.returncode}): {p.stderr.strip()}")
+    return p.stdout.strip()
 
 
-def run():
-    if git("status", "--porcelain", "--untracked-files=no"):
-        print("tracked tree not clean: refusing to run")
+def head_commit(git_fn=git):
+    h = git_fn("rev-parse", "HEAD")
+    if not re.fullmatch(r"[0-9a-f]{40}", h):
+        raise TechnicalError(f"invalid HEAD commit {h!r}")
+    return h
+
+
+def finite_json(obj):
+    """Replace non-finite floats with strings so that META can always be written (allow_nan=False)."""
+    if isinstance(obj, dict):
+        return {k: finite_json(v) for k, v in obj.items()}
+    if isinstance(obj, (list, tuple)):
+        return [finite_json(v) for v in obj]
+    if isinstance(obj, float) and not math.isfinite(obj):
+        return f"non-finite: {obj!r}"
+    return obj
+
+
+def run(out_dir=OUT, catalogue=CATALOGUE, loader=load_design, git_fn=git, expected=EXPECTED):
+    try:
+        if git_fn("status", "--porcelain", "--untracked-files=no"):
+            print("tracked tree not clean: refusing to run")
+            return 2
+    except TechnicalError as exc:
+        print(f"refusing to run: {exc}")
         return 2
-    OUT.mkdir(parents=True, exist_ok=False)
-    meta = dict(note=str(NOTE.relative_to(ROOT)), sha256_note=sha(NOTE), sha256_script=sha(__file__),
-                sha256_catalogue_before=sha(CATALOGUE), git_commit=git("rev-parse", "HEAD"),
-                design_source="run_p2.samples(cat)['S'] + run_p2.add_activity(load_silso()) + p2d.design_t5",
-                R_cm=R_CM, C_G_per_Mx=C, gamma0_deg=GAMMA0, eta_bar=ETA_BAR, delta_max=list(DELTA_MAX),
-                quantiles=[Q_LO, Q_HI], quantile_method="numpy.quantile linear, unit weight per T5 record",
-                real_slope_computed=False,
-                env=dict(python=platform.python_version(), numpy=np.__version__, pandas=pd.__version__),
-                outcome="errore tecnico")
+    out_dir.mkdir(parents=True, exist_ok=False)     # never overwrite an attempt
+    meta = dict(note=str(NOTE.relative_to(ROOT)), outcome="errore tecnico", real_slope_computed=False)
     code = 1
     try:
-        r, dz = load_design()
+        meta.update(sha256_note=sha(NOTE), sha256_script=sha(__file__), git_commit=head_commit(git_fn),
+                    sha256_catalogue_before=sha(catalogue),
+                    design_source="run_p2.samples(cat)['S'] + run_p2.add_activity(load_silso()) + p2d.design_t5",
+                    R_cm=R_CM, C_G_per_Mx=C, gamma0_deg=GAMMA0, eta_bar=ETA_BAR, delta_max=list(DELTA_MAX),
+                    quantiles=[Q_LO, Q_HI], quantile_method="numpy.quantile linear, unit weight per T5 record",
+                    env=dict(python=platform.python_version(), numpy=np.__version__, pandas=pd.__version__))
+        r, dz = loader()
         n_rec, n_cell = len(r), len(dz["W_c"])
         meta.update(n_records=n_rec, n_cells=n_cell)
-        if (n_rec, n_cell) != EXPECTED:
-            raise TechnicalError(f"sample size {(n_rec, n_cell)} differs from expected {EXPECTED}")
+        if (n_rec, n_cell) != tuple(expected):
+            raise TechnicalError(f"sample size {(n_rec, n_cell)} differs from expected {tuple(expected)}")
         rows, cells, quality, info = compute(r, dz, meta)
-        pd.DataFrame(rows).to_csv(OUT / "SUMMARY.csv", index=False)
-        pd.DataFrame(cells).to_csv(OUT / "CELLS.csv", index=False)
-        pd.DataFrame([quality]).to_csv(OUT / "PROXY_QUALITY.csv", index=False)
+        pd.DataFrame(rows).to_csv(out_dir / "SUMMARY.csv", index=False)
+        pd.DataFrame(cells).to_csv(out_dir / "CELLS.csv", index=False)
+        pd.DataFrame([quality]).to_csv(out_dir / "PROXY_QUALITY.csv", index=False)
         meta.update(proxy_quality=quality, outcome="eseguita")
         code = 0
-    except TechnicalError as exc:
-        meta["technical_error"] = str(exc)
+    except Exception as exc:                        # every failure recorded with type and message
+        meta.update(outcome="errore tecnico", exception_type=type(exc).__name__, exception=str(exc),
+                    traceback=traceback.format_exc())
+        code = 1
     finally:
-        meta["sha256_catalogue_after"] = sha(CATALOGUE)
-        if meta["sha256_catalogue_after"] != meta["sha256_catalogue_before"]:
-            meta["outcome"], code = "errore tecnico: catalogo cambiato", 1
-        (OUT / "META.json").write_text(json.dumps(meta, indent=2, default=str))
+        try:
+            meta["sha256_catalogue_after"] = sha(catalogue)
+            if "sha256_catalogue_before" in meta and meta["sha256_catalogue_after"] != meta["sha256_catalogue_before"]:
+                meta["outcome"], code = "errore tecnico: catalogo cambiato", 1
+        except Exception as exc2:                   # does not hide the original error
+            meta["sha256_catalogue_after_error"] = f"{type(exc2).__name__}: {exc2}"
+            if code == 0:
+                meta["outcome"], code = "errore tecnico: hash finale non calcolabile", 1
+        try:
+            text = json.dumps(meta, indent=2, default=str, allow_nan=False)
+        except ValueError:
+            meta = finite_json(meta)
+            meta["outcome"], code = "errore tecnico: valori non finiti in META", 1
+            text = json.dumps(meta, indent=2, default=str, allow_nan=False)
+        (out_dir / "META.json").write_text(text)
         print(json.dumps({k: meta.get(k) for k in ("outcome", "n_records", "n_cells", "identity_n_fail",
-                                                   "technical_error")}, default=str))
+                                                   "exception_type", "exception")}, default=str))
         print("fatto")
     return code
+
+
+# ---------------------------------------------------------------- regression tests for the review of 86bd31c
+
+class _Proc:
+    def __init__(self, returncode, stdout="", stderr=""):
+        self.returncode, self.stdout, self.stderr = returncode, stdout, stderr
+
+
+def regression_tests(ok):
+    rs, dzs = synthetic_design(np.random.default_rng(11))
+    # 1. non-finite values
+    bad = dict(dzs, cell_eta=dzs["cell_eta"].copy()); bad["cell_eta"][2] = np.nan
+    ok("regression: NaN in cell_eta is a technical error", _raises(lambda: compute(rs, bad, {})))
+    r_inf = rs.copy(); r_inf.loc[0, "sintilt"] = np.inf
+    r_inf.loc[0, "gamma"] = gamma_joy(r_inf.loc[0, "lat"], 1.0)
+    ok("regression: sintilt = inf rejected before the clip", _raises(lambda: compute(r_inf, dzs, {})))
+    w0 = dict(dzs, W_c=dzs["W_c"].copy()); w0["W_c"][1] = 0.0
+    ok("regression: zero cell weight rejected", _raises(lambda: compute(rs, w0, {})))
+    ok("regression: NaN in a summary value rejected",
+       _raises(lambda: validate_outputs([dict(delta_beta_G_per_Mx=np.nan, resid_ratio="NA", resid_ratio_reason="x")],
+                                        {}, {}, 0.5, 2.5)))
+    ok("regression: residual ratio NA without reason rejected",
+       _raises(lambda: validate_outputs([dict(resid_ratio="NA", resid_ratio_reason="")], {}, {}, 0.5, 2.5)))
+    # 2. git failures
+    fail = lambda *a, **k: _Proc(128, "", "fatal: not a git repository")
+    ok("regression: failed git command raises", _raises(lambda: git("status", runner=fail)))
+    ok("regression: empty HEAD rejected", _raises(lambda: head_commit(lambda *a: "")))
+    ok("regression: non-hex HEAD rejected", _raises(lambda: head_commit(lambda *a: "HEAD")))
+
+    def git_ok(*a):
+        return "" if a[0] == "status" else "0123456789abcdef0123456789abcdef01234567"
+
+    def git_dirty(*a):
+        return " M x" if a[0] == "status" else "0123456789abcdef0123456789abcdef01234567"
+
+    def git_bad(*a):
+        raise TechnicalError("git status failed (128)")
+
+    with tempfile.TemporaryDirectory() as tmp:
+        tmp = Path(tmp)
+        cat = tmp / "catalogue.csv"; cat.write_text("synthetic\n")
+        quiet = _quiet
+        ok("regression: git failure refuses to run (code 2, no output dir)",
+           quiet(lambda: run(tmp / "o1", cat, lambda: (rs, dzs), git_bad, (len(rs), len(dzs["W_c"])))) == 2
+           and not (tmp / "o1").exists())
+        ok("regression: dirty tree refuses to run",
+           quiet(lambda: run(tmp / "o1b", cat, lambda: (rs, dzs), git_dirty, (len(rs), len(dzs["W_c"])))) == 2)
+        # 3. META always written, exceptions recorded
+        c = quiet(lambda: run(tmp / "o2", tmp / "missing.csv", lambda: (rs, dzs), git_ok, (len(rs), len(dzs["W_c"]))))
+        m = json.loads((tmp / "o2/META.json").read_text())
+        ok("regression: missing catalogue -> META written, exception recorded, code != 0",
+           c != 0 and m["exception_type"] == "FileNotFoundError" and m["outcome"].startswith("errore"))
+
+        def loader_keyerror():
+            raise KeyError("hale_sign")
+        c = quiet(lambda: run(tmp / "o3", cat, loader_keyerror, git_ok, (len(rs), len(dzs["W_c"]))))
+        m = json.loads((tmp / "o3/META.json").read_text())
+        ok("regression: KeyError in loader recorded with type and message", c != 0 and m["exception_type"] == "KeyError"
+           and "hale_sign" in m["exception"])
+        c = quiet(lambda: run(tmp / "o4", cat, lambda: (rs, bad), git_ok, (len(rs), len(dzs["W_c"]))))
+        m = json.loads((tmp / "o4/META.json").read_text())
+        ok("regression: NaN in design through run -> code != 0, not 'eseguita'", c != 0 and m["outcome"] != "eseguita")
+        c = quiet(lambda: run(tmp / "o5", cat, lambda: (rs, dzs), git_ok, (0, 0)))
+        ok("regression: wrong sample size -> code != 0", c != 0)
+        c = quiet(lambda: run(tmp / "o6", cat, lambda: (rs, dzs), git_ok, (len(rs), len(dzs["W_c"]))))
+        m = json.loads((tmp / "o6/META.json").read_text())
+        files = sorted(p.name for p in (tmp / "o6").iterdir())
+        ok("regression: valid synthetic run -> code 0, 'eseguita', four files, valid HEAD recorded",
+           c == 0 and m["outcome"] == "eseguita" and files == ["CELLS.csv", "META.json", "PROXY_QUALITY.csv", "SUMMARY.csv"]
+           and re.fullmatch(r"[0-9a-f]{40}", m["git_commit"]) is not None)
+        ok("regression: existing output dir is never overwritten",
+           _raises(lambda: quiet(lambda: run(tmp / "o6", cat, lambda: (rs, dzs), git_ok, (len(rs), len(dzs["W_c"])))),
+                   FileExistsError))
+    ok("regression: finite_json makes non-finite META serializable",
+       json.dumps(finite_json({"a": float("nan"), "b": [1.0, float("inf")]}), allow_nan=False) is not None)
+
+
+def _raises(fn, exc=TechnicalError):
+    try:
+        fn()
+    except exc:
+        return True
+    return False
+
+
+def _quiet(fn):
+    import contextlib
+    import io
+    with contextlib.redirect_stdout(io.StringIO()):
+        return fn()
 
 
 if __name__ == "__main__":

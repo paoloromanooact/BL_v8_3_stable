@@ -1,0 +1,46 @@
+script sha256 58554b8650d90f3d45b0696a764f2a16e4b41948a45db19624bea284213c2dd0
+note sha256 4c2b8ad8958e52be29e1df734e786bbca227b9c6e4c05b5d2fc4257379bd0ffc
+date 2026-11-15T17:09:53+01:00
+PASS orientation: sign(P*) = sign(S_CYCLE*D_bal) and |rel diff| < 1e-2, 16 configurations
+PASS orientation test is sensitive: inverting hale gives the wrong sign
+PASS orientation: both Hale and anti-Hale covered
+PASS tilt zero: D_bal = 0 and |P*| negligible
+PASS lat = 0: gamma = 0
+PASS lat = 0: P* = 0
+PASS lat = 0: mu = 0 so Delta_D = 0
+PASS lat = 0 example: D_bal of +/-theta pair is non-zero (limit declared, not reproduced)
+PASS Delta_D by hand
+PASS shift preserves gamma - mu: gamma' - (1-delta) mu = gamma - mu
+PASS ramp: 0 below and at A_lo, half at mid, delta_max at and above A_hi
+PASS ramp: A_hi <= A_lo rejected
+PASS projection: g @ Xf selects the activity column
+PASS projection: g @ y equals a separate WLS slope
+PASS projection: residual RMS equals the separate WLS residual
+PASS delta_max = 0: Delta_beta = 0 and residual ratio NA with reason
+PASS delta_max = 0: Delta_D = 0
+PASS non-finite nan rejected
+PASS non-finite inf rejected
+PASS counts by hand
+PASS end-to-end: identity passes on synthetic records
+PASS end-to-end: Delta_beta equals g @ Delta_eta recomputed
+PASS end-to-end: two scenarios, finite outputs
+PASS end-to-end: proxy quality finite
+PASS end-to-end: broken identity is a technical error
+PASS regression: NaN in cell_eta is a technical error
+PASS regression: sintilt = inf rejected before the clip
+PASS regression: zero cell weight rejected
+PASS regression: NaN in a summary value rejected
+PASS regression: residual ratio NA without reason rejected
+PASS regression: failed git command raises
+PASS regression: empty HEAD rejected
+PASS regression: non-hex HEAD rejected
+PASS regression: git failure refuses to run (code 2, no output dir)
+PASS regression: dirty tree refuses to run
+PASS regression: missing catalogue -> META written, exception recorded, code != 0
+PASS regression: KeyError in loader recorded with type and message
+PASS regression: NaN in design through run -> code != 0, not 'eseguita'
+PASS regression: wrong sample size -> code != 0
+PASS regression: valid synthetic run -> code 0, 'eseguita', four files, valid HEAD recorded
+PASS regression: existing output dir is never overwritten
+PASS regression: finite_json makes non-finite META serializable
+42/42 passed
