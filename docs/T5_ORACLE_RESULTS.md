@@ -339,6 +339,32 @@ guadagna 8 + 9. A0→A2p perde 53 + 45 e ne guadagna 28 + 37, quindi rimescola
 i verdetti invece di restringerli. Sotto effetto A2 e A3 convertono soprattutto
 `supportato` in `non deciso` (−0,3: 134 e 136 contro 24 e 20).
 
+### 6.5 Indicatore appaiato delle differenze (aggiunto dopo la revisione)
+
+Indicatore descrittivo, **non pre-registrato e non un test**: non si applica
+nessuna soglia, coerentemente con §6.4. Script `scripts/t5_reading_paired_indicator.py`,
+output `results/T5_ORACLE_READING/PAIRED_INDICATOR.csv`; legge `ORACLE_RAW.csv.gz` senza modificarlo.
+L'evento è il verdetto deciso sotto nulla e la mancata copertura sotto effetto
+(errore = mancata copertura). b = evento solo in A0, c = evento solo nel braccio.
+La differenza delle frequenze è (c − b)/N, con errore Monte Carlo appaiato
+sqrt(b + c)/N (approssimazione di tipo McNemar). Questo errore è più piccolo
+della MCSE della singola frequenza e va usato per le differenze fra bracci.
+
+| Gruppo | Braccio | b / c | Differenza (punti %) | Errore appaiato | Rapporto |
+|---|---|---|---|---|---|
+| 7 nulla | A1a / A1b | 6/3; 6/4 | −0,03; −0,02 | 0,03 | −1,0; −0,6 |
+| 7 nulla | A2 / A3 | 159/18; 162/17 | −1,41; −1,45 | 0,13 | −10,6; −10,8 |
+| 7 nulla | A2p | 98/65 | −0,33 | 0,13 | −2,6 |
+| 7, −0,3 | A1a / A1b | 2/3; 6/2 | +0,05; −0,20 | 0,11; 0,14 | +0,4; −1,4 |
+| 7, −0,3 | A2 / A3 | 38/2; 41/2 | −1,80; −1,95 | 0,32; 0,33 | −5,7; −5,9 |
+| 7, −0,3 | A2p | 27/10 | −0,85 | 0,30 | −2,8 |
+| 10 nulla | A2 / A3 | 102/13; 104/13 | −0,89; −0,91 | 0,11 | −8,3; −8,4 |
+| 10 nulla | A2p | 65/60 | −0,05 | 0,11 | −0,4 |
+| 1 nulla | A2 / A3 | 9/12; 11/11 | +0,15; 0,00 | 0,23 | +0,7; 0,0 |
+| 2 nulla | A2 / A3 | 23/9; 23/9 | −0,70; −0,70 | 0,28 | −2,5; −2,5 |
+
+Le 38 righe complete sono nel CSV. Per A1a e A1b il rapporto resta entro ±1,8 in tutti i gruppi.
+
 ## 7. Lettura vincolata all'emendamento A1
 
 Questa griglia riporta le letture già registrate, non nuove decisioni.
@@ -388,14 +414,20 @@ leggono insieme varianza, falsi verdetti, code, copertura e cambiamenti appaiati
    194/10000 = 1,94 ± 0,14 % (0,94 % e 1,00 % per verso). Sotto −0,3:
    copertura 97,90 ± 0,32 %, `below` 1,20 %. Il cambiamento è appaiato e
    simmetrico fra i due versi: 159 decisioni di A0 diventano `non deciso`, 18
-   fanno il contrario.
+   fanno il contrario. A2 **non è una calibrazione esatta**: i falsi sono
+   circa 4 MCSE sotto il nominale del 2,5 % e la copertura sotto effetto è
+   97,9–98,5 % contro il 97,5 % nominale. Con la varianza vera l'intervallo
+   è conservativo in questi cataloghi e la potenza scende (§6.2).
 3. *Entrambe vere (A3).* Coincide con A2 entro pochi cataloghi: R = 0,981;
    falsi 1,90 %; copertura a −0,3 98,05 %. Quando la componente temporale è
    vera, rendere vera anche quella individuale non aggiunge nulla di osservabile.
-4. *Approssimazione AR(1) lag per lag con scala vera (A2p).* Resta vicina ad
-   A0 e lontana da A2: R = 0,855; falsi 3,02 ± 0,17 %; copertura a −0,3 96,95 %
-   con `below` 1,70 %. Rispetto ad A0 i verdetti si rimescolano (98 persi, 65
-   nuovi) invece di restringersi.
+4. *Approssimazione AR(1) lag per lag con scala vera (A2p).* Resta molto più
+   vicina ad A0 che ad A2: R = 0,855; falsi 3,02 ± 0,17 %; copertura a −0,3
+   96,95 % con `below` 1,70 %. Rispetto ad A0 c'è però una riduzione appaiata
+   piccola ma non nulla: −0,33 punti di falsi (rapporto −2,6, §6.5) e −0,85
+   punti di mancata copertura a −0,3 (rapporto −2,8). Per A2 i valori sono
+   −1,41 e −1,80. I verdetti di A2p si rimescolano (98 persi, 65 nuovi)
+   invece di restringersi soltanto. Nello scenario 10 la differenza da A0 è nulla (−0,05).
 5. *Code.* Con la varianza vera (A2, A3) i quantili di z sono −2,11 e +2,18
    sotto nulla, dentro ±2,24. La distribuzione standardizzata ha quindi code
    più leggere del riferimento normale, e l'intervallo nominale al 97,5 % dà
@@ -412,15 +444,24 @@ non è separabile dal resto.
 **Controlli 1 e 2 (AR(1)).** A0, A2 e A3 sono vicini, come atteso dal
 protocollo. Scenario 1: R da 0,984 a 0,987, falsi da 2,85 % a 3,00 %.
 Scenario 2: R di A0 0,953 con falsi 3,40 ± 0,41 %, A2/A3 0,968 con 2,70 %.
-Nello scenario 2 lo scarto A0–A2 è di 23 contro 9 decisioni appaiate, cioè
-circa 1–2 MCSE sulle frequenze. Non è un'anomalia nel senso del protocollo,
-ma lo si riporta. Come indicazione grossolana non pre-registrata, l'errore
+Nello scenario 2 lo scarto A0–A2 è di 23 contro 9 decisioni appaiate,
+−0,70 punti con errore appaiato 0,28 (rapporto −2,5, §6.5). Una prima
+stesura di questo rapporto lo descriveva come «circa 1–2 MCSE»: quel calcolo
+usava la MCSE della singola frequenza e sottostimava lo scarto, come ha
+rilevato la revisione. Lo scarto non è grande, ma non è trascurabile. Nello
+scenario 2 la forma AR(1) di M è quella giusta, quindi A0 e A2 differiscono
+solo per la stima dei parametri temporali (phi = 0,9). Lo scarto è compatibile con un
+contributo della stima REML alla perdita di calibrazione anche quando la forma
+è corretta. È circa metà, in punti, di quello dello scenario 7 (−1,41), ma gli
+scenari differiscono anche per altro e il confronto non scompone le cause.
+Nello scenario 1 (phi = 0,5) non c'è scarto (+0,15, rapporto +0,7).
+Seguendo il protocollo, lo si riporta e si legge la diagnosi con cautela. Come indicazione grossolana non pre-registrata, l'errore
 Monte Carlo di R in approssimazione gaussiana, sqrt(2/(N−1)), vale circa
 0,014 per N = 10000 e 0,032 per N = 2000.
 
 **Lettura secondo A1 §2.** Si realizza la prima riga della griglia: A2 è
 vicino al riferimento (R ≈ 1, falsi entro il 3,0 % e per verso entro
-l'1,75 %), A1a no. L'esito è **compatibile con un ruolo principale della
+l'1,75 %; sotto il nominale, quindi conservativo), A1a no. L'esito è **compatibile con un ruolo principale della
 componente temporale (modello AR(1) e sua stima) nello scenario a salti, in
 questi cataloghi**. Non identifica un difetto unico e non costituisce un
 metodo correttivo. A1b uguale ad A1a: la terza riga non si attiva. Non si
@@ -431,13 +472,17 @@ principale è»: queste formulazioni non si adottano.
 **A2p.** In base ad A1 §3, a parità di scala temporale vera e di varianza
 individuale stimata, sostituire K_steps con *questa* approssimazione AR(1)
 (criterio lag per lag a pesi uguali, non proiettato sul contrasto di beta)
-annulla quasi tutto il miglioramento di A2. Ciò descrive solo questa
+conserva solo una parte minore del miglioramento di A2 (§6.5): sotto nulla
+−0,33 contro −1,41 punti, a −0,3 −0,85 contro −1,80, nello scenario 10 nulla.
+Ciò restringe le spiegazioni ma non chiude la questione, e descrive solo questa
 approssimazione. Non dimostra che ogni AR(1) sia inadatta ai salti. La lettura
 generale del §7 del protocollo congelato resta non adottata. Il confronto
 A2p–A0 cambia sia la scala sia la forma e non si attribuisce a phi o kappa.
 
-**Che cosa resta non distinto.** Non si sa se A0 perda calibrazione per la
-forma AR(1) in sé o per la stima REML dei suoi parametri. A2p non è la
+**Che cosa resta non distinto.** Non si sa quanto A0 perda calibrazione per la
+forma AR(1) in sé e quanto per la stima REML dei suoi parametri. Lo scarto
+dello scenario 2 indica che la stima può contare anche con la forma giusta,
+ma non misura la sua quota nello scenario 7. A2p non è la
 migliore AR(1) per il contrasto, e nessun braccio usa una forma AR(1)
 ottimizzata con i parametri veri. Resta anche aperto quanto della leggerezza
 delle code dipenda dai livelli ±1 e quanto dal disegno fisso.
@@ -487,21 +532,23 @@ retroattivamente il protocollo congelato.
   covarianza dei salti) riporta R vicino a 1 e i falsi verdetti sotto il
   nominale nello scenario 7. Rendere vera la sola varianza individuale, con o
   senza ristima, non cambia nulla. L'approssimazione AR(1) lag per lag
-  specificata, con scala vera, non riproduce il miglioramento.
+  specificata, con scala vera, ne riproduce solo una parte minore. Con la
+  varianza vera l'intervallo diventa conservativo, non esatto.
 - *Quali spiegazioni restano compatibili.* Un ruolo principale della
   componente temporale come modellata e stimata da M (AR(1) + REML) nello
   scenario a salti. Un ruolo principale della funzione di varianza
   individuale non è compatibile con l'invarianza di A1a e A1b. Non si attribuisce una causa unica.
-- *Cosa non è distinguibile.* Non si distingue la forma AR(1) in sé dalla
-  stima dei suoi parametri. Non si distingue l'effetto della specifica
+- *Cosa non è distinguibile.* Non si separano le quote della forma AR(1) in sé
+  e della stima dei suoi parametri; lo scenario 2 indica che la stima può contare
+  anche con la forma giusta. Non si distingue l'effetto della specifica
   proiezione A2p da quello di un'AR(1) qualunque. Non si separa l'origine
   delle code leggere.
 - *Cosa mancherebbe per un metodo sui dati reali.* Una stima della
   covarianza temporale che non conosca la verità e catturi la dipendenza su
   circa 20 CR. Esempi del protocollo, non scelti: una covarianza più
   flessibile o un SE robusto alla dipendenza. Va considerato anche che
-  un'inferenza calibrata costa potenza in questi cataloghi: a −0,3, 47,2 %
-  con A2 contro 52,7 % di A0. Non si trasferisce questo numero ai dati reali.
+  in questi cataloghi la varianza vera rende l'intervallo conservativo e
+  riduce la potenza: a −0,3, 47,2 % con A2 contro 52,7 % di A0. Non si trasferisce questo numero ai dati reali.
 - La diagnosi non rende T5 irrisolvibile con HMI. Non si riscala nessun SE con
   questi esiti e non si elimina lo scenario 7.
 - I risultati sono condizionati al limite degli SE dei bracci descritto in §7.1.
@@ -532,7 +579,17 @@ T5-D2; verificatore e protocolli invariati; precisazioni
 documentali applicate. Un secondo revisore ne ha condiviso le conclusioni.
 Non è una revisione cieca né la revisione dell'interpretazione (fase 2).
 
-Interpretazione inserita il 2026-11-15 (Claude Opus 5.5, su `27a9c7d`).
+Interpretazione inserita il 2026-11-15 (Claude Opus 5.5, su `27a9c7d`; commit `70ea4bb`).
+Primo parere di Codex, 2026-11-15, basato **solo sul riepilogo** e non sul
+rapporto: non certifica i risultati. Rilievi:
+(1) A2 non dimostra una calibrazione esatta: è conservativo, con copertura più alta e potenza più bassa;
+(2) A2p restringe le spiegazioni senza separare forma e stima;
+(3) le differenze piccole richiedono l'errore Monte Carlo appaiato;
+(4) il ricalcolo indipendente degli SE di A2 e A3 è il controllo mancante più utile.
+Risposte in questo commit: (1) e (2) recepiti in §7.1 e §9; per (3) è stato
+aggiunto l'indicatore appaiato in §6.5, che corregge la frase sullo scenario 2
+(prima «1–2 MCSE», ora rapporto −2,5) e la descrizione di A2p (piccola
+riduzione appaiata, prima «vicina ad A0»). Il punto (4) resta aperto.
 **DA INSERIRE:** revisione di fase 2 dell'interpretazione (autore, commit
 esaminato, rilievi e risoluzioni con commit distinti). Lo stesso agente che ha partecipato al
 progetto offre una revisione incrociata, non una verifica cieca dell'intero
