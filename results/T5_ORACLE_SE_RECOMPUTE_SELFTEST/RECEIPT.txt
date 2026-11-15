@@ -1,0 +1,30 @@
+script sha256 3ecfae655a892c2a17cbc96c39a4016567d1a815ccba753247c9c494a19fe847
+note sha256 db53b45fc72ae91a628f29e91aa95559a456d5acc4e4cb9afe421ce7af2325e3
+date 2026-11-15T14:12:38+01:00
+PASS K7 by hand
+PASS bKb sc7 = 2.2
+PASS bKb sc10 = 4/13
+PASS bKb sc1 = 4
+PASS K sc2 cross-hem zero
+PASS cell variances [5,2,3]
+PASS individual part 16
+PASS var = 0.25*2.2 + 16
+PASS flags
+PASS phi* documented
+PASS tol pass 1e-12 rel
+PASS tol catches 1e-6 rel
+PASS tol near zero uses atol
+PASS vector alteration caught
+PASS components agree, selftest catalogue null 7 0.0
+PASS components agree, selftest catalogue effect 7 -0.3
+PASS components agree, selftest catalogue null 10 0.0
+PASS components agree, selftest catalogue null 1 0.0
+PASS components agree, selftest catalogue null 2 0.0
+PASS altered producer variance caught
+PASS constants
+PASS fake raw: all ok
+PASS fake raw: altered SE -> mismatch
+PASS fake raw: error vs value -> unexpected
+PASS fake raw: same-class error -> errore_atteso
+PASS fake raw: other-class error -> unexpected
+26/26 passed
