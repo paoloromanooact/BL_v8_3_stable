@@ -1,5 +1,8 @@
 # T5 — sensibilità del proxy del dipolo: risultati (descrittivi)
 
+Verifica indipendente degli esiti: Codex, 26/26 controlli, artefatti in
+`MWO-HMI-MDI-Polar-Flux-Signed-Sunspots/reviews/T5_PROXY_ESITI_39c010c/`.
+
 Esecuzione unica del 2026-11-15 secondo la [nota congelata](T5_PROXY_SENSITIVITY_NOTE.md) (`d47073c`,
 SHA-256 `4c2b8ad8…`), con lo script `scripts/t5_proxy_sensitivity.py` (`9a8adde`, SHA-256 `58554b86…`),
 revisionato da Codex prima del lancio (selftest 42/42, audit sintetico 27/27). Codice di uscita 0. Output in
@@ -49,21 +52,27 @@ Scenario: γ' = γ − δ(Â_c)·24°·sin|λ|, con δ che sale linearmente da 0
 | ΔD positivi / negativi / nulli | 183 / 2073 / 119 | 183 / 2073 / 119 |
 | Cambi di segno del proxy (zeri prima/dopo: 0/0) | 12 | 28 |
 
-I 119 ΔD nulli sono i record in celle con Â_c ≤ A_lo, dove la rampa vale zero. Poiché lo spostamento
-riduce sempre γ e sin γ è crescente in [−90°, 90°], il segno di ΔD è l'opposto di hale_sign: i 183 ΔD positivi
-sono attesi per le regioni anti-Hale (hale = −1). Non sono errori di convenzione. Verifica a posteriori, solo di
+I 119 ΔD nulli sono i record in celle con Â_c ≤ A_lo, dove la rampa vale zero. Lo spostamento riduce sempre γ.
+Per i casi in cui γ e γ' restano in [−90°, 90°], dove sin γ è crescente, il segno di ΔD è l'opposto di
+hale_sign. Nell'unico caso che esce dall'intervallo (HARPNUM 4750, da circa −89,31° a −90,10°, differenza dei
+seni circa −7,1·10⁻⁵, hale = −1) il segno è verificato direttamente (revisione Codex). I 183 ΔD positivi sono
+quindi attesi per le regioni anti-Hale. Non sono errori di convenzione. Verifica a posteriori, solo di
 conteggio: nei 2256 record con rampa > 0 le regioni anti-Hale sono esattamente 183. Il caso con |γ'| > 90°
 (δ_max = 0,20) è l'unico in cui il seno non è monotono.
 
 ## 4. Lettura (descrittiva, entro la nota)
 
 - Nelle unità delle simulazioni, una riduzione del 10 % della componente di Joy fra attività bassa e alta
-  corrisponde a e_ref ≈ −0,05; una riduzione del 20 % a e_ref ≈ −0,10. La risposta è quasi esattamente
-  lineare in δ_max (−0,0515 e −0,1031).
-- **Il segnale iniettato non è equivalente al segnale lineare dei generatori.** Il residuo della proiezione
-  sul modello completo è circa il 55 % della variazione centrata (in RMS pesata). Una parte importante di
-  Δη_c non è descritta dalla retta in Â: rampa limitata, dipendenza da latitudine, geometria e composizione
-  di ogni cella.
+  corrisponde a e_ref ≈ −0,05; una riduzione del 20 % a e_ref ≈ −0,10. La risposta raddoppia quasi esattamente
+  al raddoppio di δ_max (−0,0515 e −0,1031). Questo **non** prova linearità rispetto ad Â: la rampa è limitata
+  e la risposta è eterogenea fra celle.
+- **Il segnale iniettato non è equivalente al segnale lineare dei generatori.** Il rapporto delle RMS pesate
+  fra residuo e variazione centrata è 0,55. In somme di quadrati pesate è circa il 30 % (0,55² ≈ 0,30): il
+  modello completo, intercetti ciclo-emisfero compresi, descrive il restante 70 %, che non va attribuito
+  tutto alla sola attività. e_ref da solo non rappresenta quindi tutta la risposta iniettata. È una proprietà
+  dello scenario prescritto su questo catalogo, non una scoperta sulla forma del quenching solare. Il rapporto
+  non separa il contributo di rampa limitata, latitudine, geometria e composizione delle celle, e non dice se la
+  potenza su questo scenario sarebbe maggiore o minore di quella dei vecchi generatori.
 - **Contesto, senza nuove probabilità** (nota §7). Nella validazione P2f la procedura M, negli scenari dove T5
   rispetta i criteri (1, 2, 9), ha dato «supportato» nel 5–11 % dei cataloghi a e = −0,10. A e ≈ −0,05 non
   ci sono simulazioni. Per il punto precedente, queste frequenze non si trasferiscono a questo scenario: e_ref
@@ -79,6 +88,6 @@ conteggio: nei 2256 record con rampa > 0 le regioni anti-Hale sono esattamente 1
 ## 5. Che cosa resta da decidere
 
 Nessuna regola automatica (nota §7). Va valutato esplicitamente se progettare il passo sulla potenza (sensibilità
-a scala e forma del rumore e a metodi diversi dalla WLS, con un segnale che rispetti la forma non lineare
-trovata qui) oppure rinviare per priorità. È ammesso anche un esito non conclusivo. T5 resta descrittivo e T3
+a scala e forma del rumore e a metodi diversi dalla WLS, con un segnale che rappresenti la forma prodotta dallo
+scenario prescritto su questo catalogo, senza attribuirle una validazione fisica, e HMI come riferimento) oppure rinviare per priorità. È ammesso anche un esito non conclusivo. T5 resta descrittivo e T3
 non deciso.
