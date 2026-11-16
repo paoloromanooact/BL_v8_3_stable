@@ -1,5 +1,26 @@
 # Cold restart — SHARP BL
 
+## MDI/SMARP: fase schema riuscita in HTTP, poi fermo — 2026-11-16
+
+Via di Codex alla **sola fase schema** su `2c21550` (script `ac06138`, SHA-256 `b45ca5c8…`, 115/115 ripetuti da Codex).
+Run-id `schema_20261116_http_ac06138`: **5 schemi su 5 acquisiti**, 5 tentativi, HTTP 200, 113 972 byte, circa 6 s.
+Registro unico `INVENTORY_REGISTRY.json`: 20 tentativi cumulativi (15 della prima corsa + 5), 114,6 s, 0 righe.
+Ricevute locali in `data/sharp/metadata_inventory_mdi/` (PHASE SHA-256 `b60b6153984f5384…`, registro `be9631cdf479e5b8…` al termine).
+Nessuna registrazione della mappa, nessun conteggio o elenco di record.
+
+Osservazioni per la verifica della mappa dei campi (da decidere con Codex, nessuna azione):
+- passo documentato in tutte le serie (5760 s MDI, 720 s HMI); epoche: SMARP CEA, SMARP 96m e SHARP CEA
+  1993.01.01_00:00:00_TAI (griglie allineate, 96 min = 8 × 12 min), fd_M_96m e fd_Ic_interp 00:00:30;
+- geometria: NAXIS non è una keyword (segmenti VAR×VAR); lo schema documenta CRPIX come centro della patch rispetto
+  all'angolo e CRVAL1/2 come longitudine/latitudine al centro della patch: il centro è documentato, mentre
+  l'inviluppo dei riquadri richiede una regola per le dimensioni (da decidere, eventualmente con emendamento);
+- prodotto 1/5 min: fd_M_96m_lev182 espone INTERVAL («Observable integration interval», s) e DPC («MDI
+  DataProductCode»), candidati documentati; il collegamento SMARP → sorgente è il link MTARP verso mdi.lostarp_96m,
+  serie non ammessa dal piano; T_REC di SMARP e di fd_M differiscono di 30 s per epoca, quindi l'abbinamento per
+  tempo entro 1 s dovrà usare T_OBS solo se documentato come equivalente.
+Limitazione nota (Codex): seed_registry non recupera i byte di un corpo parziale nei registri per corsa interrotti;
+irrilevante ora (unico registro precedente chiuso, 0 byte), da correggere prima di migrare registri interrotti.
+
 ## MDI/SMARP: diagnosi dell'accesso a JSOC (passi 1-2), poi fermo — 2026-11-16
 
 3 tentativi di rete su 6 consentiti, ricevuta `results/MDI_SMARP_ACCESS_DIAGNOSIS/DIAGNOSIS.json` (file grezzi locali
