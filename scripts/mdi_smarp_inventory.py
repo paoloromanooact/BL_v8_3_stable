@@ -227,6 +227,7 @@ class Registry:
     during blocking calls; an invocation that ends without close() is recovered conservatively: last saved live
     time plus one save interval, bytes from the partial body on disk. Must be opened only under the run lock."""
     SAVE_EVERY_S = 1.0
+    _instances = None
 
     def __init__(self, path, caps=None, min_spacing=MIN_SPACING):
         self.path = Path(path)
@@ -264,6 +265,10 @@ class Registry:
         self.save()
         self._hb = threading.Thread(target=self._heartbeat, daemon=True)
         self._hb.start()
+        if Registry._instances is None:
+            import weakref
+            Registry._instances = weakref.WeakSet()
+        Registry._instances.add(self)
 
     def _heartbeat(self):
         while not self._hb_stop.wait(self.SAVE_EVERY_S):
@@ -1985,6 +1990,17 @@ def _transport(tmp, fake, caps=None, waits=(0.01, 0.02), path=None, raw=None):
                      waits=waits), reg
 
 
+@contextlib.contextmanager
+def _tmpdir():
+    """Temporary folder for the selftest; every registry heartbeat is stopped before the folder is removed."""
+    with tempfile.TemporaryDirectory() as tmp:
+        try:
+            yield tmp
+        finally:
+            for r in list(Registry._instances or ()):
+                r.stop_heartbeat()
+
+
 def _raises(fn, exc=Exception):
     try:
         fn()
@@ -2059,7 +2075,7 @@ def selftest_checks(ok):
        and parse_quality("-2147483648")[1] == "0x80000000" and parse_quality("")[2] == "missing"
        and parse_quality("abc")[2] == "invalid", "")
     # identity and duplicates
-    with tempfile.TemporaryDirectory() as tmp:
+    with _tmpdir() as tmp:
         run = Run("t", raw_base=tmp, res_base=tmp)
         reg = Registry(Path(tmp) / "R.json")
         stx = Store(run, {SMARP: sc})
@@ -2071,7 +2087,7 @@ def selftest_checks(ok):
     # transport against a local fake server
     fake = FakeJSOC()
     try:
-        with tempfile.TemporaryDirectory() as tmp:
+        with _tmpdir() as tmp:
             tr, reg = _transport(tmp, fake)
             fake.behaviour = {"ZERO": ("json", {"status": 0, "count": 0}), "ERR": ("json", {"status": 4, "error": "bad"})}
             js, _ = tr.get({"op": "rs_summary", "ds": "ZERO"}, "z")
@@ -2103,7 +2119,7 @@ def selftest_checks(ok):
             lines = (Path(tmp) / "raw" / "QUERY_LOG.jsonl").read_text().splitlines()
             ok("every attempt logged with SHA-256 and saved body", len(lines) == reg.d["attempts"]
                and all(json.loads(x)["sha256"] for x in lines), f"{len(lines)} attempts")
-        with tempfile.TemporaryDirectory() as tmp:
+        with _tmpdir() as tmp:
             caps = dict(attempts=CAP_ATTEMPTS, rows=CAP_ROWS, bytes=CAP_BYTES, wall_s=2.0)
             tr, reg = _transport(tmp, fake, caps)
             fake.behaviour = {"DRIP": ("drip",)}
@@ -2111,7 +2127,7 @@ def selftest_checks(ok):
             r = _raises(lambda: tr.get({"op": "rs_list", "ds": "DRIP", "key": "T_REC"}, "d"), BudgetStop)
             ok("slow but continuous sender stopped by the absolute deadline (not by the idle timeout)",
                r and time.monotonic() - t0 < 6.0, f"{time.monotonic() - t0:.1f} s")
-        with tempfile.TemporaryDirectory() as tmp:
+        with _tmpdir() as tmp:
             caps = dict(attempts=CAP_ATTEMPTS, rows=CAP_ROWS, bytes=5000, wall_s=CAP_WALL_S)
             tr, reg = _transport(tmp, fake, caps)
             fake.behaviour = {"BIG": ("big", 20000)}
@@ -2120,7 +2136,7 @@ def selftest_checks(ok):
             ok("byte cap applied during reception: prefix kept, marked truncated, never more than the cap",
                r and reg.d["bytes"] == 5000 and body and body[0].stat().st_size == 5000
                and "truncated_by_budget" in (Path(tmp) / "raw" / "QUERY_LOG.jsonl").read_text(), "")
-        with tempfile.TemporaryDirectory() as tmp:
+        with _tmpdir() as tmp:
             caps = dict(attempts=3, rows=CAP_ROWS, bytes=CAP_BYTES, wall_s=CAP_WALL_S)
             tr, reg = _transport(tmp, fake, caps)
             fake.behaviour = {"ZERO": ("json", {"status": 0, "count": 0})}
@@ -2131,7 +2147,7 @@ def selftest_checks(ok):
             reg2 = Registry(Path(tmp) / "REGISTRY.json", caps)
             ok("attempt cap enforced; counters survive a resume (not reset)", r and reg2.d["attempts"] == 3
                and _raises(lambda: reg2.check("x", n_attempts=1), BudgetStop), "")
-        with tempfile.TemporaryDirectory() as tmp:
+        with _tmpdir() as tmp:
             reg = Registry(Path(tmp) / "R.json", dict(attempts=10, rows=5, bytes=10, wall_s=100))
             ok("row cap enforced before accepting rows", _raises(lambda: reg.check("rows", n_rows=6), BudgetStop), "")
             ok("registry with different caps refused", _raises(lambda: Registry(Path(tmp) / "R.json"), TechnicalError)
@@ -2139,7 +2155,7 @@ def selftest_checks(ok):
     finally:
         fake.close()
     # budget decisions
-    with tempfile.TemporaryDirectory() as tmp:
+    with _tmpdir() as tmp:
         run = Run("b", raw_base=tmp, res_base=tmp)
         reg = Registry(run.p("REGISTRY.json"))
         reg.d["attempts"] = 400
@@ -2250,7 +2266,7 @@ def selftest_checks(ok):
        set(profile_keys(fmp, "fd_min")) == {"T_REC", "QUALITY"} and "CRPIX1" in profile_keys(fmp, "hmi_overlap")
        and "CRPIX1" not in profile_keys(fmp, "smarp_min"), "")
     ok("absent optional field = not_exposed", any(r["role"] == "noaa_ar" and r["status"] == "not_exposed" for r in fmp), "")
-    with tempfile.TemporaryDirectory() as tmp:
+    with _tmpdir() as tmp:
         run = Run("m", raw_base=tmp, res_base=tmp)
         ok("record queries refused without a registered field map", _raises(lambda: registered_map(run), TechnicalError), "")
         write_csv(run.p("FIELD_MAP.csv"), fmp, FIELD_COLS)
@@ -2259,7 +2275,7 @@ def selftest_checks(ok):
             run.p("FIELD_MAP.csv").write_text(run.p("FIELD_MAP.csv").read_text() + "\n") or True)
            and _raises(lambda: registered_map(run), TechnicalError), "")
     # products
-    with tempfile.TemporaryDirectory() as tmp:
+    with _tmpdir() as tmp:
         run = Run("p", raw_base=tmp, res_base=tmp)
         for s_, js_ in ((SMARP, dict(primekeys=["TARPNUM", "T_REC"], keywords=[dict(name="TARPNUM"), dict(name="T_REC", type="time")])),
                         (FD, dict(primekeys=["T_REC"], keywords=[dict(name="T_REC", type="time")]))):
@@ -2358,7 +2374,7 @@ def selftest_end_to_end(ok):
     fake = FakeJSOC()
     fake.catalog = SynthCatalog()
     try:
-        with tempfile.TemporaryDirectory() as tmp:
+        with _tmpdir() as tmp:
             run = Run("e2e", raw_base=Path(tmp) / "raw", res_base=Path(tmp) / "res")
             tr, reg = _transport(tmp, fake, path=run.p("REGISTRY.json"), raw=run.p("raw"))
             phase_schema(run, tr)
@@ -2486,7 +2502,7 @@ def selftest_regressions(ok):
     fake = FakeJSOC()
     try:
         # 1. a negative payload projection cannot be bypassed on resume; history needs a complete overlap
-        with tempfile.TemporaryDirectory() as tmp:
+        with _tmpdir() as tmp:
             run = _mini_run(tmp, "r1")
             fm = propose_field_map(run.schemas())
             leaf = dict(part="history", series=SMARP, profile="smarp_min", start="2001.03.01_00:00:00_TAI",
@@ -2510,7 +2526,7 @@ def selftest_regressions(ok):
             ok("review 1: aux refused while the overlap is incomplete",
                _raises(lambda: phase_aux(run, tr, run.schemas(), {}), TechnicalError), "")
         # 2. registry recovery after an abnormal end
-        with tempfile.TemporaryDirectory() as tmp:
+        with _tmpdir() as tmp:
             reg = Registry(Path(tmp) / "R.json")
             reg.t_start -= 12.0
             body = Path(tmp) / "partial.body"
@@ -2525,14 +2541,14 @@ def selftest_regressions(ok):
             reg3 = Registry(Path(tmp) / "R.json")
             ok("review 2: a closed invocation is not recovered again", len(reg3.d["recoveries"]) == 1, "")
         # 3. transport limits on headers and on the residual bytes
-        with tempfile.TemporaryDirectory() as tmp:
+        with _tmpdir() as tmp:
             tr, reg = _transport(tmp, fake, dict(attempts=CAP_ATTEMPTS, rows=CAP_ROWS, bytes=CAP_BYTES, wall_s=0.5))
             fake.behaviour = {"SLOWHDR": ("slowhdr",)}
             t0 = time.monotonic()
             r = _raises(lambda: tr.get({"op": "rs_summary", "ds": "SLOWHDR"}, "h"), BudgetStop)
             ok("review 3: slow headers stopped by the absolute deadline (watchdog), not after them",
                r and time.monotonic() - t0 < 1.5, f"{time.monotonic() - t0:.2f} s for a 0.5 s cap")
-        with tempfile.TemporaryDirectory() as tmp:
+        with _tmpdir() as tmp:
             tr, reg = _transport(tmp, fake, dict(attempts=CAP_ATTEMPTS, rows=CAP_ROWS, bytes=10, wall_s=CAP_WALL_S))
             fake.behaviour = {"BIG100": ("big", 100)}
             r = _raises(lambda: tr.get({"op": "rs_list", "ds": "BIG100", "key": "x"}, "b"), BudgetStop)
@@ -2540,7 +2556,7 @@ def selftest_regressions(ok):
             ok("review 3: reads never exceed the residual byte budget (cap 10 -> 10 received, registered, on disk)",
                r and reg.d["bytes"] == 10 and files and files[0].stat().st_size == 10, "")
         # second review: HTTP/1.0 body deadline with a detached connection socket
-        with tempfile.TemporaryDirectory() as tmp:
+        with _tmpdir() as tmp:
             tr, reg = _transport(tmp, fake, dict(attempts=CAP_ATTEMPTS, rows=CAP_ROWS, bytes=CAP_BYTES, wall_s=0.25))
             fake.behaviour = {"DRIP10": ("drip",)}
             t0 = time.monotonic()
@@ -2549,7 +2565,7 @@ def selftest_regressions(ok):
             ok("review2 2: HTTP/1.0 slow body stopped at the absolute deadline through the response socket",
                r and el < 0.4, f"{el:.3f} s for a 0.25 s cap")
         # second review: heartbeat keeps the live time during blocking intervals
-        with tempfile.TemporaryDirectory() as tmp:
+        with _tmpdir() as tmp:
             reg = Registry(Path(tmp) / "R.json")
             time.sleep(2.3)
             reg.stop_heartbeat()                     # simulated crash: no close()
@@ -2569,7 +2585,7 @@ def selftest_regressions(ok):
            and st2[0]["search_complete"] == 0, "")
         fake.catalog = SynthCatalog()
         fake.behaviour = {}
-        with tempfile.TemporaryDirectory() as tmp:
+        with _tmpdir() as tmp:
             run = Run("r4", raw_base=Path(tmp) / "raw", res_base=Path(tmp) / "res")
             tr, reg = _transport(tmp, fake, path=run.p("REGISTRY.json"), raw=run.p("raw"))
             phase_schema(run, tr)
@@ -2597,7 +2613,7 @@ def selftest_regressions(ok):
                json.loads((run.res / "ANALYSIS_STATUS.json").read_text())["failed"], "")
         fake.catalog = None
         # 5. provenance per profile; deletion of registered rules detected
-        with tempfile.TemporaryDirectory() as tmp:
+        with _tmpdir() as tmp:
             run = _mini_run(tmp, "r5", smarp_extra=("SOURCE",))
             fm = propose_field_map(run.schemas())
             has = {r["profile"] for r in fm if r["name"] == "SOURCE" and r["role"] == "provenance_candidate"}
@@ -2609,7 +2625,7 @@ def selftest_regressions(ok):
             ok("review 5: deleting the registered PRODUCT_RULES.json invalidates the registration",
                _raises(lambda: registered_map(run), TechnicalError), "")
         # 6. auxiliary records in the lookup schema order and used by the product classification
-        with tempfile.TemporaryDirectory() as tmp:
+        with _tmpdir() as tmp:
             run = _mini_run(tmp, "r6")
             sc6 = run.schemas()[SMARP_LEV]
             ok("review 6: aux record set follows the lookup-series primekey order ([T_REC][TARPNUM])",
@@ -2644,7 +2660,7 @@ def selftest_regressions(ok):
         # 8. auxiliary schema failure does not block the proposal
         fake.catalog = SynthCatalog()
         fake.behaviour = {IC: ("json", {"status": 4, "error": "no series"}), SMARP_LEV: ("status", 500)}
-        with tempfile.TemporaryDirectory() as tmp:
+        with _tmpdir() as tmp:
             run = Run("r8", raw_base=Path(tmp) / "raw", res_base=Path(tmp) / "res")
             tr, reg = _transport(tmp, fake, raw=run.p("raw"))
             r8 = phase_schema(run, tr)
