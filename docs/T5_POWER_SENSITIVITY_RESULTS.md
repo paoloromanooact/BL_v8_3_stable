@@ -2,7 +2,8 @@
 
 **2026-11-16. Descrittivo, non cieco.** Piano `docs/T5_POWER_SENSITIVITY_PLAN.md` (`4b67632`), emendamenti A1
 (`8dc6d48`) e A2 (`6024237`). Esecuzione unica sul commit `44633cb`, script `f19cf15` (SHA-256 `62ca2da4…`),
-avviata alle 10:38 e finita alle 13:31: esito «eseguita», 9000 cataloghi di rumore, 180 000 risposte, 0 errori
+avviata alle 10:38 e finita alle 13:31: esito «eseguita», 9000 cataloghi di rumore di base, 45 000 risposte sintetiche
+(cinque segnali per catalogo) e 180 000 righe di risultati (ogni risposta analizzata con quattro metodi), 0 errori
 tecnici, 0 casi di confine. Output conservati prima della lettura in `0a6853a`. Controllo indipendente e
 riconteggio (`scripts/t5_power_check.py`, `b12abdb`, ricevuta `2fb9bd5`): **30/30 superati**. Non è una
 validazione: nessuna procedura è validata, nulla è applicato ai dati reali, T5 resta descrittivo.
@@ -37,9 +38,10 @@ Totale (supportato / opposto):
 | steps20 × 2 | 40 (18/22) | 22 (9/13) | 122 (57/65) | 13 (5/8) |
 
 R = media(SE²)/var(β̂) sotto nulla: M 0,77–1,09 (0,77 solo in steps20 × 2), G 0,81–1,02, O 0,93–1,08.
-Copertura del bersaglio su tutti i segnali: M 95,8–97,6 %, G 94,4–97,7 %, O 96,8–98,7 %. Lettura: M resta vicino al nominale in otto
-configurazioni su nove (2,4–3,9 %); con i salti alla scala doppia, non provata in P2f, SE sottostimato (R 0,77) e
-4,0 % di falsi. B eccede il nominale con rumore persistente o a salti (5,7–12,2 %): i suoi verdetti non sono
+Copertura del bersaglio su tutti i segnali: M 95,8–97,6 %, G 94,4–97,7 %, O 96,8–98,7 %. Lettura, solo descrittiva: M resta vicino al
+nominale in otto configurazioni su nove (2,4–3,9 %); con i salti alla scala doppia, non provata in P2f, SE
+sottostimato (R 0,77) e 4,0 % di falsi. Non è una certificazione della calibrazione: con N = 1000 il 3,9 % e il
+4,0 % non si separano (MCSE circa 0,6 punti), e T5 resta non validato secondo P2f. B eccede il nominale con rumore persistente o a salti (5,7–12,2 %): i suoi verdetti non sono
 calibrati in queste condizioni. G eccede in ar1_09 × 0,5 (5,4 %, R 0,81). O è conservativo nei salti (1,3–1,7 %).
 
 ## 3. Riconoscimento della riduzione prescritta (`supportato`, su 1000)
@@ -73,9 +75,13 @@ L1 S1 | L2 S2 per metodo:
    riduzione del 10 % al massimo 7,4 %. La forma del rumore conta meno della scala, a parità di scala.
 3. **Metodo.** Potenza e falsi verdetti vanno letti insieme e **non si dichiara un metodo migliore** (§5.3):
    G e B riconoscono più spesso, ma con falsi verdetti più alti in diverse configurazioni (B fino al 12,2 %),
-   R < 1 per G in alcune, e per G con bersaglio spostato nei segnali S. O, a varianza nota, non riconosce più
+   R < 1 per G in alcune, e per G con bersaglio spostato nei segnali S. Non c'è un confronto a pari livello
+   effettivo, e il piano esclude una graduatoria: in alcune configurazioni G riconosce più spesso di M con falsi
+   verdetti simili (per esempio L2, ar1_05 × 1: G 21,1 % contro M 11,4 %, falsi sotto nulla 3,0 % e 2,7 %), e
+   questo non valida G ma impedisce di attribuire tutto il suo guadagno alla calibrazione. O non riconosce più
    spesso di M (differenze appaiate O − M fra +4 e −36 per 1000, negative soprattutto nei salti dove O è
-   conservativo). Conoscere la varianza vera non aumenta la potenza.
+   conservativo): **la bassa frequenza di rilevazione persiste anche usando la varianza vera della WLS**. O usa lo
+   stesso stimatore WLS, quindi questo non esclude guadagni con stimatori o statistiche diversi.
 4. **Vincolo di lettura.** In queste condizioni la riduzione del 20 % è riconosciuta da M al più circa 190 volte
    su 1000, con circa 30 falsi verdetti su 1000 sotto nulla; alla scala P2f circa 80–115 volte. Non dimostra un
    limite di HMI: altri stimatori o altre statistiche non sono esplorati, e O non è un tetto della potenza.
@@ -85,8 +91,9 @@ L1 S1 | L2 S2 per metodo:
 Il rapporto fra il bersaglio |Δβ| e la deviazione standard di β̂_WLS sotto nulla vale 0,19–0,71 per la
 riduzione del 10 % e 0,38–1,42 per quella del 20 %. Con il riferimento normale a un verso (1,25 %), questo
 rapporto prevede una potenza di 2,0–6,3 % e 3,1–20,7 %; la frequenza osservata con O è 1,4–6,4 % e 3,0–18,6 %.
-La potenza bassa è quindi coerente con l'**informazione contenuta nel disegno** sotto questi rumori, non con un
-difetto della stima della varianza. È un controllo di coerenza a posteriori, non una regola né una stima di
+La bassa frequenza di rilevazione è quindi coerente con l'**informazione della pendenza WLS studiata** sotto
+questi rumori, non con un difetto della stima della sua varianza. Non rappresenta tutta l'informazione dei dati
+né un limite generale di HMI. È un controllo di coerenza a posteriori, non una regola né una stima di
 quanta informazione aggiuntiva servirebbe.
 
 ## 6. Esiti da valutare con Codex (§5 del piano)
@@ -94,13 +101,29 @@ quanta informazione aggiuntiva servirebbe.
 Il piano prevede tre esiti, da scegliere esplicitamente: (i) un metodo o una direzione merita un protocollo di
 sviluppo e validazione con semi nuovi; (ii) rinvio di T5 per priorità, con i limiti espliciti; (iii) esito non
 conclusivo. Elementi per la discussione, senza decisione qui:
-- nessun metodo provato offre più potenza **a falsi verdetti nominali**; M è il solo vicino al nominale quasi
-  ovunque, e O mostra che la varianza nota non cambierebbe il quadro;
-- la forma dello scenario non è un ostacolo per M;
-- l'informazione del disegno HMI sotto questi rumori è il limite principale: un aumento della potenza richiede
-  più informazione (per esempio una serie più lunga) o una statistica diversa, da pianificare a parte;
+- negli scenari provati M rileva raramente la riduzione prescritta; la forma del segnale non mostra una
+  penalizzazione apprezzabile per M, mentre la scala del rumore temporale pesa molto;
+- la bassa frequenza persiste con la varianza vera della stessa WLS (O); stimatori diversi non sono esclusi e non
+  esiste un confronto fra metodi a pari livello effettivo (G mostra guadagni in alcune configurazioni con falsi
+  verdetti simili a M, senza essere validato);
+- un aumento della potenza richiederebbe più informazione (per esempio una serie più lunga) o uno stimatore o una
+  statistica diversi, da pianificare a parte;
 - l'estensione MDI resta da valutare con il suo inventario e una stima prospettica propria; questi risultati
   non ne stimano il beneficio.
 
 Output: `results/T5_POWER_SENSITIVITY/` (RAW, SUMMARY, PAIRED_LS, PAIRED_METHODS, IDENTITY_DIAGNOSTICS,
 UNIT_TIMES, META); controllo `results/T5_POWER_SENSITIVITY_CHECK/b12abdb5dc52/`. Nessun push.
+
+## 7. Revisione di Codex (2026-11-16), recepita
+
+Codex ha ripetuto il riconteggio (30/30) e verificato hash, completezza delle righe, intervalli e confronti
+appaiati. Correzioni recepite sopra: (1) il limite riguarda la pendenza WLS studiata sotto questi rumori, e O
+conosce la varianza della stessa WLS, quindi non rappresenta tutta l'informazione dei dati né un limite generale
+di HMI; (2) nessuna graduatoria né conclusione «nessun metodo offre più potenza a falsi verdetti nominali»: manca
+un confronto a pari livello effettivo, e G mostra guadagni con falsi verdetti simili in alcune configurazioni;
+(3) la vicinanza di M al nominale è una descrizione, non una certificazione, e T5 resta non validato;
+(4) conteggio corretto: 9000 rumori di base, 45 000 risposte sintetiche, 180 000 righe di risultati.
+
+**Esito consigliato da Codex: (ii)**, rinviare per ora lo sviluppo operativo di T5, con questi limiti espliciti.
+È una scelta di priorità: il quenching resta non conclusivo e non è dimostrato che T5 sia irrisolvibile con HMI;
+l'estensione MDI richiede ancora una valutazione del beneficio atteso. Decisione dell'utente da registrare.

@@ -95,8 +95,9 @@ indipendente 30/30 (`b12abdb`, `2fb9bd5`), rapporto `docs/T5_POWER_SENSITIVITY_R
 generatori: M vicino al nominale dei falsi verdetti in 8 configurazioni su 9; riduzione del 20 % riconosciuta da M
 al più ~19 % (scala 0,5), 8–11 % alla scala P2f; la forma dello scenario non cambia la potenza di M; O (varianza
 nota) non riconosce più di M; G e B riconoscono di più ma con falsi verdetti in eccesso in varie configurazioni
-(B fino al 12,2 %). Coerente con un limite di informazione del disegno. Esito (i/ii/iii del piano §5) da
-decidere con Codex. Raccoglitore MDI in attesa del via di Codex alla fase schema. Nessun push.
+(B fino al 12,2 %). La bassa frequenza persiste con la varianza vera della stessa WLS; stimatori diversi non
+esclusi, nessuna graduatoria fra metodi. Revisione di Codex recepita (§7 del rapporto); Codex consiglia l'esito
+(ii), rinvio dello sviluppo operativo di T5 con i limiti espliciti: decisione dell'utente da registrare. Raccoglitore MDI in attesa del via di Codex alla fase schema. Nessun push.
 
 ## Morfologia di S: bozza di piano — 2026-11-16
 
