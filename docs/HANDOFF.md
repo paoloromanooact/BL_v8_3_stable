@@ -51,7 +51,7 @@ grafi 5°/10°. Selftest offline 67/67 con un finto JSOC locale e un catalogo si
 (ricevute in `results/MDI_SMARP_INVENTORY_SELFTEST/`). **Nessuna query JSOC.** La revisione del codice di Codex
 su `0ae058a` ha trovato otto difetti con controesempi sintetici; corretti senza cambiare il piano (commit `4402ea8722e5`),
 selftest 88/88 con una regressione per ogni controesempio. Seconda revisione (su `4402ea8`): cinque difetti
-residui corretti (`d3d7854`); la sua ricevuta ufficiale è fallita per una gara fra thread nei test (conservata), corretta in `ba359cd`, selftest 95/95 ripetuto 8 volte (ricevuta `0218e8f`). Terza revisione (su `ba359cd`): tre problemi corretti (`b54f80f`), selftest 104/104. Prossimo: nuova revisione del codice; rete solo dopo.
+residui corretti (`d3d7854`); la sua ricevuta ufficiale è fallita per una gara fra thread nei test (conservata), corretta in `ba359cd`, selftest 95/95 ripetuto 8 volte (ricevuta `0218e8f`). Terza revisione (su `ba359cd`): tre problemi corretti (`b54f80f`), selftest 104/104. Quarta revisione (su `b54f80f`): handshake TLS sotto il watchdog (`5c5d8b4`), selftest 105/105. Prossimo: via di Codex alla rete.
 
 ## MDI/SMARP: studio aggiornato dopo la seconda revisione — 2026-11-16
 
