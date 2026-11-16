@@ -1,0 +1,64 @@
+{
+  "mode": "run",
+  "outcome": "eseguita",
+  "receipts": {
+    "SELFTEST": "results/T5_POWER_SENSITIVITY_PRELIM/SELFTEST_f19cf155101b/SELFTEST_META.json",
+    "GATE": "results/T5_POWER_SENSITIVITY_PRELIM/GATE_f19cf155101b/GATE_META.json",
+    "BENCHMARK": "results/T5_POWER_SENSITIVITY_PRELIM/BENCHMARK_a8d2cfbbc6e9/BENCHMARK_META.json"
+  },
+  "git_commit": "44633cb0a65390496c67ac3d32224d199d50df5b",
+  "git_dirty": 0,
+  "sha256_plan": "fac76b1ab60d0aba003bd3c895d03d2ecf9e894281a3465c175549b8d41a3fcd",
+  "sha256_A1": "603237898eed6b45b3102e1b7fdcf247fe2dfa8990107be7812095e9c6dab262",
+  "sha256_A2": "df4912c0f351a4a6d6d1e224e6dfb00c866265ec2f749cc99790d9d57a28e857",
+  "sha256_script": "62ca2da4d7b3aaa53a2c608c6ddb1f43e0ad67921f742e20fdbe0e107b6523ef",
+  "binding": {
+    "sha256_script": "62ca2da4d7b3aaa53a2c608c6ddb1f43e0ad67921f742e20fdbe0e107b6523ef",
+    "sha256_plan": "fac76b1ab60d0aba003bd3c895d03d2ecf9e894281a3465c175549b8d41a3fcd",
+    "sha256_A1": "603237898eed6b45b3102e1b7fdcf247fe2dfa8990107be7812095e9c6dab262",
+    "sha256_A2": "df4912c0f351a4a6d6d1e224e6dfb00c866265ec2f749cc99790d9d57a28e857",
+    "modules": {
+      "sharpbl": "429afdb3c34a19333dd482fbc0363f1be30ecc87787b98ea7e74da38246d2282",
+      "sharpbl.diag_t5_oracle": "f7808c54be0048e12fd6e08d250ed02291bc3b96c2bd2756340af272595577f4",
+      "sharpbl.p2d": "5e6dad4f2450f244d969d90c8305f9c18f71dc6d3ab19212f464325d5d546aa1",
+      "sharpbl.p2f_pilot": "17d1f728f3c7626ebbbca38620fb2711769dc3228d0090747990410631e28ec8",
+      "sharpbl.p2f_validation": "8adfc197e9ee9d66359ed893162d38b92cf9c98c634beb250bb34b9b8a4ae1f1",
+      "sharpbl.provenance": "141d04d7c9d67bd3ad48a28fab000de9dcc2a270f41b6b4387aeab654f438960",
+      "sharpbl.run_p2": "05c5ad01a417f22d4ec5a6350ffaed0a8d411cb62954410f0a6284eb490c791d"
+    },
+    "inputs": {
+      "results/T5_PROXY_SENSITIVITY/CELLS.csv": "0c899647f3119501f7397364573fbe6ed57fa82243b1f44a523b01e1d0628f02",
+      "results/T5_PROXY_SENSITIVITY/SUMMARY.csv": "88a291100b9d68a0225f7dc77bcaf6c0bbabd2193424c23e8aa905ae2b055e30",
+      "results/P2F/VALIDATION_RAW.csv.gz": "9553f49ac4e0ec7a7209f366062552a1d3a6cd0933449b9002658aa80cff4178",
+      "results/T5_ORACLE/ORACLE_RAW.csv.gz": "d6d6400f364f85e2491332249f365eef8950c239a46dcd98b6279676ff76edaf",
+      "results/P1/P1_SBL_CATALOG_BY_HARP.csv": "67dc6a74a27b44f9ddd958f5a5dcc972a564300af89444c781665926ca0488af",
+      "ancillary/SILSO_HEMI/SN_m_hem_V2.0.csv": "32690e4372ab6355d05f54d9ccd96158564029892a62128db42eb3fa8b79292f"
+    },
+    "design_fingerprint": "4d92878c4a7c359f102699ee9e79856d8364c4c048463b4e304616879f99db5b",
+    "env": {
+      "python": "3.10.12",
+      "numpy": "2.2.6",
+      "scipy": "1.15.3",
+      "pandas": "2.3.3",
+      "OMP_NUM_THREADS": "1"
+    }
+  },
+  "design_equals_P2F_design_pkl": true,
+  "design_rows": 2485,
+  "design_fingerprint": "4d92878c4a7c359f102699ee9e79856d8364c4c048463b4e304616879f99db5b",
+  "n_rep": 1000,
+  "n_proc": 12,
+  "seeds": {
+    "base": "31000000 + 100000 n + k",
+    "boot": "32000000 + 100000 n + k",
+    "n": "0..8",
+    "k": "0..999"
+  },
+  "n_units": 9000,
+  "n_rows": 180000,
+  "n_technical": 0,
+  "n_boundary_cases": 0,
+  "wall_run_s": 10347.456438580994,
+  "sha256_SUMMARY": "423a092fdacf6db0458c98a469ce705562a12e36e13477f1a953a8931ff2f49b",
+  "duration_s": 10356.335824728012
+}
