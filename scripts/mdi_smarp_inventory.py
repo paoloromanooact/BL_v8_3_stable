@@ -555,7 +555,7 @@ FIELD_COLS = ["profile", "series", "role", "name", "status", "type", "unit", "de
 
 def write_csv(path, rows, cols):
     with open(path, "w", newline="") as f:
-        w = csv.DictWriter(f, fieldnames=cols, extrasaction="ignore")
+        w = csv.DictWriter(f, fieldnames=cols, extrasaction="ignore", lineterminator="\n")
         w.writeheader()
         for r in rows:
             w.writerow(r)
@@ -894,7 +894,7 @@ def list_leaf(tr, store, leaf, schemas, field_map, run, measure=None):
     path = run.p(f"RECORDS_{prof}.csv.gz")
     first = not path.exists()
     with gzip.open(path, "at", newline="") as f:
-        w = csv.writer(f)
+        w = csv.writer(f, lineterminator="\n")
         if first:
             w.writerow(["window", "edge"] + keys)
         for r in new:
@@ -1028,7 +1028,7 @@ def phase_aux(run, tr, schemas, rules):
                 cache[(r.get(key_tarp), r.get(key_t))] = r
             out.append(dict(tarp=tarp, n=len(batch), file=fname))
     with gzip.open(run.p("AUX_RECORDS.csv.gz"), "wt", newline="") as f:
-        w = csv.writer(f)
+        w = csv.writer(f, lineterminator="\n")
         w.writerow([key_tarp, key_t] + keys)
         for (tp, t), r in sorted(cache.items()):
             w.writerow([tp, t] + [r.get(k) for k in keys])
@@ -1386,7 +1386,7 @@ def analyze(run):
     rows, states, comps = match_overlap([r for r in sm if OV0 <= r["_t"] < OV1], hm, fmap)
     with gzip.open(run.res / "OVERLAP_CANDIDATES.csv.gz", "wt", newline="") as f:
         cols = list(rows[0]) if rows else ["smarp_id"]
-        w = csv.DictWriter(f, fieldnames=cols)
+        w = csv.DictWriter(f, fieldnames=cols, lineterminator="\n")
         w.writeheader()
         w.writerows(rows)
     summ = dict(smarp_records=len(states), temporal_pairs=len(rows), components_G5=comps[5.0], components_G10=comps[10.0])
@@ -1831,12 +1831,12 @@ def selftest_checks(ok):
                         (FD, dict(primekeys=["T_REC"], keywords=[dict(name="T_REC", type="time")]))):
             run.p(f"SCHEMA_{s_}.json").write_text(json.dumps(js_))
         with gzip.open(run.p("RECORDS_fd_min.csv.gz"), "wt", newline="") as f:
-            wr = csv.writer(f)
+            wr = csv.writer(f, lineterminator="\n")
             wr.writerow(["window", "edge", "T_REC", "MODE"])
             wr.writerow(["w", 0, "2001.01.01_00:00:00_TAI", "5"])
             wr.writerow(["w", 0, "2001.01.01_01:36:00_TAI", "?"])
         with gzip.open(run.p("RECORDS_smarp_min.csv.gz"), "wt", newline="") as f:
-            wr = csv.writer(f)
+            wr = csv.writer(f, lineterminator="\n")
             wr.writerow(["window", "edge", "TARPNUM", "T_REC", "SRC"])
             wr.writerow(["w", 0, "1", "2001.01.01_00:00:00_TAI", "2001.01.01_00:00:00_TAI"])
             wr.writerow(["w", 0, "2", "2001.01.01_00:00:00_TAI", "2001.01.01_00:00:05_TAI"])
