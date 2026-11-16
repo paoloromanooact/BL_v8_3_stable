@@ -1,0 +1,67 @@
+{
+  "attempts": [
+    {
+      "attempt": 1,
+      "exit": 1,
+      "probe": "openssl s_client default (SECLEVEL 2, TLS>=1.2)",
+      "utc_end": "2026-11-16T15:45:21Z",
+      "utc_start": "2026-11-16T15:45:20Z"
+    },
+    {
+      "attempt": 2,
+      "exit": 0,
+      "probe": "curl HTTP no -L",
+      "utc_end": "2026-11-16T15:45:22Z",
+      "utc_start": "2026-11-16T15:45:21Z"
+    },
+    {
+      "attempt": 3,
+      "exit": 0,
+      "probe": "openssl s_client -tls1 SECLEVEL=0 (diagnosis only)",
+      "utc_end": "2026-11-16T15:45:37Z",
+      "utc_start": "2026-11-16T15:45:37Z"
+    }
+  ],
+  "cap": 6,
+  "environment": {
+    "curl": [
+      "curl 7.81.0 (x86_64-pc-linux-gnu) libcurl/7.81.0 OpenSSL/3.0.2 zlib/1.2.11 brotli/1.0.9 zstd/1.4.8 libidn2/2.3.2 libpsl/0.21.0 (+libidn2/2.3.2) libssh/0.9.6/openssl/zlib nghttp2/1.43.0 librtmp/2.3 OpenLDAP/2.5.20",
+      "Release-Date: 2022-01-05"
+    ],
+    "curlrc_exists": false,
+    "default_ctx": {
+      "check_hostname": true,
+      "maximum_version": "TLSVersion.MAXIMUM_SUPPORTED",
+      "minimum_version": "TLSVersion.TLSv1_2",
+      "n_ciphers": 17,
+      "options": 2186412112,
+      "security_level": 2
+    },
+    "openssl_cli": "OpenSSL 3.0.2 15 Mar 2022 (Library: OpenSSL 3.0.2 15 Mar 2022)",
+    "openssl_conf_env": false,
+    "proxy_env_vars": {},
+    "python": "3.10.12",
+    "python_ssl": "OpenSSL 3.0.2 15 Mar 2022",
+    "urllib_getproxies": {}
+  },
+  "findings": [
+    "no proxy configured (no proxy environment variables, no ~/.curlrc); Python, curl and openssl all use OpenSSL 3.0.2 with system default SECLEVEL=2 and minimum TLS 1.2, direct path",
+    "default handshake (TLS >= 1.2): client fails in ssl_choose_client_version with 'unsupported protocol' - the server offers no TLS version >= 1.2",
+    "diagnostic-only handshake limited to TLS 1.0 with SECLEVEL=0 succeeds: protocol TLSv1, cipher DHE-RSA-AES256-SHA, peer certificate self-signed, expired, CN=localhost.localdomain",
+    "plain HTTP GET jsoc_info?op=series_struct&ds=mdi.fd_Ic_interp (no redirect following, no proxy): HTTP/1.1 200 OK, Server Apache/2.2.3 (CentOS), Content-Type application/json, chunked transfer encoding, 16042 bytes, JSON status 0",
+    "side observations for the later code review (not acted upon): this schema gives primekeysinfo step '5760.0' and keyword T_REC_step defval 5760.0 but no T_REC_unit keyword; T_REC_epoch is 1993.01.01_00:00:30_TAI (30 s offset)"
+  ],
+  "interpretation": "the HTTPS endpoint of jsoc.stanford.edu speaks only TLS 1.0 with an unverifiable certificate: the failure is on the server side configuration, not specific to Python; HTTP answers directly, as drms uses by default and as the MWO project downloads did. Not yet verified: HTTP behaviour for rs_summary and rs_list and for the other four series",
+  "local_files_sha256": {
+    "DIAG_LOG.jsonl": "0edba0994bffed6cb267aa5e8831921204fbe42cb92bccb90616b49d8d3f52cc",
+    "ENV.json": "9a622f89e9493849919750c6374bea81a55dadf5087373aa5fd7c23088300b35",
+    "N1_openssl_default.txt": "5d62d76a3617b5b2b18b1d35acab742cef59a00c11ed85521023dbe81ae94744",
+    "N2_http_body.bin": "6a7ba9c3a4c845399448da7215c2e5084835e11843e57bde8a209cc65c2debe5",
+    "N2_http_headers.txt": "015c375398bae541b9739c99387fe2cb858e6cc06e915eb88357b41bc7596d30",
+    "N2_http_verbose.txt": "90ca121a0a3f7f76dfc821ad257dafbffd0c04233701d726aed919ed7f1fc085",
+    "N3_openssl_tls1_seclevel0.txt": "96ae703b082ea329d0bdcb491476cf6e45788c91214b576fffec19a643976857"
+  },
+  "local_folder": "data/sharp/metadata_inventory_mdi/access_diagnosis_20261116",
+  "network_attempts": 3,
+  "purpose": "diagnosis of the JSOC access failure of the schema phase (run schema_20261116_5c5d8b4, 15 attempts, all SSLV3_ALERT_HANDSHAKE_FAILURE); steps 1-2 only, no transport change, no TLS setting changed in the collector, no schema rerun"
+}

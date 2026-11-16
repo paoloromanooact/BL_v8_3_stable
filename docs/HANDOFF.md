@@ -1,5 +1,16 @@
 # Cold restart — SHARP BL
 
+## MDI/SMARP: diagnosi dell'accesso a JSOC (passi 1-2), poi fermo — 2026-11-16
+
+3 tentativi di rete su 6 consentiti, ricevuta `results/MDI_SMARP_ACCESS_DIAGNOSIS/DIAGNOSIS.json` (file grezzi locali
+in `data/sharp/metadata_inventory_mdi/access_diagnosis_20261116/`). Nessun proxy; Python, curl e openssl con la stessa
+OpenSSL 3.0.2 (SECLEVEL 2, TLS ≥ 1.2). Causa: l'HTTPS di jsoc.stanford.edu offre solo TLS 1.0 (cifrario
+DHE-RSA-AES256-SHA) con un certificato autofirmato e scaduto (CN localhost.localdomain), quindi nessuna versione
+accettabile per il client; non è un problema di Python. HTTP semplice risponde 200 con JSON (schema di
+mdi.fd_Ic_interp, 16042 byte, trasferimento chunked, nessun reindirizzamento). Osservazioni per la revisione del
+codice: T_REC_step 5760.0 senza T_REC_unit, epoca 1993.01.01_00:00:30_TAI. **Fermo prima del passo 3**: nessuna
+modifica del trasporto, nessun rilancio dello schema.
+
 ## MDI/SMARP: sola fase schema tentata, lavoro fermato — 2026-11-16
 
 Su richiesta dell'utente, dopo la verifica indipendente della correzione TLS di `5c5d8b4`
