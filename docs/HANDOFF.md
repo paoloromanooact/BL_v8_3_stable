@@ -1,5 +1,31 @@
 # Cold restart — SHARP BL
 
+## MDI/SMARP: sola fase schema tentata, lavoro fermato — 2026-11-16
+
+Su richiesta dell'utente, dopo la verifica indipendente della correzione TLS di `5c5d8b4`
+(SHA-256 `63495fb3c39dcab88844f77ff4d7004f5e1ef16fb712a3954de6d1a8b96d45ac`),
+eseguita **soltanto** la fase schema con run-id `schema_20261116_5c5d8b4`.
+La prova locale indipendente arresta l'handshake a circa 0,201 s su un limite di 0,2 s;
+il timeout residuo del socket può precedere il watchdog (`idle_timeout`), senza sforamento significativo.
+Ricevuta ufficiale offline già presente: 105/105, `399966b`.
+
+Provenienza della fase reale: `1abb8a89f52a006e8dbdc0b9e7eb211633c0b6b8`, albero tracciato pulito,
+piano congelato invariato. Intervallo UTC 13:46:15–13:48:03 (14:46–14:48 Europe/Rome).
+**Nessuno schema acquisito:** cinque serie `schema_not_verified`; 15 tentativi, tutti con
+`SSLV3_ALERT_HANDSHAKE_FAILURE`, zero byte di corpo e zero record. Nessuna attribuzione della causa
+al server, alla rete o all'ambiente è stata verificata. `outcome=eseguita` ed exit code 0 della fase
+non significano successo dell'acquisizione: `result.n_schemas=0` e `SCHEMA_STATUS.json` fanno fede.
+Le ricevute, i consumi e i corpi vuoti restano locali in
+`data/sharp/metadata_inventory_mdi/schema_20261116_5c5d8b4/`, compresi
+`PHASE_schema_001.json`, `SCHEMA_STATUS.json`, `REGISTRY.json` e `raw/QUERY_LOG.jsonl`.
+La proposta di mappa non è verificata né registrata. Nessun conteggio/elenco di record, export o FITS;
+nessuna modifica del raccoglitore, dell'endpoint, dei protocolli o dei risultati scientifici.
+
+**Fermarsi qui su MDI/SMARP**, come richiesto dall'utente; niente altri tentativi o fasi senza ripresa
+esplicita. Prossimo argomento: output T5. Questa revisione non li ha aperti né interpretati; verificare
+lo stato corrente delle altre sessioni prima di ripetere controlli già eseguiti. Studio S sempre in pausa.
+Nessun push.
+
 ## MDI/SMARP: piano dell'inventario congelato — 2026-11-16
 
 Piano definitivo `docs/MDI_SMARP_METADATA_INVENTORY_PLAN.md`, rinominato dal file `_DRAFT.md` dopo la
