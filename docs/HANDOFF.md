@@ -99,8 +99,11 @@ obiettivo operativo da motivare; prima stima analitica, poi simulazioni; un guad
 esclude l'utilità di MDI per T3 o per il catalogo. MDI operativo (errore TLS da risolvere) e morfologia di S in
 pausa. Nessun push.
 
-**Bozza del piano prospettico** scritta: `docs/PROSPECTIVE_INFORMATION_PLAN_DRAFT.md` (rev. 1, non congelata, nessun
-calcolo); in attesa della revisione di Codex.
+**Bozza del piano prospettico**: `docs/PROSPECTIVE_INFORMATION_PLAN_DRAFT.md`, rev. 2 dopo la revisione di Codex
+della rev. 1 (`630e6dc`): T3 con matrice e varianza proprie, modelli (a) attuale / (b) protetto / (c) distorsione
+limitata con parametro dichiarato, generatore per ricampionamento congiunto di celle HMI, quantili HMI fissi,
+frequenze con il segno della distorsione, algoritmo univoco per la fase B. Non congelata, nessun calcolo; in
+attesa di una nuova revisione.
 
 ## T5 potenza: risultati letti — 2026-11-16
 
