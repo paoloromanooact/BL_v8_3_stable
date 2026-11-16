@@ -8,6 +8,8 @@ Il file non è un protocollo e non congela nuovi criteri. Revisione di fase 2
 `0cdabc3` (§10). Ricalcolo indipendente degli SE di A2, A3 e A2p superato il 2026-11-15 (§7.2);
 resta il limite per A1a e A1b.
 
+**Nota del 2026-11-16:** gli artefatti di revisione di Codex citati qui, nella cartella `reviews/` del progetto MWO, sono stati rimossi su richiesta dell'utente; i loro SHA-256 sono conservati in [CODEX_REVIEW_ARTEFACTS_REMOVED_2026-11-16.csv](CODEX_REVIEW_ARTEFACTS_REMOVED_2026-11-16.csv). Gli esiti delle verifiche restano riportati in questo documento.
+
 ## 1. Domanda e stato scientifico
 
 T5 studia la dipendenza dell'efficienza del proxy della sorgente BL

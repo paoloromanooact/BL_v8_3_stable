@@ -2,6 +2,9 @@
 
 ## v8.4 (Python, branch `v8.4-python-gianluca`) — in corso
 
+- 2026-11-16, piano di sensibilità della potenza T5 congelato (`docs/T5_POWER_SENSITIVITY_PLAN.md`) dopo la
+  revisione di Codex; artefatti di revisione di Codex nel repository MWO rimossi su richiesta dell'utente, con i
+  loro SHA-256 in `docs/CODEX_REVIEW_ARTEFACTS_REMOVED_2026-11-16.csv` e annotazione nei documenti non congelati.
 - 2026-11-15: T5-D2 letto e interpretato secondo A1 (`docs/T5_ORACLE_RESULTS.md`).
   Nello scenario 7 sotto nulla, con la componente temporale vera R ≈ 0,98 e falsi
   1,90–1,94 % (conservativo); con la sola varianza individuale vera cambiamenti
