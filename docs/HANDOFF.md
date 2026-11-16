@@ -1,5 +1,14 @@
 # Cold restart — SHARP BL
 
+## Morfologia di S: bozza di piano — 2026-11-16
+
+Bozza non congelata `docs/PROTOCOL_HMI_MORPHOLOGY_S_DRAFT.md` (rev. 1), permessa dalla regola operativa dello
+studio morfologico precedente (§7 di `docs/MORPHOLOGY_RESULTS.md`). Prevalenza delle classi A2 in S (2485
+record, FITS tutti locali) per conteggio, Φ e |S_BL|, e dipendenza dall'attività; strato certo delle 101 HARP
+già lette, 6 strati (terzili di Â × Φ sotto/sopra la mediana), 30 per strato; nessuna esclusione né nuova
+pendenza. In attesa della revisione di Codex; nessuna scheda generata. In parallelo Codex rivede lo studio
+MDI/SMARP. La griglia T5 è in corso (avviata alle 10:38, PID 1408314).
+
 ## T5 potenza: dopo A2, preliminari completi; griglia da avviare dopo la revisione — 2026-11-16
 
 Emendamento A2 `6024237` (SHA-256 `df4912c0…`), script corretto `f19cf15` (SHA-256 `62ca2da4…`),
