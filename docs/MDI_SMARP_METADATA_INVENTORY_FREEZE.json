@@ -1,0 +1,28 @@
+{
+  "chronology_evidence": "local Git order; not an externally timestamped preregistration",
+  "clarifications": [
+    "rationale for 1 GiB / 90 min caps",
+    "FITS CRPIX origin 1 and explicit WCS pixel origin 0",
+    "worst-case retries can exceed global request cap and require partial stop"
+  ],
+  "collector_written_in_this_step": false,
+  "external_review": "Claude Opus 5.5 verification reported by the user in chat; no blocking issue, three clarifications",
+  "freeze_commit": "9269c10ef16d2c96271a60b53b12277e108170d5",
+  "jsoc_queries_performed_in_this_step": false,
+  "maps_downloaded_in_this_step": false,
+  "morphology_S": "paused by user; unchanged",
+  "network_prerequisites": [
+    "T5 grid finished",
+    "collector written and offline checks passed",
+    "collector code reviewed",
+    "schema acquired and field map verified before record queries"
+  ],
+  "plan_file": "docs/MDI_SMARP_METADATA_INVENTORY_PLAN.md",
+  "plan_sha256": "a31de02a064b08584281930f4a7c7e0fc4216ab83cc7f69c8ee793ea5bce3be0",
+  "push_performed": false,
+  "recorded_at_utc_local_clock": "2026-11-16T11:15:49.771791+00:00",
+  "reviewed_draft_commit": "c70e91da90d67cc5010b32f17e325f46b7e1b80a",
+  "reviewed_draft_path": "docs/MDI_SMARP_METADATA_INVENTORY_PLAN_DRAFT.md",
+  "reviewed_draft_sha256": "b01d162f42b0d79ba1c56c9b34247c6b7657d2d520fdf563d4400e12eb439e3e",
+  "status": "frozen_before_collector_code_and_jsoc_queries"
+}
