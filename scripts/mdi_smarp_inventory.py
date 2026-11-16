@@ -54,6 +54,9 @@ Implementation choices (not new rules; listed for the code review):
   registered lookup series; the connection phase is bounded as a whole (name resolution waited for at most the
   remaining time, addresses tried with the residual time only, each socket registered for the watchdog); the
   analysis status is confirmed only if the time cap is still respected at the end.
+- After the fourth code review of b54f80f: the SSL socket is created with do_handshake_on_connect=False, registered
+  for the watchdog, given the residual timeout and only then handshaken (CPython applies the socket timeout as a
+  deadline of the handshake call from its start, so time spent before it was not covered).
 """
 from __future__ import annotations
 
@@ -403,6 +406,7 @@ class Transport:
         self.scheme, self.host, self.port, self.path, self.waits = scheme, host, port, path, waits
         self.raw_dir.mkdir(parents=True, exist_ok=True)
         self.log = self.raw_dir / "QUERY_LOG.jsonl"
+        self.pre_tls_hook = None          # selftest only: simulates time spent between connection and handshake
 
     def url(self, params):
         if params.get("op") not in OPS:
@@ -451,10 +455,20 @@ class Transport:
                 timer.start()
                 sk = bounded_connect(self.host, self.port or (443 if self.scheme == "https" else 80), deadline,
                                      register=lambda x: sock_ref.insert(0, x))
+                if self.pre_tls_hook is not None:
+                    self.pre_tls_hook()
                 if self.scheme == "https":
                     import ssl
-                    sk = ssl.create_default_context().wrap_socket(sk, server_hostname=self.host)
+                    # the SSL socket is registered for the watchdog before the handshake (wrap_socket detaches the
+                    # plain socket, so the watchdog must hold the object that performs the handshake)
+                    sk = ssl.create_default_context().wrap_socket(sk, server_hostname=self.host,
+                                                                  do_handshake_on_connect=False)
                     sock_ref.insert(0, sk)
+                    left = deadline - time.monotonic()
+                    if killed.is_set() or left <= 0:
+                        raise TimeoutError("deadline before the TLS handshake")
+                    sk.settimeout(max(0.001, min(IDLE_TIMEOUT, left)))
+                    sk.do_handshake()
                 conn.sock = sk
                 if killed.is_set():
                     raise TimeoutError("deadline during connection")
@@ -2675,6 +2689,39 @@ def selftest_regressions(ok):
             el = time.monotonic() - t0
             ok("review2 2: HTTP/1.0 slow body stopped at the absolute deadline through the response socket",
                r and el < 0.4, f"{el:.3f} s for a 0.25 s cap")
+        # fourth review: TLS handshake bounded by the watchdog (local server dripping a TLS record byte by byte)
+        stop_srv = threading.Event()
+        lsn = socket.socket()
+        lsn.bind(("127.0.0.1", 0))
+        lsn.listen(1)
+        lport = lsn.getsockname()[1]
+
+        def drip_tls():
+            with contextlib.suppress(OSError):
+                c, _ = lsn.accept()
+                c.settimeout(2.0)
+                with contextlib.suppress(OSError):
+                    c.recv(4096)                          # ClientHello
+                c.sendall(b"\x16\x03\x03\x3e\x80")         # handshake record header announcing 16000 bytes
+                while not stop_srv.is_set():
+                    c.sendall(b"\x00")
+                    time.sleep(0.02)
+                c.close()
+        th_ = threading.Thread(target=drip_tls, daemon=True)
+        th_.start()
+        with _tmpdir() as tmp:
+            reg = Registry(Path(tmp) / "R.json", dict(attempts=CAP_ATTEMPTS, rows=CAP_ROWS, bytes=CAP_BYTES, wall_s=0.2),
+                           min_spacing=0.0)
+            trs = Transport(reg, Path(tmp) / "raw", scheme="https", host="127.0.0.1", port=lport, waits=(0.01, 0.02))
+            trs.pre_tls_hook = lambda: time.sleep(0.12)   # e.g. loading the CA bundle after the socket timeout was set
+            t0 = time.monotonic()
+            r = _raises(lambda: trs.get({"op": "rs_summary", "ds": "X"}, "tls"), BudgetStop)
+            el = time.monotonic() - t0
+            ok("review4: TLS handshake kept alive by a byte drip is stopped at the absolute deadline (watchdog holds the "
+               "SSL socket before do_handshake; 0.12 s spent between connection and handshake)", r and el < 0.28,
+               f"{el:.3f} s for a 0.2 s cap")
+        stop_srv.set()
+        lsn.close()
         # third review: the whole connection phase is bounded (resolution and several addresses)
         class SlowSock:
             def __init__(self, *a):
