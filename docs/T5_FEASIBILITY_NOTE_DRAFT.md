@@ -17,8 +17,6 @@ generatori finora esaminati, la potenza per effetti piccoli è bassa; il caso a 
 discriminante anche con gli SE oracolo. Non è dimostrato un limite generale della serie HMI.*
 **La fattibilità resta aperta.**
 
-**Nota del 2026-11-16:** gli artefatti di revisione di Codex citati qui, nella cartella `reviews/` del progetto MWO, sono stati rimossi su richiesta dell'utente; i loro SHA-256 sono conservati in [CODEX_REVIEW_ARTEFACTS_REMOVED_2026-11-16.csv](CODEX_REVIEW_ARTEFACTS_REMOVED_2026-11-16.csv). Gli esiti delle verifiche restano riportati in questo documento.
-
 ## 1. Domanda
 
 All'aumentare dell'attività, l'efficienza della sorgente BL per unità di flusso diminuisce abbastanza

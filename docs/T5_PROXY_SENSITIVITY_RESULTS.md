@@ -12,8 +12,6 @@ revisionato da Codex prima del lancio (selftest 42/42, audit sintetico 27/27). C
 coppia compatta. Non è un test, non stima il quenching solare e non decide la fattibilità di T5. La pendenza
 reale di T5 non è stata calcolata.
 
-**Nota del 2026-11-16:** gli artefatti di revisione di Codex citati qui, nella cartella `reviews/` del progetto MWO, sono stati rimossi su richiesta dell'utente; i loro SHA-256 sono conservati in [CODEX_REVIEW_ARTEFACTS_REMOVED_2026-11-16.csv](CODEX_REVIEW_ARTEFACTS_REMOVED_2026-11-16.csv). Gli esiti delle verifiche restano riportati in questo documento.
-
 ## 1. Controlli in esecuzione (nota §6.2)
 
 | Controllo | Esito |

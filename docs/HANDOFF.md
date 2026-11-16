@@ -12,7 +12,7 @@ Nessun codice scritto, nessuna simulazione. Prossimo: revisione di Codex del tes
 `scripts/t5_power_sensitivity.py` con selftest, porta e misura della durata prima del lancio. T5
 descrittivo, T3 non deciso. Nessun push.
 
-**Cartella di scambio rimossa (2026-11-16).** Su richiesta dell'utente le note di scambio con Codex e la cartella `reviews/` nel repository MWO (artefatti delle verifiche di Codex) sono state spostate nel cestino; il repository MWO in sé non è stato toccato. Sei citazioni nei documenti BL puntano ora a file rimossi: `T5_ORACLE_RESULTS.md`, `T5_FEASIBILITY_NOTE_DRAFT.md` e `T5_PROXY_SENSITIVITY_RESULTS.md` (annotati), `T5_ORACLE_SE_RECOMPUTE_NOTE_C1.md` e `T5_POWER_SENSITIVITY_PLAN.md` (congelati, non modificati). SHA-256 dei 120 file in `docs/CODEX_REVIEW_ARTEFACTS_REMOVED_2026-11-16.csv`. Le note per Codex si scrivono ora nella chat e l'utente le copia.
+**Artefatti di scambio con Codex (2026-11-16).** Le note di scambio e la cartella `reviews/` nel repository MWO (artefatti delle verifiche di Codex citati in sei documenti BL) sono state spostate nel cestino su richiesta dell'utente e **ripristinate lo stesso giorno** ai percorsi originali; i 119 file citati coincidono con gli SHA-256 registrati prima della rimozione (`docs/CODEX_REVIEW_ARTEFACTS_REMOVED_2026-11-16.csv`, conservato come registro). Le citazioni nei documenti BL sono di nuovo valide. Le note per Codex si scrivono ora nella chat e l'utente le copia.
 
 ## T5-D2: risultati letti e interpretati — 2026-11-15
 
