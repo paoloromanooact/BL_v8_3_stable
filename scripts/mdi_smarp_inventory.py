@@ -43,6 +43,12 @@ Implementation choices (not new rules; listed for the code review):
   has_candidate, no_candidate, no_candidate_incomplete_geometry, search_incomplete and not_assessable; the
   analysis reconciles counted and acquired windows, recomputes raw SHA-256, reports 'complete' or 'partial',
   uses time indices and adds its own wall time to the registry.
+- After the second code review of 4402ea8: the derived CSV are rebuilt from the original responses and compared
+  (identities, values, edge rows; also AUX_RECORDS); the watchdog keeps the socket actually used by the response
+  (HTTP/1.0 detaches conn.sock) and a socket it shut is always a deadline, never a complete answer; a heartbeat
+  thread saves the live time every second during blocking calls; the run lock precedes any read, recovery or
+  write of the registry (phases, analysis, map registration); the analysis checks the time cap before and during
+  the processing and reports 'stopped_time_cap'; the selftest fails if it touches the real inventory folders.
 """
 from __future__ import annotations
 
@@ -136,7 +142,7 @@ def now_utc():
 
 def atomic_write(path, data: bytes):
     path = Path(path)
-    tmp = path.with_suffix(path.suffix + ".tmp")
+    tmp = path.with_suffix(path.suffix + f".{os.getpid()}.{threading.get_ident()}.tmp")
     tmp.write_bytes(data)
     os.replace(tmp, path)
 
@@ -217,8 +223,9 @@ def parse_quality(s):
 # ---------------------------------------------------------------- registry (§4.1): persistent, never reset
 
 class Registry:
-    """Persistent consumption registry (§4.1). An invocation that ends without close() is recovered conservatively:
-    elapsed time from the last saved live value plus one save interval, bytes from the partial body on disk."""
+    """Persistent consumption registry (§4.1). A heartbeat thread saves the live wall time every SAVE_EVERY_S, also
+    during blocking calls; an invocation that ends without close() is recovered conservatively: last saved live
+    time plus one save interval, bytes from the partial body on disk. Must be opened only under the run lock."""
     SAVE_EVERY_S = 1.0
 
     def __init__(self, path, caps=None, min_spacing=MIN_SPACING):
@@ -251,8 +258,24 @@ class Registry:
         self.inv = dict(start_utc=now_utc(), phase=None)
         self._last = 0.0
         self._saved = 0.0
+        self._mx = threading.RLock()
+        self._hb_stop = threading.Event()
         self.d["open_invocation"] = True
         self.save()
+        self._hb = threading.Thread(target=self._heartbeat, daemon=True)
+        self._hb.start()
+
+    def _heartbeat(self):
+        while not self._hb_stop.wait(self.SAVE_EVERY_S):
+            try:
+                self.save()
+            except OSError:
+                return
+
+    def stop_heartbeat(self):
+        self._hb_stop.set()
+        if self._hb.is_alive() and threading.current_thread() is not self._hb:
+            self._hb.join(timeout=2 * self.SAVE_EVERY_S)
 
     def used_wall(self):
         return self.d["wall_s_completed"] + (time.monotonic() - self.t_start)
@@ -282,30 +305,35 @@ class Registry:
         time.sleep(max(0.0, s))
 
     def add_attempt(self, aux=False):
-        self.check("attempt", n_attempts=1)
-        self.d["attempts"] += 1
-        if aux:
-            self.d["aux_attempts"] += 1
-        self._last = time.monotonic()
-        self.save()
+        with self._mx:
+            self.check("attempt", n_attempts=1)
+            self.d["attempts"] += 1
+            if aux:
+                self.d["aux_attempts"] += 1
+            self._last = time.monotonic()
+            self.save()
 
     def add_bytes(self, n):
-        self.d["bytes"] += n
+        with self._mx:
+            self.d["bytes"] += n
 
     def add_rows(self, n):
-        self.d["rows"] += n
-        self.save()
+        with self._mx:
+            self.d["rows"] += n
+            self.save()
 
     def maybe_save(self):
         if time.monotonic() - self._saved >= self.SAVE_EVERY_S:
             self.save()
 
     def save(self):
-        self.d["wall_s_live"] = self.used_wall()
-        write_json(self.path, self.d)
-        self._saved = time.monotonic()
+        with self._mx:
+            self.d["wall_s_live"] = self.used_wall()
+            write_json(self.path, self.d)
+            self._saved = time.monotonic()
 
     def close(self, phase, outcome):
+        self.stop_heartbeat()
         self.d["wall_s_completed"] += time.monotonic() - self.t_start
         self.inv.update(phase=phase, end_utc=now_utc(), outcome=outcome)
         self.d["invocations"].append(self.inv)
@@ -359,11 +387,11 @@ class Transport:
         cls = http.client.HTTPSConnection if self.scheme == "https" else http.client.HTTPConnection
         conn = cls(self.host, self.port, timeout=max(0.001, min(IDLE_TIMEOUT, rem)))
         killed = threading.Event()
+        sock_ref = []                     # the socket really used by the response (conn.sock may be detached)
 
         def kill():
             killed.set()
-            sk = conn.sock
-            if sk is not None:
+            for sk in sock_ref or ([conn.sock] if conn.sock is not None else []):
                 with contextlib.suppress(OSError):
                     sk.shutdown(socket.SHUT_RDWR)
         timer = threading.Timer(rem, kill)
@@ -372,6 +400,10 @@ class Transport:
         try:
             with open(fpath, "wb") as out:
                 timer.start()
+                conn.connect()
+                sock_ref.append(conn.sock)
+                if killed.is_set():
+                    raise TimeoutError("deadline during connection")
                 conn.request("GET", target, headers={"Accept-Encoding": "identity",
                                                      "User-Agent": "sharpbl-mdi-inventory"})
                 resp = conn.getresponse()
@@ -392,8 +424,8 @@ class Transport:
                             if resp.length != 0:
                                 outcome = "truncated_by_budget"
                             break
-                        if conn.sock is not None:
-                            conn.sock.settimeout(max(0.001, min(IDLE_TIMEOUT, left)))
+                        with contextlib.suppress(OSError):
+                            sock_ref[0].settimeout(max(0.001, min(IDLE_TIMEOUT, left)))
                         chunk = resp.read1(min(65536, room))
                         if not chunk:
                             break
@@ -408,6 +440,8 @@ class Transport:
         finally:
             timer.cancel()
             conn.close()
+        if killed.is_set() and outcome in ("ok", "idle_timeout") or (outcome == "ok" and time.monotonic() > deadline):
+            outcome = "deadline"          # a socket shut by the watchdog ends like an EOF: never a complete answer
         raw = fpath.read_bytes()
         reg.d["in_flight"] = None
         self._write_log(dict(utc=now_utc(), tag=tag, attempt_global=reg.d["attempts"], target=target, status=status,
@@ -832,6 +866,11 @@ def phase_schema(run, tr):
 
 def register_map(run, verified_by):
     """Offline: the reviewer edits FIELD_MAP.csv (copied from the proposal) and its SHA-256 is registered."""
+    with lock(run):
+        return _register_map(run, verified_by)
+
+
+def _register_map(run, verified_by):
     fm = run.p("FIELD_MAP.csv")
     if not fm.exists():
         raise TechnicalError("copy FIELD_MAP_PROPOSED.csv to FIELD_MAP.csv and verify it first")
@@ -1149,7 +1188,9 @@ def phase_aux(run, tr, schemas, rules):
         w.writerow(sc["primekeys"] + keys)
         for key, r in sorted(cache.items()):
             w.writerow(list(key) + [r.get(k) for k in keys])
-    write_json(run.p("AUX_STATUS.json"), dict(status=status, requests=len(out), cached=len(cache)))
+    prev = json.loads(run.p("AUX_STATUS.json").read_text()).get("files", []) if run.p("AUX_STATUS.json").exists() else []
+    write_json(run.p("AUX_STATUS.json"), dict(status=status, requests=len(out), cached=len(cache),
+                                              files=prev + [o["file"] for o in out]))
     return dict(status=status, requests=len(out))
 
 
@@ -1175,14 +1216,14 @@ def phase_continuum(run, tr, schemas):
     return dict(status="complete", years=len(rows))
 
 
-def run_phase(args):
-    run = Run(args.run_id)
+def run_phase(args, run=None):
+    run = run or Run(args.run_id)
     network_guard()
-    reg = Registry(run.p("REGISTRY.json"))
-    tr = Transport(reg, run.p("raw"))
     meta = dict(phase=args.phase, outcome="non riuscito", start_utc=now_utc())
     code = 1
-    with lock(run):
+    with lock(run):                      # the lock precedes any read, recovery or write of the registry
+        reg = Registry(run.p("REGISTRY.json"))
+        tr = Transport(reg, run.p("raw"))
         try:
             meta.update(provenance())
             schemas = run.schemas()
@@ -1341,7 +1382,7 @@ def noaa_set(*vals):
     return out
 
 
-def match_overlap(smarp, hmi, fmap, incomplete=()):
+def match_overlap(smarp, hmi, fmap, incomplete=(), tick=lambda *a: None):
     """§6.1-6.3: nearest HMI record per HARPNUM within 360 s (time index); G5/G10 degrees; record states that keep
     an incomplete search and incomplete competitor geometry apart from a genuine absence of candidates."""
     import bisect
@@ -1350,6 +1391,7 @@ def match_overlap(smarp, hmi, fmap, incomplete=()):
     tol = timedelta(seconds=TIME_TOL_S)
     pairs = []
     for s in smarp:
+        tick()
         lo, hi = bisect.bisect_left(gt, s["_t"] - tol), bisect.bisect_right(gt, s["_t"] + tol)
         best = {}
         for h in glob[lo:hi]:
@@ -1460,20 +1502,108 @@ def load_records(run, prof, fmap):
     return out
 
 
-def analyze(run):
-    """Offline analysis; its wall time is added to the registry (§4.1: elaboration counts), without network."""
-    reg = Registry(run.p("REGISTRY.json")) if run.p("REGISTRY.json").exists() else None
-    outcome = "errore"
-    try:
-        res = _analyze(run)
-        outcome = res["status"]
-        if reg is not None:
-            res["wall_used_s_after_analysis"] = reg.used_wall()
-            res["time_cap_exceeded"] = reg.used_wall() > reg.caps["wall_s"]
-        return res
-    finally:
-        if reg is not None:
-            reg.close("analyze", outcome)
+def analyze(run, reg_factory=None):
+    """Offline analysis under the run lock; its wall time counts in the registry and is limited by the same cap
+    (§4.1): checked before starting and during the processing; a stop gives status 'stopped_time_cap'."""
+    with lock(run):
+        reg = (reg_factory or Registry)(run.p("REGISTRY.json")) if run.p("REGISTRY.json").exists() else None
+        outcome = "errore"
+        try:
+            try:
+                if reg is not None and reg.remaining_time() <= 0:
+                    raise BudgetStop("time cap exhausted before the analysis")
+                res = _analyze(run, reg)
+            except BudgetStop as exc:
+                run.res.mkdir(parents=True, exist_ok=True)
+                res = dict(status="stopped_time_cap", reason=str(exc))
+                write_json(run.res / "ANALYSIS_STATUS.json", dict(status="stopped_time_cap", reason=str(exc)))
+            outcome = res["status"]
+            if reg is not None:
+                res["wall_used_s_after_analysis"] = reg.used_wall()
+            return res
+        finally:
+            if reg is not None:
+                reg.close("analyze", outcome)
+
+
+def _norm(v):
+    return "" if v is None else str(v)
+
+
+def reconcile_derived(run, receipts, tick):
+    """Rebuild accepted and edge rows from the original list responses and compare them with the derived CSV
+    (identities, values, per-window edge rows); the same for AUX_RECORDS from the aux responses."""
+    schemas = run.schemas()
+    problems = []
+    for prof in PROFILES:
+        recs = [r for r in receipts if r["profile"] == prof]
+        path = run.p(f"RECORDS_{prof}.csv.gz")
+        if not recs:
+            if path.exists():
+                problems.append(f"{prof}: derived rows without list receipts")
+            continue
+        if not path.exists():
+            problems.append(f"{prof}: derived CSV missing")
+            continue
+        s_ = PROFILE_SERIES[prof]
+        sc = schemas[s_]
+        tk = time_key(sc)
+        with gzip.open(path, "rt", newline="") as f:
+            rd = csv.reader(f)
+            head = next(rd)
+            keys = head[2:]
+            derived, d_edges = {}, {}
+            for row in rd:
+                tick()
+                vals = dict(zip(keys, row[2:]))
+                if row[1] == "0":
+                    key = identity(s_, sc, vals)
+                    if key in derived:
+                        problems.append(f"{prof}: duplicated identity in the derived CSV")
+                    derived[key] = vals
+                else:
+                    d_edges[row[0]] = d_edges.get(row[0], 0) + 1
+        expected, e_edges = {}, {}
+        for r in recs:
+            raw = run.p("raw") / r["file"]
+            if not raw.exists():
+                problems.append(f"{prof}: original response {r['file']} missing")
+                continue
+            rows = rows_from_rs_list(json.loads(raw.read_bytes().decode("utf-8")))
+            a, _ = parse_time(r["window"].split("/")[0])
+            b, _ = parse_time(r["window"].split("/")[1])
+            kept, edge, bad = filter_window(rows, tk, a, b)
+            e_edges[r["window"]] = len(edge) + len(bad)
+            for x in kept:
+                tick()
+                key = identity(s_, sc, x)
+                expected.setdefault(key, {k: _norm(x.get(k)) for k in keys})
+        if set(expected) != set(derived):
+            problems.append(f"{prof}: identities differ ({len(expected)} rebuilt vs {len(derived)} derived)")
+        elif any(expected[k] != derived[k] for k in expected):
+            problems.append(f"{prof}: values differ from the original responses")
+        if {k: v for k, v in e_edges.items() if v} != d_edges:
+            problems.append(f"{prof}: edge/unparsable rows differ from the original responses")
+    st = run.p("AUX_STATUS.json")
+    if st.exists() and run.p("AUX_RECORDS.csv.gz").exists():
+        files = json.loads(st.read_text()).get("files", [])
+        lk_series = SMARP_LEV if SMARP_LEV in schemas else None
+        rebuilt = set()
+        for fname in files:
+            raw = run.p("raw") / fname
+            if not raw.exists():
+                problems.append(f"aux: original response {fname} missing")
+                continue
+            for x in rows_from_rs_list(json.loads(raw.read_bytes().decode("utf-8"))):
+                rebuilt.add(tuple(_norm(x.get(k)) for k in schemas[lk_series]["primekeys"]) if lk_series else ())
+        with gzip.open(run.p("AUX_RECORDS.csv.gz"), "rt", newline="") as f:
+            rd = csv.reader(f)
+            head = next(rd)
+            n_pk = len(schemas[lk_series]["primekeys"]) if lk_series else 0
+            have = {tuple(row[:n_pk]) for row in rd}
+        if lk_series and rebuilt != have:
+            problems.append(f"aux: AUX_RECORDS identities differ from the aux responses ({len(rebuilt)} vs {len(have)})")
+    return dict(ok=not problems, msg="; ".join(problems[:5]))
 
 
 def incomplete_hmi_intervals(run):
@@ -1488,10 +1618,16 @@ def incomplete_hmi_intervals(run):
     return out
 
 
-def _analyze(run):
+def _analyze(run, reg=None):
     fmap, rules = registered_map(run)
     run.res.mkdir(parents=True, exist_ok=True)
     checks, limits = [], []
+    count = [0]
+
+    def tick(force=False):
+        count[0] += 1
+        if reg is not None and (force or count[0] % 2000 == 0) and reg.remaining_time() <= 0:
+            raise BudgetStop("time cap reached during the analysis")
 
     def chk(name, ok, value=""):
         checks.append(dict(check=name, passed=bool(ok), value=value))
@@ -1499,6 +1635,11 @@ def _analyze(run):
         if run.p("LIST_RECEIPTS.jsonl").exists() else []
     chk("every listed window: count_server = received", all(r["count_server"] == r["received"] for r in receipts),
         f"{len(receipts)} windows")
+    tick(True)
+    rec = reconcile_derived(run, receipts, tick)
+    chk("derived CSV equal the reconstruction from the original responses (identities, values, edge rows)",
+        rec["ok"], rec["msg"])
+    tick(True)
     chk("every listed window: kept + edge + unparsable = received",
         all(r["kept"] + r["edge"] + r["bad_time"] == r["received"] for r in receipts), "")
     lst = leaf_status(run)
@@ -1585,6 +1726,7 @@ def _analyze(run):
         for t0_, t1_ in zip(fd, fd[1:]):
             gaps.append(dict(start=t0_.isoformat(), slots="", hours=(t1_ - t0_).total_seconds() / 3600, window="observed"))
     write_csv(run.res / "GAPS.csv", gaps, ["start", "slots", "hours", "window"])
+    tick(True)
     # quality
     qrows = []
     for prof in PROFILES:
@@ -1607,6 +1749,7 @@ def _analyze(run):
     # products 1/5 min (§5.3)
     prows = product_states(run, fmap, rules)
     write_csv(run.res / "PRODUCT_SUMMARY.csv", prows, ["level", "year", "state", "reason", "n"])
+    tick(True)
     # overlap (§6)
     sm = [r for r in load_records(run, "smarp_overlap", fmap) if r["edge"] == "0" and r["_t"]]
     hm = [r for r in load_records(run, "hmi_overlap", fmap) if r["edge"] == "0" and r["_t"]]
@@ -1618,8 +1761,10 @@ def _analyze(run):
         r["_geom"] = geom_of(r, fmap, "hmi_overlap")
         tn = role_name(fmap, "hmi_overlap", "time_obs")
         r["_tobs"] = r.get(tn) if tn else None
+    tick(True)
     rows, states, comps = match_overlap([r for r in sm if OV0 <= r["_t"] < OV1], hm, fmap,
-                                        incomplete=incomplete_hmi_intervals(run))
+                                        incomplete=incomplete_hmi_intervals(run), tick=tick)
+    tick(True)
     with gzip.open(run.res / "OVERLAP_CANDIDATES.csv.gz", "wt", newline="") as f:
         cols = list(rows[0]) if rows else ["smarp_id"]
         w = csv.DictWriter(f, fieldnames=cols, lineterminator="\n")
@@ -2272,6 +2417,51 @@ def selftest_end_to_end(ok):
                regd["invocations"][-1]["phase"] == "analyze" and not regd["open_invocation"], "")
             pr = read_csv(run.res / "PRODUCT_SUMMARY.csv")
             ok("e2e product composition reported overall and per year", {x["year"] for x in pr} >= {"all", "2001", "2010"}, "")
+            # second review of 4402ea8: lock before the registry, analysis time limited, derived CSV reconciled
+            before = run.p("REGISTRY.json").read_bytes()
+            run.p("LOCK").write_text("other")
+            saved_guard = globals()["network_guard"]
+            globals()["network_guard"] = lambda: None
+            try:
+                r_lock = _raises(lambda: run_phase(argparse.Namespace(run_id=run.id, phase="counts"), run=run),
+                                 TechnicalError)
+            finally:
+                globals()["network_guard"] = saved_guard
+            r_lock2 = _raises(lambda: analyze(run), TechnicalError)
+            run.p("LOCK").unlink()
+            ok("review2 4: with the lock held by another instance, phase and analysis are refused before reading or "
+               "writing the registry", r_lock and r_lock2 and run.p("REGISTRY.json").read_bytes() == before, "")
+
+            class Draining(Registry):
+                calls = 0
+
+                def remaining_time(self):
+                    Draining.calls += 1
+                    return 1.0 if Draining.calls <= 3 else 0.0
+            r5 = analyze(run, reg_factory=Draining)
+            ok("review2 5: time cap reached during the analysis -> status stopped_time_cap, never complete",
+               r5["status"] == "stopped_time_cap" and json.loads((run.res / "ANALYSIS_STATUS.json").read_text())["status"]
+               == "stopped_time_cap", r5.get("reason", ""))
+            rg = json.loads(run.p("REGISTRY.json").read_text())
+            rg["wall_s_completed"] = float(CAP_WALL_S)
+            write_json(run.p("REGISTRY.json"), rg)
+            r5b = analyze(run)
+            ok("review2 5: time cap exhausted before the analysis -> stopped_time_cap", r5b["status"] == "stopped_time_cap", "")
+            rg["wall_s_completed"] = 0.0
+            write_json(run.p("REGISTRY.json"), rg)
+            hp = run.p("RECORDS_hmi_overlap.csv.gz")
+            with gzip.open(hp, "rt", newline="") as f:
+                lines = f.read().splitlines()
+            with gzip.open(hp, "wt", newline="") as f:
+                f.write(lines[0] + "\n")
+            r1 = analyze(run)
+            st1 = json.loads((run.res / "ANALYSIS_STATUS.json").read_text())
+            ok("review2 1: HMI rows removed from the derived CSV (originals intact) -> partial, reconstruction check fails",
+               r1["status"] == "partial" and any("reconstruction" in c for c in st1["failed"]), "; ".join(st1["failed"])[:120])
+            with gzip.open(hp, "wt", newline="") as f:
+                f.write("\n".join(lines[:5] + [lines[5].replace(",0,", ",4,", 1)] + lines[6:]) + "\n")
+            r1b = analyze(run)
+            ok("review2 1: one changed value in the derived CSV is detected", r1b["status"] == "partial", "")
     finally:
         fake.close()
 
@@ -2349,6 +2539,24 @@ def selftest_regressions(ok):
             files = list((Path(tmp) / "raw").glob("b_*.body"))
             ok("review 3: reads never exceed the residual byte budget (cap 10 -> 10 received, registered, on disk)",
                r and reg.d["bytes"] == 10 and files and files[0].stat().st_size == 10, "")
+        # second review: HTTP/1.0 body deadline with a detached connection socket
+        with tempfile.TemporaryDirectory() as tmp:
+            tr, reg = _transport(tmp, fake, dict(attempts=CAP_ATTEMPTS, rows=CAP_ROWS, bytes=CAP_BYTES, wall_s=0.25))
+            fake.behaviour = {"DRIP10": ("drip",)}
+            t0 = time.monotonic()
+            r = _raises(lambda: tr.get({"op": "rs_list", "ds": "DRIP10", "key": "T_REC"}, "d10"), BudgetStop)
+            el = time.monotonic() - t0
+            ok("review2 2: HTTP/1.0 slow body stopped at the absolute deadline through the response socket",
+               r and el < 0.4, f"{el:.3f} s for a 0.25 s cap")
+        # second review: heartbeat keeps the live time during blocking intervals
+        with tempfile.TemporaryDirectory() as tmp:
+            reg = Registry(Path(tmp) / "R.json")
+            time.sleep(2.3)
+            reg.stop_heartbeat()                     # simulated crash: no close()
+            reg2 = Registry(Path(tmp) / "R.json")
+            ok("review2 3: time elapsed in a blocking interval without explicit saves is recovered (>= 2.3 s)",
+               reg2.used_wall() >= 2.3, f"{reg2.used_wall():.2f} s")
+            reg2.close("t", "ok")
         # 4. incomplete search and incomplete competitors are not 'no_candidate'
         t = datetime(2010, 6, 1)
         s1 = dict(_id="S", _t=t, TARPNUM="1", _geom=dict(status="ok", lon=10.0, lat=0.0, env=(9, 11, -1, 1)))
@@ -2450,6 +2658,17 @@ def selftest_regressions(ok):
 
 
 def selftest():
+    real = [p for p in (RAW_BASE, RES_BASE) if p.exists()]
+    before = {str(p): sorted(str(x) for x in p.rglob("*")) for p in real}
+    code = _selftest()
+    after = {str(p): sorted(str(x) for x in p.rglob("*")) for p in (RAW_BASE, RES_BASE) if p.exists()}
+    if after != before:
+        print("FAIL selftest modified the real inventory folders")
+        return 1
+    return code
+
+
+def _selftest():
     out_ok = True
     res = []
 
