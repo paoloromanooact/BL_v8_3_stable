@@ -1,5 +1,22 @@
 # Cold restart — SHARP BL
 
+## MDI/SMARP: associazioni della sovrapposizione verificate offline — 2026-11-16
+
+Analisi dal commit pulito `198785b`, 11 controlli superati, nessuna rete o nuova riga acquisita.
+127 TARP SMARP e 139 HARP HMI: 121 coppie candidate G5 (112 con almeno un arco univoco tra record),
+161 G10; 1555 archi G5 perdono l'unicità all'allargamento. Non sono identità fisiche confermate.
+Rapporto e hash: `docs/MDI_SMARP_OVERLAP_RESULTS.md`; output locali sotto
+`results/MDI_SMARP_INVENTORY/schema_20261116_http_ac06138/overlap_only/198785bb3002/`.
+
+Limiti prima della scelta delle mappe: definizioni native dei bit QUALITY MDI/SMARP da documentare
+(0x200 prevale); T_REC coincidente non garantisce T_OBS vicino (76/8949 archi univoci G5 oltre 360 s).
+Audit full-disk: 4500/4515 T_REC sono fuori di 30 s dalla griglia dichiarata; non dedurre lacune
+per uguaglianza letterale all'epoca, né correggere tempi senza una regola documentata. Nessun filtro cambiato.
+
+**Prossimo:** chiarire questi metadati, poi piano circoscritto delle mappe, distinguendo Br contro LOS/μ
+su HMI dal confronto tra strumenti. Nessuna mappa scaricata, storico non avviato; piano prospettico e
+morfologia S in pausa. Registro 272 tentativi, 45924964 byte, 119611 righe, circa 657,2 s. Nessun push.
+
 ## MDI/SMARP: elenchi della sovrapposizione acquisiti e verificati — 2026-11-16
 
 Corsa `schema_20261116_http_ac06138`, fase `overlap` sul commit `4487125`, albero tracciato pulito:

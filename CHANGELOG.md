@@ -2,6 +2,11 @@
 
 ## v8.4 (Python, branch `v8.4-python-gianluca`) — in corso
 
+- 2026-11-16, MDI/SMARP: analisi offline della sola sovrapposizione dal commit 198785b, 11 controlli
+  superati; 121 coppie candidate G5 e 161 G10, unicità e completezza distinte. Documentati i limiti
+  QUALITY nativo, T_OBS e griglia nominale full-disk; nessuna nuova selezione o correzione temporale.
+  Nessuna rete, mappa, acquisizione storica o simulazione. Dettagli in docs/MDI_SMARP_OVERLAP_RESULTS.md.
+
 - 2026-11-16, MDI/SMARP: 33 elenchi di metadati della sovrapposizione acquisiti e verificati sui JSON originali,
   119611 righe accettate; 127 TARP SMARP e 139 HARP HMI nella finestra scientifica, nessun filtro di qualità.
   INTERVAL=30 s nei full-disk resta ignoto con la regola 60/300 già registrata; nessuna reinterpretazione.
