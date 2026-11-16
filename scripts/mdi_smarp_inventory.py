@@ -1239,8 +1239,10 @@ def match_overlap(smarp, hmi, fmap):
         graphs[R] = dict(arcs=arcs, deg_s=deg_s, deg_h=deg_h)
     rows = []
     for p in pairs:
+        to_s, _ = parse_time(p["s"].get("_tobs"))
+        to_h, _ = parse_time(p["h"].get("_tobs"))
         r = dict(smarp_id=p["s"]["_id"], hmi_id=p["h"]["_id"], TARPNUM=p["s"].get("TARPNUM"), HARPNUM=p["h"]["HARPNUM"],
-                 dt_s=p["dt"], dist_deg=p["dist"], smarp_geom=p["s"]["_geom"]["status"], hmi_geom=p["h"]["_geom"]["status"],
+                 dt_s=p["dt"], dt_obs_s=(to_h - to_s).total_seconds() if (to_s and to_h) else None, dist_deg=p["dist"], smarp_geom=p["s"]["_geom"]["status"], hmi_geom=p["h"]["_geom"]["status"],
                  iou=(p["ov"] or {}).get("iou"), inter_sr=(p["ov"] or {}).get("inter"))
         for R in RADII:
             g = graphs[R]
@@ -1321,14 +1323,22 @@ def analyze(run):
                 continue
             m = r["_t"].strftime("%Y-%m")
             months_.setdefault(m, []).append(r)
+        fields = [k for k in profile_keys(fmap, prof)]
         for m, lst in sorted(months_.items()):
             margin = sum(1 for r in lst if prof == "hmi_overlap" and not (OV0 <= r["_t"] < OV1))
+            miss = {k: sum(1 for r in lst if r.get(k) in (None, "", "MISSING")) for k in fields}
             cov.append(dict(profile=prof, series=PROFILE_SERIES[prof], month=m, records=len(lst),
+                            missing_by_field=json.dumps({k: v for k, v in miss.items() if v}, sort_keys=True),
                             records_margin=margin, distinct_times=len({r["_t"] for r in lst}),
                             distinct_patches=len({r.get(keyp) for r in lst}) if keyp else "",
                             first=min(r["_t"] for r in lst).isoformat(), last=max(r["_t"] for r in lst).isoformat()))
     write_csv(run.res / "COVERAGE_MONTHLY.csv", cov, ["profile", "series", "month", "records", "records_margin",
-                                                      "distinct_times", "distinct_patches", "first", "last"])
+                                                      "distinct_times", "distinct_patches", "first", "last",
+                                                      "missing_by_field"])
+    write_csv(run.res / "WINDOWS.csv", [dict(profile=r["profile"], window=r["window"], status=r["status"],
+                                             count_server=r["count_server"], received=r["received"], kept=r["kept"],
+                                             edge=r["edge"], bad_time=r["bad_time"]) for r in receipts],
+              ["profile", "window", "status", "count_server", "received", "kept", "edge", "bad_time"])
     # full-disk gaps on the native grid if epoch/step are documented
     sc = run.schemas()[FD]
     info = sc["primekeyinfo"].get(time_key(sc), {})
@@ -1366,13 +1376,20 @@ def analyze(run):
     for prof in PROFILES:
         qn = role_name(fmap, prof, "quality")
         recs = [r for r in load_records(run, prof, fmap) if r["edge"] == "0"]
-        dist = {}
+        dist, bits = {}, {}
         for r in recs:
+            yr = r["_t"].year if r["_t"] else "unknown"
             v, hx, st = parse_quality(r.get(qn)) if qn else (None, "", "not_exposed")
-            dist[(st, hx)] = dist.get((st, hx), 0) + 1
-        for (st, hx), n in sorted(dist.items()):
-            qrows.append(dict(profile=prof, status=st, quality_hex=hx, n=n))
-    write_csv(run.res / "QUALITY_SUMMARY.csv", qrows, ["profile", "status", "quality_hex", "n"])
+            dist[(yr, st, hx)] = dist.get((yr, st, hx), 0) + 1
+            if st == "ok":
+                for b in range(32):
+                    if (v & 0xFFFFFFFF) >> b & 1:
+                        bits[(yr, b)] = bits.get((yr, b), 0) + 1
+        for (yr, st, hx), n in sorted(dist.items(), key=str):
+            qrows.append(dict(profile=prof, year=yr, kind="value", status=st, quality_hex=hx, bit="", n=n))
+        for (yr, b), n in sorted(bits.items(), key=str):
+            qrows.append(dict(profile=prof, year=yr, kind="bit", status="ok", quality_hex="", bit=b, n=n))
+    write_csv(run.res / "QUALITY_SUMMARY.csv", qrows, ["profile", "year", "kind", "status", "quality_hex", "bit", "n"])
     # products 1/5 min (§5.3)
     prows = product_states(run, fmap, rules)
     write_csv(run.res / "PRODUCT_SUMMARY.csv", prows, ["level", "state", "reason", "n"])
@@ -1381,8 +1398,12 @@ def analyze(run):
     hm = [r for r in load_records(run, "hmi_overlap", fmap) if r["edge"] == "0" and r["_t"]]
     for r in sm:
         r["_geom"] = geom_of(r, fmap, "smarp_overlap")
+        tn = role_name(fmap, "smarp_overlap", "time_obs")
+        r["_tobs"] = r.get(tn) if tn else None
     for r in hm:
         r["_geom"] = geom_of(r, fmap, "hmi_overlap")
+        tn = role_name(fmap, "hmi_overlap", "time_obs")
+        r["_tobs"] = r.get(tn) if tn else None
     rows, states, comps = match_overlap([r for r in sm if OV0 <= r["_t"] < OV1], hm, fmap)
     with gzip.open(run.res / "OVERLAP_CANDIDATES.csv.gz", "wt", newline="") as f:
         cols = list(rows[0]) if rows else ["smarp_id"]
@@ -1962,6 +1983,14 @@ def selftest_end_to_end(ok):
             gaps = read_csv(run.res / "GAPS.csv")
             ok("e2e full-disk gaps on the native 96-min grid include the missing slot 2001-03-10 08:00",
                any(g_["start"] == "2001-03-10T08:00:00" and g_["slots"] == "1" for g_ in gaps), f"{len(gaps)} gap runs")
+            q = read_csv(run.res / "QUALITY_SUMMARY.csv")
+            ok("e2e quality per profile and year with value and bit rows; hex and decimal 0 normalised alike",
+               any(x["profile"] == "fd_min" and x["year"] == "2001" and x["quality_hex"] == "0x00000000" and x["n"] == "9"
+                   for x in q), f"{len(q)} rows")
+            cv = read_csv(run.res / "COVERAGE_MONTHLY.csv")
+            hm_ = [x for x in cv if x["profile"] == "hmi_overlap"]
+            ok("e2e coverage: missing values per requested field counted (HARP without WCS)",
+               hm_ and "CRPIX1" in hm_[0]["missing_by_field"] and read_csv(run.res / "WINDOWS.csv"), hm_[0]["missing_by_field"][:60])
             chk = read_csv(run.res / "CHECKS.csv")
             ok("e2e analysis checks all passed", all(c["passed"] == "True" for c in chk), f"{len(chk)} checks")
     finally:
