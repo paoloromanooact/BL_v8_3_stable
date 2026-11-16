@@ -127,3 +127,12 @@ un confronto a pari livello effettivo, e G mostra guadagni con falsi verdetti si
 **Esito consigliato da Codex: (ii)**, rinviare per ora lo sviluppo operativo di T5, con questi limiti espliciti.
 È una scelta di priorità: il quenching resta non conclusivo e non è dimostrato che T5 sia irrisolvibile con HMI;
 l'estensione MDI richiede ancora una valutazione del beneficio atteso. Decisione dell'utente da registrare.
+
+## 8. Decisione registrata (2026-11-16)
+
+**Esito (ii): rinvio operativo di T5**, su indicazione di Codex accolta dall'utente. Il percorso si chiude qui
+senza ulteriori tentativi: nessuna nuova griglia, nessuna variante di metodo, nessuna applicazione di T5 ai dati
+reali. Tutti i risultati, le ricevute e i controlli restano conservati invariati. Limiti espliciti del rinvio:
+T5 non è validato; il quenching resta non conclusivo; non è dimostrato che T5 sia irrisolvibile con HMI (stimatori
+o statistiche diversi dalla WLS non sono esplorati); il beneficio di un'estensione MDI non è quantificato. Una
+ripresa richiede una decisione esplicita fra un metodo diverso per HMI e l'estensione MDI, con un piano proprio.

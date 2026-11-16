@@ -96,8 +96,10 @@ generatori: M vicino al nominale dei falsi verdetti in 8 configurazioni su 9; ri
 al più ~19 % (scala 0,5), 8–11 % alla scala P2f; la forma dello scenario non cambia la potenza di M; O (varianza
 nota) non riconosce più di M; G e B riconoscono di più ma con falsi verdetti in eccesso in varie configurazioni
 (B fino al 12,2 %). La bassa frequenza persiste con la varianza vera della stessa WLS; stimatori diversi non
-esclusi, nessuna graduatoria fra metodi. Revisione di Codex recepita (§7 del rapporto); Codex consiglia l'esito
-(ii), rinvio dello sviluppo operativo di T5 con i limiti espliciti: decisione dell'utente da registrare. Raccoglitore MDI in attesa del via di Codex alla fase schema. Nessun push.
+esclusi, nessuna graduatoria fra metodi. Revisione di Codex recepita (§7 del rapporto); **Decisione registrata: esito
+(ii), rinvio operativo di T5** (§8 del rapporto), risultati conservati, percorso chiuso senza nuovi tentativi.
+Prossimo indicato da Codex: sintesi scientifica HMI (proxy, T3, stato descrittivo di T5, limiti morfologici);
+poi scelta fra un metodo diverso per HMI e l'estensione MDI (beneficio non quantificato). Raccoglitore MDI in attesa del via di Codex alla fase schema. Nessun push.
 
 ## Morfologia di S: bozza di piano — 2026-11-16
 

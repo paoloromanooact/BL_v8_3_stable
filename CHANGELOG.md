@@ -2,6 +2,8 @@
 
 ## v8.4 (Python, branch `v8.4-python-gianluca`) — in corso
 
+- 2026-11-16, T5: rinvio operativo registrato (esito ii del piano di potenza), risultati conservati; T5 non
+  validato, quenching non conclusivo.
 - 2026-11-16, T5 potenza: esecuzione unica completata e controllata (30/30); risultati descrittivi in
   `docs/T5_POWER_SENSITIVITY_RESULTS.md`; esito del piano da decidere con Codex.
 - 2026-11-16, MDI/SMARP: raccoglitore dell'inventario `scripts/mdi_smarp_inventory.py` secondo il piano
