@@ -99,7 +99,11 @@ obiettivo operativo da motivare; prima stima analitica, poi simulazioni; un guad
 esclude l'utilità di MDI per T3 o per il catalogo. MDI operativo (errore TLS da risolvere) e morfologia di S in
 pausa. Nessun push.
 
-**Bozza del piano prospettico**: `docs/PROSPECTIVE_INFORMATION_PLAN_DRAFT.md`, rev. 2 dopo la revisione di Codex
+**Piano prospettico CONGELATO come piano conservato, non avviato** (`docs/PROSPECTIVE_INFORMATION_PLAN.md`, rev. 4 dopo
+la revisione di `62661f2`: scarto di ciclo −1/0/+1 con HARP 7379, strati vuoti osservati conservati, emisferi mai
+uniti, β di T3-A come coefficiente di Joy comune, j sull'elenco finale; valori registrati m₂₃ 1996-08, massimi
+2014-04 e 2024-10, finestra analoga 2016-03 → 2021-02). Priorità attuale: dati reali MDI. Storia della bozza
+(`docs/PROSPECTIVE_INFORMATION_PLAN_DRAFT.md`, rev. 2 dopo la revisione di Codex
 della rev. 1 (`630e6dc`): T3 con matrice e varianza proprie, modelli (a) attuale / (b) protetto / (c) distorsione
 limitata con parametro dichiarato, generatore per ricampionamento congiunto di celle HMI, quantili HMI fissi,
 frequenze con il segno della distorsione, algoritmo univoco per la fase B. Rev. 3 dopo la revisione di `c4247d0`
