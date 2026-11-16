@@ -1,5 +1,17 @@
 # Cold restart — SHARP BL
 
+## MDI/SMARP: bozza del piano dell'inventario metadati — 2026-11-16
+
+Preparata `docs/MDI_SMARP_METADATA_INVENTORY_PLAN_DRAFT.md`, revisione 1 **non congelata**, su richiesta
+dell'utente. Nessuna query JSOC, nessuna acquisizione di metadati o mappe e nessun codice del raccoglitore.
+Definisce serie e periodi, fase schema con mappa dei campi da verificare prima dei record, copertura e
+qualità distinte dalle mappe recuperabili, origine MDI 1/5 minuti anche ignota, associazioni TARP–HARP
+candidate con ambiguità, tetti e controlli. Consultate soltanto documentazione locale e fonti pubbliche.
+Prossimo: revisione della bozza; congelamento solo dopo la revisione, poi codice/prove offline e revisione
+prima delle interrogazioni. HMI e T3/T5 invariati; nessun risultato della griglia T5 aperto da questo lavoro.
+MANIFEST.txt riallineato all'elenco dei file tracciati più la nuova bozza; include anche 24 voci preesistenti
+che mancavano nell'elenco, senza aprire o modificare quei file. Nessun push.
+
 ## MDI/SMARP: studio aggiornato dopo la seconda revisione — 2026-11-16
 
 `docs/MDI_SMARP_FEASIBILITY.md` aggiornato (§8): codice dei cicli oltre la sola fase e segno (`samples()`,

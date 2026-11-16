@@ -2,6 +2,11 @@
 
 ## v8.4 (Python, branch `v8.4-python-gianluca`) — in corso
 
+- 2026-11-16, MDI/SMARP: bozza non congelata del piano dell'inventario limitato dei metadati
+  (`docs/MDI_SMARP_METADATA_INVENTORY_PLAN_DRAFT.md`): schema e mappa dei campi prima dei record,
+  copertura/qualità/prodotti MDI e associazioni candidate nella sovrapposizione; tetti operativi,
+  provenienza e controlli. Nessuna query JSOC, download o modifica scientifica. MANIFEST riallineato,
+  comprese 24 voci tracciate preesistenti mancanti; nessun risultato T5 letto.
 - 2026-11-16, T5 potenza dopo A2 (`6024237`): script `f19cf15`; selftest 67/67, nuova porta 40/40, benchmark
   T̂ ≈ 2,57 h (36 unità, nessun errore né caso di confine); supplemento diagnostico descrittivo; griglia non avviata.
 - 2026-11-16, T5 potenza: emendamento A1 (`8dc6d48`), script `b769892`; selftest 53/53 superato; porta di
