@@ -1,0 +1,54 @@
+check,passed,value
+"1 seeds: base, bootstrap, benchmark and selftest unique, disjoint from used ranges, expected ranges",True,"{""grid_base"": [31000000, 31800999], ""grid_boot"": [32000000, 32800999], ""bench_base"": [33000000, 33000035], ""bench_boot"": [33100000, 33100035], ""self_base"": [33000050, 33000099], ""self_boot"": [33100050, 33100099]}; clashes 0"
+"inputs: SHA-256 of plan, A1, CELLS.csv, SUMMARY.csv; e_L = e_ref; Delta_beta = plan value",True,
+"registered specs: original scenarios 1, 2, 7 unchanged; ps<n> = original + x_scale",True,
+"2a mapping: CELLS.csv A_cell and W_c equal run_p2.cells and the T5 units (318 cells, same order)",True,"max|dA| 5.551e-17, max rel dW 0.000e+00"
+2a linear mean: V.cell_mean_activity - 1 equals the T5 activity column on the 2375 T5 records,True,"2375 records, max|d| 6.661e-16"
+2a S1 without noise: eta_c = eta_bar + Delta_eta_c on 318 cells (|d| <= 1e-12 eta_bar),True,max|d| 1.378e-40 G/Mx
+2a g . Delta_eta_S1 / eta_bar = e_L1 (|d| <= 1e-12),True,-0.051494066951105075 vs -0.051494066951105075
+2a S2 without noise: eta_c = eta_bar + Delta_eta_c on 318 cells (|d| <= 1e-12 eta_bar),True,max|d| 1.837e-40 G/Mx
+2a g . Delta_eta_S2 / eta_bar = e_L2 (|d| <= 1e-12),True,-0.10305075387820256 vs -0.10305075387820256
+2a L1 without noise: eta_c = eta_bar (1 + e_L (A_c - 1)) (|d| <= 1e-12 eta_bar),True,max|d| 1.378e-40 G/Mx
+2a g . (eta_bar e_L1 (A - 1)) / eta_bar = e_L1 (|d| <= 1e-12),True,-0.05149406695110506
+2a L2 without noise: eta_c = eta_bar (1 + e_L (A_c - 1)) (|d| <= 1e-12 eta_bar),True,max|d| 1.378e-40 G/Mx
+2a g . (eta_bar e_L2 (A - 1)) / eta_bar = e_L2 (|d| <= 1e-12),True,-0.10305075387820255
+2a g . 1 = 0 and g . (A - 1) = 1 (|d| <= 1e-12),True,"3.157e-16, 2.220e-16"
+2 noise: configuration 1 (x_scale 1) bit-identical to V.responses scenario 1,True,
+2 noise: configuration 4 (x_scale 1) bit-identical to V.responses scenario 2,True,
+2 noise: configuration 7 (x_scale 1) bit-identical to V.responses scenario 7,True,
+"2 noise: ar1_05 temporal part scales with x_scale (f(2)-f(1) = 2(f(1)-f(0.5)), |d| <= 1e-12)",True,"max|d| 2.665e-15, max|f(1)-f(0.5)| 9.240e-01"
+"2 noise: ar1_09 temporal part scales with x_scale (f(2)-f(1) = 2(f(1)-f(0.5)), |d| <= 1e-12)",True,"max|d| 3.109e-15, max|f(1)-f(0.5)| 7.589e-01"
+"2 noise: steps20 temporal part scales with x_scale (f(2)-f(1) = 2(f(1)-f(0.5)), |d| <= 1e-12)",True,"max|d| 1.776e-15, max|f(1)-f(0.5)| 2.500e-01"
+2e L with e = -0.1 equals V.responses beta_frac = -0.1 (scenario 1): eta_c and beta_WLS,True,"max|d eta_c| 1.837e-40, |d beta| 0.000e+00 (tau 4.560e-38)"
+2e L with e = -0.1 equals V.responses beta_frac = -0.1 (scenario 2): eta_c and beta_WLS,True,"max|d eta_c| 1.837e-40, |d beta| 1.148e-41 (tau 4.560e-38)"
+2e L with e = -0.1 equals V.responses beta_frac = -0.1 (scenario 7): eta_c and beta_WLS,True,"max|d eta_c| 2.755e-40, |d beta| 5.740e-42 (tau 4.560e-38)"
+"2d with noise (9 units, one per configuration): beta_WLS(L) = beta_WLS(S) and signal - N = Delta_beta within tau_beta; O SE within 1e-12 rel.; O verdicts equal or boundary",True,"worst dev/tau {""dev_wls_L1_over_tau"": 0.00243, ""dev_wls_L2_over_tau"": 0.000492, ""dev_wls_S1_over_tau"": 0.00081, ""dev_wls_S2_over_tau"": 0.000984, ""dev_wls_L1S1_over_tau"": 0.00243, ""dev_wls_L2S2_over_tau"": 0.000984}; boundary cases 0"
+"3 G reuses M: individual variance rebuilt from var_a, var_b reproduces M's SE (rel <= 1e-12)",True,max rel 0.000e+00
+"3 G hand example: OLS 0.5, WLS = GLS(diag(1/w)) = 100/167",True,"OLS 0.5, GLS 0.5988023952095813, WLS 0.5988023952095818"
+3 G synthetic known V: equals the explicit GLS solution and variance (rel <= 1e-10),True,-3.12917489262736 vs -3.12917489262736
+3 G on the T5 design: V = sigma^2 diag(1/W_c) returns the WLS slope g . eta (rel <= 1e-10),True,-3.138039384181815e-26 vs -3.138039384181805e-26
+"4 B adapter: units, statistic, p_low, p_high, clusters and verdict identical to P.test_units on 10 catalogues",True,"clusters 16,16,16,16,16,16,16,16,16,16"
+4 B clusters: blocks of 13 CR from the first T5 CR 2097,True,"first CR 2097, 16 blocks"
+"5 O reproduces A3 of T5-D2: 5 null catalogues of scenario 7 (plus 5 each of scenarios 1, 2), SE rel <= 1e-9",True,max rel 0.000e+00
+"5 O steps20 x_scale 0.5: K = K_steps(L=20, independent hemispheres), scale (0.5 eta x_scale)^2",True,sx2 7.921e-51
+"5 O steps20 x_scale 1.0: K = K_steps(L=20, independent hemispheres), scale (0.5 eta x_scale)^2",True,sx2 3.1684e-50
+"5 O steps20 x_scale 2.0: K = K_steps(L=20, independent hemispheres), scale (0.5 eta x_scale)^2",True,sx2 1.26736e-49
+5 O ar1_05: K = AR(1) of the P2f scenario 1,True,
+5 O ar1_09: K = AR(1) of the P2f scenario 2,True,
+guard: failed git command raises,True,
+guard: empty or non-hex HEAD rejected,True,
+guard: git failure refuses to start,True,
+guard: dirty tree refuses to start,True,
+guard: non-finite rejected,True,
+"guard: META with NaN written, outcome becomes non riuscito",True,
+guard: existing output directory never overwritten,True,
+A1: identical O responses -> no boundary case,True,
+A1: verdicts differ with hi within tau_v of zero -> boundary case recorded,True,"{'verdict_L': 'supportato', 'verdict_S': 'non deciso', 'endpoint': 'hi', 'lo_L':"
+A1: verdicts differ far from zero -> technical error,True,
+A1: supportato vs opposto -> technical error,True,
+A1: beta beyond tau_beta -> technical error,True,
+A1: SE beyond 1e-12 rel -> technical error,True,
+"A1: unit identities pass on consistent input, fail on a 5 tau_beta shift",True,
+"work: an exception inside the unit is recorded as technical (type, message, traceback)",True,AttributeError
+duration: T_hat = (1000/12) * sum of 9 tbar; 9 x 1 s -> 750 s; wrong length rejected,True,
+"summaries: hand counts (2/4 supportato), paired b = c = 1, delta 0, se sqrt(2/12)",True,se 0.408248

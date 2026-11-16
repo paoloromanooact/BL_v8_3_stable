@@ -1,0 +1,25 @@
+{
+  "mode": "selftest",
+  "plan_points": "\u00a76 points 1-5, A1 \u00a71",
+  "outcome": "superato",
+  "git_commit": "b769892ffdd60a171491c0878a3c04ab946255c7",
+  "git_dirty": 0,
+  "sha256_plan": "fac76b1ab60d0aba003bd3c895d03d2ecf9e894281a3465c175549b8d41a3fcd",
+  "sha256_A1": "603237898eed6b45b3102e1b7fdcf247fe2dfa8990107be7812095e9c6dab262",
+  "sha256_script": "88df7231adcde408d81adf5cd8055da34917fe6200b4a11b6c2310dc5342a617",
+  "sha256_proxy_CELLS": "0c899647f3119501f7397364573fbe6ed57fa82243b1f44a523b01e1d0628f02",
+  "sha256_proxy_SUMMARY": "88a291100b9d68a0225f7dc77bcaf6c0bbabd2193424c23e8aa905ae2b055e30",
+  "env": {
+    "python": "3.10.12",
+    "numpy": "2.2.6",
+    "pandas": "2.3.3",
+    "OMP_NUM_THREADS": "1"
+  },
+  "design_equals_P2F_design_pkl": true,
+  "design_rows": 2485,
+  "design_hash": "2251762618663518294",
+  "n_checks": 53,
+  "n_passed": 53,
+  "passed": true,
+  "duration_s": 61.44296598434448
+}
