@@ -1,0 +1,22 @@
+{
+  "chronology_evidence": "local Git order; not an externally timestamped preregistration",
+  "computations_performed": false,
+  "current_priority": "real MDI data: metadata inventory (JSOC access) and overlap sample",
+  "freeze_commit": "71c7d179b2161b49c1f4c1c7c1d1c3f91d303037",
+  "launch_requires": "explicit user decision",
+  "plan_file": "docs/PROSPECTIVE_INFORMATION_PLAN.md",
+  "plan_sha256": "c92be19b5ccbbe2bfe0770046b72ba8f8ae16cd36fb386996530a1a02939dc5f",
+  "recorded_at_utc": "2026-11-16T15:33:30.396443+00:00",
+  "registered_values": {
+    "e1_analogue_window": "2016-03 -> 2021-02",
+    "m23": "1996-08",
+    "max_cycle24": "2014-04",
+    "max_cycle25": "2024-10"
+  },
+  "reviewed_revisions": [
+    "630e6dc (rev 1)",
+    "c4247d0 (rev 2)",
+    "62661f2 (rev 3)"
+  ],
+  "status": "frozen_as_conserved_plan_not_launched"
+}
