@@ -2,6 +2,8 @@
 
 ## v8.4 (Python, branch `v8.4-python-gianluca`) — in corso
 
+- 2026-11-16, MDI/SMARP: raccoglitore dell'inventario `scripts/mdi_smarp_inventory.py` secondo il piano
+  congelato (`9269c10`); prove offline con un finto JSOC locale e un catalogo sintetico; nessuna query.
 - 2026-11-16, congelato il piano dell'inventario MDI/SMARP dopo la verifica esterna di `c70e91d`
   e tre precisazioni: tetti motivati, origini WCS esplicite, arresto per budget anche nel caso peggiore
   dei retry. File senza `_DRAFT`; SHA-256/commit in ricevuta separata dopo il commit del piano.
