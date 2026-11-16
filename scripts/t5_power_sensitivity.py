@@ -1,11 +1,12 @@
 """T5: sensitivity of power to signal shape, temporal noise and method on the fixed HMI design.
 
-Plan docs/T5_POWER_SENSITIVITY_PLAN.md (frozen in 4b67632, SHA-256 fac76b1a...) and amendment A1
-docs/T5_POWER_SENSITIVITY_PLAN_A1.md (8dc6d48, SHA-256 60323789...). Not a validation: synthetic catalogues
+Plan docs/T5_POWER_SENSITIVITY_PLAN.md (frozen in 4b67632, SHA-256 fac76b1a...), amendment A1
+docs/T5_POWER_SENSITIVITY_PLAN_A1.md (8dc6d48, SHA-256 60323789...) and amendment A2
+docs/T5_POWER_SENSITIVITY_PLAN_A2.md (6024237, SHA-256 df4912c0..., after the failed gate of b769892). Not a validation: synthetic catalogues
 only, no real T5 slope, no verdict on quenching. Not blind.
 
     OMP_NUM_THREADS=1 .venv/bin/python scripts/t5_power_sensitivity.py --selftest    # plan §6 points 1-5 + A1 §1
-    OMP_NUM_THREADS=1 .venv/bin/python scripts/t5_power_sensitivity.py --gate        # plan §6 point 6
+    OMP_NUM_THREADS=1 .venv/bin/python scripts/t5_power_sensitivity.py --gate        # A2 §1a (replaces plan §6.6)
     OMP_NUM_THREADS=1 .venv/bin/python scripts/t5_power_sensitivity.py --benchmark   # plan §3e/§6.7 + A1 §2
     OMP_NUM_THREADS=1 .venv/bin/python scripts/t5_power_sensitivity.py --run         # single run (after review)
 
@@ -22,7 +23,13 @@ Implementation choices (not new decision rules; listed for the review):
   diagonal element of (X' V^-1 X)^-1. A Cholesky failure of V_hat is an expected error of G.
 - O failures and any exception other than the expected procedure errors are technical errors.
 - Preliminary receipts are written under results/T5_POWER_SENSITIVITY_PRELIM/<MODE>_<commit12>/ and never
-  overwritten; --run refuses unless selftest, gate and benchmark receipts exist for the same script SHA-256.
+  overwritten. A2 §3: a receipt counts only with an explicit positive outcome and the same binding (SHA-256 of
+  script, plan, A1, A2, every imported python/sharpbl module and every input; design fingerprint; environment);
+  --benchmark refuses without selftest and gate receipts, --run without all three.
+- A2 §1b: each unit also checks, per T5 record, z(signal) - z(N) = added mean and the within-cell residuals used by
+  M (V.cell_residuals) equal to those of N, within 1e-12 eta_bar; violations are technical errors.
+- A2 §3.4: every row declared 'ok' is validated centrally (finite values, SE > 0, p-values in (0, 1], clusters
+  >= 2, verdict consistent); an invalid 'ok' row is a technical error.
 """
 from __future__ import annotations
 
@@ -54,6 +61,10 @@ PLAN = ROOT / "docs/T5_POWER_SENSITIVITY_PLAN.md"
 AMEND = ROOT / "docs/T5_POWER_SENSITIVITY_PLAN_A1.md"
 SHA_PLAN = "fac76b1ab60d0aba003bd3c895d03d2ecf9e894281a3465c175549b8d41a3fcd"
 SHA_A1 = "603237898eed6b45b3102e1b7fdcf247fe2dfa8990107be7812095e9c6dab262"
+AMEND2 = ROOT / "docs/T5_POWER_SENSITIVITY_PLAN_A2.md"
+SHA_A2 = "df4912c0f351a4a6d6d1e224e6dfb00c866265ec2f749cc99790d9d57a28e857"
+CATALOGUE = ROOT / "results/P1/P1_SBL_CATALOG_BY_HARP.csv"     # read by P.build_design
+SILSO = run_p2.SILSO                                              # read by run_p2.load_silso
 CELLS = ROOT / "results/T5_PROXY_SENSITIVITY/CELLS.csv"
 SUMMARY_PROXY = ROOT / "results/T5_PROXY_SENSITIVITY/SUMMARY.csv"
 SHA_CELLS = "0c899647f3119501f7397364573fbe6ed57fa82243b1f44a523b01e1d0628f02"
@@ -89,7 +100,7 @@ ABS_SLOPE = 1e-38            # G/Mx
 TOL_CELL = 1e-12 * ETA       # G/Mx, cell level
 TOL_DIMLESS = 1e-12
 TOL_SE_O = 1e-12             # relative
-GATE_RTOL = 1e-9             # plan §6.6
+GATE_RTOL = 1e-9             # plan §6.6, unchanged by A2 §1a
 O_RTOL = 1e-9                # plan §6.5
 
 
@@ -221,7 +232,8 @@ def write_meta(path, meta):
 
 def check_inputs():
     """Hashes of plan, A1 and the proxy outputs; e_L and Delta_beta against the stored representation."""
-    for p, h in ((PLAN, SHA_PLAN), (AMEND, SHA_A1), (CELLS, SHA_CELLS), (SUMMARY_PROXY, SHA_SUMMARY_PROXY)):
+    for p, h in ((PLAN, SHA_PLAN), (AMEND, SHA_A1), (AMEND2, SHA_A2), (CELLS, SHA_CELLS),
+                 (SUMMARY_PROXY, SHA_SUMMARY_PROXY), (VALIDATION_RAW, SHA_VALIDATION_RAW), (ORACLE_RAW, SHA_ORACLE_RAW)):
         if sha(p) != h:
             raise TechnicalError(f"SHA-256 of {p.relative_to(ROOT)} differs from the frozen value")
     sm = pd.read_csv(SUMMARY_PROXY, float_precision="round_trip")
@@ -296,6 +308,12 @@ class Statics:
             self.add[s] = self.phi * d
         for s, a in self.add.items():
             require_finite(f"added mean {s}", a)
+        # A2 §1b: T5 records in design order, their cell and the added mean on z_i = d*_i / Phi_i
+        self.t5 = self.rec_cell >= 0
+        if not (np.array_equal(u0["k_of_i"], self.rec_cell[self.t5])
+                and np.array_equal(u0["phi"], self.phi[self.t5])):
+            raise TechnicalError("T5 records do not follow the design order (k_of_i or Phi differ)")
+        self.dz = {s: self.add[s][self.t5] / self.phi[self.t5] for s in SIGNALS}
 
     def linear(self, e):
         """Linear mean with an arbitrary e (used only by selftest and gate)."""
@@ -310,8 +328,23 @@ def build_units(st, base, add):
         raise TechnicalError(f"T5 units {u['n_check']}")
     if not (np.array_equal(u["cell_cr"], st.cell_cr) and np.array_equal(np.asarray(u["cell_hem"]), st.cell_hem)):
         raise TechnicalError("T5 cells differ from the reference cells")
-    require_finite("T5 units", u["eta_c"], u["W_c"], u["Xf_c"], u["g"], [u["beta"]])
+    if not (np.array_equal(u["k_of_i"], st.u0["k_of_i"]) and np.array_equal(u["phi"], st.u0["phi"])
+            and np.array_equal(u["agg"], st.u0["agg"])):
+        raise TechnicalError("T5 record map, Phi or aggregation weights differ from the reference design")
+    require_finite("T5 units", u["eta_c"], u["W_c"], u["Xf_c"], u["g"], [u["beta"]], u["y"])
     return u, dd
+
+
+def record_check(yN, eN, hN, y, e, h, dz, tol=TOL_CELL):
+    """A2 §1b: z(signal) - z(N) = added mean per record, within-cell residuals and leverages of M unchanged.
+    Returns (max|d z|, max|d e|); raises TechnicalError beyond tol (G/Mx) or if the leverages differ."""
+    dzv = float(np.max(np.abs((y - yN) - dz)))
+    dev = float(np.max(np.abs(e - eN)))
+    if not np.array_equal(h, hN):
+        raise TechnicalError("within-cell leverages differ between signal and N")
+    if not (dzv <= tol and dev <= tol):
+        raise TechnicalError(f"record identities violated: max|dz| {dzv!r}, max|de| {dev!r} (tol {tol!r})")
+    return dzv, dev
 
 
 # ---------------------------------------------------------------- methods (plan §3c)
@@ -394,6 +427,36 @@ def method_o(u, n):
     beta = u["beta"]
     lo, hi = beta - Z * se, beta + Z * se
     return dict(beta=beta, se=se, stat=beta / se, lo=lo, hi=hi, verdict=verdict_interval(lo, hi))
+
+
+def validate_row(row):
+    """A2 §3.4: a row declared 'ok' must be a valid result; otherwise TechnicalError (never a success)."""
+    if row["state"] != "ok":
+        if row.get("verdict") != "errore" or not row.get("reason"):
+            raise TechnicalError(f"{row['method']}: error row without verdict 'errore' or reason")
+        return
+    m = row["method"]
+    fin = lambda *k: all(isinstance(row.get(x), (int, float, np.floating, np.integer)) and math.isfinite(row[x])  # noqa: E731
+                         for x in k)
+    if not fin("beta_wls", "beta", "stat"):
+        raise TechnicalError(f"{m}: non-finite beta or statistic in an 'ok' row")
+    if m in ("M", "G", "O"):
+        if not (fin("se", "lo", "hi") and row["se"] > 0 and row["lo"] <= row["hi"]):
+            raise TechnicalError(f"{m}: invalid SE or interval in an 'ok' row")
+        if row["verdict"] != verdict_interval(row["lo"], row["hi"]):
+            raise TechnicalError(f"{m}: verdict inconsistent with the interval")
+        if m == "M" and row["beta"] != row["beta_wls"]:
+            raise TechnicalError("M: beta differs from beta_WLS")
+    elif m == "B":
+        if not (fin("p_low", "p_high") and 0 < row["p_low"] <= 1 and 0 < row["p_high"] <= 1):
+            raise TechnicalError("B: p-values not finite or outside (0, 1]")
+        nc = row.get("n_cluster")
+        if not (isinstance(nc, (int, np.integer)) and nc >= 2):
+            raise TechnicalError("B: number of clusters not an integer >= 2")
+        if row["verdict"] != P.verdict_b(dict(p_low=row["p_low"], p_high=row["p_high"])):
+            raise TechnicalError("B: verdict inconsistent with P.verdict_b")
+    else:
+        raise TechnicalError(f"unknown method {m!r}")
 
 
 M_EXTRA = ("var_a", "var_b", "n_varfun", "n_zero_residuals", "phi", "kappa", "sigma_x2", "n_valid_starts",
@@ -512,11 +575,20 @@ def unit(n, k, seed, boot, st=None):
     st = st or _ST
     base = noise_catalogue(st.design, n, seed)
     require_finite("noise catalogue", base["d_star"].to_numpy())
-    res = {}
+    res, rec = {}, {}
     for sig in SIGNALS:
         u, _ = build_units(st, base, st.add[sig])
+        e, h = V.cell_residuals(u)
+        if sig == "N":
+            yN, eN, hN = u["y"], e, h
+        rec[sig] = record_check(yN, eN, hN, u["y"], e, h, st.dz[sig])
         res[sig] = analyse(u, n, sig, boot)
+        for row in res[sig].values():
+            validate_row(row)
     bounds, diag = unit_identities(res)
+    for sig in SIGNALS[1:]:
+        diag[f"max_dz_{sig}_over_tol"] = rec[sig][0] / TOL_CELL
+        diag[f"max_de_{sig}_over_tol"] = rec[sig][1] / TOL_CELL
     form, s, xs = NOISE[n]
     rows = []
     for sig in SIGNALS:
@@ -600,6 +672,32 @@ def summarize(raw):
     return summ
 
 
+def paired_se(b, c, N):
+    """T5-D2 §6.5: SE of the mean of D_i = event_2,i - event_1,i, i.e. sqrt((b + c - (c - b)^2/N) / (N(N - 1)))."""
+    return math.sqrt((b + c - (c - b) ** 2 / N) / (N * (N - 1))) if N > 1 else np.nan
+
+
+def paired_methods(raw):
+    """Plan §4, A2 §3.3: paired differences between methods on the same responses, errors included in N.
+    Event 'supportato' for every signal; under N also the false verdict ('supportato' or 'opposto')."""
+    from itertools import combinations
+    out = []
+    v = raw.set_index(["n", "k", "signal", "method"])["verdict"].unstack("method")
+    for (n, sig), g in v.groupby(level=[0, 2]):
+        events = [("supportato", lambda x: x == "supportato")]
+        if sig == "N":
+            events.append(("falso verdetto", lambda x: x.isin(["supportato", "opposto"])))
+        for name, ev in events:
+            for a, b in combinations(METHODS, 2):
+                pair = g[[a, b]].dropna()
+                N = len(pair)
+                ea, eb = ev(pair[a]), ev(pair[b])
+                bb, cc = int((ea & ~eb).sum()), int((eb & ~ea).sum())
+                out.append(dict(n=n, signal=sig, event=name, method_1=a, method_2=b, N=N, b_only_1=bb, c_only_2=cc,
+                                delta_2_minus_1=(cc - bb) / N if N else np.nan, se_paired=paired_se(bb, cc, N)))
+    return pd.DataFrame(out)
+
+
 def paired_ls(raw):
     """Plan §5.1: paired difference of 'supportato' between S and L on the same noise (T5-D2 §6.5 formula)."""
     out = []
@@ -612,7 +710,7 @@ def paired_ls(raw):
             eL, eS = g["L"] == "supportato", g["S"] == "supportato"
             N = len(g)
             bb, cc = int((eL & ~eS).sum()), int((eS & ~eL).sum())
-            se = math.sqrt((bb + cc - (cc - bb) ** 2 / N) / (N * (N - 1))) if N > 1 else np.nan
+            se = paired_se(bb, cc, N)
             out.append(dict(n=n, method=m, pair=f"{S}-{L}", N=N, b_only_L=bb, c_only_S=cc, delta=(cc - bb) / N,
                             se_paired=se))
     return pd.DataFrame(out)
@@ -620,11 +718,61 @@ def paired_ls(raw):
 
 # ---------------------------------------------------------------- provenance helpers
 
-def provenance(git_fn=git):
-    return dict(git_commit=head_commit(git_fn), git_dirty=0, sha256_plan=sha(PLAN), sha256_A1=sha(AMEND),
-                sha256_script=sha(__file__), sha256_proxy_CELLS=sha(CELLS), sha256_proxy_SUMMARY=sha(SUMMARY_PROXY),
-                env=dict(python=platform.python_version(), numpy=np.__version__, pandas=pd.__version__,
-                         OMP_NUM_THREADS=os.environ.get("OMP_NUM_THREADS")))
+def sharpbl_modules():
+    """SHA-256 of every imported module from python/sharpbl (A2 §3.2)."""
+    base = (ROOT / "python/sharpbl").resolve()
+    out = {}
+    for name, mod in sorted(sys.modules.items()):
+        f = getattr(mod, "__file__", None)
+        if f and Path(f).resolve().is_relative_to(base):
+            out[name] = sha(f)
+    if not {"sharpbl.p2f_validation", "sharpbl.p2f_pilot", "sharpbl.p2d", "sharpbl.run_p2",
+            "sharpbl.diag_t5_oracle"} <= set(out):
+        raise TechnicalError("scientific modules missing from the binding")
+    return out
+
+
+def environment():
+    import scipy
+    return dict(python=platform.python_version(), numpy=np.__version__, scipy=scipy.__version__,
+                pandas=pd.__version__, OMP_NUM_THREADS=os.environ.get("OMP_NUM_THREADS"))
+
+
+def binding(design_fp):
+    """A2 §3.2: everything a receipt is bound to (no commit: receipts are committed after they are written)."""
+    return dict(sha256_script=sha(__file__), sha256_plan=sha(PLAN), sha256_A1=sha(AMEND), sha256_A2=sha(AMEND2),
+                modules=sharpbl_modules(),
+                inputs={str(p.relative_to(ROOT)): sha(p) for p in (CELLS, SUMMARY_PROXY, VALIDATION_RAW, ORACLE_RAW,
+                                                                    CATALOGUE, SILSO)},
+                design_fingerprint=design_fp, env=environment())
+
+
+def provenance(design_fp, git_fn=git):
+    b = binding(design_fp)
+    return dict(git_commit=head_commit(git_fn), git_dirty=0, sha256_plan=b["sha256_plan"], sha256_A1=b["sha256_A1"],
+                sha256_A2=b["sha256_A2"], sha256_script=b["sha256_script"], binding=b)
+
+
+POSITIVE = {"SELFTEST": lambda m: m.get("outcome") == "superato" and m.get("passed") is True,
+            "GATE": lambda m: m.get("outcome") == "superata",
+            "BENCHMARK": lambda m: (m.get("outcome") == "eseguito: entro il limite" and m.get("within_limit") is True
+                                    and m.get("n_technical") == 0)}
+META_NAME = {"SELFTEST": "SELFTEST_META.json", "GATE": "GATE_META.json", "BENCHMARK": "BENCHMARK_META.json"}
+
+
+def prelim_receipts(bind, modes, base=None):
+    """A2 §3.1-3.2: positive receipts with the same binding; returns {mode: path} for the modes found."""
+    base = Path(base) if base is not None else PRELIM
+    found = {}
+    for mode in modes:
+        for p in sorted(base.glob(f"{mode}_*/{META_NAME[mode]}")):
+            try:
+                m = json.loads(p.read_text())
+            except (OSError, ValueError):
+                continue
+            if m.get("git_dirty") == 0 and m.get("binding") == bind and POSITIVE[mode](m):
+                found[mode] = str(p)
+    return found
 
 
 def guard_start(git_fn=git):
@@ -652,7 +800,7 @@ def load_design():
     else:
         info["design_equals_P2F_design_pkl"] = "file locale assente"
     info["design_rows"] = len(d)
-    info["design_hash"] = str(int(pd.util.hash_pandas_object(d, index=True).sum() % (2 ** 63)))
+    info["design_fingerprint"] = __import__("hashlib").sha256(d.to_csv(index=True).encode()).hexdigest()
     return d, info
 
 
@@ -671,9 +819,11 @@ def selftest_checks(st, ok):
     # inputs
     try:
         check_inputs()
-        ok("inputs: SHA-256 of plan, A1, CELLS.csv, SUMMARY.csv; e_L = e_ref; Delta_beta = plan value", True, "")
+        ok("inputs: SHA-256 of plan, A1, A2, CELLS.csv, SUMMARY.csv, VALIDATION_RAW, ORACLE_RAW; e_L = e_ref; "
+           "Delta_beta = plan value", True, "")
     except TechnicalError as exc:
-        ok("inputs: SHA-256 of plan, A1, CELLS.csv, SUMMARY.csv; e_L = e_ref; Delta_beta = plan value", False, str(exc))
+        ok("inputs: SHA-256 of plan, A1, A2, CELLS.csv, SUMMARY.csv, VALIDATION_RAW, ORACLE_RAW; e_L = e_ref; "
+           "Delta_beta = plan value", False, str(exc))
     ok("registered specs: original scenarios 1, 2, 7 unchanged; ps<n> = original + x_scale",
        all(V.SCENARIOS[s] == ORIGINAL_SPECS[s] for s in (1, 2, 7))
        and all(V.SCENARIOS[f"ps{n}"] == dict(ORIGINAL_SPECS[s], x_scale=xs) for n, (_, s, xs) in enumerate(NOISE)), "")
@@ -740,6 +890,20 @@ def selftest_checks(st, ok):
         ok(f"2e L with e = -0.1 equals V.responses beta_frac = -0.1 (scenario {s}): eta_c and beta_WLS",
            d <= TOL_CELL and abs(u["beta"] - uv["beta"]) <= tb,
            f"max|d eta_c| {d:.3e}, |d beta| {abs(u['beta'] - uv['beta']):.3e} (tau {tb:.3e})")
+    # 2f (A2 §1b): individual responses used by M, injection path vs original P2f path
+    for j, (n, s) in enumerate(((1, 1), (4, 2), (7, 7))):
+        sd = seed_self(20 + j)
+        u, _ = build_units(st, noise_catalogue(design, n, sd), st.linear(-0.1))
+        uv = V.units(V.responses(design, s, np.random.default_rng(sd), -0.1), "T5")
+        dy = float(np.max(np.abs(u["y"] - uv["y"])))
+        e1, h1 = V.cell_residuals(u)
+        e2, h2 = V.cell_residuals(uv)
+        de = float(np.max(np.abs(e1 - e2)))
+        same = all(np.array_equal(u[k], uv[k]) for k in ("phi", "agg", "k_of_i")) and np.array_equal(h1, h2)
+        ok(f"2f individual responses (scenario {s}, L e = -0.1): z_i and within-cell residuals of the injection path "
+           "equal the P2f path (|d| <= 1e-12 eta_bar); Phi, aggregation weights, record map, leverages identical",
+           len(u["y"]) == 2375 and dy <= TOL_CELL and de <= TOL_CELL and same,
+           f"max|dz| {dy:.3e}, max|de| {de:.3e} G/Mx")
     # 2d + whole unit with noise, one per configuration: identities, G reuse, B, O
     worst, nb, gre, units_ok = {}, 0, 0.0, True
     for n in range(9):
@@ -763,7 +927,8 @@ def selftest_checks(st, ok):
         except ExpectedError:
             pass
     ok("2d with noise (9 units, one per configuration): beta_WLS(L) = beta_WLS(S) and signal - N = Delta_beta "
-       "within tau_beta; O SE within 1e-12 rel.; O verdicts equal or boundary", units_ok,
+       "within tau_beta; O SE within 1e-12 rel.; O verdicts equal or boundary; per record z(signal) - z(N) = added "
+       "mean and within-cell residuals of N (A2 §1b); every 'ok' row valid (A2 §3.4)", units_ok,
        f"worst dev/tau {json.dumps({k: float(f'{v:.3g}') for k, v in worst.items()})}; boundary cases {nb}")
     ok("3 G reuses M: individual variance rebuilt from var_a, var_b reproduces M's SE (rel <= 1e-12)",
        gre <= 1e-12, f"max rel {gre:.3e}")
@@ -921,6 +1086,91 @@ def regression_checks(ok):
     ok("summaries: hand counts (2/4 supportato), paired b = c = 1, delta 0, se sqrt(2/12)",
        s0["n_supportato"] == 2 and s0["N"] == 4 and r0["b_only_L"] == 1 and r0["c_only_S"] == 1
        and r0["delta"] == 0 and abs(r0["se_paired"] - ref_se) < 1e-15, f"se {r0['se_paired']:.6f}")
+    pm = paired_methods(raw)
+    q = pm[(pm["signal"] == "L1") & (pm["method_1"] == "M") & (pm["method_2"] == "G")].iloc[0]
+    ok("A2 §3.3 paired method differences: one row per signal x event x 6 method pairs; equal verdicts give 0",
+       len(pm) == 2 * 6 and q["N"] == 4 and q["b_only_1"] == 0 and q["c_only_2"] == 0 and q["delta_2_minus_1"] == 0,
+       f"{len(pm)} rows")
+    raw2 = raw.copy()
+    raw2.loc[(raw2["signal"] == "L1") & (raw2["method"] == "G") & (raw2["k"] == 3), "verdict"] = "supportato"
+    q2 = paired_methods(raw2)
+    q2 = q2[(q2["signal"] == "L1") & (q2["method_1"] == "M") & (q2["method_2"] == "G")].iloc[0]
+    ok("A2 §3.3 paired method differences: one discordant replica gives c = 1, delta 1/4, se sqrt((1 - 1/4)/12)",
+       q2["c_only_2"] == 1 and q2["delta_2_minus_1"] == 0.25 and abs(q2["se_paired"] - math.sqrt(0.75 / 12)) < 1e-15, "")
+    # A2 §3.4 central validity
+    good_b = dict(method="B", state="ok", beta_wls=-1e-26, beta=-1e-26, stat=-1.0, p_low=0.2, p_high=0.8,
+                  n_cluster=16, verdict="non deciso", reason="n/a")
+    good_m = dict(method="M", state="ok", beta_wls=-1e-26, beta=-1e-26, stat=-0.5, se=2e-26, lo=-1e-26 - Z * 2e-26,
+                  hi=-1e-26 + Z * 2e-26, verdict="non deciso")
+    ok("A2 §3.4 valid 'ok' rows of B and M accepted", not _raises(lambda: validate_row(good_b))
+       and not _raises(lambda: validate_row(good_m)), "")
+    ok("A2 §3.4 B 'ok' with non-finite statistic and p-values -> technical error",
+       _raises(lambda: validate_row(dict(good_b, stat=np.nan, p_low=np.nan, p_high=np.nan)), TechnicalError), "")
+    ok("A2 §3.4 B 'ok' with p-value 0, clusters 1 or inconsistent verdict -> technical error",
+       _raises(lambda: validate_row(dict(good_b, p_low=0.0)), TechnicalError)
+       and _raises(lambda: validate_row(dict(good_b, n_cluster=1)), TechnicalError)
+       and _raises(lambda: validate_row(dict(good_b, verdict="supportato")), TechnicalError), "")
+    ok("A2 §3.4 M/G/O 'ok' with SE <= 0, non-finite bound or inconsistent verdict -> technical error",
+       _raises(lambda: validate_row(dict(good_m, se=0.0)), TechnicalError)
+       and _raises(lambda: validate_row(dict(good_m, hi=np.inf)), TechnicalError)
+       and _raises(lambda: validate_row(dict(good_m, method="G", verdict="supportato")), TechnicalError), "")
+    ok("A2 §3.4 error row without reason -> technical error",
+       _raises(lambda: validate_row(dict(method="M", state="errore previsto", verdict="errore", reason="")), TechnicalError), "")
+    # A2 §1b record check: same cell means, altered within-cell dispersion
+    yN = np.array([1.0, 2.0, 3.0, 4.0]) * ETA
+    codes = np.array([0, 0, 1, 1])
+    def resid(y):
+        m = np.bincount(codes, weights=y) / np.bincount(codes)
+        return y - m[codes]
+    hN = np.full(4, 0.5)
+    dz = np.full(4, 0.1 * ETA)
+    y_ok = yN + dz
+    y_bad = y_ok + np.array([1e-3, -1e-3, 0.0, 0.0]) * ETA        # cell means unchanged, dispersion altered
+    ok("A2 §1b record check passes on a constant shift, fails when the cell mean is kept but dispersion changes",
+       not _raises(lambda: record_check(yN, resid(yN), hN, y_ok, resid(y_ok), hN, dz))
+       and _raises(lambda: record_check(yN, resid(yN), hN, y_bad, resid(y_bad), hN, dz), TechnicalError)
+       and _raises(lambda: record_check(yN, resid(yN), hN, y_ok + 1e-3 * ETA, resid(y_ok), hN, dz), TechnicalError), "")
+    # A2 §3.1-3.2 receipts
+    bind = dict(sha256_script="a", modules={"m": "b"}, env={"scipy": "1"})
+    with tempfile.TemporaryDirectory() as tmp:
+        tmp = Path(tmp)
+
+        def put(mode, tag, **m):
+            d = tmp / f"{mode}_{tag}"
+            d.mkdir()
+            (d / META_NAME[mode]).write_text(json.dumps(dict(git_dirty=0, binding=bind) | m))
+        put("SELFTEST", "a", outcome="non superato", passed=False)
+        put("GATE", "a", outcome="non superata")
+        put("BENCHMARK", "a", outcome="non riuscito", within_limit=True, n_technical=0)
+        none = prelim_receipts(bind, ("SELFTEST", "GATE", "BENCHMARK"), tmp)
+        put("BENCHMARK", "b", outcome="eseguito: entro il limite", within_limit=True, n_technical=1)
+        put("SELFTEST", "c", outcome="superato", passed=True, binding=dict(bind, env={"scipy": "2"}))
+        still = prelim_receipts(bind, ("SELFTEST", "GATE", "BENCHMARK"), tmp)
+        put("SELFTEST", "d", outcome="superato", passed=True)
+        put("GATE", "d", outcome="superata")
+        put("BENCHMARK", "d", outcome="eseguito: entro il limite", within_limit=True, n_technical=0)
+        allr = prelim_receipts(bind, ("SELFTEST", "GATE", "BENCHMARK"), tmp)
+    ok("A2 §3.2 receipts: negative outcomes, within_limit with 'non riuscito', technical errors and a different "
+       "binding (SciPy) are rejected; positive receipts with the same binding accepted",
+       none == {} and still == {} and set(allr) == {"SELFTEST", "GATE", "BENCHMARK"}, "")
+    bnow = binding("x")
+    ok("A2 §3.2 binding covers script, plan, A1, A2, imported sharpbl modules, six inputs, design and SciPy",
+       {"sha256_script", "sha256_plan", "sha256_A1", "sha256_A2", "modules", "inputs", "design_fingerprint", "env"} <= set(bnow)
+       and len(bnow["inputs"]) == 6 and "scipy" in bnow["env"] and "sharpbl.p2f_validation" in bnow["modules"],
+       f"{len(bnow['modules'])} modules")
+    with tempfile.TemporaryDirectory() as tmp:
+        global PRELIM
+        saved_prelim = PRELIM
+        PRELIM = Path(tmp)
+        buf = io.StringIO()
+        try:
+            with contextlib.redirect_stdout(buf):
+                code = benchmark()
+        finally:
+            PRELIM = saved_prelim
+        msg = buf.getvalue().strip()
+        ok("A2 §3.1 benchmark refuses to start without positive selftest and gate receipts (code 2, no folder)",
+           code == 2 and "receipts" in msg and not any(Path(tmp).iterdir()), msg[:120])
 
 
 def _raises(fn, exc=Exception):
@@ -936,24 +1186,47 @@ def _quiet(fn):
         return fn()
 
 
-def selftest():
+def start(mode, needs=()):
+    """Common start: guards, design, binding, required receipts (A2 §3.1-3.2), new receipt folder."""
     if not guard_start():
-        return 2
+        return None
+    design, dinfo = load_design()
+    bind = binding(dinfo["design_fingerprint"])
+    rec = prelim_receipts(bind, needs)
+    missing = [m for m in needs if m not in rec]
+    if missing:
+        print(f"refusing to run {mode}: positive receipts with the same binding missing for {missing}")
+        return None
     commit = head_commit()
-    out = prelim_dir("SELFTEST", commit)
-    out.mkdir(parents=True, exist_ok=False)
-    meta = dict(mode="selftest", plan_points="§6 points 1-5, A1 §1", outcome="non riuscito")
+    out = OUT if mode == "RUN" else prelim_dir(mode, commit)
+    out.mkdir(parents=True, exist_ok=False)          # never overwrite an attempt
+    meta = dict(mode=mode.lower(), outcome="non riuscito", receipts={m: str(Path(p).relative_to(ROOT)) for m, p in rec.items()})
+    meta.update(provenance(dinfo["design_fingerprint"]), **dinfo)
+    return design, out, meta
+
+
+def finish(out, name, meta, code, t0, keys):
+    meta["duration_s"] = time.time() - t0
+    if not write_meta(out / name, meta):
+        code = 1
+    print(json.dumps({k: meta.get(k) for k in keys}, default=str))
+    print(f"receipt: {out.relative_to(ROOT)}")
+    return code
+
+
+def selftest():
+    s0 = start("SELFTEST")
+    if s0 is None:
+        return 2
+    design, out, meta = s0
+    meta.update(plan_points="plan §6 points 1-5, A1 §1, A2 §1b and §3")
     res = []
 
     def ok(name, cond, value=""):
         res.append(dict(check=name, passed=bool(cond), value=value))
         print(("PASS " if cond else "FAIL ") + name + (f"  [{value}]" if value else ""), flush=True)
-    code = 1
-    t0 = time.time()
+    code, t0 = 1, time.time()
     try:
-        meta.update(provenance())
-        design, dinfo = load_design()
-        meta.update(dinfo)
         st = Statics(design)
         selftest_checks(st, ok)
         regression_checks(ok)
@@ -968,31 +1241,23 @@ def selftest():
         print(traceback.format_exc())
         code = 1
     finally:
-        meta["duration_s"] = time.time() - t0
         pd.DataFrame(res, columns=["check", "passed", "value"]).to_csv(out / "SELFTEST.csv", index=False)
-        if not write_meta(out / "SELFTEST_META.json", meta):
-            code = 1
-        print(f"receipt: {out.relative_to(ROOT)}")
+        code = finish(out, "SELFTEST_META.json", meta, code, t0, ("outcome", "n_passed", "n_checks"))
     return code
 
 
-# ---------------------------------------------------------------- gate (plan §6 point 6)
+# ---------------------------------------------------------------- gate (A2 §1a, replaces plan §6.6)
 
 def gate():
-    if not guard_start():
+    s0 = start("GATE")
+    if s0 is None:
         return 2
-    commit = head_commit()
-    out = prelim_dir("GATE", commit)
-    out.mkdir(parents=True, exist_ok=False)
-    meta = dict(mode="gate", plan_points="§6 point 6 (compatibility, not validation)", outcome="non riuscito")
+    design, out, meta = s0
+    meta.update(plan_points="A2 §1a: historical compatibility of M on the original P2f path (not validation)",
+                tolerance_rel=GATE_RTOL)
     rows, code, t0 = [], 1, time.time()
     try:
-        meta.update(provenance())
-        if sha(VALIDATION_RAW) != SHA_VALIDATION_RAW:
-            raise TechnicalError("VALIDATION_RAW.csv.gz SHA-256 differs")
-        meta["sha256_VALIDATION_RAW"] = SHA_VALIDATION_RAW
-        design, dinfo = load_design()
-        meta.update(dinfo)
+        check_inputs()
         st = Statics(design)
         vr = pd.read_csv(VALIDATION_RAW, float_precision="round_trip", keep_default_na=False, na_values=["", "nan", "NaN"],
                          low_memory=False, usecols=["test", "kind", "scenario", "effect", "k", "beta", "se", "verdict"])
@@ -1004,10 +1269,12 @@ def gate():
             if len(ref) != 1:
                 raise TechnicalError(f"VALIDATION_RAW: {len(ref)} rows for {kind} {s} {e} {k}")
             ref = ref.iloc[0]
-            base = noise_catalogue(design, n, seed)
-            u, _ = build_units(st, base, st.linear(e) if e != 0.0 else st.add["N"])
-            row = dict(kind=kind, scenario=s, effect=e, k=k, config=n, seed=seed, beta_ref=ref["beta"], se_ref=ref["se"],
-                       verdict_ref=ref["verdict"])
+            # A2 §1a: original P2f path, through the script's wrapper method_m
+            u = V.units(V.responses(design, s, np.random.default_rng(seed), e), "T5")
+            if u["n_check"] != V.EXPECTED["T5"]:
+                raise TechnicalError(f"T5 units {u['n_check']}")
+            row = dict(kind=kind, scenario=s, effect=e, k=k, seed=seed, path="P2f originale", beta_ref=ref["beta"],
+                       se_ref=ref["se"], verdict_ref=ref["verdict"])
             try:
                 r = method_m(u)
                 rb = abs(r["beta"] - ref["beta"]) / abs(ref["beta"])
@@ -1016,26 +1283,33 @@ def gate():
                            passed=bool(rb <= GATE_RTOL and rs <= GATE_RTOL and r["verdict"] == ref["verdict"]))
             except ExpectedError as exc:
                 row.update(verdict="errore", error=str(exc), passed=ref["verdict"] == "errore")
+            # descriptive only, no tolerance, no effect on the outcome (A2 §1a)
+            ui, _ = build_units(st, noise_catalogue(design, n, seed), st.linear(e) if e != 0.0 else st.add["N"])
+            try:
+                ri = method_m(ui)
+                row.update(injection_se=ri["se"], injection_rel_se_descriptive=abs(ri["se"] - ref["se"]) / ref["se"],
+                           injection_verdict=ri["verdict"])
+            except ExpectedError as exc:
+                row.update(injection_verdict="errore", injection_error=str(exc))
             rows.append(row)
             print(f"{kind} s{s} e{e} k{k}: rel beta {row.get('rel_beta', np.nan):.2e} rel se {row.get('rel_se', np.nan):.2e} "
-                  f"{'PASS' if row['passed'] else 'FAIL'}", flush=True)
+                  f"{'PASS' if row['passed'] else 'FAIL'}  (injection path, descriptive: "
+                  f"{row.get('injection_rel_se_descriptive', np.nan):.2e})", flush=True)
         g = pd.DataFrame(rows)
         meta.update(n_catalogues=len(g), n_passed=int(g["passed"].sum()), max_rel_beta=float(g["rel_beta"].max()),
-                    max_rel_se=float(g["rel_se"].max()), tolerance_rel=GATE_RTOL)
-        meta["outcome"] = "superata" if g["passed"].all() else "non superata"
-        code = 0 if g["passed"].all() else 1
+                    max_rel_se=float(g["rel_se"].max()),
+                    injection_max_rel_se_descriptive=float(g["injection_rel_se_descriptive"].max()))
+        meta["outcome"] = "superata" if (len(g) == 40 and g["passed"].all()) else "non superata"
+        code = 0 if meta["outcome"] == "superata" else 1
     except Exception as exc:                        # noqa: BLE001
         meta.update(outcome="non riuscito", exception_type=type(exc).__name__, exception=str(exc),
                     traceback=traceback.format_exc())
         print(traceback.format_exc())
         code = 1
     finally:
-        meta["duration_s"] = time.time() - t0
         pd.DataFrame(rows).to_csv(out / "GATE.csv", index=False)
-        if not write_meta(out / "GATE_META.json", meta):
-            code = 1
-        print(json.dumps({k: meta.get(k) for k in ("outcome", "n_passed", "n_catalogues", "max_rel_beta", "max_rel_se")}))
-        print(f"receipt: {out.relative_to(ROOT)}")
+        code = finish(out, "GATE_META.json", meta, code, t0, ("outcome", "n_passed", "n_catalogues", "max_rel_beta",
+                                                              "max_rel_se", "injection_max_rel_se_descriptive"))
     return code
 
 
@@ -1060,20 +1334,15 @@ def events_frames(results):
 
 
 def benchmark():
-    if not guard_start():
+    s0 = start("BENCHMARK", needs=("SELFTEST", "GATE"))
+    if s0 is None:
         return 2
-    commit = head_commit()
-    out = prelim_dir("BENCHMARK", commit)
-    out.mkdir(parents=True, exist_ok=False)
-    meta = dict(mode="benchmark", plan_points="§3e, §6.7, A1 §2", outcome="non riuscito",
-                formula="T_hat = (1000/12) * sum_{n=0}^{8} tbar_n; unit = 1 base catalogue x 5 signals x 4 methods",
-                n_proc=N_PROC, stop_hours=T_MAX_H)
+    design, out, meta = s0
+    meta.update(plan_points="plan §3e, §6.7, A1 §2", n_proc=N_PROC, stop_hours=T_MAX_H,
+                formula="T_hat = (1000/12) * sum_{n=0}^{8} tbar_n; unit = 1 base catalogue x 5 signals x 4 methods")
     code, t0 = 1, time.time()
     try:
-        meta.update(provenance())
         check_inputs()
-        design, dinfo = load_design()
-        meta.update(dinfo)
         Statics(design)                              # fail early in the parent
         # same task distribution as the run: replica outer, configuration inner
         tasks = [(n, r, seed_bench(n, r), seed_bench_boot(n, r)) for r in range(4) for n in range(9)]
@@ -1091,7 +1360,8 @@ def benchmark():
         cfg.to_csv(out / "BENCHMARK_CONFIG.csv", index=False)
         # errors (expected, with reasons) and boundary cases kept as computed; verdicts not written
         errs = pd.DataFrame([dict(n=x["n"], r=x["k"], signal=x["signal"], method=x["method"], state=x["state"],
-                                  reason=x["reason"]) for r in results for x in r["rows"] if x["state"] != "ok"])
+                                  reason=x["reason"]) for r in results for x in r["rows"] if x["state"] != "ok"],
+                            columns=["n", "r", "signal", "method", "state", "reason"])
         errs.to_csv(out / "BENCHMARK_EXPECTED_ERRORS.csv", index=False)
         tech, bounds, diag = events_frames(results)
         tech.to_csv(out / "BENCHMARK_TECHNICAL_ERRORS.csv", index=False)
@@ -1105,7 +1375,8 @@ def benchmark():
             code = 1
         else:
             T = predicted_duration_s(cfg.sort_values("n")["tbar_s"].to_numpy())
-            meta.update(T_hat_s=T, T_hat_h=T / 3600.0, within_limit=bool(T / 3600.0 <= T_MAX_H))
+            meta.update(sum_tbar_s=float(cfg["tbar_s"].sum()), T_hat_s=T, T_hat_h=T / 3600.0,
+                        within_limit=bool(T / 3600.0 <= T_MAX_H))
             meta["outcome"] = "eseguito: entro il limite" if T / 3600.0 <= T_MAX_H else "eseguito: oltre il limite, arresto"
             code = 0
             print(cfg.to_string(index=False))
@@ -1116,66 +1387,43 @@ def benchmark():
         print(traceback.format_exc())
         code = 1
     finally:
-        meta["duration_s"] = time.time() - t0
-        if not write_meta(out / "BENCHMARK_META.json", meta):
-            code = 1
-        print(json.dumps({k: meta.get(k) for k in ("outcome", "n_technical", "n_expected_errors", "n_boundary_cases",
-                                                   "wall_benchmark_s", "T_hat_h")}))
-        print(f"receipt: {out.relative_to(ROOT)}")
+        code = finish(out, "BENCHMARK_META.json", meta, code, t0, ("outcome", "n_technical", "n_expected_errors",
+                                                                   "n_boundary_cases", "wall_benchmark_s", "T_hat_h"))
     return code
 
 
-def prelim_receipts(script_sha):
-    """Selftest, gate and benchmark receipts for this script SHA-256, all positive."""
-    found = {}
-    for mode, f, good in (("SELFTEST", "SELFTEST_META.json", lambda m: m.get("outcome") == "superato"),
-                          ("GATE", "GATE_META.json", lambda m: m.get("outcome") == "superata"),
-                          ("BENCHMARK", "BENCHMARK_META.json", lambda m: m.get("within_limit") is True)):
-        for p in sorted(PRELIM.glob(f"{mode}_*/{f}")):
-            m = json.loads(p.read_text())
-            if m.get("sha256_script") == script_sha and m.get("git_dirty") == 0 and good(m):
-                found[mode] = str(p.relative_to(ROOT))
-    return found
-
-
 def run():
-    if not guard_start():
+    s0 = start("RUN", needs=("SELFTEST", "GATE", "BENCHMARK"))
+    if s0 is None:
         return 2
-    rec = prelim_receipts(sha(__file__))
-    if set(rec) != {"SELFTEST", "GATE", "BENCHMARK"}:
-        print(f"preliminary receipts missing for this script: {sorted(set(['SELFTEST', 'GATE', 'BENCHMARK']) - set(rec))}")
-        return 2
-    OUT.mkdir(parents=True, exist_ok=False)          # never overwrite an attempt
-    meta = dict(mode="run", outcome="non riuscito", receipts=rec, n_rep=N_REP, n_proc=N_PROC)
+    design, out, meta = s0
+    meta.update(n_rep=N_REP, n_proc=N_PROC,
+                seeds=dict(base="31000000 + 100000 n + k", boot="32000000 + 100000 n + k", n="0..8", k="0..999"))
     code, t0 = 1, time.time()
     log = lambda s: print(time.strftime("%H:%M:%S ") + s, flush=True)  # noqa: E731
     try:
-        meta.update(provenance())
         check_inputs()
-        design, dinfo = load_design()
-        meta.update(dinfo)
         Statics(design)
         tasks = [(n, k, seed_base(n, k), seed_boot(n, k)) for k in range(N_REP) for n in range(9)]
-        meta["seeds"] = dict(base="31000000 + 100000 n + k", boot="32000000 + 100000 n + k", n="0..8", k="0..999")
         results, wall = run_pool(design, tasks, progress_every=200, log=log)
         raw = pd.DataFrame([x for r in results for x in r["rows"]])
         tech, bounds, diag = events_frames(results)
-        raw.sort_values(["n", "k", "signal", "method"]).to_csv(OUT / "RAW.csv.gz", index=False)
-        tech.to_csv(OUT / "TECHNICAL_ERRORS.csv", index=False)
-        bounds.to_csv(OUT / "BOUNDARY_CASES.csv", index=False)
-        diag.to_csv(OUT / "IDENTITY_DIAGNOSTICS.csv", index=False)
+        raw.sort_values(["n", "k", "signal", "method"]).to_csv(out / "RAW.csv.gz", index=False)
+        tech.to_csv(out / "TECHNICAL_ERRORS.csv", index=False)
+        bounds.to_csv(out / "BOUNDARY_CASES.csv", index=False)
+        diag.to_csv(out / "IDENTITY_DIAGNOSTICS.csv", index=False)
         pd.DataFrame([{k: r[k] for k in ("n", "k", "wall_s", "cpu_s", "pid")} for r in results]).to_csv(
-            OUT / "UNIT_TIMES.csv", index=False)
+            out / "UNIT_TIMES.csv", index=False)
         meta.update(n_units=len(results), n_rows=len(raw), n_technical=len(tech), n_boundary_cases=len(bounds),
                     wall_run_s=wall)
         if len(tech) or len(raw) != 9 * N_REP * 20:
             meta["outcome"] = "non riuscito: errori tecnici o righe mancanti (nessuna lettura dei risultati)"
             code = 1
         else:
-            summ = summarize(raw)
-            summ.to_csv(OUT / "SUMMARY.csv", index=False)
-            paired_ls(raw).to_csv(OUT / "PAIRED_LS.csv", index=False)
-            meta["sha256_SUMMARY"] = sha(OUT / "SUMMARY.csv")
+            summarize(raw).to_csv(out / "SUMMARY.csv", index=False)
+            paired_ls(raw).to_csv(out / "PAIRED_LS.csv", index=False)
+            paired_methods(raw).to_csv(out / "PAIRED_METHODS.csv", index=False)
+            meta["sha256_SUMMARY"] = sha(out / "SUMMARY.csv")
             meta["outcome"] = "eseguita"
             code = 0
     except Exception as exc:                        # noqa: BLE001
@@ -1184,11 +1432,8 @@ def run():
         log(traceback.format_exc())
         code = 1
     finally:
-        meta["duration_s"] = time.time() - t0
-        if not write_meta(OUT / "META.json", meta):
-            code = 1
-        log(json.dumps({k: meta.get(k) for k in ("outcome", "n_units", "n_rows", "n_technical", "n_boundary_cases",
-                                                 "exception_type", "exception")}))
+        code = finish(out, "META.json", meta, code, t0, ("outcome", "n_units", "n_rows", "n_technical",
+                                                         "n_boundary_cases", "exception_type", "exception"))
         log("fatto")
     return code
 
