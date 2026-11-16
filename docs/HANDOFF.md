@@ -1,5 +1,17 @@
 # Cold restart — SHARP BL
 
+## T5: piano di sensibilità della potenza congelato — 2026-11-16
+
+Dopo la nota di fattibilità (rev. 2) e la sensibilità del proxy (`39c010c`, risultati `61e0aed`), il piano
+`docs/T5_POWER_SENSITIVITY_PLAN.md` è **congelato** dopo la revisione di Codex della bozza `bb61bc0`
+(sette gruppi di correzioni recepite, §10): pendenze lineari esatte uguali a quelle dello scenario,
+rumore davvero appaiato (9000 cataloghi di rumore, cinque segnali sopra), G con bersaglio WLS comune e
+bias riportato, B con i soli verdetti e p-value (adattatore delle unità da verificare), O come
+riferimento a varianza nota, incertezze Monte Carlo corrette, errori previsti distinti da quelli tecnici.
+Nessun codice scritto, nessuna simulazione. Prossimo: revisione di Codex del testo congelato, poi
+`scripts/t5_power_sensitivity.py` con selftest, porta e misura della durata prima del lancio. T5
+descrittivo, T3 non deciso. Nessun push.
+
 ## T5-D2: risultati letti e interpretati — 2026-11-15
 
 `docs/T5_ORACLE_RESULTS.md` compilato su `27a9c7d` (§6 tabelle, 46 gruppi e 38 confronti;
