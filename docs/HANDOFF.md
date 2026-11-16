@@ -11,7 +11,7 @@ nessun download). Nessuna query eseguita.
 
 ## Morfologia di S: bozza di piano — 2026-11-16
 
-Bozza non congelata `docs/PROTOCOL_HMI_MORPHOLOGY_S_DRAFT.md` (rev. 1), permessa dalla regola operativa dello
+Bozza non congelata `docs/PROTOCOL_HMI_MORPHOLOGY_S_DRAFT.md` (rev. 2 dopo la revisione di Codex: rilettura delle 101 HARP note, 281 schede, lettore 2 distribuito anche sullo strato certo, formule e bootstrap senza reimmissione; costo da decidere prima del congelamento; rev. 1), permessa dalla regola operativa dello
 studio morfologico precedente (§7 di `docs/MORPHOLOGY_RESULTS.md`). Prevalenza delle classi A2 in S (2485
 record, FITS tutti locali) per conteggio, Φ e |S_BL|, e dipendenza dall'attività; strato certo delle 101 HARP
 già lette, 6 strati (terzili di Â × Φ sotto/sopra la mediana), 30 per strato; nessuna esclusione né nuova
