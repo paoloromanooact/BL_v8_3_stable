@@ -1,5 +1,22 @@
 # Cold restart — SHARP BL
 
+## MDI/SMARP: fase counts conclusa e verificata — 2026-11-16
+
+Corsa `schema_20261116_http_ac06138`, fase `counts` sul commit `e49e994`, albero tracciato pulito:
+**219 richieste riuscite, 219 finestre**, zero righe di record acquisite. Registro cumulativo 239 tentativi,
+125293 byte, circa 350,5 s. Nessun elenco, download o export. Mappa e regole registrate restano invariate.
+
+Preventivo: somma dei conteggi 825362 (SMARP CEA 640289, HMI 103833, full-disk MDI 81240), comprensiva di
+possibili duplicati ai bordi delle finestre inclusive DRMS; non regioni distinte o mappe recuperabili.
+33 elenchi della prima parte + 179 dello storico; con 400 riserve e 239 tentativi già usati, totale 851/1000.
+Decisione `full` per richieste e righe, non garanzia sul volume o sulla durata: da misurare sui primi elenchi,
+con proiezione prima dello storico. Riconteggio indipendente sui JSON e controllo della partizione delle
+finestre superati; artefatti originali e COUNTS_CHECK locali nella cartella della corsa.
+
+Dettagli e hash in `docs/MDI_SMARP_COUNTS_REVIEW.md`. **Fermo prima degli elenchi**. Prossimo passo separato:
+`overlap` (soli metadati) dopo lettura del preventivo; nessun via automatico allo storico o ai FITS.
+Piano prospettico e morfologia S in pausa. Nessun push.
+
 ## MDI/SMARP: mappa verificata e registrata offline — 2026-11-16
 
 Stato corrente: configurazione della corsa `schema_20261116_http_ac06138` preparata, verificata e

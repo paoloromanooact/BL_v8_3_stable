@@ -2,6 +2,11 @@
 
 ## v8.4 (Python, branch `v8.4-python-gianluca`) — in corso
 
+- 2026-11-16, MDI/SMARP: fase dei soli conteggi riuscita e verificata indipendentemente sui JSON originali:
+  219 richieste, somma conservativa 825362 record sulle finestre inclusive; preventivo 851/1000 tentativi,
+  riserve comprese, decisione full per richieste e righe. Volume/tempo da misurare sugli elenchi successivi;
+  nessun elenco o FITS acquisito. Registro cumulativo 239 tentativi, zero righe; nessun push.
+
 - 2026-11-16, MDI/SMARP: mappa dei campi e regole di prodotto verificate e registrate offline; centri CEA
   documentati senza dimensioni inventate, riquadri non valutabili, INTERVAL numerico esatto 60/300 s,
   DPC grezzo e prodotto delle patch ignoto senza collegamento documentato. Codice 50db300, selftest 130/130,
