@@ -1,5 +1,15 @@
 # Cold restart — SHARP BL
 
+## T5 potenza: dopo A2, preliminari completi; griglia da avviare dopo la revisione — 2026-11-16
+
+Emendamento A2 `6024237` (SHA-256 `df4912c0…`), script corretto `f19cf15` (SHA-256 `62ca2da4…`),
+supplemento diagnostico `scripts/t5_power_gate_diagnostic_v2.py` (descrittivo). Ricevute in
+`results/T5_POWER_SENSITIVITY_PRELIM/` (`a8d2cfb` e successivo): selftest 67/67 superato; nuova porta (A2 §1a,
+percorso P2f originale, 10⁻⁹) 40/40 superata con differenze nulle; benchmark 36 unità, 0 errori tecnici,
+0 errori previsti, 0 casi di confine, T̂ = (1000/12)·Σ t̄_n = (1000/12)·110,99 s ≈ 9250 s ≈ 2,57 h (limite 8 h).
+La prima porta resta «non superata». `--run` trova le tre ricevute con lo stesso legame ma **non è stato
+lanciato**: attende la revisione del codice e degli esiti preliminari. Nessun push.
+
 ## T5 potenza: script, selftest superato, porta di compatibilità NON superata — 2026-11-16
 
 Emendamento A1 (`8dc6d48`, SHA-256 `60323789…`) su piano `4b67632` (`fac76b1a…`). Script

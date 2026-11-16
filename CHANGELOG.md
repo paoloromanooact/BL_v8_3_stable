@@ -2,6 +2,8 @@
 
 ## v8.4 (Python, branch `v8.4-python-gianluca`) — in corso
 
+- 2026-11-16, T5 potenza dopo A2 (`6024237`): script `f19cf15`; selftest 67/67, nuova porta 40/40, benchmark
+  T̂ ≈ 2,57 h (36 unità, nessun errore né caso di confine); supplemento diagnostico descrittivo; griglia non avviata.
 - 2026-11-16, T5 potenza: emendamento A1 (`8dc6d48`), script `b769892`; selftest 53/53 superato; porta di
   compatibilità non superata (36/40, differenze di SE di M fino a 1,5·10⁻⁵ su 4 cataloghi con effetto; nei
   casi esaminati differenze di arrotondamento dell'iniezione possono impedire la riproduzione entro 10⁻⁹,

@@ -1,0 +1,73 @@
+{
+  "mode": "benchmark",
+  "outcome": "eseguito: entro il limite",
+  "receipts": {
+    "SELFTEST": "results/T5_POWER_SENSITIVITY_PRELIM/SELFTEST_f19cf155101b/SELFTEST_META.json",
+    "GATE": "results/T5_POWER_SENSITIVITY_PRELIM/GATE_f19cf155101b/GATE_META.json"
+  },
+  "git_commit": "a8d2cfbbc6e98956fb9be3040cc3e87aec69a014",
+  "git_dirty": 0,
+  "sha256_plan": "fac76b1ab60d0aba003bd3c895d03d2ecf9e894281a3465c175549b8d41a3fcd",
+  "sha256_A1": "603237898eed6b45b3102e1b7fdcf247fe2dfa8990107be7812095e9c6dab262",
+  "sha256_A2": "df4912c0f351a4a6d6d1e224e6dfb00c866265ec2f749cc99790d9d57a28e857",
+  "sha256_script": "62ca2da4d7b3aaa53a2c608c6ddb1f43e0ad67921f742e20fdbe0e107b6523ef",
+  "binding": {
+    "sha256_script": "62ca2da4d7b3aaa53a2c608c6ddb1f43e0ad67921f742e20fdbe0e107b6523ef",
+    "sha256_plan": "fac76b1ab60d0aba003bd3c895d03d2ecf9e894281a3465c175549b8d41a3fcd",
+    "sha256_A1": "603237898eed6b45b3102e1b7fdcf247fe2dfa8990107be7812095e9c6dab262",
+    "sha256_A2": "df4912c0f351a4a6d6d1e224e6dfb00c866265ec2f749cc99790d9d57a28e857",
+    "modules": {
+      "sharpbl": "429afdb3c34a19333dd482fbc0363f1be30ecc87787b98ea7e74da38246d2282",
+      "sharpbl.diag_t5_oracle": "f7808c54be0048e12fd6e08d250ed02291bc3b96c2bd2756340af272595577f4",
+      "sharpbl.p2d": "5e6dad4f2450f244d969d90c8305f9c18f71dc6d3ab19212f464325d5d546aa1",
+      "sharpbl.p2f_pilot": "17d1f728f3c7626ebbbca38620fb2711769dc3228d0090747990410631e28ec8",
+      "sharpbl.p2f_validation": "8adfc197e9ee9d66359ed893162d38b92cf9c98c634beb250bb34b9b8a4ae1f1",
+      "sharpbl.provenance": "141d04d7c9d67bd3ad48a28fab000de9dcc2a270f41b6b4387aeab654f438960",
+      "sharpbl.run_p2": "05c5ad01a417f22d4ec5a6350ffaed0a8d411cb62954410f0a6284eb490c791d"
+    },
+    "inputs": {
+      "results/T5_PROXY_SENSITIVITY/CELLS.csv": "0c899647f3119501f7397364573fbe6ed57fa82243b1f44a523b01e1d0628f02",
+      "results/T5_PROXY_SENSITIVITY/SUMMARY.csv": "88a291100b9d68a0225f7dc77bcaf6c0bbabd2193424c23e8aa905ae2b055e30",
+      "results/P2F/VALIDATION_RAW.csv.gz": "9553f49ac4e0ec7a7209f366062552a1d3a6cd0933449b9002658aa80cff4178",
+      "results/T5_ORACLE/ORACLE_RAW.csv.gz": "d6d6400f364f85e2491332249f365eef8950c239a46dcd98b6279676ff76edaf",
+      "results/P1/P1_SBL_CATALOG_BY_HARP.csv": "67dc6a74a27b44f9ddd958f5a5dcc972a564300af89444c781665926ca0488af",
+      "ancillary/SILSO_HEMI/SN_m_hem_V2.0.csv": "32690e4372ab6355d05f54d9ccd96158564029892a62128db42eb3fa8b79292f"
+    },
+    "design_fingerprint": "4d92878c4a7c359f102699ee9e79856d8364c4c048463b4e304616879f99db5b",
+    "env": {
+      "python": "3.10.12",
+      "numpy": "2.2.6",
+      "scipy": "1.15.3",
+      "pandas": "2.3.3",
+      "OMP_NUM_THREADS": "1"
+    }
+  },
+  "design_equals_P2F_design_pkl": true,
+  "design_rows": 2485,
+  "design_fingerprint": "4d92878c4a7c359f102699ee9e79856d8364c4c048463b4e304616879f99db5b",
+  "plan_points": "plan \u00a73e, \u00a76.7, A1 \u00a72",
+  "n_proc": 12,
+  "stop_hours": 8.0,
+  "formula": "T_hat = (1000/12) * sum_{n=0}^{8} tbar_n; unit = 1 base catalogue x 5 signals x 4 methods",
+  "n_units": 36,
+  "wall_benchmark_s": 40.66337170009501,
+  "n_technical": 0,
+  "n_expected_errors": 0,
+  "n_boundary_cases": 0,
+  "tbar_s": {
+    "0": 9.955641708220355,
+    "1": 9.69390834675869,
+    "2": 9.819905263837427,
+    "3": 11.102290637267288,
+    "4": 13.32231945701642,
+    "5": 13.909756036300678,
+    "6": 14.099799839197658,
+    "7": 15.88048833643552,
+    "8": 13.21037097973749
+  },
+  "sum_tbar_s": 110.99448060477152,
+  "T_hat_s": 9249.540050397627,
+  "T_hat_h": 2.5693166806660077,
+  "within_limit": true,
+  "duration_s": 40.921353578567505
+}
