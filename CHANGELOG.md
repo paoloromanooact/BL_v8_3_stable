@@ -2,6 +2,11 @@
 
 ## v8.4 (Python, branch `v8.4-python-gianluca`) — in corso
 
+- 2026-11-16, MDI/SMARP: 33 elenchi di metadati della sovrapposizione acquisiti e verificati sui JSON originali,
+  119611 righe accettate; 127 TARP SMARP e 139 HARP HMI nella finestra scientifica, nessun filtro di qualità.
+  INTERVAL=30 s nei full-disk resta ignoto con la regola 60/300 già registrata; nessuna reinterpretazione.
+  Registro cumulativo 272 tentativi, circa 43,8 MiB. Storico e mappe non avviati, nessun push.
+
 - 2026-11-16, MDI/SMARP: fase dei soli conteggi riuscita e verificata indipendentemente sui JSON originali:
   219 richieste, somma conservativa 825362 record sulle finestre inclusive; preventivo 851/1000 tentativi,
   riserve comprese, decisione full per richieste e righe. Volume/tempo da misurare sugli elenchi successivi;

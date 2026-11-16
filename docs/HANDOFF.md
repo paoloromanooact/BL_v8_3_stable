@@ -1,5 +1,26 @@
 # Cold restart — SHARP BL
 
+## MDI/SMARP: elenchi della sovrapposizione acquisiti e verificati — 2026-11-16
+
+Corsa `schema_20261116_http_ac06138`, fase `overlap` sul commit `4487125`, albero tracciato pulito:
+33 elenchi di soli metadati acquisiti, riconciliati con i conteggi e verificati contro i JSON originali.
+119611 righe accettate: SMARP 11387 (127 TARPNUM), HMI con margini 103709 (139 HARPNUM), full-disk MDI
+2010 gennaio–ottobre 4515. Righe di bordo conservate 152; HMI scientifico 103706 record, 139 HARPNUM,
+con 3 record di margine esclusi dal conteggio scientifico. Nessun filtro di qualità o flusso.
+
+Registro cumulativo chiuso: 272 tentativi, 45924964 byte, 119611 righe, circa 636,5 s. Nessun export o FITS.
+Primi blocchi misurati per i tre profili acquisiti; lo storico SMARP minimo non è ancora misurato e non è
+registrato un preventivo di payload incompleto. Storico non avviato, nessun lookup ausiliario.
+
+Dato reale da conservare senza reinterpretazione: INTERVAL full-disk 2010 = 300 s in 2466 record, 30 s in
+1760, MISSING in 289. La regola registrata 60/300 lascia ignoti i 30 s: non chiamarli prodotti da un minuto
+senza documentazione. DPC grezzo, collegamento patch–sorgente ancora ignoto. Nessuna stima di rumore o
+calibrazione strumentale. Dettagli, limiti e hash in `docs/MDI_SMARP_OVERLAP_ACQUISITION.md`.
+
+**Fermo prima dello storico e delle mappe.** Prossimo passo separato: lettura dei metadati acquisiti oppure
+storico con il primo blocco minimo e il preventivo di payload prima del resto. Piano prospettico e S in pausa.
+Nessun push.
+
 ## MDI/SMARP: fase counts conclusa e verificata — 2026-11-16
 
 Corsa `schema_20261116_http_ac06138`, fase `counts` sul commit `e49e994`, albero tracciato pulito:
