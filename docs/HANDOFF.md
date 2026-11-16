@@ -48,8 +48,9 @@ Piano congelato `9269c10` (SHA-256 `a31de02a…`, ricevuta `b276502`). Raccoglit
 (commit finale `0ae058ada181`): trasporto proprio limitato, registro persistente, finestre e preventivo, ordine
 sovrapposizione → storico → ausiliari, mappa dei campi da registrare dopo lo schema, WCS con origine esplicita,
 grafi 5°/10°. Selftest offline 67/67 con un finto JSOC locale e un catalogo sintetico dall'inizio alla fine
-(ricevute in `results/MDI_SMARP_INVENTORY_SELFTEST/`). **Nessuna query JSOC.** Prossimo: revisione del codice
-da parte di Codex; rete solo dopo la fine della griglia T5 e la revisione.
+(ricevute in `results/MDI_SMARP_INVENTORY_SELFTEST/`). **Nessuna query JSOC.** La revisione del codice di Codex
+su `0ae058a` ha trovato otto difetti con controesempi sintetici; corretti senza cambiare il piano (commit `4402ea8722e5`),
+selftest 88/88 con una regressione per ogni controesempio. Prossimo: nuova revisione del codice; rete solo dopo.
 
 ## MDI/SMARP: studio aggiornato dopo la seconda revisione — 2026-11-16
 
