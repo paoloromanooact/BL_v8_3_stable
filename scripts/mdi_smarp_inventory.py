@@ -32,6 +32,17 @@ Implementation choices (not new rules; listed for the code review):
   otherwise 'stop'. The payload projection of §4.2 is applied before the historical lists.
 - T5: network is refused while a process matching 't5_power_sensitivity.py --run' exists or while
   results/T5_POWER_SENSITIVITY/META.json is missing; the content of that file is not read.
+- After the code review of 0ae058a (no change of the frozen plan): a watchdog shuts the socket at the absolute
+  deadline (connection, slow headers, body); reads ask at most for the residual byte budget; bodies are written
+  progressively and an invocation that ends without close() is recovered conservatively (last live time + 1 s,
+  partial body bytes); the registered payload projection and a fresh recheck are both required at every history
+  invocation; history and aux require a complete overlap, continuum the main inventory; one failed schema does
+  not block the proposal; provenance candidates are proposed per profile; the presence or absence of
+  PRODUCT_RULES.json must match the registration; aux record sets follow the lookup-series primekey order and
+  AUX_RECORDS feed the product classification; the slot step needs a documented unit; record states separate
+  has_candidate, no_candidate, no_candidate_incomplete_geometry, search_incomplete and not_assessable; the
+  analysis reconciles counted and acquired windows, recomputes raw SHA-256, reports 'complete' or 'partial',
+  uses time indices and adds its own wall time to the registry.
 """
 from __future__ import annotations
 
@@ -206,20 +217,42 @@ def parse_quality(s):
 # ---------------------------------------------------------------- registry (§4.1): persistent, never reset
 
 class Registry:
+    """Persistent consumption registry (§4.1). An invocation that ends without close() is recovered conservatively:
+    elapsed time from the last saved live value plus one save interval, bytes from the partial body on disk."""
+    SAVE_EVERY_S = 1.0
+
     def __init__(self, path, caps=None, min_spacing=MIN_SPACING):
         self.path = Path(path)
         self.min_spacing = min_spacing
         self.caps = caps or dict(attempts=CAP_ATTEMPTS, rows=CAP_ROWS, bytes=CAP_BYTES, wall_s=CAP_WALL_S)
         if self.path.exists():
             self.d = json.loads(self.path.read_text())
+            if self.d.get("caps") != self.caps:
+                raise TechnicalError("registry caps differ from the frozen caps")
+            if self.d.get("open_invocation"):
+                live = float(self.d.get("wall_s_live", self.d["wall_s_completed"]))
+                rec = dict(recovered_utc=now_utc(), wall_s_completed_before=self.d["wall_s_completed"],
+                           wall_s_live=live, bytes_before=self.d["bytes"])
+                self.d["wall_s_completed"] = max(self.d["wall_s_completed"], live + self.SAVE_EVERY_S)
+                inf = self.d.get("in_flight")
+                if inf:
+                    f = Path(inf["file"])
+                    size = f.stat().st_size if f.exists() else 0
+                    self.d["bytes"] = max(self.d["bytes"], int(inf["bytes_before"]) + size)
+                    rec["in_flight"] = dict(inf, size_on_disk=size)
+                rec["wall_s_completed_after"] = self.d["wall_s_completed"]
+                rec["bytes_after"] = self.d["bytes"]
+                self.d.setdefault("recoveries", []).append(rec)
+                self.d["in_flight"] = None
         else:
             self.d = dict(attempts=0, aux_attempts=0, bytes=0, rows=0, wall_s_completed=0.0, invocations=[],
-                          last_attempt_monotonic=None, created_utc=now_utc(), caps=self.caps)
-        if self.d.get("caps") != self.caps:
-            raise TechnicalError("registry caps differ from the frozen caps")
+                          created_utc=now_utc(), caps=self.caps, in_flight=None, recoveries=[])
         self.t_start = time.monotonic()
         self.inv = dict(start_utc=now_utc(), phase=None)
         self._last = 0.0
+        self._saved = 0.0
+        self.d["open_invocation"] = True
+        self.save()
 
     def used_wall(self):
         return self.d["wall_s_completed"] + (time.monotonic() - self.t_start)
@@ -238,7 +271,7 @@ class Registry:
             raise BudgetStop(f"row cap before {what}")
 
     def spacing(self):
-        """At least MIN_SPACING seconds between attempts (also across a resume within the same process)."""
+        """At least min_spacing seconds between attempts."""
         dt = time.monotonic() - self._last
         if self._last and dt < self.min_spacing:
             self.sleep(self.min_spacing - dt)
@@ -263,16 +296,23 @@ class Registry:
         self.d["rows"] += n
         self.save()
 
+    def maybe_save(self):
+        if time.monotonic() - self._saved >= self.SAVE_EVERY_S:
+            self.save()
+
     def save(self):
-        d = dict(self.d)
-        d["wall_s_live"] = self.used_wall()
-        write_json(self.path, d)
+        self.d["wall_s_live"] = self.used_wall()
+        write_json(self.path, self.d)
+        self._saved = time.monotonic()
 
     def close(self, phase, outcome):
         self.d["wall_s_completed"] += time.monotonic() - self.t_start
         self.inv.update(phase=phase, end_utc=now_utc(), outcome=outcome)
         self.d["invocations"].append(self.inv)
+        self.d["open_invocation"] = False
+        self.d["in_flight"] = None
         self.t_start = time.monotonic()
+        self.d["wall_s_live"] = self.d["wall_s_completed"]
         write_json(self.path, self.d)
 
 
@@ -303,55 +343,73 @@ class Transport:
             f.write(json.dumps(entry, sort_keys=True, default=str) + "\n")
 
     def _one(self, target, tag, aux):
-        """One attempt. Returns (status, headers, body, outcome)."""
+        """One attempt. A watchdog shuts the socket at the absolute deadline, so connection, slow headers and slow
+        bodies are all bounded; every read asks at most for the bytes still allowed by the cap (§4.1)."""
         reg = self.reg
         reg.spacing()
         reg.add_attempt(aux=aux)
         rem = reg.remaining_time()
-        to = max(0.001, min(IDLE_TIMEOUT, rem))
-        cls = http.client.HTTPSConnection if self.scheme == "https" else http.client.HTTPConnection
-        conn = cls(self.host, self.port, timeout=to)
-        body = bytearray()
-        status, headers, outcome = None, {}, "ok"
+        if rem <= 0:
+            raise BudgetStop("time cap before an attempt")
         deadline = time.monotonic() + rem
-        try:
-            conn.request("GET", target, headers={"Accept-Encoding": "identity", "User-Agent": "sharpbl-mdi-inventory"})
-            resp = conn.getresponse()
-            status, headers = resp.status, {k.lower(): v for k, v in resp.getheaders()}
-            enc = headers.get("content-encoding", "identity").strip().lower()
-            if enc not in ("", "identity"):
-                outcome = "unexpected_encoding"
-            else:
-                while True:
-                    left = deadline - time.monotonic()
-                    if left <= 0:
-                        outcome = "deadline"
-                        break
-                    if conn.sock is not None:
-                        conn.sock.settimeout(max(0.001, min(IDLE_TIMEOUT, left)))
-                    chunk = resp.read1(65536)
-                    if not chunk:
-                        break
-                    room = reg.caps["bytes"] - reg.d["bytes"]
-                    if len(chunk) > room:
-                        body.extend(chunk[:max(0, room)])
-                        reg.add_bytes(max(0, room))
-                        outcome = "truncated_by_budget"
-                        break
-                    body.extend(chunk)
-                    reg.add_bytes(len(chunk))
-                    if time.monotonic() > deadline:
-                        outcome = "deadline"
-                        break
-        except (socket.timeout, TimeoutError):
-            outcome = "idle_timeout"
-        except (OSError, http.client.HTTPException) as exc:
-            outcome = f"transport_error: {type(exc).__name__}: {exc}"
-        finally:
-            conn.close()
-        raw = bytes(body)
         fname = f"{tag}_a{reg.d['attempts']:04d}.body"
-        atomic_write(self.raw_dir / fname, raw)
+        fpath = self.raw_dir / fname
+        reg.d["in_flight"] = dict(file=str(fpath), bytes_before=reg.d["bytes"])
+        reg.save()
+        cls = http.client.HTTPSConnection if self.scheme == "https" else http.client.HTTPConnection
+        conn = cls(self.host, self.port, timeout=max(0.001, min(IDLE_TIMEOUT, rem)))
+        killed = threading.Event()
+
+        def kill():
+            killed.set()
+            sk = conn.sock
+            if sk is not None:
+                with contextlib.suppress(OSError):
+                    sk.shutdown(socket.SHUT_RDWR)
+        timer = threading.Timer(rem, kill)
+        timer.daemon = True
+        status, headers, outcome = None, {}, "ok"
+        try:
+            with open(fpath, "wb") as out:
+                timer.start()
+                conn.request("GET", target, headers={"Accept-Encoding": "identity",
+                                                     "User-Agent": "sharpbl-mdi-inventory"})
+                resp = conn.getresponse()
+                if killed.is_set() or time.monotonic() >= deadline:
+                    outcome = "deadline"
+                else:
+                    status, headers = resp.status, {k.lower(): v for k, v in resp.getheaders()}
+                    enc = headers.get("content-encoding", "identity").strip().lower()
+                    if enc not in ("", "identity"):
+                        outcome = "unexpected_encoding"
+                    while outcome == "ok":
+                        left = deadline - time.monotonic()
+                        if left <= 0 or killed.is_set():
+                            outcome = "deadline"
+                            break
+                        room = reg.caps["bytes"] - reg.d["bytes"]
+                        if room <= 0:
+                            if resp.length != 0:
+                                outcome = "truncated_by_budget"
+                            break
+                        if conn.sock is not None:
+                            conn.sock.settimeout(max(0.001, min(IDLE_TIMEOUT, left)))
+                        chunk = resp.read1(min(65536, room))
+                        if not chunk:
+                            break
+                        out.write(chunk)
+                        out.flush()
+                        reg.add_bytes(len(chunk))
+                        reg.maybe_save()
+        except (socket.timeout, TimeoutError):
+            outcome = "deadline" if killed.is_set() else "idle_timeout"
+        except (OSError, http.client.HTTPException) as exc:
+            outcome = "deadline" if killed.is_set() else f"transport_error: {type(exc).__name__}: {exc}"
+        finally:
+            timer.cancel()
+            conn.close()
+        raw = fpath.read_bytes()
+        reg.d["in_flight"] = None
         self._write_log(dict(utc=now_utc(), tag=tag, attempt_global=reg.d["attempts"], target=target, status=status,
                              outcome=outcome, bytes=len(raw), sha256=sha_bytes(raw), file=fname,
                              content_encoding=headers.get("content-encoding"), retry_after=headers.get("retry-after")))
@@ -541,7 +599,8 @@ def propose_field_map(schemas):
                              definition_ref=(f"series_struct {s}: " + str(kw.get("note", ""))[:120]) if name else "",
                              normalization="", depends_on=""))
         for name, kw in sorted(sc["keywords"].items()):
-            if PROVENANCE_HINT.search(name) and name not in [x["name"] for x in rows if x["series"] == s]:
+            if PROVENANCE_HINT.search(name) and name not in [x["name"] for x in rows if x["series"] == s
+                                                              and x["profile"] == prof]:
                 rows.append(dict(profile=prof, series=s, role="provenance_candidate", name=name, status="present",
                                  type=kw.get("type", ""), unit=kw.get("units", ""),
                                  definition_ref=f"series_struct {s}: " + str(kw.get("note", ""))[:120],
@@ -743,18 +802,32 @@ def registered_map(run):
     if r.get("field_map_sha256") != sha_file(fm):
         raise TechnicalError("FIELD_MAP.csv differs from its registration")
     rules = run.p("PRODUCT_RULES.json")
+    if ("product_rules_sha256" in r) != rules.exists():
+        raise TechnicalError("PRODUCT_RULES.json presence differs from its registration")
     if rules.exists() and r.get("product_rules_sha256") != sha_file(rules):
         raise TechnicalError("PRODUCT_RULES.json differs from its registration")
     return read_csv(fm), (json.loads(rules.read_text()) if rules.exists() else {})
 
 
 def phase_schema(run, tr):
-    for s in SERIES:
-        js, fname = tr.get({"op": "series_struct", "ds": s}, f"schema_{s}")
-        atomic_write(run.p(f"SCHEMA_{s}.json"), json.dumps(js, indent=1, sort_keys=True).encode())
-    rows = propose_field_map(run.schemas())
-    write_csv(run.p("FIELD_MAP_PROPOSED.csv"), rows, FIELD_COLS)
-    return dict(n_schemas=len(run.schemas()), field_map_proposed_sha256=sha_file(run.p("FIELD_MAP_PROPOSED.csv")))
+    """§3: one failed series (main or auxiliary) is recorded and does not stop the others or the proposal; the
+    missing part is declared not verifiable. A budget stop still writes the proposal of what was acquired."""
+    status = {}
+    try:
+        for s in SERIES:
+            try:
+                js, fname = tr.get({"op": "series_struct", "ds": s}, f"schema_{s}")
+                atomic_write(run.p(f"SCHEMA_{s}.json"), json.dumps(js, indent=1, sort_keys=True).encode())
+                status[s] = dict(status="acquired", file=fname, role="main" if s in (SMARP, FD, HMI) else "auxiliary")
+            except RequestFailed as exc:
+                status[s] = dict(status="schema_not_verified", reason=str(exc),
+                                 role="main" if s in (SMARP, FD, HMI) else "auxiliary")
+    finally:
+        write_json(run.p("SCHEMA_STATUS.json"), status)
+        rows = propose_field_map(run.schemas())
+        write_csv(run.p("FIELD_MAP_PROPOSED.csv"), rows, FIELD_COLS)
+    return dict(n_schemas=len(run.schemas()), schema_status={k: v["status"] for k, v in status.items()},
+                field_map_proposed_sha256=sha_file(run.p("FIELD_MAP_PROPOSED.csv")))
 
 
 def register_map(run, verified_by):
@@ -938,8 +1011,25 @@ def restore_store(run, schemas):
     return st
 
 
+def leaf_status(run):
+    """Expected (count > 0) and acquired leaves per part; too-large blocks count as never acquirable."""
+    leaves = read_csv(run.p("COUNT_LEAVES.csv")) if run.p("COUNT_LEAVES.csv").exists() else []
+    done = done_windows(run)
+    out = {}
+    for part in ("overlap", "history"):
+        exp = [x for x in leaves if x["part"] == part and int(x["count"]) > 0]
+        acq = [x for x in exp if x["status"] == "ok" and (x["profile"], f"{x['start']}/{x['end']}") in done]
+        out[part] = dict(expected=len(exp), acquired=len(acq), complete=len(acq) == len(exp) and bool(leaves),
+                         missing=[f"{x['profile']} {x['start']}/{x['end']} ({x['status']})" for x in exp if x not in acq])
+    return out
+
+
 def phase_lists(run, tr, schemas, field_map, part):
+    if not run.p("BUDGET_COUNTS.json").exists():
+        raise TechnicalError("counts phase not completed: lists refused")
     bc = json.loads(run.p("BUDGET_COUNTS.json").read_text())
+    if part == "history" and not leaf_status(run)["overlap"]["complete"]:
+        raise TechnicalError("history refused: the overlap is not completely acquired (§4.3 order)")
     if part == "overlap" and bc["decision"] == "stop":
         raise BudgetStop("BUDGET_COUNTS decision is 'stop'")
     if part == "history" and bc["decision"] != "full":
@@ -951,16 +1041,25 @@ def phase_lists(run, tr, schemas, field_map, part):
     mfile = run.p("PROFILE_MEASURES.json")
     measure = json.loads(mfile.read_text()) if mfile.exists() else {}
     out = []
-    if part == "history" and not run.p("BUDGET_PAYLOAD.json").exists():
-        # first non-empty historical block of the minimal SMARP profile, then the payload projection (§4.2)
-        first = next((x for x in leaves if x["profile"] == "smarp_min"), None)
-        if first is not None and (first["profile"], f"{first['start']}/{first['end']}") not in done:
-            out.append(list_leaf(tr, store, first, schemas, field_map, run, measure))
-            write_json(mfile, measure)
-            done = done_windows(run)
-        bp = budget_payload(run, tr.reg, measure, bc)
+    if part == "history":
+        # §4.2: first non-empty historical block of the minimal SMARP profile, then the payload projection; the
+        # registered projection and a fresh recheck must both be within the caps at every invocation
+        first_file = run.p("BUDGET_PAYLOAD.json")
+        if not first_file.exists():
+            first = next((x for x in leaves if x["profile"] == "smarp_min"), None)
+            if first is not None and (first["profile"], f"{first['start']}/{first['end']}") not in done:
+                out.append(list_leaf(tr, store, first, schemas, field_map, run, measure))
+                write_json(mfile, measure)
+                done = done_windows(run)
+            bp = budget_payload(run, tr.reg, measure, bc, first_file)
+        else:
+            bp = json.loads(first_file.read_text())
+            k = len(list(run.raw.glob("BUDGET_PAYLOAD_RECHECK_*.json"))) + 1
+            re_ = budget_payload(run, tr.reg, measure, bc, run.p(f"BUDGET_PAYLOAD_RECHECK_{k:03d}.json"))
+            if not re_["within_caps"]:
+                raise BudgetStop("payload recheck exceeds the caps: history stopped, overlap kept")
         if not bp["within_caps"]:
-            raise BudgetStop("payload projection exceeds the caps: history stopped, overlap kept")
+            raise BudgetStop("registered payload projection exceeds the caps: history stopped, overlap kept")
     for leaf in leaves:
         if (leaf["profile"], f"{leaf['start']}/{leaf['end']}") in done:
             continue
@@ -969,7 +1068,7 @@ def phase_lists(run, tr, schemas, field_map, part):
     return dict(lists=len(out), rows_new=sum(x["new"] for x in out))
 
 
-def budget_payload(run, reg, measure, bc):
+def budget_payload(run, reg, measure, bc, out_file=None):
     """§4.2: bytes_used + 2 * sum_p (b_p/N_p) N_rest,p and T_used + 2 sum_p (t_p/N_p) N_rest,p + R_rest (1 s + t_c)."""
     leaves = [x for x in read_csv(run.p("COUNT_LEAVES.csv")) if x["status"] == "ok" and int(x["count"]) > 0]
     done = done_windows(run)
@@ -990,53 +1089,81 @@ def budget_payload(run, reg, measure, bc):
                t_count_max_s=bc["t_count_max_s"], projected_bytes=b_proj, projected_wall_s=t_proj,
                projected_attempts=r_proj, projected_rows=rows_proj, unmeasured_profiles=missing, factor=2,
                within_caps=bool(ok))
-    write_json(run.p("BUDGET_PAYLOAD.json"), out)
+    write_json(out_file or run.p("BUDGET_PAYLOAD.json"), out)
     return out
 
 
 def phase_aux(run, tr, schemas, rules):
-    """Grouped lookups of documented sources (§4.3); only if PRODUCT_RULES declares a lookup."""
+    """Grouped lookups of documented sources (§4.3); only if PRODUCT_RULES declares a lookup; after the overlap."""
+    if not leaf_status(run)["overlap"]["complete"]:
+        raise TechnicalError("aux refused: the overlap is not completely acquired (§4.3 order)")
     lk = (rules or {}).get("smarp_source_lookup")
     if not lk:
         write_json(run.p("AUX_STATUS.json"), dict(status="not_needed_or_not_documented"))
         return dict(status="not_needed_or_not_documented")
-    series, key_tarp, key_t = lk["series"], lk.get("tarp_key", "TARPNUM"), lk.get("time_key", "T_REC")
-    if series not in SERIES:
-        raise TechnicalError("lookup series not allowed")
-    keys = lk["keywords"]
+    series = lk["series"]
+    if series not in SERIES or series not in schemas:
+        raise TechnicalError("lookup series not allowed or its schema not acquired")
+    sc = schemas[series]
+    tk = time_key(sc)
+    key_map = lk["key_map"]                       # lookup-series primekey -> field of the SMARP record
+    if set(key_map) != set(sc["primekeys"]):
+        raise TechnicalError("key_map must cover exactly the primekeys of the lookup series")
+    keys = [k for k in lk["keywords"] if k not in sc["primekeys"]]
     recs = []
-    for prof in ("smarp_overlap", "smarp_min"):
+    for prof in ("smarp_overlap", "smarp_min"):    # overlap sources first, then historical (§4.3)
         path = run.p(f"RECORDS_{prof}.csv.gz")
         if path.exists():
             with gzip.open(path, "rt", newline="") as f:
-                recs += [(prof, r) for r in csv.DictReader(f) if r["edge"] == "0"]
+                recs += [r for r in csv.DictReader(f) if r["edge"] == "0"]
     groups = {}
-    for prof, r in recs:
-        groups.setdefault(r[key_tarp], []).append(r[key_t])
-    out, cache = [], {}
-    for tarp in sorted(groups, key=lambda x: (len(x), x)):
-        times = sorted(set(groups[tarp]))
+    for r in recs:
+        g = tuple((k, r[key_map[k]]) for k in sc["primekeys"] if k != tk)
+        groups.setdefault(g, set()).add(r[key_map[tk]])
+    cache_f = run.p("AUX_RECORDS.csv.gz")
+    cache = {}
+    if cache_f.exists():
+        with gzip.open(cache_f, "rt", newline="") as f:
+            for r in csv.DictReader(f):
+                cache[tuple(r[k] for k in sc["primekeys"])] = r
+    done = {(g, t) for g in groups for t in groups[g] if tuple(dict(g).get(k, t) for k in sc["primekeys"]) in cache}
+    out, status = [], "complete"
+    for g in sorted(groups):
+        times = sorted(t for t in groups[g] if (g, t) not in done)
         for i in range(0, len(times), AUX_BATCH):
             if tr.reg.d["aux_attempts"] + 1 > RESERVE_AUX:
-                write_json(run.p("AUX_STATUS.json"), dict(status="unknown_budget", done=len(out)))
-                return dict(status="unknown_budget", done=len(out))
+                status = "unknown_budget"
+                break
             batch = times[i:i + AUX_BATCH]
-            ds = f"{series}[{tarp}][{','.join(batch)}]"
-            js, fname = tr.get({"op": "rs_list", "ds": ds, "key": ",".join([key_tarp, key_t] + keys)},
-                               f"aux_{tarp}_{i}", aux=True)
+            gd = dict(g)
+            js, fname = tr.get({"op": "rs_list", "ds": aux_recset(series, sc, gd, batch),
+                                "key": ",".join(sc["primekeys"] + keys)},
+                               f"aux_{'_'.join(str(v) for _, v in g)}_{i}", aux=True)
             for r in rows_from_rs_list(js):
-                cache[(r.get(key_tarp), r.get(key_t))] = r
-            out.append(dict(tarp=tarp, n=len(batch), file=fname))
-    with gzip.open(run.p("AUX_RECORDS.csv.gz"), "wt", newline="") as f:
+                cache[tuple(r.get(k) for k in sc["primekeys"])] = r
+            out.append(dict(group=gd, n=len(batch), file=fname))
+        if status != "complete":
+            break
+    with gzip.open(cache_f, "wt", newline="") as f:
         w = csv.writer(f, lineterminator="\n")
-        w.writerow([key_tarp, key_t] + keys)
-        for (tp, t), r in sorted(cache.items()):
-            w.writerow([tp, t] + [r.get(k) for k in keys])
-    write_json(run.p("AUX_STATUS.json"), dict(status="complete", requests=len(out)))
-    return dict(status="complete", requests=len(out))
+        w.writerow(sc["primekeys"] + keys)
+        for key, r in sorted(cache.items()):
+            w.writerow(list(key) + [r.get(k) for k in keys])
+    write_json(run.p("AUX_STATUS.json"), dict(status=status, requests=len(out), cached=len(cache)))
+    return dict(status=status, requests=len(out))
+
+
+def aux_recset(series, sc, group, times):
+    """Lookup record set in the real primekey order of the lookup series: time key as a list, others fixed."""
+    tk = time_key(sc)
+    return series + "".join(f"[{','.join(times)}]" if k == tk else f"[{group[k]}]" for k in sc["primekeys"])
 
 
 def phase_continuum(run, tr, schemas):
+    st = leaf_status(run)
+    bc = json.loads(run.p("BUDGET_COUNTS.json").read_text()) if run.p("BUDGET_COUNTS.json").exists() else {}
+    if not (st["overlap"]["complete"] and (st["history"]["complete"] or bc.get("decision") != "full")):
+        raise TechnicalError("continuum refused: optional and last, after the main inventory (§4.2)")
     sc = schemas.get(IC)
     if sc is None:
         return dict(status="schema_not_verified")
@@ -1205,28 +1332,39 @@ def geom_of(rec, fmap, prof):
     return dict(status="ok", lon=c[0], lat=c[1], env=env, env_reason=why_e)
 
 
-def match_overlap(smarp, hmi, fmap):
-    """§6.1-6.3: nearest HMI record per HARPNUM within 360 s; G5/G10 degrees; completeness; box_only."""
-    by_time = {}
-    for h in hmi:
-        by_time.setdefault(h["HARPNUM"], []).append(h)
-    for v in by_time.values():
-        v.sort(key=lambda r: r["_t"])
+def noaa_set(*vals):
+    out = set()
+    for v in vals:
+        for x in re.split(r"[,; ]+", str(v or "")):
+            if x.strip().isdigit() and int(x) > 0:
+                out.add(int(x))
+    return out
+
+
+def match_overlap(smarp, hmi, fmap, incomplete=()):
+    """§6.1-6.3: nearest HMI record per HARPNUM within 360 s (time index); G5/G10 degrees; record states that keep
+    an incomplete search and incomplete competitor geometry apart from a genuine absence of candidates."""
+    import bisect
+    glob = sorted(hmi, key=lambda r: r["_t"])
+    gt = [r["_t"] for r in glob]
+    tol = timedelta(seconds=TIME_TOL_S)
     pairs = []
     for s in smarp:
-        for harp, lst in by_time.items():
-            best = None
-            for h in lst:
-                d = abs((h["_t"] - s["_t"]).total_seconds())
-                if d <= TIME_TOL_S and (best is None or d < best[0] or (d == best[0] and h["_t"] < best[1]["_t"])):
-                    best = (d, h)
-            if best is not None:
-                pairs.append(dict(s=s, h=best[1], dt=(best[1]["_t"] - s["_t"]).total_seconds()))
+        lo, hi = bisect.bisect_left(gt, s["_t"] - tol), bisect.bisect_right(gt, s["_t"] + tol)
+        best = {}
+        for h in glob[lo:hi]:
+            d = abs((h["_t"] - s["_t"]).total_seconds())
+            b = best.get(h["HARPNUM"])
+            if b is None or d < b[0] or (d == b[0] and h["_t"] < b[1]["_t"]):
+                best[h["HARPNUM"]] = (d, h)
+        for harp in sorted(best, key=str):
+            h = best[harp][1]
+            pairs.append(dict(s=s, h=h, dt=(h["_t"] - s["_t"]).total_seconds()))
     for p in pairs:
         gs, gh = p["s"]["_geom"], p["h"]["_geom"]
         if gs["status"] == "ok" and gh["status"] == "ok":
             p["dist"] = great_circle(gs["lon"], gs["lat"], gh["lon"], gh["lat"])
-            p["ov"] = envelope_overlap(gs["env"], gh["env"]) if gs["env"] and gh["env"] else None
+            p["ov"] = envelope_overlap(gs["env"], gh["env"]) if gs.get("env") and gh.get("env") else None
         else:
             p["dist"], p["ov"] = None, None
     graphs = {}
@@ -1237,32 +1375,53 @@ def match_overlap(smarp, hmi, fmap):
             deg_s[p["s"]["_id"]] = deg_s.get(p["s"]["_id"], 0) + 1
             deg_h[p["h"]["_id"]] = deg_h.get(p["h"]["_id"], 0) + 1
         graphs[R] = dict(arcs=arcs, deg_s=deg_s, deg_h=deg_h)
+    q_s, q_h = role_name(fmap, "smarp_overlap", "quality"), role_name(fmap, "hmi_overlap", "quality")
+    n_s = [role_name(fmap, "smarp_overlap", r) for r in ("noaa_ar", "noaa_ars")]
+    n_h = [role_name(fmap, "hmi_overlap", r) for r in ("noaa_ar", "noaa_ars")]
     rows = []
     for p in pairs:
         to_s, _ = parse_time(p["s"].get("_tobs"))
         to_h, _ = parse_time(p["h"].get("_tobs"))
+        ns = noaa_set(*[p["s"].get(k) for k in n_s if k])
+        nh = noaa_set(*[p["h"].get(k) for k in n_h if k])
+        conc = "missing" if not (ns and nh) else ("concordant" if ns & nh else "discordant")
+        ov = p["ov"] or {}
         r = dict(smarp_id=p["s"]["_id"], hmi_id=p["h"]["_id"], TARPNUM=p["s"].get("TARPNUM"), HARPNUM=p["h"]["HARPNUM"],
-                 dt_s=p["dt"], dt_obs_s=(to_h - to_s).total_seconds() if (to_s and to_h) else None, dist_deg=p["dist"], smarp_geom=p["s"]["_geom"]["status"], hmi_geom=p["h"]["_geom"]["status"],
-                 iou=(p["ov"] or {}).get("iou"), inter_sr=(p["ov"] or {}).get("inter"))
+                 dt_s=p["dt"], dt_obs_s=(to_h - to_s).total_seconds() if (to_s and to_h) else None,
+                 dist_deg=p["dist"], smarp_geom=p["s"]["_geom"]["status"], hmi_geom=p["h"]["_geom"]["status"],
+                 iou=ov.get("iou"), inter_sr=ov.get("inter"), frac_smarp=ov.get("frac1"), frac_hmi=ov.get("frac2"),
+                 quality_smarp=p["s"].get(q_s) if q_s else None, quality_hmi=p["h"].get(q_h) if q_h else None,
+                 noaa_smarp=",".join(map(str, sorted(ns))), noaa_hmi=",".join(map(str, sorted(nh))), noaa_concordance=conc)
         for R in RADII:
             g = graphs[R]
             inn = p["dist"] is not None and p["dist"] <= R
             r[f"in_G{int(R)}"] = int(inn)
             r[f"unique_in_G{int(R)}"] = int(inn and g["deg_s"][p["s"]["_id"]] == 1 and g["deg_h"][p["h"]["_id"]] == 1)
         r["ambiguous_on_widening"] = int(r["unique_in_G5"] == 1 and r["unique_in_G10"] == 0)
-        r["box_only"] = int(p["dist"] is not None and p["dist"] > 10.0 and (p["ov"] or {}).get("inter", 0) > 0)
+        r["box_only"] = int(p["dist"] is not None and p["dist"] > 10.0 and (ov.get("inter") or 0) > 0)
         rows.append(r)
+    by_s = {}
+    for p in pairs:
+        by_s.setdefault(p["s"]["_id"], []).append(p)
     states = []
     for s in smarp:
-        cand = [p for p in pairs if p["s"]["_id"] == s["_id"]]
+        cand = by_s.get(s["_id"], [])
         n_na = sum(1 for p in cand if p["h"]["_geom"]["status"] != "ok")
-        st = {"smarp_id": s["_id"], "n_temporal_candidates": len(cand), "n_temporal_not_assessable": n_na}
+        inc = any(a <= s["_t"] + tol and b > s["_t"] - tol for a, b in incomplete)
+        st = {"smarp_id": s["_id"], "n_temporal_candidates": len(cand), "n_temporal_not_assessable": n_na,
+              "search_complete": int(not inc), "geometry_complete_competitors": int(n_na == 0)}
         for R in RADII:
+            k = f"state_G{int(R)}"
             if s["_geom"]["status"] != "ok":
-                st[f"state_G{int(R)}"] = "not_assessable"
+                st[k] = "not_assessable"
+            elif graphs[R]["deg_s"].get(s["_id"], 0):
+                st[k] = "has_candidate"
+            elif inc:
+                st[k] = "search_incomplete"
+            elif n_na:
+                st[k] = "no_candidate_incomplete_geometry"
             else:
-                st[f"state_G{int(R)}"] = "has_candidate" if graphs[R]["deg_s"].get(s["_id"], 0) else "no_candidate"
-        st["geometry_complete_competitors"] = int(n_na == 0)
+                st[k] = "no_candidate"
         states.append(st)
     comps = {}
     for R in RADII:
@@ -1277,9 +1436,11 @@ def match_overlap(smarp, hmi, fmap):
             a, b = find(("T", p["s"].get("TARPNUM"))), find(("H", p["h"]["HARPNUM"]))
             if a != b:
                 parent[a] = b
-        roots = {find(x) for x in list(parent)}
-        comps[R] = len(roots)
+        comps[R] = len({find(x) for x in list(parent)})
     return rows, states, comps
+
+
+STATES = ("has_candidate", "no_candidate", "no_candidate_incomplete_geometry", "search_incomplete", "not_assessable")
 
 
 def load_records(run, prof, fmap):
@@ -1300,9 +1461,37 @@ def load_records(run, prof, fmap):
 
 
 def analyze(run):
+    """Offline analysis; its wall time is added to the registry (§4.1: elaboration counts), without network."""
+    reg = Registry(run.p("REGISTRY.json")) if run.p("REGISTRY.json").exists() else None
+    outcome = "errore"
+    try:
+        res = _analyze(run)
+        outcome = res["status"]
+        if reg is not None:
+            res["wall_used_s_after_analysis"] = reg.used_wall()
+            res["time_cap_exceeded"] = reg.used_wall() > reg.caps["wall_s"]
+        return res
+    finally:
+        if reg is not None:
+            reg.close("analyze", outcome)
+
+
+def incomplete_hmi_intervals(run):
+    if not run.p("COUNT_LEAVES.csv").exists():
+        return [(HMI0, HMI1)]
+    done = done_windows(run)
+    out = []
+    for x in read_csv(run.p("COUNT_LEAVES.csv")):
+        if x["profile"] == "hmi_overlap" and int(x["count"]) > 0 and (
+                x["status"] != "ok" or (x["profile"], f"{x['start']}/{x['end']}") not in done):
+            out.append((parse_time(x["start"])[0], parse_time(x["end"])[0]))
+    return out
+
+
+def _analyze(run):
     fmap, rules = registered_map(run)
     run.res.mkdir(parents=True, exist_ok=True)
-    checks = []
+    checks, limits = [], []
 
     def chk(name, ok, value=""):
         checks.append(dict(check=name, passed=bool(ok), value=value))
@@ -1310,6 +1499,31 @@ def analyze(run):
         if run.p("LIST_RECEIPTS.jsonl").exists() else []
     chk("every listed window: count_server = received", all(r["count_server"] == r["received"] for r in receipts),
         f"{len(receipts)} windows")
+    chk("every listed window: kept + edge + unparsable = received",
+        all(r["kept"] + r["edge"] + r["bad_time"] == r["received"] for r in receipts), "")
+    lst = leaf_status(run)
+    bcf = run.p("BUDGET_COUNTS.json")
+    bdec = json.loads(bcf.read_text()).get("decision") if bcf.exists() else None
+    chk("overlap: every counted window acquired", lst["overlap"]["complete"], "; ".join(lst["overlap"]["missing"][:5]))
+    chk("history: every counted window acquired, or not started by the budget decision",
+        lst["history"]["complete"] or bdec in ("overlap_only", "stop"),
+        f"decision {bdec}; " + "; ".join(lst["history"]["missing"][:5]))
+    log = run.p("raw") / "QUERY_LOG.jsonl"
+    bad_hash, missing = 0, 0
+    if log.exists():
+        for line in log.read_text().splitlines():
+            e = json.loads(line)
+            f = run.p("raw") / e["file"]
+            if not f.exists():
+                missing += 1
+            elif sha_file(f) != e["sha256"]:
+                bad_hash += 1
+    chk("raw responses: SHA-256 recomputed equal to the query log, no file missing", log.exists() and bad_hash == 0
+        and missing == 0, f"{bad_hash} differing, {missing} missing")
+    if run.p("REGISTRY.json").exists():
+        n_new = sum(r["new"] for r in receipts)
+        chk("registry rows = distinct rows accepted in the list receipts",
+            json.loads(run.p("REGISTRY.json").read_text())["rows"] == n_new, str(n_new))
     # coverage per series/profile and month
     cov = []
     for prof in PROFILES:
@@ -1344,7 +1558,7 @@ def analyze(run):
     info = sc["primekeyinfo"].get(time_key(sc), {})
     gaps = []
     fd = sorted({r["_t"] for r in load_records(run, "fd_min", fmap) if r["edge"] == "0" and r["_t"]})
-    step = parse_step(info.get("step"))
+    step = parse_step(info.get("step"), info.get("step_unit"))
     epoch, _ = parse_time(info.get("epoch")) if info.get("epoch") else (None, "missing")
     if fd and step and epoch:
         present = set(fd)
@@ -1367,7 +1581,7 @@ def analyze(run):
                 gaps.append(dict(start=run_start.isoformat(), slots=n, hours=n * step / 3600, window=wdw))
         chk("full-disk gaps on the documented native grid", True, f"step {step} s, {len(gaps)} gap runs")
     else:
-        chk("full-disk native grid documented (epoch and step)", False, "gaps reported only as observed intervals")
+        limits.append("full-disk native grid not documented (epoch/step/unit): gaps reported only as observed intervals")
         for t0_, t1_ in zip(fd, fd[1:]):
             gaps.append(dict(start=t0_.isoformat(), slots="", hours=(t1_ - t0_).total_seconds() / 3600, window="observed"))
     write_csv(run.res / "GAPS.csv", gaps, ["start", "slots", "hours", "window"])
@@ -1392,7 +1606,7 @@ def analyze(run):
     write_csv(run.res / "QUALITY_SUMMARY.csv", qrows, ["profile", "year", "kind", "status", "quality_hex", "bit", "n"])
     # products 1/5 min (§5.3)
     prows = product_states(run, fmap, rules)
-    write_csv(run.res / "PRODUCT_SUMMARY.csv", prows, ["level", "state", "reason", "n"])
+    write_csv(run.res / "PRODUCT_SUMMARY.csv", prows, ["level", "year", "state", "reason", "n"])
     # overlap (§6)
     sm = [r for r in load_records(run, "smarp_overlap", fmap) if r["edge"] == "0" and r["_t"]]
     hm = [r for r in load_records(run, "hmi_overlap", fmap) if r["edge"] == "0" and r["_t"]]
@@ -1404,7 +1618,8 @@ def analyze(run):
         r["_geom"] = geom_of(r, fmap, "hmi_overlap")
         tn = role_name(fmap, "hmi_overlap", "time_obs")
         r["_tobs"] = r.get(tn) if tn else None
-    rows, states, comps = match_overlap([r for r in sm if OV0 <= r["_t"] < OV1], hm, fmap)
+    rows, states, comps = match_overlap([r for r in sm if OV0 <= r["_t"] < OV1], hm, fmap,
+                                        incomplete=incomplete_hmi_intervals(run))
     with gzip.open(run.res / "OVERLAP_CANDIDATES.csv.gz", "wt", newline="") as f:
         cols = list(rows[0]) if rows else ["smarp_id"]
         w = csv.DictWriter(f, fieldnames=cols, lineterminator="\n")
@@ -1413,7 +1628,7 @@ def analyze(run):
     summ = dict(smarp_records=len(states), temporal_pairs=len(rows), components_G5=comps[5.0], components_G10=comps[10.0])
     for R in RADII:
         k = f"state_G{int(R)}"
-        for stt in ("has_candidate", "no_candidate", "not_assessable"):
+        for stt in STATES:
             summ[f"{k}_{stt}"] = sum(1 for s in states if s[k] == stt)
         summ[f"arcs_G{int(R)}"] = sum(r[f"in_G{int(R)}"] for r in rows)
         summ[f"unique_G{int(R)}"] = sum(r[f"unique_in_G{int(R)}"] for r in rows)
@@ -1421,34 +1636,52 @@ def analyze(run):
     summ["ambiguous_on_widening"] = sum(r["ambiguous_on_widening"] for r in rows)
     summ["box_only"] = sum(r["box_only"] for r in rows)
     summ["records_with_incomplete_geometry_competitors"] = sum(1 for s in states if not s["geometry_complete_competitors"])
+    summ["records_with_incomplete_search"] = sum(1 for s in states if not s["search_complete"])
+    summ["noaa_concordance"] = {c: sum(1 for r in rows if r["noaa_concordance"] == c)
+                                for c in ("concordant", "discordant", "missing")}
     dts = [abs(r["dt_s"]) for r in rows]
     summ["abs_dt_zero"] = sum(1 for d in dts if d == 0)
     summ["abs_dt_max"] = max(dts) if dts else None
     write_json(run.res / "OVERLAP_SUMMARY.json", summ)
     chk("record states partition the SMARP overlap records", all(
-        sum(summ[f"state_G{int(R)}_{x}"] for x in ("has_candidate", "no_candidate", "not_assessable")) == len(states)
-        for R in RADII), str(len(states)))
+        sum(summ[f"state_G{int(R)}_{x}"] for x in STATES) == len(states) for R in RADII), str(len(states)))
     write_csv(run.res / "CHECKS.csv", checks, ["check", "passed", "value"])
     prov = provenance()
     prov.update(field_map_sha256=sha_file(run.p("FIELD_MAP.csv")), registry=json.loads(run.p("REGISTRY.json").read_text())
                 if run.p("REGISTRY.json").exists() else None)
     write_json(run.res / "PROVENANCE.json", prov)
-    return dict(checks=len(checks), passed=sum(c["passed"] for c in checks), overlap=summ)
+    status = "complete" if all(c["passed"] for c in checks) else "partial"
+    write_json(run.res / "ANALYSIS_STATUS.json", dict(status=status, failed=[c["check"] for c in checks if not c["passed"]],
+                                                      limitations=limits))
+    return dict(status=status, checks=len(checks), passed=sum(c["passed"] for c in checks), limitations=limits,
+                overlap=summ)
 
 
-def parse_step(s):
+STEP_UNITS = {"s": 1, "sec": 1, "secs": 1, "second": 1, "seconds": 1, "m": 60, "min": 60, "mins": 60, "minute": 60,
+              "minutes": 60, "h": 3600, "hour": 3600, "hours": 3600, "d": 86400, "day": 86400, "days": 86400}
+
+
+def parse_step(s, unit=None):
+    """Slot step in seconds from the schema; a bare number needs a documented unit, otherwise None (§6.1)."""
     if s is None:
         return None
-    m = re.fullmatch(r"\s*([0-9.]+)\s*([smhd]?)\s*", str(s))
+    m = re.fullmatch(r"\s*([0-9.]+)\s*([A-Za-z]*)\s*", str(s))
     if not m:
         return None
-    v = float(m.group(1))
-    return v * {"": 1, "s": 1, "m": 60, "h": 3600, "d": 86400}[m.group(2)]
+    v, suf = float(m.group(1)), m.group(2).lower()
+    u = suf or (str(unit).strip().lower() if unit is not None else "")
+    if u not in STEP_UNITS:
+        return None
+    return v * STEP_UNITS[u]
 
 
 def product_states(run, fmap, rules):
-    """documented_1min / documented_5min / unknown / conflict with reasons, per source epoch and per patch."""
-    rule = (rules or {}).get("fd_product")
+    """documented_1min / documented_5min / unknown / conflict with reasons, per source epoch and per patch record,
+    overall and per year (§5.3). The SMARP source time comes from a documented SMARP keyword or from the documented
+    auxiliary lookup (AUX_RECORDS); a source is identified by time only within 1 s and if unique."""
+    import bisect
+    rules = rules or {}
+    rule = rules.get("fd_product")
     fd = [r for r in load_records(run, "fd_min", fmap) if r["edge"] == "0"]
     fd_state = {}
     for r in fd:
@@ -1458,36 +1691,59 @@ def product_states(run, fmap, rules):
         v = r.get(rule["keyword"])
         cls = rule["map"].get(str(v).strip()) if v is not None else None
         fd_state[r["_id"]] = (cls, "rule") if cls in ("documented_1min", "documented_5min") else ("unknown", "value_not_mapped")
-    by_time = {}
-    for r in fd:
-        if r["_t"] is not None:
-            by_time.setdefault(r["_t"], []).append(r["_id"])
+    tl = sorted((r["_t"], r["_id"]) for r in fd if r["_t"] is not None)
+    times = [t for t, _ in tl]
     out = {}
-    for rid, (stt, why) in fd_state.items():
-        out[("source_epoch", stt, why)] = out.get(("source_epoch", stt, why), 0) + 1
-    src = (rules or {}).get("smarp_source_time")
+
+    def add(level, year, stt, why):
+        for y in ("all", year):
+            out[(level, y, stt, why)] = out.get((level, y, stt, why), 0) + 1
+    for r in fd:
+        add("source_epoch", r["_t"].year if r["_t"] else "unknown", *fd_state[r["_id"]])
+    src = rules.get("smarp_source_time")
+    lk = rules.get("smarp_source_lookup")
+    aux = {}
+    if lk and lk.get("source_time_keyword") and run.p("AUX_RECORDS.csv.gz").exists():
+        sc = run.schemas()[lk["series"]]
+        with gzip.open(run.p("AUX_RECORDS.csv.gz"), "rt", newline="") as f:
+            for a in csv.DictReader(f):
+                aux[tuple(a[k] for k in sc["primekeys"])] = a
+    aux_status = json.loads(run.p("AUX_STATUS.json").read_text()).get("status") if run.p("AUX_STATUS.json").exists() else None
     for prof in ("smarp_overlap", "smarp_min"):
         for r in load_records(run, prof, fmap):
             if r["edge"] != "0":
                 continue
-            if not src:
-                stt, why = "unknown", "source_not_documented"
+            year = r["_t"].year if r["_t"] else "unknown"
+            if src:
+                tstr = r.get(src["keyword"])
+            elif aux:
+                sc = run.schemas()[lk["series"]]
+                a = aux.get(tuple(r.get(lk["key_map"][k]) for k in sc["primekeys"]))
+                tstr = a.get(lk["source_time_keyword"]) if a else None
+                if a is None:
+                    add("patch_record", year, "unknown", "unknown_budget" if aux_status == "unknown_budget"
+                        else "source_unresolved")
+                    continue
             else:
-                t, st = parse_time(r.get(src["keyword"]))
-                cands = [i for tt, ids in by_time.items() if t and abs((tt - t).total_seconds()) <= SOURCE_TIME_TOL_S
-                         for i in ids] if t else []
-                if not cands:
-                    stt, why = "unknown", "source_unresolved"
-                else:
-                    cl = {fd_state[i][0] for i in cands}
-                    if len(cands) > 1 and len(cl) > 1:
-                        stt, why = "conflict", "several_sources"
-                    elif len(cands) > 1:
-                        stt, why = "unknown", "source_not_unique"
-                    else:
-                        stt, why = fd_state[cands[0]][0], "time_link_1s"
-            out[("patch_record", stt, why)] = out.get(("patch_record", stt, why), 0) + 1
-    return [dict(level=k[0], state=k[1], reason=k[2], n=n) for k, n in sorted(out.items())]
+                add("patch_record", year, "unknown", "source_not_documented")
+                continue
+            t, st = parse_time(tstr)
+            if t is None:
+                add("patch_record", year, "unknown", "source_unresolved")
+                continue
+            lo = bisect.bisect_left(times, t - timedelta(seconds=SOURCE_TIME_TOL_S))
+            hi = bisect.bisect_right(times, t + timedelta(seconds=SOURCE_TIME_TOL_S))
+            cands = [tl[k][1] for k in range(lo, hi)]
+            if not cands:
+                add("patch_record", year, "unknown", "source_unresolved")
+            elif len(cands) > 1:
+                cl = {fd_state[i][0] for i in cands}
+                add("patch_record", year, "conflict" if len(cl) > 1 else "unknown",
+                    "several_sources" if len(cl) > 1 else "source_not_unique")
+            else:
+                stt, why = fd_state[cands[0]]
+                add("patch_record", year, stt, "time_link_1s" if why == "rule" else why)
+    return [dict(level=k[0], year=k[1], state=k[2], reason=k[3], n=n) for k, n in sorted(out.items(), key=str)]
 
 
 # ---------------------------------------------------------------- selftest (§8), offline only
@@ -1544,6 +1800,15 @@ class FakeJSOC:
                             time.sleep(0.05)
                     except (BrokenPipeError, ConnectionResetError):
                         pass
+                elif kind == "slowhdr":
+                    with contextlib.suppress(BrokenPipeError, ConnectionResetError, OSError):
+                        self.wfile.write(b"HTTP/1.1 200 OK\r\n")
+                        self.wfile.flush()
+                        for i in range(60):
+                            self.wfile.write(f"X-Slow-{i}: a\r\n".encode())
+                            self.wfile.flush()
+                            time.sleep(0.05)
+                        self.wfile.write(b"Content-Length: 2\r\n\r\n{}")
                 elif kind == "big":
                     body = b'{"status":0,"x":"' + b"a" * beh[1] + b'"}'
                     self.send_response(200)
@@ -1569,9 +1834,10 @@ class FakeJSOC:
         self.srv.server_close()
 
 
-def _transport(tmp, fake, caps=None, waits=(0.01, 0.02), path=None):
+def _transport(tmp, fake, caps=None, waits=(0.01, 0.02), path=None, raw=None):
     reg = Registry(Path(path) if path else Path(tmp) / "REGISTRY.json", caps, min_spacing=0.0)
-    return Transport(reg, Path(tmp) / "raw", scheme="http", host="127.0.0.1", port=fake.port, waits=waits), reg
+    return Transport(reg, Path(raw) if raw else Path(tmp) / "raw", scheme="http", host="127.0.0.1", port=fake.port,
+                     waits=waits), reg
 
 
 def _raises(fn, exc=Exception):
@@ -1620,9 +1886,11 @@ def selftest_checks(ok):
        and parse_time("")[1] == "missing", "")
     sc = parse_schema(dict(primekeys=["TARPNUM", "T_REC"], keywords=[
         dict(name="TARPNUM", type="int"), dict(name="T_REC", type="time"),
-        dict(name="T_REC_epoch", defval="1993.01.01_00:00:00_TAI"), dict(name="T_REC_step", defval="5760")]))
-    ok("schema: primekey order kept, epoch/step from constants, record set in primekey order",
-       sc["primekeys"] == ["TARPNUM", "T_REC"] and parse_step(sc["primekeyinfo"]["T_REC"]["step"]) == 5760.0
+        dict(name="T_REC_epoch", defval="1993.01.01_00:00:00_TAI"), dict(name="T_REC_step", defval="96"),
+        dict(name="T_REC_unit", defval="minutes")]))
+    ok("schema: primekey order kept, epoch/step/unit from constants (96 minutes = 5760 s), record set in primekey order",
+       sc["primekeys"] == ["TARPNUM", "T_REC"]
+       and parse_step(sc["primekeyinfo"]["T_REC"]["step"], sc["primekeyinfo"]["T_REC"]["step_unit"]) == 5760.0
        and recset(SMARP, sc, datetime(2010, 5, 1), datetime(2010, 6, 1)) ==
        "mdi.smarp_cea_96m[][2010.05.01_00:00:00_TAI-2010.06.01_00:00:00_TAI]", "")
     ep, _ = parse_time("1993.01.01_00:00:00_TAI")
@@ -1882,7 +2150,7 @@ class SynthCatalog:
 
     def __init__(self):
         kw = lambda names: [dict(name=n, type=("time" if n.startswith("T_") else "string")) for n in names]  # noqa: E731
-        ep = [dict(name="T_REC_epoch", defval="1993.01.01_00:00:00_TAI")]
+        ep = [dict(name="T_REC_epoch", defval="1993.01.01_00:00:00_TAI"), dict(name="T_REC_unit", defval="secs")]
         self.schemas = {
             SMARP: dict(status=0, primekeys=["TARPNUM", "T_REC"], keywords=kw(["TARPNUM", "T_REC", "T_OBS", "QUALITY",
                         "NOAA_AR"] + self.GEO) + ep + [dict(name="T_REC_step", defval="5760")], links=[], segments=[]),
@@ -1947,7 +2215,7 @@ def selftest_end_to_end(ok):
     try:
         with tempfile.TemporaryDirectory() as tmp:
             run = Run("e2e", raw_base=Path(tmp) / "raw", res_base=Path(tmp) / "res")
-            tr, reg = _transport(tmp, fake, path=run.p("REGISTRY.json"))
+            tr, reg = _transport(tmp, fake, path=run.p("REGISTRY.json"), raw=run.p("raw"))
             phase_schema(run, tr)
             ok("e2e schema: five series saved, field map proposed", len(run.schemas()) == 5
                and run.p("FIELD_MAP_PROPOSED.csv").exists(), "")
@@ -1973,6 +2241,7 @@ def selftest_end_to_end(ok):
             ok("e2e resume: completed windows are not queried again", r3["lists"] == 0 and reg.d["attempts"] == n_before, "")
             ok("e2e rows: distinct accepted rows = 5 + 5 + 13 + 123 + 0 edge", reg.d["rows"] == 5 + 5 + 13 + 123,
                str(reg.d["rows"]))
+            reg.close("e2e", "ok")
             res = analyze(run)
             ov = res["overlap"]
             ok("e2e analysis: G5 unique arcs 4, all ambiguous on widening to 10 deg (second HARP ~6.9 deg)",
@@ -1992,7 +2261,190 @@ def selftest_end_to_end(ok):
             ok("e2e coverage: missing values per requested field counted (HARP without WCS)",
                hm_ and "CRPIX1" in hm_[0]["missing_by_field"] and read_csv(run.res / "WINDOWS.csv"), hm_[0]["missing_by_field"][:60])
             chk = read_csv(run.res / "CHECKS.csv")
-            ok("e2e analysis checks all passed", all(c["passed"] == "True" for c in chk), f"{len(chk)} checks")
+            ok("e2e analysis checks all passed, status complete", all(c["passed"] == "True" for c in chk)
+               and res["status"] == "complete", f"{len(chk)} checks")
+            oc = gzip.open(run.res / "OVERLAP_CANDIDATES.csv.gz", "rt").readline()
+            ok("e2e pair outputs include QUALITY of both, NOAA concordance, overlap fractions and T_OBS offsets",
+               all(c in oc for c in ("quality_smarp", "quality_hmi", "noaa_concordance", "frac_smarp", "frac_hmi",
+                                     "dt_obs_s")), "")
+            regd = json.loads(run.p("REGISTRY.json").read_text())
+            ok("e2e analysis time added to the registry as an 'analyze' invocation",
+               regd["invocations"][-1]["phase"] == "analyze" and not regd["open_invocation"], "")
+            pr = read_csv(run.res / "PRODUCT_SUMMARY.csv")
+            ok("e2e product composition reported overall and per year", {x["year"] for x in pr} >= {"all", "2001", "2010"}, "")
+    finally:
+        fake.close()
+
+
+def _mini_run(tmp, name, smarp_extra=()):
+    run = Run(name, raw_base=Path(tmp) / "raw", res_base=Path(tmp) / "res")
+    js = {SMARP: dict(primekeys=["TARPNUM", "T_REC"], keywords=[dict(name="TARPNUM"), dict(name="T_REC", type="time"),
+                                                                  dict(name="QUALITY")] + [dict(name=n) for n in smarp_extra]),
+          FD: dict(primekeys=["T_REC"], keywords=[dict(name="T_REC", type="time"), dict(name="QUALITY")]),
+          HMI: dict(primekeys=["HARPNUM", "T_REC"], keywords=[dict(name="HARPNUM"), dict(name="T_REC", type="time")]),
+          SMARP_LEV: dict(primekeys=["T_REC", "TARPNUM"], keywords=[dict(name="T_REC", type="time"), dict(name="TARPNUM")])}
+    for s_, j_ in js.items():
+        run.p(f"SCHEMA_{s_}.json").write_text(json.dumps(j_))
+    return run
+
+
+LEAF_COLS = ["part", "series", "profile", "start", "end", "level", "count", "status"]
+
+
+def selftest_regressions(ok):
+    """Regression tests for the counterexamples of the code review of 0ae058a (no network, synthetic only)."""
+    fake = FakeJSOC()
+    try:
+        # 1. a negative payload projection cannot be bypassed on resume; history needs a complete overlap
+        with tempfile.TemporaryDirectory() as tmp:
+            run = _mini_run(tmp, "r1")
+            fm = propose_field_map(run.schemas())
+            leaf = dict(part="history", series=SMARP, profile="smarp_min", start="2001.03.01_00:00:00_TAI",
+                        end="2001.04.01_00:00:00_TAI", level="month", count=1, status="ok")
+            write_csv(run.p("COUNT_LEAVES.csv"), [leaf], LEAF_COLS)
+            write_json(run.p("BUDGET_COUNTS.json"), dict(decision="full", t_count_max_s=0.1))
+            write_json(run.p("BUDGET_PAYLOAD.json"), dict(within_caps=False))
+            tr, reg = _transport(tmp, fake, raw=run.p("raw"))
+            n0 = len(fake.calls)
+            r = _raises(lambda: phase_lists(run, tr, run.schemas(), fm, "history"), BudgetStop)
+            ok("review 1: an existing negative BUDGET_PAYLOAD stops the history at every invocation (no request)",
+               r and len(fake.calls) == n0, "")
+            write_json(run.p("BUDGET_PAYLOAD.json"), dict(within_caps=True))
+            write_json(run.p("PROFILE_MEASURES.json"), {"smarp_min": dict(bytes=10 ** 10, rows=1, seconds=1.0)})
+            r = _raises(lambda: phase_lists(run, tr, run.schemas(), fm, "history"), BudgetStop)
+            ok("review 1: a positive registered projection is rechecked; a failing recheck stops (no request)",
+               r and len(fake.calls) == n0 and list(run.raw.glob("BUDGET_PAYLOAD_RECHECK_*.json")), "")
+            write_csv(run.p("COUNT_LEAVES.csv"), [dict(leaf, part="overlap", profile="smarp_overlap"), leaf], LEAF_COLS)
+            ok("review 1: history refused while an overlap window is not acquired",
+               _raises(lambda: phase_lists(run, tr, run.schemas(), fm, "history"), TechnicalError), "")
+            ok("review 1: aux refused while the overlap is incomplete",
+               _raises(lambda: phase_aux(run, tr, run.schemas(), {}), TechnicalError), "")
+        # 2. registry recovery after an abnormal end
+        with tempfile.TemporaryDirectory() as tmp:
+            reg = Registry(Path(tmp) / "R.json")
+            reg.t_start -= 12.0
+            body = Path(tmp) / "partial.body"
+            body.write_bytes(b"x" * 500)
+            reg.d["in_flight"] = dict(file=str(body), bytes_before=reg.d["bytes"])
+            reg.save()
+            reg2 = Registry(Path(tmp) / "R.json")
+            ok("review 2: unclosed invocation recovered conservatively (>= 12 s + save interval, partial body bytes)",
+               reg2.used_wall() >= 13.0 and reg2.d["bytes"] == 500 and len(reg2.d["recoveries"]) == 1,
+               f"{reg2.used_wall():.1f} s, {reg2.d['bytes']} bytes")
+            reg2.close("t", "ok")
+            reg3 = Registry(Path(tmp) / "R.json")
+            ok("review 2: a closed invocation is not recovered again", len(reg3.d["recoveries"]) == 1, "")
+        # 3. transport limits on headers and on the residual bytes
+        with tempfile.TemporaryDirectory() as tmp:
+            tr, reg = _transport(tmp, fake, dict(attempts=CAP_ATTEMPTS, rows=CAP_ROWS, bytes=CAP_BYTES, wall_s=0.5))
+            fake.behaviour = {"SLOWHDR": ("slowhdr",)}
+            t0 = time.monotonic()
+            r = _raises(lambda: tr.get({"op": "rs_summary", "ds": "SLOWHDR"}, "h"), BudgetStop)
+            ok("review 3: slow headers stopped by the absolute deadline (watchdog), not after them",
+               r and time.monotonic() - t0 < 1.5, f"{time.monotonic() - t0:.2f} s for a 0.5 s cap")
+        with tempfile.TemporaryDirectory() as tmp:
+            tr, reg = _transport(tmp, fake, dict(attempts=CAP_ATTEMPTS, rows=CAP_ROWS, bytes=10, wall_s=CAP_WALL_S))
+            fake.behaviour = {"BIG100": ("big", 100)}
+            r = _raises(lambda: tr.get({"op": "rs_list", "ds": "BIG100", "key": "x"}, "b"), BudgetStop)
+            files = list((Path(tmp) / "raw").glob("b_*.body"))
+            ok("review 3: reads never exceed the residual byte budget (cap 10 -> 10 received, registered, on disk)",
+               r and reg.d["bytes"] == 10 and files and files[0].stat().st_size == 10, "")
+        # 4. incomplete search and incomplete competitors are not 'no_candidate'
+        t = datetime(2010, 6, 1)
+        s1 = dict(_id="S", _t=t, TARPNUM="1", _geom=dict(status="ok", lon=10.0, lat=0.0, env=(9, 11, -1, 1)))
+        hna = dict(_id="H", _t=t, HARPNUM="9", _geom=dict(status="not_assessable", reason="missing CRPIX1"))
+        _, st1, _ = match_overlap([s1], [hna], [])
+        _, st2, _ = match_overlap([s1], [], [], incomplete=[(t - timedelta(days=1), t + timedelta(days=1))])
+        ok("review 4: only a not-assessable competitor -> no_candidate_incomplete_geometry (not no_candidate)",
+           st1[0]["state_G5"] == "no_candidate_incomplete_geometry", "")
+        ok("review 4: HMI window counted but not acquired -> search_incomplete", st2[0]["state_G5"] == "search_incomplete"
+           and st2[0]["search_complete"] == 0, "")
+        fake.catalog = SynthCatalog()
+        fake.behaviour = {}
+        with tempfile.TemporaryDirectory() as tmp:
+            run = Run("r4", raw_base=Path(tmp) / "raw", res_base=Path(tmp) / "res")
+            tr, reg = _transport(tmp, fake, path=run.p("REGISTRY.json"), raw=run.p("raw"))
+            phase_schema(run, tr)
+            run.p("FIELD_MAP.csv").write_bytes(run.p("FIELD_MAP_PROPOSED.csv").read_bytes())
+            register_map(run, "selftest r4")
+            fm, _ = registered_map(run)
+            sch = run.schemas()
+            phase_counts(run, tr, sch)
+            store = Store(run, sch)
+            for leaf in read_csv(run.p("COUNT_LEAVES.csv")):
+                if leaf["profile"] == "smarp_overlap" and int(leaf["count"]) > 0:
+                    list_leaf(tr, store, leaf, sch, fm, run)
+            reg.close("r4", "ok")
+            res = analyze(run)
+            ok("review 4: HMI counted but never listed -> analysis 'partial'; the 4 June records are search_incomplete, "
+               "the July record (its HMI window counted zero, so searched completely) stays no_candidate",
+               res["status"] == "partial" and res["overlap"]["state_G5_search_incomplete"] == 4
+               and res["overlap"]["state_G5_no_candidate"] == 1, json.dumps({k: v for k, v in res["overlap"].items()
+                                                                            if "G5" in k}))
+            f = next(iter((run.p("raw")).glob("count_*.body")))
+            f.write_bytes(f.read_bytes() + b" ")
+            res2 = analyze(run)
+            ok("review 4: a modified raw response is detected by the recomputed SHA-256",
+               "raw responses: SHA-256 recomputed equal to the query log, no file missing" in
+               json.loads((run.res / "ANALYSIS_STATUS.json").read_text())["failed"], "")
+        fake.catalog = None
+        # 5. provenance per profile; deletion of registered rules detected
+        with tempfile.TemporaryDirectory() as tmp:
+            run = _mini_run(tmp, "r5", smarp_extra=("SOURCE",))
+            fm = propose_field_map(run.schemas())
+            has = {r["profile"] for r in fm if r["name"] == "SOURCE" and r["role"] == "provenance_candidate"}
+            ok("review 5: provenance candidate proposed in both SMARP profiles", has == {"smarp_min", "smarp_overlap"}, str(has))
+            write_csv(run.p("FIELD_MAP.csv"), fm, FIELD_COLS)
+            run.p("PRODUCT_RULES.json").write_text("{}")
+            register_map(run, "selftest r5")
+            run.p("PRODUCT_RULES.json").unlink()
+            ok("review 5: deleting the registered PRODUCT_RULES.json invalidates the registration",
+               _raises(lambda: registered_map(run), TechnicalError), "")
+        # 6. auxiliary records in the lookup schema order and used by the product classification
+        with tempfile.TemporaryDirectory() as tmp:
+            run = _mini_run(tmp, "r6")
+            sc6 = run.schemas()[SMARP_LEV]
+            ok("review 6: aux record set follows the lookup-series primekey order ([T_REC][TARPNUM])",
+               aux_recset(SMARP_LEV, sc6, {"TARPNUM": "7"}, ["2001.03.10_00:00:00_TAI", "2001.03.10_01:36:00_TAI"])
+               == "mdi.smarp_96m[2001.03.10_00:00:00_TAI,2001.03.10_01:36:00_TAI][7]", "")
+            with gzip.open(run.p("RECORDS_fd_min.csv.gz"), "wt", newline="") as f:
+                w = csv.writer(f, lineterminator="\n")
+                w.writerow(["window", "edge", "T_REC", "MODE"])
+                w.writerow(["w", 0, "2001.03.10_00:00:00_TAI", "1"])
+            with gzip.open(run.p("RECORDS_smarp_min.csv.gz"), "wt", newline="") as f:
+                w = csv.writer(f, lineterminator="\n")
+                w.writerow(["window", "edge", "TARPNUM", "T_REC"])
+                w.writerow(["w", 0, "7", "2001.03.10_00:05:00_TAI"])
+                w.writerow(["w", 0, "8", "2001.03.10_00:05:00_TAI"])
+            with gzip.open(run.p("AUX_RECORDS.csv.gz"), "wt", newline="") as f:
+                w = csv.writer(f, lineterminator="\n")
+                w.writerow(["T_REC", "TARPNUM", "SRC_T"])
+                w.writerow(["2001.03.10_00:05:00_TAI", "7", "2001.03.10_00:00:00_TAI"])
+            write_json(run.p("AUX_STATUS.json"), dict(status="unknown_budget"))
+            rules = {"fd_product": {"keyword": "MODE", "map": {"1": "documented_1min"}},
+                     "smarp_source_lookup": {"series": SMARP_LEV, "key_map": {"T_REC": "T_REC", "TARPNUM": "TARPNUM"},
+                                             "keywords": ["SRC_T"], "source_time_keyword": "SRC_T"}}
+            pr = {(x["level"], x["year"], x["state"], x["reason"]): x["n"] for x in product_states(run, [], rules)}
+            ok("review 6: AUX_RECORDS feed the classification (TARP 7 -> 1-min source); a record not looked up for "
+               "budget is unknown_budget", pr.get(("patch_record", "all", "documented_1min", "time_link_1s")) == 1
+               and pr.get(("patch_record", "all", "unknown", "unknown_budget")) == 1, json.dumps({"|".join(map(str, k)): v
+                                                                                                 for k, v in pr.items()}))
+        # 7. step unit
+        ok("review 7: step unit honoured (96 minutes = 5760 s; '720s' = 720 s; bare number without unit undocumented)",
+           parse_step("96", "minutes") == 5760.0 and parse_step("720s") == 720.0 and parse_step("720") is None
+           and parse_step("720", "secs") == 720.0 and parse_step("5", "fortnights") is None, "")
+        # 8. auxiliary schema failure does not block the proposal
+        fake.catalog = SynthCatalog()
+        fake.behaviour = {IC: ("json", {"status": 4, "error": "no series"}), SMARP_LEV: ("status", 500)}
+        with tempfile.TemporaryDirectory() as tmp:
+            run = Run("r8", raw_base=Path(tmp) / "raw", res_base=Path(tmp) / "res")
+            tr, reg = _transport(tmp, fake, raw=run.p("raw"))
+            r8 = phase_schema(run, tr)
+            ok("review 8: auxiliary schemas unavailable -> main schemas and FIELD_MAP_PROPOSED kept, status declared",
+               r8["schema_status"][IC] == "schema_not_verified" and r8["schema_status"][SMARP_LEV] == "schema_not_verified"
+               and r8["schema_status"][SMARP] == "acquired" and run.p("FIELD_MAP_PROPOSED.csv").exists()
+               and len(run.schemas()) == 3, json.dumps(r8["schema_status"]))
+        fake.catalog = None
     finally:
         fake.close()
 
@@ -2014,6 +2466,7 @@ def selftest():
     try:
         selftest_checks(ok)
         selftest_end_to_end(ok)
+        selftest_regressions(ok)
         meta.update(n_checks=len(res), n_passed=sum(r["passed"] for r in res))
         meta["outcome"] = "superato" if out_ok else "non superato"
         code = 0 if out_ok else 1
