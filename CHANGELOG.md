@@ -2,6 +2,9 @@
 
 ## v8.4 (Python, branch `v8.4-python-gianluca`) — in corso
 
+- 2026-11-16, sintesi HMI consolidata (`docs/HMI_QUENCHING_SYNTHESIS.md`): proxy, T3, T5 rinviato, morfologia,
+  sequenza decisa (piano prospettico prima di MDI). Raccoglitore MDI: quattro revisioni di Codex recepite
+  (`5c5d8b4`, 105/105); fase schema tentata e bloccata da un errore TLS (`2552b11`), lavoro fermo.
 - 2026-11-16, T5: rinvio operativo registrato (esito ii del piano di potenza), risultati conservati; T5 non
   validato, quenching non conclusivo.
 - 2026-11-16, T5 potenza: esecuzione unica completata e controllata (30/30); risultati descrittivi in

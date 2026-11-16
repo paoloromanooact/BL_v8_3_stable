@@ -88,6 +88,17 @@ bersaglio esplicito della potenza prospettica di T3, copertura nominale del cicl
 il limite SMARP di ottobre 2010. Prossimo passo indicato: inventario limitato dei metadati (piano prima,
 nessun download). Nessuna query eseguita.
 
+## Sintesi HMI consolidata; prossimo: bozza del piano prospettico — 2026-11-16
+
+`docs/HMI_QUENCHING_SYNTHESIS.md` consolidata come documento interno (proxy e sua lettura morfologica, T3 non
+deciso, T5 descrittivo e rinviato con i risultati di potenza, che cosa non ripetere, sequenza decisa). Prossimo
+passo concordato con Codex: **bozza di un piano prospettico** da rivedere prima dei calcoli, con i vincoli di
+Codex: osservazioni solari aggiuntive (regioni, rotazioni, anni), non repliche Monte Carlo; bersaglio = riduzione
+prescritta del 20 % (pendenza T5 ≈ −0,103·η̄); incertezza fra strumenti dipendente da attività e tempo; 50 % come
+obiettivo operativo da motivare; prima stima analitica, poi simulazioni; un guadagno insufficiente per T5 non
+esclude l'utilità di MDI per T3 o per il catalogo. MDI operativo (errore TLS da risolvere) e morfologia di S in
+pausa. Nessun push.
+
 ## T5 potenza: risultati letti — 2026-11-16
 
 Esecuzione unica (`44633cb`, 10:38–13:31, 9000 unità, 0 errori tecnici), output `0a6853a`, controllo
