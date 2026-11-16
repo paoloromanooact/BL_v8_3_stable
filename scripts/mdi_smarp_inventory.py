@@ -16,14 +16,19 @@ without a registered field map.
     .venv/bin/python scripts/mdi_smarp_inventory.py --analyze        --run-id RUN             # §5-§7, offline
 
 Implementation choices (not new rules; listed for the code review):
-- Transport: http.client over HTTPS to jsoc.stanford.edu/cgi-bin/ajax/jsoc_info only, ops series_struct,
-  rs_summary, rs_list; Accept-Encoding identity; body read with read1() so that the byte cap and the absolute
+- Transport: http.client over plain HTTP (SCHEME; HTTPS stays available only for tests, see the access diagnosis
+  c63ff23) to jsoc.stanford.edu/cgi-bin/ajax/jsoc_info only, ops series_struct, rs_summary, rs_list; a redirect to
+  another scheme (e.g. HTTPS) is refused; Accept-Encoding identity; body read with read1() so that the byte cap and the absolute
   deadline are checked on every received block; the socket timeout is min(45 s, remaining time) before every
   read. At most one redirect is followed, and only to the same allowed endpoint; it counts as an attempt.
 - Requests per logical request: at most 3 attempts with waits of 5 and 15 s; at least 1 s between attempts;
   Retry-After honoured only within the remaining time. HTTP 4xx other than 429 are not retried.
-- One persistent registry (REGISTRY.json) holds attempts, bytes, distinct accepted rows and cumulative wall time
-  of invocations; it is written after every attempt and never reset. A lock file prevents two instances.
+- One persistent registry for the whole inventory (INVENTORY_REGISTRY.json in the inventory folder, shared by
+  every run id and seeded once from earlier per-run REGISTRY.json files, so the 15 attempts and the time of the
+  first schema phase stay counted) holds attempts, bytes, distinct accepted rows and cumulative wall time, with a
+  per-run breakdown; it is never reset. One lock for the whole inventory prevents two instances.
+- The slot-step unit is read from every documented source (the step keyword's own 'units', a separate _unit
+  keyword, primekeysinfo) with provenance; discordant sources leave it undocumented. Each series keeps its epoch.
 - Record sets are written in the real primekey order from the saved schema; the time key gets an inclusive DRMS
   range [start-end] and every response is filtered locally on the half-open window; rows at the excluded end are
   recorded as edge rows before deduplication. Identity = series + all primekeys.
@@ -93,6 +98,10 @@ SELFTEST_BASE = ROOT / "results/MDI_SMARP_INVENTORY_SELFTEST"
 T5_META = ROOT / "results/T5_POWER_SENSITIVITY/META.json"
 
 HOST, PATH = "jsoc.stanford.edu", "/cgi-bin/ajax/jsoc_info"
+# Access diagnosis c63ff23: the HTTPS endpoint fails the default negotiation (TLS >= 1.2) and a TLS 1.0 handshake
+# shows a self-signed expired certificate; plain HTTP answers the JSON directly, as drms does by default. The frozen
+# plan does not prescribe HTTPS. Public metadata only, no credentials are sent.
+SCHEME = "http"
 OPS = ("series_struct", "rs_summary", "rs_list")
 
 SMARP, SMARP_LEV, FD, HMI, IC = ("mdi.smarp_cea_96m", "mdi.smarp_96m", "mdi.fd_M_96m_lev182",
@@ -237,9 +246,10 @@ class Registry:
     SAVE_EVERY_S = 1.0
     _instances = None
 
-    def __init__(self, path, caps=None, min_spacing=MIN_SPACING):
+    def __init__(self, path, caps=None, min_spacing=MIN_SPACING, run_id=None):
         self.path = Path(path)
         self.min_spacing = min_spacing
+        self.run_id = run_id
         self.caps = caps or dict(attempts=CAP_ATTEMPTS, rows=CAP_ROWS, bytes=CAP_BYTES, wall_s=CAP_WALL_S)
         if self.path.exists():
             self.d = json.loads(self.path.read_text())
@@ -269,6 +279,10 @@ class Registry:
         self._saved = 0.0
         self._mx = threading.RLock()
         self._hb_stop = threading.Event()
+        self.d.setdefault("by_run", {})
+        if run_id is not None:
+            self.d["by_run"].setdefault(run_id, dict(attempts=0, bytes=0, rows=0))
+        self.inv["run_id"] = run_id
         self.d["open_invocation"] = True
         self.save()
         self._hb = threading.Thread(target=self._heartbeat, daemon=True)
@@ -321,6 +335,8 @@ class Registry:
         with self._mx:
             self.check("attempt", n_attempts=1)
             self.d["attempts"] += 1
+            if self.run_id is not None:
+                self.d["by_run"][self.run_id]["attempts"] += 1
             if aux:
                 self.d["aux_attempts"] += 1
             self._last = time.monotonic()
@@ -329,10 +345,14 @@ class Registry:
     def add_bytes(self, n):
         with self._mx:
             self.d["bytes"] += n
+            if self.run_id is not None:
+                self.d["by_run"][self.run_id]["bytes"] += n
 
     def add_rows(self, n):
         with self._mx:
             self.d["rows"] += n
+            if self.run_id is not None:
+                self.d["by_run"][self.run_id]["rows"] += n
             self.save()
 
     def maybe_save(self):
@@ -401,7 +421,7 @@ def bounded_connect(host, port, deadline, register, resolver=socket.getaddrinfo,
 class Transport:
     """Bounded HTTP(S) GET for jsoc_info; everything logged and saved, nothing silently retried."""
 
-    def __init__(self, reg: Registry, raw_dir, scheme="https", host=HOST, port=None, path=PATH, waits=WAITS):
+    def __init__(self, reg: Registry, raw_dir, scheme=SCHEME, host=HOST, port=None, path=PATH, waits=WAITS):
         self.reg, self.raw_dir = reg, Path(raw_dir)
         self.scheme, self.host, self.port, self.path, self.waits = scheme, host, port, path, waits
         self.raw_dir.mkdir(parents=True, exist_ok=True)
@@ -635,16 +655,34 @@ def parse_schema(js):
         pk = [x.strip() for x in pk.split(",") if x.strip()]
     kws = {k.get("name"): k for k in (js.get("keywords") or []) if isinstance(k, dict) and k.get("name")}
     info = {}
+    pki = {e.get("name"): e for e in (js.get("primekeysinfo") or []) if isinstance(e, dict)}
     for k in pk:
         ep, stp = kws.get(f"{k}_epoch"), kws.get(f"{k}_step")
-        info[k] = dict(epoch=(ep or {}).get("defval"), step=(stp or {}).get("defval"),
-                       step_unit=(kws.get(f"{k}_unit") or {}).get("defval"),
-                       type=(kws.get(k) or {}).get("type"))
-    for e in js.get("primekeysinfo") or []:
-        if isinstance(e, dict) and e.get("name") in info:
-            for a in ("epoch", "step"):
-                if e.get(a) is not None and info[e["name"]][a] is None:
-                    info[e["name"]][a] = e.get(a)
+        # unit of the slot step: every documented source is kept with its provenance; discordant sources -> None
+        units = {}
+        if stp and str(stp.get("units") or "").strip():
+            units[f"{k}_step.units"] = str(stp["units"]).strip()
+        if kws.get(f"{k}_unit") and str(kws[f"{k}_unit"].get("defval") or "").strip():
+            units[f"{k}_unit.defval"] = str(kws[f"{k}_unit"]["defval"]).strip()
+        if k in pki and str(pki[k].get("unit") or "").strip():
+            units[f"primekeysinfo.{k}.unit"] = str(pki[k]["unit"]).strip()
+        canon = {STEP_UNITS.get(u.lower()) for u in units.values()}
+        if not units:
+            unit, ustat = None, "absent"
+        elif len(canon) == 1 and None not in canon:
+            unit, ustat = next(iter(units.values())), "documented"
+        else:
+            unit, ustat = None, "conflict" if len(canon) > 1 else "unrecognised"
+        step = (stp or {}).get("defval")
+        step_src = f"{k}_step.defval" if step is not None else None
+        if step is None and k in pki and pki[k].get("step") is not None:
+            step, step_src = pki[k]["step"], f"primekeysinfo.{k}.step"
+        epoch = (ep or {}).get("defval")
+        epoch_src = f"{k}_epoch.defval" if epoch is not None else None
+        if epoch is None and k in pki and pki[k].get("epoch") is not None:
+            epoch, epoch_src = pki[k]["epoch"], f"primekeysinfo.{k}.epoch"
+        info[k] = dict(epoch=epoch, epoch_source=epoch_src, step=step, step_source=step_src, step_unit=unit,
+                       step_unit_status=ustat, step_unit_sources=units, type=(kws.get(k) or {}).get("type"))
     return dict(primekeys=list(pk), keywords=kws, links=js.get("links") or [], segments=js.get("segments") or [],
                 primekeyinfo=info)
 
@@ -811,9 +849,12 @@ class Run:
         if not re.fullmatch(r"[A-Za-z0-9_.-]{1,64}", run_id):
             raise TechnicalError("run id must be 1-64 characters [A-Za-z0-9_.-]")
         self.id = run_id
-        self.raw = Path(raw_base) / run_id
+        self.base = Path(raw_base)
+        self.raw = self.base / run_id
         self.res = Path(res_base) / run_id
         self.raw.mkdir(parents=True, exist_ok=True)
+        # §4.1: one persistent registry for the whole inventory, shared by every run id (a new id never resets it)
+        self.registry_path = self.base / "INVENTORY_REGISTRY.json"
 
     def p(self, name):
         return self.raw / name
@@ -870,9 +911,32 @@ def network_guard():
         raise TechnicalError("T5 grid META.json missing: network refused (content not read)")
 
 
+def seed_registry(run):
+    """Create the inventory registry once, adding the consumption of every earlier per-run REGISTRY.json (the
+    first schema phase used one), so that no budget is lost; sources recorded with their SHA-256."""
+    if run.registry_path.exists():
+        return
+    srcs, tot = [], dict(attempts=0, aux_attempts=0, bytes=0, rows=0, wall_s_completed=0.0)
+    for f in sorted(run.base.glob("*/REGISTRY.json")):
+        d = json.loads(f.read_text())
+        wall = float(d.get("wall_s_completed", 0.0))
+        if d.get("open_invocation"):
+            wall = max(wall, float(d.get("wall_s_live", wall)) + Registry.SAVE_EVERY_S)
+        for k in ("attempts", "aux_attempts", "bytes", "rows"):
+            tot[k] += int(d.get(k, 0))
+        tot["wall_s_completed"] += wall
+        srcs.append(dict(file=str(f.relative_to(run.base)), sha256=sha_file(f), attempts=d.get("attempts"),
+                         bytes=d.get("bytes"), rows=d.get("rows"), wall_s=wall))
+    caps = dict(attempts=CAP_ATTEMPTS, rows=CAP_ROWS, bytes=CAP_BYTES, wall_s=CAP_WALL_S)
+    write_json(run.registry_path, dict(tot, invocations=[], created_utc=now_utc(), caps=caps, in_flight=None,
+                                       recoveries=[], seeded_from=srcs, open_invocation=False,
+                                       by_run={s_["file"].split("/")[0]: dict(attempts=s_["attempts"], bytes=s_["bytes"],
+                                                                              rows=s_["rows"]) for s_ in srcs}))
+
+
 @contextlib.contextmanager
 def lock(run):
-    f = run.p("LOCK")
+    f = run.base / "LOCK"
     try:
         fd = os.open(f, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
     except FileExistsError:
@@ -1296,7 +1360,8 @@ def run_phase(args, run=None):
     meta = dict(phase=args.phase, outcome="non riuscito", start_utc=now_utc())
     code = 1
     with lock(run):                      # the lock precedes any read, recovery or write of the registry
-        reg = Registry(run.p("REGISTRY.json"))
+        seed_registry(run)
+        reg = Registry(run.registry_path, run_id=run.id)
         tr = Transport(reg, run.p("raw"))
         try:
             meta.update(provenance())
@@ -1580,7 +1645,7 @@ def analyze(run, reg_factory=None):
     """Offline analysis under the run lock; its wall time counts in the registry and is limited by the same cap
     (§4.1): checked before starting and during the processing; a stop gives status 'stopped_time_cap'."""
     with lock(run):
-        reg = (reg_factory or Registry)(run.p("REGISTRY.json")) if run.p("REGISTRY.json").exists() else None
+        reg = (reg_factory or Registry)(run.registry_path, run_id=run.id) if run.registry_path.exists() else None
         outcome = "errore"
         try:
             try:
@@ -1745,10 +1810,11 @@ def _analyze(run, reg=None):
                 bad_hash += 1
     chk("raw responses: SHA-256 recomputed equal to the query log, no file missing", log.exists() and bad_hash == 0
         and missing == 0, f"{bad_hash} differing, {missing} missing")
-    if run.p("REGISTRY.json").exists():
+    if run.registry_path.exists():
         n_new = sum(r["new"] for r in receipts)
-        chk("registry rows = distinct rows accepted in the list receipts",
-            json.loads(run.p("REGISTRY.json").read_text())["rows"] == n_new, str(n_new))
+        rg_ = json.loads(run.registry_path.read_text())
+        chk("registry rows of this run = distinct rows accepted in its list receipts",
+            rg_.get("by_run", {}).get(run.id, {}).get("rows", 0) == n_new, str(n_new))
     # coverage per series/profile and month
     cov = []
     for prof in PROFILES:
@@ -1876,8 +1942,8 @@ def _analyze(run, reg=None):
         sum(summ[f"state_G{int(R)}_{x}"] for x in STATES) == len(states) for R in RADII), str(len(states)))
     write_csv(run.res / "CHECKS.csv", checks, ["check", "passed", "value"])
     prov = provenance()
-    prov.update(field_map_sha256=sha_file(run.p("FIELD_MAP.csv")), registry=json.loads(run.p("REGISTRY.json").read_text())
-                if run.p("REGISTRY.json").exists() else None)
+    prov.update(field_map_sha256=sha_file(run.p("FIELD_MAP.csv")), registry=json.loads(run.registry_path.read_text())
+                if run.registry_path.exists() else None)
     write_json(run.res / "PROVENANCE.json", prov)
     status = "complete" if all(c["passed"] for c in checks) else "partial"
     write_json(run.res / "ANALYSIS_STATUS.json", dict(status=status, failed=[c["check"] for c in checks if not c["passed"]],
@@ -2029,6 +2095,16 @@ class FakeJSOC:
                             time.sleep(0.05)
                     except (BrokenPipeError, ConnectionResetError):
                         pass
+                elif kind == "chunked":
+                    body = json.dumps(beh[1]).encode()
+                    with contextlib.suppress(BrokenPipeError, ConnectionResetError, OSError):
+                        self.wfile.write(b"HTTP/1.1 200 OK\r\nContent-Type: application/json\r\n"
+                                         b"Transfer-Encoding: chunked\r\nConnection: close\r\n\r\n")
+                        for i in range(0, len(body), 7):
+                            part = body[i:i + 7]
+                            self.wfile.write(f"{len(part):x}\r\n".encode() + part + b"\r\n")
+                        self.wfile.write(b"0\r\n\r\n")
+                        self.wfile.flush()
                 elif kind == "slowhdr":
                     with contextlib.suppress(BrokenPipeError, ConnectionResetError, OSError):
                         self.wfile.write(b"HTTP/1.1 200 OK\r\n")
@@ -2063,8 +2139,8 @@ class FakeJSOC:
         self.srv.server_close()
 
 
-def _transport(tmp, fake, caps=None, waits=(0.01, 0.02), path=None, raw=None):
-    reg = Registry(Path(path) if path else Path(tmp) / "REGISTRY.json", caps, min_spacing=0.0)
+def _transport(tmp, fake, caps=None, waits=(0.01, 0.02), path=None, raw=None, run_id=None):
+    reg = Registry(Path(path) if path else Path(tmp) / "REGISTRY.json", caps, min_spacing=0.0, run_id=run_id)
     return Transport(reg, Path(raw) if raw else Path(tmp) / "raw", scheme="http", host="127.0.0.1", port=fake.port,
                      waits=waits), reg
 
@@ -2455,7 +2531,7 @@ def selftest_end_to_end(ok):
     try:
         with _tmpdir() as tmp:
             run = Run("e2e", raw_base=Path(tmp) / "raw", res_base=Path(tmp) / "res")
-            tr, reg = _transport(tmp, fake, path=run.p("REGISTRY.json"), raw=run.p("raw"))
+            tr, reg = _transport(tmp, fake, path=run.registry_path, raw=run.p("raw"), run_id=run.id)
             phase_schema(run, tr)
             ok("e2e schema: five series saved, field map proposed", len(run.schemas()) == 5
                and run.p("FIELD_MAP_PROPOSED.csv").exists(), "")
@@ -2507,14 +2583,14 @@ def selftest_end_to_end(ok):
             ok("e2e pair outputs include QUALITY of both, NOAA concordance, overlap fractions and T_OBS offsets",
                all(c in oc for c in ("quality_smarp", "quality_hmi", "noaa_concordance", "frac_smarp", "frac_hmi",
                                      "dt_obs_s")), "")
-            regd = json.loads(run.p("REGISTRY.json").read_text())
+            regd = json.loads(run.registry_path.read_text())
             ok("e2e analysis time added to the registry as an 'analyze' invocation",
                regd["invocations"][-1]["phase"] == "analyze" and not regd["open_invocation"], "")
             pr = read_csv(run.res / "PRODUCT_SUMMARY.csv")
             ok("e2e product composition reported overall and per year", {x["year"] for x in pr} >= {"all", "2001", "2010"}, "")
             # second review of 4402ea8: lock before the registry, analysis time limited, derived CSV reconciled
-            before = run.p("REGISTRY.json").read_bytes()
-            run.p("LOCK").write_text("other")
+            before = run.registry_path.read_bytes()
+            (run.base / "LOCK").write_text("other")
             saved_guard = globals()["network_guard"]
             globals()["network_guard"] = lambda: None
             try:
@@ -2523,9 +2599,9 @@ def selftest_end_to_end(ok):
             finally:
                 globals()["network_guard"] = saved_guard
             r_lock2 = _raises(lambda: analyze(run), TechnicalError)
-            run.p("LOCK").unlink()
+            (run.base / "LOCK").unlink()
             ok("review2 4: with the lock held by another instance, phase and analysis are refused before reading or "
-               "writing the registry", r_lock and r_lock2 and run.p("REGISTRY.json").read_bytes() == before, "")
+               "writing the registry", r_lock and r_lock2 and run.registry_path.read_bytes() == before, "")
 
             class Draining(Registry):
                 calls = 0
@@ -2537,13 +2613,13 @@ def selftest_end_to_end(ok):
             ok("review2 5: time cap reached during the analysis -> status stopped_time_cap, never complete",
                r5["status"] == "stopped_time_cap" and json.loads((run.res / "ANALYSIS_STATUS.json").read_text())["status"]
                == "stopped_time_cap", r5.get("reason", ""))
-            rg = json.loads(run.p("REGISTRY.json").read_text())
+            rg = json.loads(run.registry_path.read_text())
             rg["wall_s_completed"] = float(CAP_WALL_S)
-            write_json(run.p("REGISTRY.json"), rg)
+            write_json(run.registry_path, rg)
             r5b = analyze(run)
             ok("review2 5: time cap exhausted before the analysis -> stopped_time_cap", r5b["status"] == "stopped_time_cap", "")
             rg["wall_s_completed"] = 0.0
-            write_json(run.p("REGISTRY.json"), rg)
+            write_json(run.registry_path, rg)
             # third review of ba359cd: final time check, full-row reconciliation (edge rows, columns)
             class LateOverrun(Registry):
                 def remaining_time(self):
@@ -2554,9 +2630,9 @@ def selftest_end_to_end(ok):
             r3 = analyze(run, reg_factory=LateOverrun)
             ok("review3 3: time cap exceeded after the last tick -> stopped_time_cap, status not confirmed",
                r3["status"] == "stopped_time_cap", r3.get("reason", ""))
-            rg = json.loads(run.p("REGISTRY.json").read_text())
+            rg = json.loads(run.registry_path.read_text())
             rg.update(wall_s_completed=0.0, wall_s_live=0.0)
-            write_json(run.p("REGISTRY.json"), rg)
+            write_json(run.registry_path, rg)
             originals = {p_: p_.read_bytes() for p_ in run.raw.glob("RECORDS_*.csv.gz")}
 
             def mutated(name, fn):
@@ -2689,6 +2765,68 @@ def selftest_regressions(ok):
             el = time.monotonic() - t0
             ok("review2 2: HTTP/1.0 slow body stopped at the absolute deadline through the response socket",
                r and el < 0.4, f"{el:.3f} s for a 0.25 s cap")
+        # access diagnosis c63ff23 and Codex's review: HTTP transport, chunked answers, units, cumulative registry
+        with _tmpdir() as tmp:
+            regh = Registry(Path(tmp) / "R.json", min_spacing=0.0)
+            trh = Transport(regh, Path(tmp) / "raw")
+            ok("HTTP: production transport is plain HTTP to jsoc.stanford.edu/cgi-bin/ajax/jsoc_info",
+               trh.scheme == "http" and trh.host == HOST and trh.path == PATH and SCHEME == "http", "")
+            tr, reg = _transport(tmp, fake)
+            fake.behaviour = {"CHUNK": ("chunked", {"status": 0, "count": 3, "note": "x" * 200})}
+            js, _ = tr.get({"op": "rs_summary", "ds": "CHUNK"}, "ch")
+            ok("HTTP: a chunked JSON answer (as the real JSOC server sends) is read completely",
+               js.get("count") == 3 and len(js.get("note", "")) == 200, "")
+            fake.behaviour = {"TOHTTPS": ("status", 301, {"Location": f"https://127.0.0.1:{fake.port}{PATH}?op=rs_summary&ds=Z"})}
+            ok("HTTP: a redirect to HTTPS is refused (another scheme), never followed silently",
+               _raises(lambda: tr.get({"op": "rs_summary", "ds": "TOHTTPS"}, "rh"), RequestFailed), "")
+        real_step = dict(primekeys=["T_REC"], primekeysinfo=[dict(name="T_REC", slotted=1, step="5760.0")], keywords=[
+            dict(name="T_REC", type="time"),
+            dict(name="T_REC_step", type="float", recscope="constant", defval="5760.0", units="s", note="T_REC step"),
+            dict(name="T_REC_epoch", type="time", recscope="constant", defval="1993.01.01_00:00:30_TAI", units="TAI")])
+        inf = parse_schema(real_step)["primekeyinfo"]["T_REC"]
+        ok("units: the real mdi.fd_Ic_interp fragment documents the unit on T_REC_step (units 's') -> 5760 s, with source",
+           inf["step_unit"] == "s" and inf["step_unit_status"] == "documented"
+           and inf["step_unit_sources"] == {"T_REC_step.units": "s"} and parse_step(inf["step"], inf["step_unit"]) == 5760.0,
+           json.dumps(inf["step_unit_sources"]))
+        ok("units: each series keeps its own epoch with provenance (1993.01.01_00:00:30_TAI here, no cross-series inference)",
+           inf["epoch"] == "1993.01.01_00:00:30_TAI" and inf["epoch_source"] == "T_REC_epoch.defval", "")
+        no_unit = json.loads(json.dumps(real_step))
+        no_unit["keywords"][1].pop("units")
+        i2 = parse_schema(no_unit)["primekeyinfo"]["T_REC"]
+        ok("units: step without any documented unit -> undocumented (no arbitrary interpretation of 5760)",
+           i2["step_unit"] is None and i2["step_unit_status"] == "absent" and parse_step(i2["step"], i2["step_unit"]) is None, "")
+        conf = json.loads(json.dumps(real_step))
+        conf["keywords"].append(dict(name="T_REC_unit", recscope="constant", defval="min"))
+        i3 = parse_schema(conf)["primekeyinfo"]["T_REC"]
+        same = json.loads(json.dumps(real_step))
+        same["keywords"].append(dict(name="T_REC_unit", recscope="constant", defval="secs"))
+        i4 = parse_schema(same)["primekeyinfo"]["T_REC"]
+        ok("units: discordant sources (s vs min) -> conflict and no unit; concordant sources (s, secs) -> documented",
+           i3["step_unit"] is None and i3["step_unit_status"] == "conflict" and i4["step_unit_status"] == "documented", "")
+        with _tmpdir() as tmp:
+            old = Path(tmp) / "schema_old"
+            old.mkdir()
+            write_json(old / "REGISTRY.json", dict(attempts=15, aux_attempts=0, bytes=0, rows=0, wall_s_completed=108.9,
+                                                    open_invocation=False, caps=dict(attempts=CAP_ATTEMPTS, rows=CAP_ROWS,
+                                                                                     bytes=CAP_BYTES, wall_s=CAP_WALL_S)))
+            r1 = Run("schema_new", raw_base=tmp, res_base=tmp)
+            seed_registry(r1)
+            g1 = Registry(r1.registry_path, min_spacing=0.0, run_id=r1.id)
+            ok("registry: a new run id starts from the cumulative inventory registry (15 earlier attempts, 108.9 s kept)",
+               g1.d["attempts"] == 15 and g1.used_wall() >= 108.9 and len(g1.d["seeded_from"]) == 1
+               and g1.d["by_run"]["schema_old"]["attempts"] == 15, "")
+            g1.add_attempt()
+            g1.close("t", "ok")
+            r2 = Run("schema_newer", raw_base=tmp, res_base=tmp)
+            seed_registry(r2)
+            g2 = Registry(r2.registry_path, min_spacing=0.0, run_id=r2.id)
+            ok("registry: counters stay cumulative across run ids, with per-run detail",
+               g2.d["attempts"] == 16 and g2.d["by_run"]["schema_new"]["attempts"] == 1
+               and g2.d["by_run"]["schema_newer"]["attempts"] == 0, "")
+            g2.close("t", "ok")
+            with lock(r1):
+                ok("lock: one lock for the whole inventory (a second run id is refused while the first holds it)",
+                   _raises(lambda: lock(r2).__enter__(), TechnicalError), "")
         # fourth review: TLS handshake bounded by the watchdog (local server dripping a TLS record byte by byte)
         stop_srv = threading.Event()
         lsn = socket.socket()
@@ -2778,7 +2916,7 @@ def selftest_regressions(ok):
         fake.behaviour = {}
         with _tmpdir() as tmp:
             run = Run("r4", raw_base=Path(tmp) / "raw", res_base=Path(tmp) / "res")
-            tr, reg = _transport(tmp, fake, path=run.p("REGISTRY.json"), raw=run.p("raw"))
+            tr, reg = _transport(tmp, fake, path=run.registry_path, raw=run.p("raw"), run_id=run.id)
             phase_schema(run, tr)
             run.p("FIELD_MAP.csv").write_bytes(run.p("FIELD_MAP_PROPOSED.csv").read_bytes())
             register_map(run, "selftest r4")

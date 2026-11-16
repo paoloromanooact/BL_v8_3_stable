@@ -4,12 +4,15 @@
 
 3 tentativi di rete su 6 consentiti, ricevuta `results/MDI_SMARP_ACCESS_DIAGNOSIS/DIAGNOSIS.json` (file grezzi locali
 in `data/sharp/metadata_inventory_mdi/access_diagnosis_20261116/`). Nessun proxy; Python, curl e openssl con la stessa
-OpenSSL 3.0.2 (SECLEVEL 2, TLS ≥ 1.2). Causa: l'HTTPS di jsoc.stanford.edu offre solo TLS 1.0 (cifrario
-DHE-RSA-AES256-SHA) con un certificato autofirmato e scaduto (CN localhost.localdomain), quindi nessuna versione
-accettabile per il client; non è un problema di Python. HTTP semplice risponde 200 con JSON (schema di
+OpenSSL 3.0.2 (SECLEVEL 2, TLS ≥ 1.2). Esito: la negoziazione HTTPS predefinita (TLS ≥ 1.2) fallisce; una
+negoziazione limitata a TLS 1.0, solo diagnostica, riesce (cifrario DHE-RSA-AES256-SHA) con un certificato
+autofirmato e scaduto (CN localhost.localdomain); non tutte le versioni sono state provate (correzione di
+formulazione in `results/MDI_SMARP_ACCESS_DIAGNOSIS/CORRECTION.md`). Non è specifico di Python. HTTP semplice risponde 200 con JSON (schema di
 mdi.fd_Ic_interp, 16042 byte, trasferimento chunked, nessun reindirizzamento). Osservazioni per la revisione del
-codice: T_REC_step 5760.0 senza T_REC_unit, epoca 1993.01.01_00:00:30_TAI. **Fermo prima del passo 3**: nessuna
-modifica del trasporto, nessun rilancio dello schema.
+codice: unità del passo dichiarata nella keyword T_REC_step (units 's'), epoca 1993.01.01_00:00:30_TAI di
+mdi.fd_Ic_interp (ogni serie conserva la propria). **Passo 3 (via di Codex): trasporto HTTP, unità del passo da
+tutte le fonti documentate, registro unico per l'inventario (i 15 tentativi e i 108,9 s della prima fase restano
+contabilizzati), test offline**; nessuna richiesta di rete, schema non rilanciato, in attesa di revisione.
 
 ## MDI/SMARP: sola fase schema tentata, lavoro fermato — 2026-11-16
 
