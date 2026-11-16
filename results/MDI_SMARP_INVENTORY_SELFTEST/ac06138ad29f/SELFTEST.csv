@@ -1,0 +1,116 @@
+check,passed,value
+§4.2 base budget 356 + 30 + 52 + 15 + 15 = 468,True,"{""smarp"": 356, ""fd"": 30, ""hmi"": 52, ""continuum"": 15, ""schema"": 15, ""total"": 468}"
+"§4.3 order: overlap windows first (6 SMARP months, 26 HMI weeks, FD 2010), then history",True,
+"§2/§6 HMI margins: first start 2010-04-30 23:54, last end 2010-10-29 00:06, consecutive <= 7 days",True,
+"windows: 178 SMARP months, last [2010-10-01, 2010-10-29); 15 FD years, last ends 2010-10-29",True,
+"§4.2 deterministic splits: year->12 months, month->5 weeks (last 3 days), day->15 slots of 96 min",True,
+TAI parsed as is; UTC converted with leap seconds (2009-01-01 UTC = +34 s TAI),True,
+"time without scale, invalid and missing are distinct states",True,
+"schema: primekey order kept, epoch/step/unit from constants (96 minutes = 5760 s), record set in primekey order",True,
+96 min = 8 x 12 min: epoch phase modulo 720 s computable,True,
+"§4.3 half-open local filter: end-slot row kept as edge, unparsable time kept apart",True,
+"rs_list: columns to rows, original strings kept",True,
+rs_list: count differing from rows -> technical error,True,
+rs_list: columns of different lengths -> technical error,True,
+"QUALITY: decimal, hex, signed, missing and invalid distinct; 32-bit normalized hex",True,
+"identity = series + all primekeys; identical duplicates counted, not kept twice",True,
+conflicting duplicate -> technical error (no keep-last),True,
+zero rows with a successful answer is a result (count 0),True,
+"DRMS error status is a failed request, not zero rows",True,
+export/download operations refused before any network use,True,
+unexpected compression stopped without decompression,True,
+"retries: 3 attempts with waits, then failed; every attempt counted",True,
+HTTP 404 not retried,True,
+redirect to a non-allowed destination refused,True,
+allowed redirect followed once and counted as a new attempt,True,
+every attempt logged with SHA-256 and saved body,True,10 attempts
+slow but continuous sender stopped by the absolute deadline (not by the idle timeout),True,2.0 s
+"byte cap applied during reception: prefix kept, marked truncated, never more than the cap",True,
+attempt cap enforced; counters survive a resume (not reset),True,
+row cap enforced before accepting rows,True,
+registry with different caps refused,True,
+"BUDGET_COUNTS: full does not fit (400 + 220 + 400 > 1000) -> overlap_only, history not started",True,1020
+BUDGET_COUNTS: even overlap does not fit -> stop,True,
+BUDGET_COUNTS: fits -> full,True,
+BUDGET_PAYLOAD: projected bytes = used + 2 x (b/N) x N_rest; time formula with latency term,True,
+BUDGET_PAYLOAD: an unmeasured profile with remaining rows blocks the history,True,
+WCS CEA: centre of a patch with CRPIX at the centre equals CRVAL,True,
+"WCS CEA: CRPIX far from the centre (FITS origin 1); centre analytic lon 100 + 0.03*100, lat asin(0.03*50 rad)",True,"103.000000, 1.500171"
+"WCS: missing CRPIX or non-numeric value -> not_assessable, never zero",True,
+envelope from 65 points per side: width 201*0.03 deg in longitude,True,
+"longitudes across 0/360: distance 2 deg, envelopes overlap (width 3.03 deg each)",True,iou 0.205
+disjoint envelopes have zero intersection; contact has zero area,True,
+temporal: nearest HMI record per HARPNUM within 360 s (exact match preferred to +720 s),True,
+ties at +-360 s accepted (<= 360 s) for different HARPs; tie rule within a HARP picks the earlier record,True,
+equal time distance within one HARP -> the earlier record,True,
+"G5 unique arc for HARP 10 becomes ambiguous in G10 (HARPs 20, 30 at ~6 deg)",True,dist 20: 6.89
+"candidate without coordinates: not_assessable, no arc, and the SMARP record flags incomplete competitors",True,
+one-to-many: record state has_candidate in both graphs; components counted per graph,True,"{""5.0"": 1, ""10.0"": 1}"
+box_only: centres > 10 deg apart but envelopes intersect; kept outside the angular graphs,True,dist 11.8
+"field map proposal: minimal profiles carry only identity, time, QUALITY (+ confirmed provenance)",True,
+absent optional field = not_exposed,True,
+record queries refused without a registered field map,True,
+registered map accepted; a later edit is detected,True,
+without documented rules every source and patch is unknown with its reason (no inference from cadence),True,
+documented rule: 5-min source resolved by time within 1 s; 5 s offset unresolved; unmapped value unknown,True,"{""patch_record|documented_5min|time_link_1s"": 1, ""patch_record|unknown|source_unresolved"": 1, ""source_epoch|documented_5min|rule"": 1, ""source_epoch|unknown|value_not_mapped"": 1}"
+frozen plan SHA-256 and freeze receipt verified,True,
+"e2e schema: five series saved, field map proposed",True,
+"e2e counts: one count per initial window (178 + 15 + 26 = 219), decision full",True,"219 counts, {'overlap': 5, 'history': 2}"
+"e2e overlap: inclusive server range gives one edge row at the month end, kept apart",True,"{""lists"": 5, ""rows_new"": 132}"
+"e2e history: payload projection written before the historical lists, within caps",True,"{""lists"": 2, ""rows_new"": 14}"
+e2e resume: completed windows are not queried again,True,
+e2e rows: distinct accepted rows = 5 + 5 + 13 + 123 + 0 edge,True,146
+"e2e analysis: G5 unique arcs 4, all ambiguous on widening to 10 deg (second HARP ~6.9 deg)",True,"{""smarp_records"": 5, ""temporal_pairs"": 12, ""components_G5"": 1, ""components_G10"": 1, ""state_G5_has_candidate"": 4, ""state_G5_no_candidate"": 1, ""state_G5_no_candidate_incomplete_geometry"": 0, ""state_G5_search_incomplete"": 0, ""state_G5_not_assessable"": 0, ""arcs_G5"": 4, ""unique_G5"": 4, ""distinct_pairs_G5"": 1, ""state_G10_has_candidate"": 4, ""state_G10_no_candidate"": 1, ""state_G10_no_candidate_incomplete_geometry"": 0, ""state_G10_search_incomplete"": 0, ""state_G10_not_assessable"": 0, ""arcs_G10"": 8, ""unique_G10"": 0, ""distinct_pairs_G10"": 2, ""ambiguous_on_widening"": 4, ""box_only"": 0, ""records_with_incomplete_geometry_competitors"": 4, ""records_with_incomplete_search"": 0, ""noaa_concordance"": {""concordant"": 0, ""discordant"": 0, ""missing"": 12}, ""abs_dt_zero"": 12, ""abs_dt_max"": 0.0}"
+e2e analysis: July record without HMI coverage is no_candidate; HARP without WCS makes competitors incomplete; exact time coincidences,True,
+e2e full-disk gaps on the native 96-min grid include the missing slot 2001-03-10 08:00,True,5 gap runs
+e2e quality per profile and year with value and bit rows; hex and decimal 0 normalised alike,True,5 rows
+e2e coverage: missing values per requested field counted (HARP without WCS),True,"{""CDELT1"": 41, ""CDELT2"": 41, ""CRPIX1"": 41, ""CRPIX2"": 41, ""CR"
+"e2e analysis checks all passed, status complete",True,9 checks
+"e2e pair outputs include QUALITY of both, NOAA concordance, overlap fractions and T_OBS offsets",True,
+e2e analysis time added to the registry as an 'analyze' invocation,True,
+e2e product composition reported overall and per year,True,
+"review2 4: with the lock held by another instance, phase and analysis are refused before reading or writing the registry",True,
+"review2 5: time cap reached during the analysis -> status stopped_time_cap, never complete",True,time cap reached during the analysis
+review2 5: time cap exhausted before the analysis -> stopped_time_cap,True,
+"review3 3: time cap exceeded after the last tick -> stopped_time_cap, status not confirmed",True,time cap exceeded at the end of the analysis: status not confirmed
+"review3 1: changed time and QUALITY of an edge row detected (values, not only the count)",True,
+review3 1: QUALITY column removed from the CSV detected (expected columns from the registered map),True,
+review3 1: a duplicated accepted row is detected (multiplicity),True,
+review3 1: originals restored -> analysis complete again,True,
+"review2 1: HMI rows removed from the derived CSV (originals intact) -> partial, reconstruction check fails",True,"derived CSV equal the reconstruction from the original responses (identities, values, edge rows)"
+review2 1: one changed value in the derived CSV is detected,True,
+review 1: an existing negative BUDGET_PAYLOAD stops the history at every invocation (no request),True,
+review 1: a positive registered projection is rechecked; a failing recheck stops (no request),True,
+review 1: history refused while an overlap window is not acquired,True,
+review 1: aux refused while the overlap is incomplete,True,
+"review 2: unclosed invocation recovered conservatively (>= 12 s + save interval, partial body bytes)",True,"13.0 s, 500 bytes"
+review 2: a closed invocation is not recovered again,True,
+"review 3: slow headers stopped by the absolute deadline (watchdog), not after them",True,0.50 s for a 0.5 s cap
+"review 3: reads never exceed the residual byte budget (cap 10 -> 10 received, registered, on disk)",True,
+review2 2: HTTP/1.0 slow body stopped at the absolute deadline through the response socket,True,0.251 s for a 0.25 s cap
+HTTP: production transport is plain HTTP to jsoc.stanford.edu/cgi-bin/ajax/jsoc_info,True,
+HTTP: a chunked JSON answer (as the real JSOC server sends) is read completely,True,
+"HTTP: a redirect to HTTPS is refused (another scheme), never followed silently",True,
+"units: the real mdi.fd_Ic_interp fragment documents the unit on T_REC_step (units 's') -> 5760 s, with source",True,"{""T_REC_step.units"": ""s""}"
+"units: each series keeps its own epoch with provenance (1993.01.01_00:00:30_TAI here, no cross-series inference)",True,
+units: step without any documented unit -> undocumented (no arbitrary interpretation of 5760),True,
+"units: discordant sources (s vs min) -> conflict and no unit; concordant sources (s, secs) -> documented",True,
+"registry: a new run id starts from the cumulative inventory registry (15 earlier attempts, 108.9 s kept)",True,
+"registry: counters stay cumulative across run ids, with per-run detail",True,
+lock: one lock for the whole inventory (a second run id is refused while the first holds it),True,
+review4: TLS handshake kept alive by a byte drip is stopped at the absolute deadline (watchdog holds the SSL socket before do_handshake; 0.12 s spent between connection and handshake),True,0.201 s for a 0.2 s cap
+review3 2: two addresses that each honour their timeout stay within the total deadline (0.04 s); every socket registered for the watchdog before connect,True,0.040 s
+review3 2: slow name resolution stopped at the deadline,True,0.100 s
+review2 3: time elapsed in a blocking interval without explicit saves is recovered (>= 2.3 s),True,3.01 s
+review 4: only a not-assessable competitor -> no_candidate_incomplete_geometry (not no_candidate),True,
+review 4: HMI window counted but not acquired -> search_incomplete,True,
+"review 4: HMI counted but never listed -> analysis 'partial'; the 4 June records are search_incomplete, the July record (its HMI window counted zero, so searched completely) stays no_candidate",True,"{""components_G5"": 0, ""state_G5_has_candidate"": 0, ""state_G5_no_candidate"": 1, ""state_G5_no_candidate_incomplete_geometry"": 0, ""state_G5_search_incomplete"": 4, ""state_G5_not_assessable"": 0, ""arcs_G5"": 0, ""unique_G5"": 0, ""distinct_pairs_G5"": 0}"
+review 4: a modified raw response is detected by the recomputed SHA-256,True,
+review 5: provenance candidate proposed in both SMARP profiles,True,"{'smarp_min', 'smarp_overlap'}"
+review 5: deleting the registered PRODUCT_RULES.json invalidates the registration,True,
+review 6: aux record set follows the lookup-series primekey order ([T_REC][TARPNUM]),True,
+review3 1: AUX_RECORDS equal to the aux responses pass the full-row comparison (hand-built RECORDS without receipts are reported separately),True,[]
+"review3 1: a changed SRC_T in AUX_RECORDS is detected (values, lookup schema of the registered rule)",True,['aux: AUX_RECORDS rows differ from the aux responses']
+review 6: AUX_RECORDS feed the classification (TARP 7 -> 1-min source); a record not looked up for budget is unknown_budget,True,"{""patch_record|all|documented_1min|time_link_1s"": 1, ""patch_record|all|unknown|unknown_budget"": 1, ""patch_record|2001|documented_1min|time_link_1s"": 1, ""patch_record|2001|unknown|unknown_budget"": 1, ""source_epoch|all|documented_1min|rule"": 1, ""source_epoch|2001|documented_1min|rule"": 1}"
+review 7: step unit honoured (96 minutes = 5760 s; '720s' = 720 s; bare number without unit undocumented),True,
+"review 8: auxiliary schemas unavailable -> main schemas and FIELD_MAP_PROPOSED kept, status declared",True,"{""mdi.smarp_cea_96m"": ""acquired"", ""mdi.fd_M_96m_lev182"": ""acquired"", ""hmi.sharp_cea_720s"": ""acquired"", ""mdi.smarp_96m"": ""schema_not_verified"", ""mdi.fd_Ic_interp"": ""schema_not_verified""}"
