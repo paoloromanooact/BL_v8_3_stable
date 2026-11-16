@@ -42,6 +42,15 @@ prima delle interrogazioni. HMI e T3/T5 invariati; nessun risultato della grigli
 MANIFEST.txt riallineato all'elenco dei file tracciati più la nuova bozza; include anche 24 voci preesistenti
 che mancavano nell'elenco, senza aprire o modificare quei file. Nessun push.
 
+## MDI/SMARP: raccoglitore dell'inventario scritto, prove offline superate — 2026-11-16
+
+Piano congelato `9269c10` (SHA-256 `a31de02a…`, ricevuta `b276502`). Raccoglitore `scripts/mdi_smarp_inventory.py`
+(commit finale `0ae058ada181`): trasporto proprio limitato, registro persistente, finestre e preventivo, ordine
+sovrapposizione → storico → ausiliari, mappa dei campi da registrare dopo lo schema, WCS con origine esplicita,
+grafi 5°/10°. Selftest offline 67/67 con un finto JSOC locale e un catalogo sintetico dall'inizio alla fine
+(ricevute in `results/MDI_SMARP_INVENTORY_SELFTEST/`). **Nessuna query JSOC.** Prossimo: revisione del codice
+da parte di Codex; rete solo dopo la fine della griglia T5 e la revisione.
+
 ## MDI/SMARP: studio aggiornato dopo la seconda revisione — 2026-11-16
 
 `docs/MDI_SMARP_FEASIBILITY.md` aggiornato (§8): codice dei cicli oltre la sola fase e segno (`samples()`,
