@@ -1,0 +1,27 @@
+check,passed,value
+§4.2 base budget 356 + 30 + 52 + 15 + 15 = 468,True,"{""smarp"": 356, ""fd"": 30, ""hmi"": 52, ""continuum"": 15, ""schema"": 15, ""total"": 468}"
+"§4.3 order: overlap windows first (6 SMARP months, 26 HMI weeks, FD 2010), then history",True,
+"§2/§6 HMI margins: first start 2010-04-30 23:54, last end 2010-10-29 00:06, consecutive <= 7 days",True,
+"windows: 178 SMARP months, last [2010-10-01, 2010-10-29); 15 FD years, last ends 2010-10-29",True,
+"§4.2 deterministic splits: year->12 months, month->5 weeks (last 3 days), day->15 slots of 96 min",True,
+TAI parsed as is; UTC converted with leap seconds (2009-01-01 UTC = +34 s TAI),True,
+"time without scale, invalid and missing are distinct states",True,
+"schema: primekey order kept, epoch/step/unit from constants (96 minutes = 5760 s), record set in primekey order",True,
+96 min = 8 x 12 min: epoch phase modulo 720 s computable,True,
+"§4.3 half-open local filter: end-slot row kept as edge, unparsable time kept apart",True,
+"rs_list: columns to rows, original strings kept",True,
+rs_list: count differing from rows -> technical error,True,
+rs_list: columns of different lengths -> technical error,True,
+"QUALITY: decimal, hex, signed, missing and invalid distinct; 32-bit normalized hex",True,
+"identity = series + all primekeys; identical duplicates counted, not kept twice",True,
+conflicting duplicate -> technical error (no keep-last),True,
+zero rows with a successful answer is a result (count 0),True,
+"DRMS error status is a failed request, not zero rows",True,
+export/download operations refused before any network use,True,
+unexpected compression stopped without decompression,True,
+"retries: 3 attempts with waits, then failed; every attempt counted",True,
+HTTP 404 not retried,True,
+redirect to a non-allowed destination refused,True,
+allowed redirect followed once and counted as a new attempt,True,
+every attempt logged with SHA-256 and saved body,True,10 attempts
+slow but continuous sender stopped by the absolute deadline (not by the idle timeout),True,2.0 s

@@ -50,7 +50,8 @@ sovrapposizione → storico → ausiliari, mappa dei campi da registrare dopo lo
 grafi 5°/10°. Selftest offline 67/67 con un finto JSOC locale e un catalogo sintetico dall'inizio alla fine
 (ricevute in `results/MDI_SMARP_INVENTORY_SELFTEST/`). **Nessuna query JSOC.** La revisione del codice di Codex
 su `0ae058a` ha trovato otto difetti con controesempi sintetici; corretti senza cambiare il piano (commit `4402ea8722e5`),
-selftest 88/88 con una regressione per ogni controesempio. Prossimo: nuova revisione del codice; rete solo dopo.
+selftest 88/88 con una regressione per ogni controesempio. Seconda revisione (su `4402ea8`): cinque difetti
+residui corretti (`d3d78543282c`), selftest 95/95. Prossimo: nuova revisione del codice; rete solo dopo.
 
 ## MDI/SMARP: studio aggiornato dopo la seconda revisione — 2026-11-16
 

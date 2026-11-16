@@ -1,0 +1,19 @@
+{
+  "duration_s": 2.7698726654052734,
+  "env": {
+    "astropy": "6.1.7",
+    "drms": "0.9.0",
+    "python": "3.10.12"
+  },
+  "exception": "[Errno 39] Directory not empty: '/tmp/tmp_w34ylsh'",
+  "exception_type": "OSError",
+  "freeze_commit": "9269c10ef16d2c96271a60b53b12277e108170d5",
+  "git_commit": "d3d78543282c7517cd806e6f8db60488319d783f",
+  "git_dirty": 0,
+  "mode": "selftest",
+  "outcome": "non riuscito",
+  "plan": "\u00a78 offline checks, no network, no real magnetic data",
+  "plan_sha256": "a31de02a064b08584281930f4a7c7e0fc4216ab83cc7f69c8ee793ea5bce3be0",
+  "script_sha256": "1c4851437156fed4c2a6621138f407ce161f66184eef0037d20a7ddbd91268be",
+  "traceback": "Traceback (most recent call last):\n  File \"/home/gianluca/BL_v8_3_stable/scripts/mdi_smarp_inventory.py\", line 2686, in _selftest\n    selftest_checks(ok)\n  File \"/home/gianluca/BL_v8_3_stable/scripts/mdi_smarp_inventory.py\", line 2106, in selftest_checks\n    with tempfile.TemporaryDirectory() as tmp:\n  File \"/usr/lib/python3.10/tempfile.py\", line 1017, in __exit__\n    self.cleanup()\n  File \"/usr/lib/python3.10/tempfile.py\", line 1021, in cleanup\n    self._rmtree(self.name, ignore_errors=self._ignore_cleanup_errors)\n  File \"/usr/lib/python3.10/tempfile.py\", line 1003, in _rmtree\n    _rmtree(name, onerror=onerror)\n  File \"/usr/lib/python3.10/shutil.py\", line 731, in rmtree\n    onerror(os.rmdir, path, sys.exc_info())\n  File \"/usr/lib/python3.10/shutil.py\", line 729, in rmtree\n    os.rmdir(path)\nOSError: [Errno 39] Directory not empty: '/tmp/tmp_w34ylsh'\n"
+}
