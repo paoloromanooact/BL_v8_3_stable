@@ -10,10 +10,15 @@ scenario 2 a −0,1, lo SE di M differisce da `VALIDATION_RAW` di 3·10⁻⁶–
 1,6·10⁻¹⁵ e verdetti uguali. Per il piano §6.6 la sequenza si è fermata: **benchmark e griglia non
 eseguiti**. Diagnosi non pre-registrata (`bf24b7f`, output `438ef56`, nessuna riclassificazione): il
 percorso P2f originale riproduce lo SE esattamente su 20 casi su 20; il percorso dello script differisce in η_c solo per
-l'ordine degli arrotondamenti (≤ 1,03·10⁻¹⁵ relativo); una sonda che scala gli ingressi di 10⁻¹⁵ cambia
-lo SE di M fino a 1,2·10⁻⁵ su 20 casi su 20 (ottimizzatore REML). Prossimo: decisione dell'utente e di Codex su un
-emendamento A2 della porta prima di qualunque nuova esecuzione; poi porta, benchmark, revisione, griglia.
-Nessun push.
+l'ordine degli arrotondamenti (max|Δη_c|/η̄ = 1,03·10⁻¹⁵); una sonda che scala gli ingressi di 10⁻¹⁵ cambia
+lo SE di M fino a 1,18·10⁻⁵ su 20 casi su 20. Formulazione corretta (A2 §2): nei casi perturbati esaminati,
+differenze di arrotondamento possono impedire la riproduzione dello SE entro 10⁻⁹ (in 15 casi su 20 gli
+ingressi differiscono e lo SE coincide al bit); 10⁻⁵ è l'ordine osservato, non un limite; l'attribuzione
+alla sola REML non è isolata (M contiene anche la funzione di varianza). Emendamento A2
+(`docs/T5_POWER_SENSITIVITY_PLAN_A2.md`) dopo la revisione di Codex di `ca71107`: porta divisa in
+compatibilità storica (percorso P2f originale, 10⁻⁹) e correttezza dell'iniezione (anche risposte
+individuali e residui entro cella), ricevute legate alla configurazione, differenze fra metodi, validità
+centrale delle righe. Nessun push.
 
 ## T5: piano di sensibilità della potenza congelato — 2026-11-16
 

@@ -3,9 +3,10 @@
 ## v8.4 (Python, branch `v8.4-python-gianluca`) — in corso
 
 - 2026-11-16, T5 potenza: emendamento A1 (`8dc6d48`), script `b769892`; selftest 53/53 superato; porta di
-  compatibilità non superata (36/40, differenze di SE di M fino a 1,5·10⁻⁵ su 4 cataloghi con effetto, dovute
-  all'arrotondamento dell'iniezione amplificato dalla REML: diagnosi `bf24b7f`/`438ef56`); benchmark e griglia
-  non eseguiti, in attesa di decisione.
+  compatibilità non superata (36/40, differenze di SE di M fino a 1,5·10⁻⁵ su 4 cataloghi con effetto; nei
+  casi esaminati differenze di arrotondamento dell'iniezione possono impedire la riproduzione entro 10⁻⁹,
+  attribuzione fra funzione di varianza e REML non isolata: diagnosi `bf24b7f`/`438ef56`); benchmark e griglia
+  non eseguiti. Emendamento A2 dopo la revisione di Codex (porta in due verifiche, guardie delle ricevute).
 - 2026-11-16, piano di sensibilità della potenza T5 congelato (`docs/T5_POWER_SENSITIVITY_PLAN.md`) dopo la
   revisione di Codex. Artefatti di revisione di Codex nel repository MWO spostati nel cestino e ripristinati lo
   stesso giorno su richiesta dell'utente; SHA-256 dei 119 file citati in
