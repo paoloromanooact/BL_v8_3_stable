@@ -1,0 +1,31 @@
+check,passed,value
+"META: outcome eseguita, commit 44633cb, git_dirty 0",True,44633cb0a653
+"frozen plan, A1, A2: SHA-256 of the files = META = frozen values",True,
+script SHA-256 in META = script at the run commit,True,62ca2da4d7b3aaa5
+SUMMARY.csv SHA-256 = META,True,
+the three preliminary receipts exist and are bound to the same script,True,"BENCHMARK, GATE, SELFTEST"
+"RAW: 180000 rows, unique (n, k, signal, method)",True,180000
+RAW: 9 configurations x 1000 replicas x 20 responses,True,
+"seeds: base 31000000 + 100000 n + k, bootstrap 32000000 + 100000 n + k",True,
+"noise configuration n -> (form, x_scale) as in the plan",True,
+no technical errors and no boundary cases (files empty),True,
+states only 'ok' or 'errore previsto',True,"{""ok"": 179944, ""errore previsto"": 56}"
+every expected error has verdict 'errore' and a reason,True,56
+O never in error (known variance),True,
+target = e_L * eta_bar exactly (0 for N),True,
+beta_WLS identical across the four methods of a response,True,
+A1 identities recomputed: beta_WLS(signal) - beta_WLS(N) = Delta_beta and L = S within tau_beta,True,"{""L1"": 0.00567, ""L2"": 0.00443, ""S1"": 0.00567, ""S2"": 0.00443, ""L1S1"": 0.00648, ""L2S2"": 0.00492}"
+O: SE identical across the five signals (design only) within 1e-12,True,
+M: beta = beta_WLS,True,44972
+B: beta = beta_WLS,True,45000
+O: beta = beta_WLS,True,45000
+"M, G, O: verdict consistent with the interval; SE > 0",True,
+"M, G, O: coverage, below, above flags consistent with lo, hi, target",True,
+"B: verdict from p_low/p_high with ALPHA 0.0125; p in (0, 1]; clusters >= 2",True,[16.0]
+G: beta_G - beta_WLS column = beta - beta_WLS,True,
+G in error whenever M is in error,True,28
+"identity diagnostics: 9000 units, every deviation <= its tolerance",True,max 0.0065
+SUMMARY: same 180 groups (9 x 5 x 4),True,180
+SUMMARY: every recomputed count exact and every statistic within 1e-10 relative,True,
+"PAIRED_LS recomputed (b, c, delta, paired SE)",True,72 rows
+"PAIRED_METHODS recomputed (6 method pairs, 'supportato' for 5 signals + false verdicts under N)",True,324 rows

@@ -1,0 +1,10 @@
+{
+  "mode": "independent check and recount",
+  "outcome": "superato",
+  "git_commit": "b12abdb5dc5234e6bc25632d7c888edc65e47167",
+  "git_dirty": 0,
+  "script_sha256": "bb07d668e3f20dbb846cae317d01a3edf1192537a12b3800d3d9e98d5136b439",
+  "n_checks": 30,
+  "n_passed": 30,
+  "duration_s": 4.226629734039307
+}
