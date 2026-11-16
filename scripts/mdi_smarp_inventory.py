@@ -49,6 +49,11 @@ Implementation choices (not new rules; listed for the code review):
   thread saves the live time every second during blocking calls; the run lock precedes any read, recovery or
   write of the registry (phases, analysis, map registration); the analysis checks the time cap before and during
   the processing and reports 'stopped_time_cap'; the selftest fails if it touches the real inventory folders.
+- After the third code review of ba359cd: the reconciliation compares multisets of full rows (accepted, edge,
+  unparsable) with the expected columns taken from the registered map, and AUX_RECORDS with the schema of the
+  registered lookup series; the connection phase is bounded as a whole (name resolution waited for at most the
+  remaining time, addresses tried with the residual time only, each socket registered for the watchdog); the
+  analysis status is confirmed only if the time cap is still respected at the end.
 """
 from __future__ import annotations
 
@@ -351,6 +356,45 @@ class Registry:
 
 # ---------------------------------------------------------------- transport (§4.1)
 
+def bounded_connect(host, port, deadline, register, resolver=socket.getaddrinfo, make_sock=socket.socket):
+    """Connection bounded by the absolute deadline as a whole (§4.1): name resolution in a helper thread waited for
+    at most the remaining time; then the addresses in order, each with timeout min(45 s, remaining) and its socket
+    registered for the watchdog before connect(); never a fresh full timeout per address."""
+    box, done = {}, threading.Event()
+
+    def resolve():
+        try:
+            box["ai"] = resolver(host, port, 0, socket.SOCK_STREAM)
+        except Exception as exc:           # noqa: BLE001
+            box["err"] = exc
+        finally:
+            done.set()
+    th = threading.Thread(target=resolve, daemon=True)
+    th.start()
+    if not done.wait(max(0.0, deadline - time.monotonic())):
+        raise TimeoutError("deadline during name resolution")
+    if "err" in box:
+        raise OSError(f"name resolution failed: {box['err']}")
+    last = None
+    for fam, typ, proto, _, addr in box["ai"]:
+        left = deadline - time.monotonic()
+        if left <= 0:
+            raise TimeoutError("deadline during connection")
+        sk = make_sock(fam, typ, proto)
+        register(sk)
+        try:
+            sk.settimeout(max(0.001, min(IDLE_TIMEOUT, left)))
+            sk.connect(addr)
+            return sk
+        except OSError as exc:
+            last = exc
+            with contextlib.suppress(OSError):
+                sk.close()
+    if time.monotonic() >= deadline:
+        raise TimeoutError("deadline during connection")
+    raise OSError(f"connection failed: {last}")
+
+
 class Transport:
     """Bounded HTTP(S) GET for jsoc_info; everything logged and saved, nothing silently retried."""
 
@@ -396,7 +440,7 @@ class Transport:
 
         def kill():
             killed.set()
-            for sk in sock_ref or ([conn.sock] if conn.sock is not None else []):
+            for sk in list(sock_ref) or ([conn.sock] if conn.sock is not None else []):
                 with contextlib.suppress(OSError):
                     sk.shutdown(socket.SHUT_RDWR)
         timer = threading.Timer(rem, kill)
@@ -405,8 +449,13 @@ class Transport:
         try:
             with open(fpath, "wb") as out:
                 timer.start()
-                conn.connect()
-                sock_ref.append(conn.sock)
+                sk = bounded_connect(self.host, self.port or (443 if self.scheme == "https" else 80), deadline,
+                                     register=lambda x: sock_ref.insert(0, x))
+                if self.scheme == "https":
+                    import ssl
+                    sk = ssl.create_default_context().wrap_socket(sk, server_hostname=self.host)
+                    sock_ref.insert(0, sk)
+                conn.sock = sk
                 if killed.is_set():
                     raise TimeoutError("deadline during connection")
                 conn.request("GET", target, headers={"Accept-Encoding": "identity",
@@ -985,13 +1034,19 @@ class Store:
         return new, dup_same
 
 
-def list_leaf(tr, store, leaf, schemas, field_map, run, measure=None):
-    s, prof = leaf["series"], leaf["profile"]
-    sc = schemas[s]
+def request_keys(field_map, prof, sc):
+    """Keywords requested for a profile (the columns of its RECORDS file): registered map + missing primekeys."""
     keys = profile_keys(field_map, prof)
     for k in sc["primekeys"]:
         if k not in keys:
             keys.insert(0, k)
+    return keys
+
+
+def list_leaf(tr, store, leaf, schemas, field_map, run, measure=None):
+    s, prof = leaf["series"], leaf["profile"]
+    sc = schemas[s]
+    keys = request_keys(field_map, prof, sc)
     a, _ = parse_time(leaf["start"])
     b, _ = parse_time(leaf["end"])
     rs = recset(s, sc, a, b)
@@ -1191,8 +1246,8 @@ def phase_aux(run, tr, schemas, rules):
     with gzip.open(cache_f, "wt", newline="") as f:
         w = csv.writer(f, lineterminator="\n")
         w.writerow(sc["primekeys"] + keys)
-        for key, r in sorted(cache.items()):
-            w.writerow(list(key) + [r.get(k) for k in keys])
+        for key, r in sorted(cache.items(), key=lambda kv: tuple(_norm(v) for v in kv[0])):
+            w.writerow([_norm(v) for v in key] + [_norm(r.get(k)) for k in keys])
     prev = json.loads(run.p("AUX_STATUS.json").read_text()).get("files", []) if run.p("AUX_STATUS.json").exists() else []
     write_json(run.p("AUX_STATUS.json"), dict(status=status, requests=len(out), cached=len(cache),
                                               files=prev + [o["file"] for o in out]))
@@ -1518,6 +1573,8 @@ def analyze(run, reg_factory=None):
                 if reg is not None and reg.remaining_time() <= 0:
                     raise BudgetStop("time cap exhausted before the analysis")
                 res = _analyze(run, reg)
+                if reg is not None and reg.used_wall() >= reg.caps["wall_s"]:
+                    raise BudgetStop("time cap exceeded at the end of the analysis: status not confirmed")
             except BudgetStop as exc:
                 run.res.mkdir(parents=True, exist_ok=True)
                 res = dict(status="stopped_time_cap", reason=str(exc))
@@ -1535,9 +1592,11 @@ def _norm(v):
     return "" if v is None else str(v)
 
 
-def reconcile_derived(run, receipts, tick):
-    """Rebuild accepted and edge rows from the original list responses and compare them with the derived CSV
-    (identities, values, per-window edge rows); the same for AUX_RECORDS from the aux responses."""
+def reconcile_derived(run, receipts, tick, fmap, rules):
+    """Rebuild every derived row from the original responses and compare multisets of full rows with the derived
+    CSV: expected columns from the registered map (not from the CSV), accepted, edge and unparsable rows with their
+    values and multiplicity; AUX_RECORDS likewise with the schema of the lookup series actually registered."""
+    from collections import Counter
     schemas = run.schemas()
     problems = []
     for prof in PROFILES:
@@ -1553,22 +1612,17 @@ def reconcile_derived(run, receipts, tick):
         s_ = PROFILE_SERIES[prof]
         sc = schemas[s_]
         tk = time_key(sc)
+        keys = request_keys(fmap, prof, sc)
         with gzip.open(path, "rt", newline="") as f:
             rd = csv.reader(f)
-            head = next(rd)
-            keys = head[2:]
-            derived, d_edges = {}, {}
+            head = next(rd, None)
+            derived = Counter()
             for row in rd:
                 tick()
-                vals = dict(zip(keys, row[2:]))
-                if row[1] == "0":
-                    key = identity(s_, sc, vals)
-                    if key in derived:
-                        problems.append(f"{prof}: duplicated identity in the derived CSV")
-                    derived[key] = vals
-                else:
-                    d_edges[row[0]] = d_edges.get(row[0], 0) + 1
-        expected, e_edges = {}, {}
+                derived[tuple(row)] += 1
+        if head != ["window", "edge"] + keys:
+            problems.append(f"{prof}: CSV columns differ from the registered map ({head} vs {keys})")
+        expected, seen = Counter(), set()
         for r in recs:
             raw = run.p("raw") / r["file"]
             if not raw.exists():
@@ -1578,36 +1632,47 @@ def reconcile_derived(run, receipts, tick):
             a, _ = parse_time(r["window"].split("/")[0])
             b, _ = parse_time(r["window"].split("/")[1])
             kept, edge, bad = filter_window(rows, tk, a, b)
-            e_edges[r["window"]] = len(edge) + len(bad)
             for x in kept:
                 tick()
                 key = identity(s_, sc, x)
-                expected.setdefault(key, {k: _norm(x.get(k)) for k in keys})
-        if set(expected) != set(derived):
-            problems.append(f"{prof}: identities differ ({len(expected)} rebuilt vs {len(derived)} derived)")
-        elif any(expected[k] != derived[k] for k in expected):
-            problems.append(f"{prof}: values differ from the original responses")
-        if {k: v for k, v in e_edges.items() if v} != d_edges:
-            problems.append(f"{prof}: edge/unparsable rows differ from the original responses")
+                if key in seen:
+                    continue
+                seen.add(key)
+                expected[tuple([r["window"], "0"] + [_norm(x.get(k)) for k in keys])] += 1
+            for x in edge:
+                expected[tuple([r["window"], "1"] + [_norm(x.get(k)) for k in keys])] += 1
+            for x, st in bad:
+                expected[tuple([r["window"], f"unparsable_time:{st}"] + [_norm(x.get(k)) for k in keys])] += 1
+        if expected != derived:
+            miss, extra = sum((expected - derived).values()), sum((derived - expected).values())
+            problems.append(f"{prof}: rows differ from the original responses ({miss} missing or changed, {extra} extra)")
     st = run.p("AUX_STATUS.json")
-    if st.exists() and run.p("AUX_RECORDS.csv.gz").exists():
-        files = json.loads(st.read_text()).get("files", [])
-        lk_series = SMARP_LEV if SMARP_LEV in schemas else None
-        rebuilt = set()
-        for fname in files:
-            raw = run.p("raw") / fname
-            if not raw.exists():
-                problems.append(f"aux: original response {fname} missing")
-                continue
-            for x in rows_from_rs_list(json.loads(raw.read_bytes().decode("utf-8"))):
-                rebuilt.add(tuple(_norm(x.get(k)) for k in schemas[lk_series]["primekeys"]) if lk_series else ())
-        with gzip.open(run.p("AUX_RECORDS.csv.gz"), "rt", newline="") as f:
-            rd = csv.reader(f)
-            head = next(rd)
-            n_pk = len(schemas[lk_series]["primekeys"]) if lk_series else 0
-            have = {tuple(row[:n_pk]) for row in rd}
-        if lk_series and rebuilt != have:
-            problems.append(f"aux: AUX_RECORDS identities differ from the aux responses ({len(rebuilt)} vs {len(have)})")
+    lk = (rules or {}).get("smarp_source_lookup")
+    if run.p("AUX_RECORDS.csv.gz").exists() and not (st.exists() and lk):
+        problems.append("aux: AUX_RECORDS without AUX_STATUS or without a registered lookup rule")
+    elif st.exists() and lk and run.p("AUX_RECORDS.csv.gz").exists():
+        sc = schemas.get(lk["series"])
+        if sc is None:
+            problems.append(f"aux: schema of {lk['series']} missing")
+        else:
+            keys = [k for k in lk["keywords"] if k not in sc["primekeys"]]
+            cols = sc["primekeys"] + keys
+            cache = {}
+            for fname in json.loads(st.read_text()).get("files", []):
+                raw = run.p("raw") / fname
+                if not raw.exists():
+                    problems.append(f"aux: original response {fname} missing")
+                    continue
+                for x in rows_from_rs_list(json.loads(raw.read_bytes().decode("utf-8"))):
+                    cache[tuple(_norm(x.get(k)) for k in sc["primekeys"])] = tuple(_norm(x.get(k)) for k in cols)
+            with gzip.open(run.p("AUX_RECORDS.csv.gz"), "rt", newline="") as f:
+                rd = csv.reader(f)
+                head = next(rd, None)
+                have = Counter(tuple(row) for row in rd)
+            if head != cols:
+                problems.append(f"aux: AUX_RECORDS columns differ from the lookup rule ({head} vs {cols})")
+            if Counter(cache.values()) != have:
+                problems.append("aux: AUX_RECORDS rows differ from the aux responses")
     return dict(ok=not problems, msg="; ".join(problems[:5]))
 
 
@@ -1641,7 +1706,7 @@ def _analyze(run, reg=None):
     chk("every listed window: count_server = received", all(r["count_server"] == r["received"] for r in receipts),
         f"{len(receipts)} windows")
     tick(True)
-    rec = reconcile_derived(run, receipts, tick)
+    rec = reconcile_derived(run, receipts, tick, fmap, rules)
     chk("derived CSV equal the reconstruction from the original responses (identities, values, edge rows)",
         rec["ok"], rec["msg"])
     tick(True)
@@ -2465,6 +2530,52 @@ def selftest_end_to_end(ok):
             ok("review2 5: time cap exhausted before the analysis -> stopped_time_cap", r5b["status"] == "stopped_time_cap", "")
             rg["wall_s_completed"] = 0.0
             write_json(run.p("REGISTRY.json"), rg)
+            # third review of ba359cd: final time check, full-row reconciliation (edge rows, columns)
+            class LateOverrun(Registry):
+                def remaining_time(self):
+                    return 1.0
+
+                def used_wall(self):
+                    return self.caps["wall_s"] + 1.0
+            r3 = analyze(run, reg_factory=LateOverrun)
+            ok("review3 3: time cap exceeded after the last tick -> stopped_time_cap, status not confirmed",
+               r3["status"] == "stopped_time_cap", r3.get("reason", ""))
+            rg = json.loads(run.p("REGISTRY.json").read_text())
+            rg.update(wall_s_completed=0.0, wall_s_live=0.0)
+            write_json(run.p("REGISTRY.json"), rg)
+            originals = {p_: p_.read_bytes() for p_ in run.raw.glob("RECORDS_*.csv.gz")}
+
+            def mutated(name, fn):
+                for p_, b_ in originals.items():
+                    p_.write_bytes(b_)
+                path = run.p(name)
+                with gzip.open(path, "rt", newline="") as f:
+                    rows_ = list(csv.reader(f))
+                rows_ = fn(rows_)
+                with gzip.open(path, "wt", newline="") as f:
+                    csv.writer(f, lineterminator="\n").writerows(rows_)
+                res_ = analyze(run)
+                st_ = json.loads((run.res / "ANALYSIS_STATUS.json").read_text())
+                return res_["status"] == "partial" and any("reconstruction" in c for c in st_["failed"])
+
+            def edge_change(rows_):
+                h = rows_[0]
+                for r_ in rows_[1:]:
+                    if r_[1] == "1":
+                        r_[h.index("T_REC")] = "2010.07.01_00:01:00_TAI"
+                        r_[h.index("QUALITY")] = "4"
+                        break
+                return rows_
+            ok("review3 1: changed time and QUALITY of an edge row detected (values, not only the count)",
+               mutated("RECORDS_smarp_overlap.csv.gz", edge_change), "")
+            ok("review3 1: QUALITY column removed from the CSV detected (expected columns from the registered map)",
+               mutated("RECORDS_smarp_overlap.csv.gz",
+                       lambda rows_: [[v for i_, v in enumerate(r_) if i_ != rows_[0].index("QUALITY")] for r_ in rows_]), "")
+            ok("review3 1: a duplicated accepted row is detected (multiplicity)",
+               mutated("RECORDS_fd_min.csv.gz", lambda rows_: rows_ + [next(r_ for r_ in rows_[1:] if r_[1] == "0")]), "")
+            for p_, b_ in originals.items():
+                p_.write_bytes(b_)
+            ok("review3 1: originals restored -> analysis complete again", analyze(run)["status"] == "complete", "")
             hp = run.p("RECORDS_hmi_overlap.csv.gz")
             with gzip.open(hp, "rt", newline="") as f:
                 lines = f.read().splitlines()
@@ -2564,6 +2675,39 @@ def selftest_regressions(ok):
             el = time.monotonic() - t0
             ok("review2 2: HTTP/1.0 slow body stopped at the absolute deadline through the response socket",
                r and el < 0.4, f"{el:.3f} s for a 0.25 s cap")
+        # third review: the whole connection phase is bounded (resolution and several addresses)
+        class SlowSock:
+            def __init__(self, *a):
+                self.t = None
+                self.closed = False
+
+            def settimeout(self, t):
+                self.t = t
+
+            def connect(self, addr):
+                time.sleep(self.t)
+                raise socket.timeout("simulated")
+
+            def close(self):
+                self.closed = True
+        reg_ = []
+        two = lambda *a: [(socket.AF_INET, socket.SOCK_STREAM, 0, "", ("192.0.2.1", 1)),  # noqa: E731
+                          (socket.AF_INET, socket.SOCK_STREAM, 0, "", ("192.0.2.2", 1))]
+        t0 = time.monotonic()
+        r = _raises(lambda: bounded_connect("x", 1, time.monotonic() + 0.04, reg_.append, resolver=two,
+                                            make_sock=SlowSock), TimeoutError)
+        el = time.monotonic() - t0
+        ok("review3 2: two addresses that each honour their timeout stay within the total deadline (0.04 s); every "
+           "socket registered for the watchdog before connect", r and el < 0.06 and len(reg_) >= 1, f"{el:.3f} s")
+
+        def slow_dns(*a):
+            time.sleep(1.0)
+            return two()
+        t0 = time.monotonic()
+        r = _raises(lambda: bounded_connect("x", 1, time.monotonic() + 0.1, reg_.append, resolver=slow_dns,
+                                            make_sock=SlowSock), TimeoutError)
+        ok("review3 2: slow name resolution stopped at the deadline", r and time.monotonic() - t0 < 0.2,
+           f"{time.monotonic() - t0:.3f} s")
         # second review: heartbeat keeps the live time during blocking intervals
         with _tmpdir() as tmp:
             reg = Registry(Path(tmp) / "R.json")
@@ -2648,6 +2792,25 @@ def selftest_regressions(ok):
             rules = {"fd_product": {"keyword": "MODE", "map": {"1": "documented_1min"}},
                      "smarp_source_lookup": {"series": SMARP_LEV, "key_map": {"T_REC": "T_REC", "TARPNUM": "TARPNUM"},
                                              "keywords": ["SRC_T"], "source_time_keyword": "SRC_T"}}
+            raw6 = run.p("raw")
+            raw6.mkdir(exist_ok=True)
+            (raw6 / "aux_7_0_t1_a0001.body").write_text(json.dumps(dict(status=0, count=1, keywords=[
+                dict(name="T_REC", values=["2001.03.10_00:05:00_TAI"]), dict(name="TARPNUM", values=["7"]),
+                dict(name="SRC_T", values=["2001.03.10_00:00:00_TAI"])])))
+            write_json(run.p("AUX_STATUS.json"), dict(status="unknown_budget", files=["aux_7_0_t1_a0001.body"]))
+            noop = lambda *a: None  # noqa: E731
+            aux_msgs = lambda: [m_ for m_ in reconcile_derived(run, [], noop, [], rules)["msg"].split("; ")  # noqa: E731
+                                if m_.startswith("aux:")]
+            ok("review3 1: AUX_RECORDS equal to the aux responses pass the full-row comparison (hand-built RECORDS "
+               "without receipts are reported separately)", aux_msgs() == [], str(aux_msgs()))
+            good_aux = run.p("AUX_RECORDS.csv.gz").read_bytes()
+            with gzip.open(run.p("AUX_RECORDS.csv.gz"), "wt", newline="") as f:
+                w = csv.writer(f, lineterminator="\n")
+                w.writerow(["T_REC", "TARPNUM", "SRC_T"])
+                w.writerow(["2001.03.10_00:05:00_TAI", "7", "2001.03.10_00:01:36_TAI"])
+            ok("review3 1: a changed SRC_T in AUX_RECORDS is detected (values, lookup schema of the registered rule)",
+               any("rows differ" in m_ for m_ in aux_msgs()), str(aux_msgs())[:80])
+            run.p("AUX_RECORDS.csv.gz").write_bytes(good_aux)
             pr = {(x["level"], x["year"], x["state"], x["reason"]): x["n"] for x in product_states(run, [], rules)}
             ok("review 6: AUX_RECORDS feed the classification (TARP 7 -> 1-min source); a record not looked up for "
                "budget is unknown_budget", pr.get(("patch_record", "all", "documented_1min", "time_link_1s")) == 1
