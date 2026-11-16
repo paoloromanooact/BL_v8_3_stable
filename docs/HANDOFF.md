@@ -62,6 +62,16 @@ bersaglio esplicito della potenza prospettica di T3, copertura nominale del cicl
 il limite SMARP di ottobre 2010. Prossimo passo indicato: inventario limitato dei metadati (piano prima,
 nessun download). Nessuna query eseguita.
 
+## T5 potenza: risultati letti — 2026-11-16
+
+Esecuzione unica (`44633cb`, 10:38–13:31, 9000 unità, 0 errori tecnici), output `0a6853a`, controllo
+indipendente 30/30 (`b12abdb`, `2fb9bd5`), rapporto `docs/T5_POWER_SENSITIVITY_RESULTS.md`. In sintesi, per questi
+generatori: M vicino al nominale dei falsi verdetti in 8 configurazioni su 9; riduzione del 20 % riconosciuta da M
+al più ~19 % (scala 0,5), 8–11 % alla scala P2f; la forma dello scenario non cambia la potenza di M; O (varianza
+nota) non riconosce più di M; G e B riconoscono di più ma con falsi verdetti in eccesso in varie configurazioni
+(B fino al 12,2 %). Coerente con un limite di informazione del disegno. Esito (i/ii/iii del piano §5) da
+decidere con Codex. Raccoglitore MDI in attesa del via di Codex alla fase schema. Nessun push.
+
 ## Morfologia di S: bozza di piano — 2026-11-16
 
 **In pausa per decisione dell'utente (2026-11-16):** revisione 3 (`20a3a46`, opzione ridotta, 206 schede, circa 0,3 M token) da inviare a Codex più avanti, insieme alla storia delle revisioni; nessun congelamento, nessuna scheda.
