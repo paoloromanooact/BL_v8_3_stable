@@ -7,6 +7,7 @@ without a registered field map.
 
     OMP_NUM_THREADS=1 .venv/bin/python scripts/mdi_smarp_inventory.py --selftest              # §8, offline only
     .venv/bin/python scripts/mdi_smarp_inventory.py --phase schema   --run-id RUN             # §3 (network)
+    .venv/bin/python scripts/mdi_smarp_inventory.py --prepare-fields --run-id RUN            # offline, schema review
     .venv/bin/python scripts/mdi_smarp_inventory.py --register-map   --run-id RUN --verified-by WHO   # offline
     .venv/bin/python scripts/mdi_smarp_inventory.py --phase counts   --run-id RUN             # §4.2 (network)
     .venv/bin/python scripts/mdi_smarp_inventory.py --phase overlap  --run-id RUN             # §4.3 (network)
@@ -62,11 +63,16 @@ Implementation choices (not new rules; listed for the code review):
 - After the fourth code review of b54f80f: the SSL socket is created with do_handshake_on_connect=False, registered
   for the watchdog, given the residual timeout and only then handshaken (CPython applies the socket timeout as a
   deadline of the handshake call from its start, so time spent before it was not covered).
+- Schema review 2026-11-16: --prepare-fields is offline and refuses overwrite; confirmed record provenance is
+  separated from schema constants and segment-scoped keywords. The explicit registered patch-centre method
+  implements the alternative already allowed by plan 6.2, without inventing dimensions; envelope and box_only
+  remain unknown. INTERVAL is matched as exact numeric seconds without rounding; SMARP sources remain unknown.
 """
 from __future__ import annotations
 
 import argparse
 import contextlib
+from decimal import Decimal, InvalidOperation
 import csv
 import gzip
 import hashlib
@@ -972,6 +978,14 @@ def registered_map(run):
         raise TechnicalError("PRODUCT_RULES.json presence differs from its registration")
     if rules.exists() and r.get("product_rules_sha256") != sha_file(rules):
         raise TechnicalError("PRODUCT_RULES.json differs from its registration")
+    if "field_map_review_sha256" in r:
+        review = run.p("FIELD_MAP_REVIEW.json")
+        if not review.exists() or sha_file(review) != r["field_map_review_sha256"]:
+            raise TechnicalError("FIELD_MAP_REVIEW.json differs from its registration")
+        for series, h in json.loads(review.read_text())["schema_sha256"].items():
+            schema_file = run.p(f"SCHEMA_{series}.json")
+            if not schema_file.exists() or sha_file(schema_file) != h:
+                raise TechnicalError("saved schema differs from the registered field-map review")
     return read_csv(fm), (json.loads(rules.read_text()) if rules.exists() else {})
 
 
@@ -996,6 +1010,86 @@ def phase_schema(run, tr):
                 field_map_proposed_sha256=sha_file(run.p("FIELD_MAP_PROPOSED.csv")))
 
 
+def prepare_reviewed_fields(run):
+    """Offline schema-based configuration reviewed in chat on 2026-11-16; no record query or registration."""
+    check_plan()
+    with lock(run):
+        names = ("FIELD_MAP.csv", "PRODUCT_RULES.json", "FIELD_MAP_REVIEW.json")
+        if any(run.p(n).exists() for n in (*names, "FIELD_MAP_REGISTRATION.json")):
+            raise TechnicalError("reviewed configuration already exists: refusing to overwrite it")
+        schemas = run.schemas()
+        if set(schemas) != set(SERIES):
+            raise TechnicalError("all five saved schemas are required before preparing the map")
+        proposal = run.p("FIELD_MAP_PROPOSED.csv")
+        phases = sorted(run.raw.glob("PHASE_schema_*.json"))
+        if phases:
+            phase = json.loads(phases[-1].read_text())
+            if phase.get("result", {}).get("field_map_proposed_sha256") != sha_file(proposal):
+                raise TechnicalError("field-map proposal differs from the saved schema-phase receipt")
+        rows = read_csv(proposal)
+        confirmed = {
+            "smarp_min": ("CODEVER7", "DATE", "INSTRUME", "BLD_VERS"),
+            "smarp_overlap": ("CODEVER7", "DATE", "INSTRUME", "BLD_VERS"),
+            "hmi_overlap": ("CODEVER7", "DATE", "INSTRUME", "BLD_VERS"),
+            "fd_min": ("DATAVALS", "DATE", "INTERVAL", "DPC", "BLD_VERS", "BLDVER15", "BLDVER18"),
+        }
+        for prof, wanted in confirmed.items():
+            series = PROFILE_SERIES[prof]
+            kws = schemas[series]["keywords"]
+            for name in wanted:
+                if name not in kws or kws[name].get("recscope") in ("constant", "segment"):
+                    raise TechnicalError(f"{prof}: {name} is not the documented record-level field")
+                if not any(r["profile"] == prof and r["name"] == name for r in rows):
+                    kw = kws[name]
+                    rows.append(dict(profile=prof, series=series, role="provenance_candidate", name=name,
+                                     status="present", type=kw.get("type", ""), unit=kw.get("units", ""),
+                                     definition_ref=f"series_struct {series}: {kw.get('note', '')}",
+                                     normalization="preserve_raw", depends_on="confirmed"))
+        for r in rows:
+            if r["status"] != "present":
+                continue
+            kw = schemas[r["series"]]["keywords"].get(r["name"])
+            if kw is None or r["type"] != kw.get("type", "") or r["unit"] != kw.get("units", ""):
+                raise TechnicalError(f"field name/type/unit differs from saved schema: {r['profile']} {r['name']}")
+            if r["role"] == "provenance_candidate":
+                r["normalization"] = "preserve_raw"
+                if kw.get("recscope") == "constant":
+                    r["depends_on"] = "from_saved_schema_not_requested"
+                elif kw.get("recscope") == "segment":
+                    r["depends_on"] = "not_confirmed_segment_scope"
+                else:
+                    r["depends_on"] = "confirmed" if r["name"] in confirmed[r["profile"]] else "not_requested"
+            if r["profile"] in ("smarp_overlap", "hmi_overlap") and r["role"] in ("crval1", "crval2"):
+                expected = "Longitude at center of patch" if r["role"] == "crval1" else "Latitude at center of patch"
+                if kw.get("note", "").strip() != expected or kw.get("units", "").lower() != "degree":
+                    raise TechnicalError("direct patch centre is not documented by this schema")
+                r["normalization"] = "documented_patch_center"
+        fd_interval = schemas[FD]["keywords"]["INTERVAL"]
+        if fd_interval.get("units") != "s" or fd_interval.get("note") != "Observable integration interval":
+            raise TechnicalError("INTERVAL integration-time semantics or unit not documented")
+        rules = dict(fd_product=dict(keyword="INTERVAL", normalization="numeric_seconds_exact",
+                     map={"60": "documented_1min", "300": "documented_5min"},
+                     definition_ref=f"series_struct {FD}: INTERVAL, seconds, Observable integration interval"),
+                     smarp_source_time=None, smarp_source_lookup=None,
+                     limitations=["DPC is preserved raw; no product-code decoding is assumed",
+                                  "No documented SMARP to full-disk source link within the allowed series",
+                                  "No offset correction or T_OBS equivalence is assumed",
+                                  "Patch dimensions and envelopes are not inferred from CRPIX"])
+        write_csv(run.p("FIELD_MAP.csv"), rows, FIELD_COLS)
+        write_json(run.p("PRODUCT_RULES.json"), rules)
+        review = dict(provenance(), mode="offline field-map preparation", run_id=run.id,
+                      proposal_sha256=sha_file(proposal),
+                      schema_phase_sha256=sha_file(phases[-1]) if phases else None,
+                      schema_sha256={series: sha_file(run.p(f"SCHEMA_{series}.json")) for series in SERIES},
+                      field_map_sha256=sha_file(run.p("FIELD_MAP.csv")),
+                      product_rules_sha256=sha_file(run.p("PRODUCT_RULES.json")),
+                      request_keys={prof: profile_keys(rows, prof) for prof in PROFILES},
+                      center_method="registered documented CRVAL patch centre in Carrington coordinates",
+                      envelopes="not_assessable without documented dimensions", network_attempts=0)
+        write_json(run.p("FIELD_MAP_REVIEW.json"), review)
+        return review
+
+
 def register_map(run, verified_by):
     """Offline: the reviewer edits FIELD_MAP.csv (copied from the proposal) and its SHA-256 is registered."""
     with lock(run):
@@ -1011,6 +1105,14 @@ def _register_map(run, verified_by):
         raise TechnicalError("FIELD_MAP.csv columns differ from the expected ones")
     out = dict(field_map_sha256=sha_file(fm), verified_by=verified_by, registered_utc=now_utc(),
                plan_sha256=SHA_PLAN)
+    review_file = run.p("FIELD_MAP_REVIEW.json")
+    if review_file.exists():
+        review = json.loads(review_file.read_text())
+        if review.get("field_map_sha256") != out["field_map_sha256"] or review.get("product_rules_sha256") != sha_file(run.p("PRODUCT_RULES.json")):
+            raise TechnicalError("configuration differs from the offline field-map review")
+        if any(sha_file(run.p(f"SCHEMA_{series}.json")) != h for series, h in review["schema_sha256"].items()):
+            raise TechnicalError("saved schemas differ from the offline field-map review")
+        out["field_map_review_sha256"] = sha_file(review_file)
     rules = run.p("PRODUCT_RULES.json")
     if rules.exists():
         json.loads(rules.read_text())
@@ -1500,16 +1602,41 @@ def envelope_overlap(e1, e2):
                 iou=best / union if union > 0 else None)
 
 
+def documented_patch_center(rec, fmap, prof):
+    """Alternative in plan 6.2: only explicitly reviewed CEA patch-centre fields, never arbitrary CRVAL."""
+    rows = {r["role"]: r for r in fmap if r["profile"] == prof and r["status"] == "present"}
+    if prof not in ("smarp_overlap", "hmi_overlap") or any(
+            rows.get(k, {}).get("normalization") != "documented_patch_center" for k in ("crval1", "crval2")):
+        return None, "no registered documented patch centre"
+    if any(rows[k]["series"] != PROFILE_SERIES[prof] for k in ("crval1", "crval2")):
+        return None, "centre series differs from the profile"
+    def value(role):
+        return rec.get(rows.get(role, {}).get("name", ""))
+    if str(value("ctype1")).upper() != "CRLN-CEA" or str(value("ctype2")).upper() != "CRLT-CEA":
+        return None, "centre coordinate frame is not CRLN-CEA/CRLT-CEA"
+    if any(str(value(k)).lower() not in ("deg", "degree", "degrees") for k in ("cunit1", "cunit2")):
+        return None, "centre angular units are not documented degrees"
+    lon, _ = to_float(value("crval1"))
+    lat, _ = to_float(value("crval2"))
+    if lon is None or lat is None or not -90 <= lat <= 90:
+        return None, "centre coordinates missing, non-finite or outside the latitude domain"
+    return (lon % 360.0, lat), "ok"
+
+
 def geom_of(rec, fmap, prof):
     vals = {r: rec.get(role_name(fmap, prof, r)) if role_name(fmap, prof, r) else None for r in GEOM_ROLES}
     w, shape, why = wcs_from(vals)
     if w is None:
-        return dict(status="not_assessable", reason=why)
+        c, direct_reason = documented_patch_center(rec, fmap, prof)
+        if c is not None:
+            return dict(status="ok", lon=c[0], lat=c[1], method="schema_documented_patch_center", env=None,
+                        env_reason="not_assessable: patch dimensions or full WCS not documented")
+        return dict(status="not_assessable", reason=f"{why}; {direct_reason}")
     c, why = center_lonlat(w, shape)
     if c is None:
         return dict(status="not_assessable", reason=why)
     env, why_e = envelope(w, shape, c[0])
-    return dict(status="ok", lon=c[0], lat=c[1], env=env, env_reason=why_e)
+    return dict(status="ok", lon=c[0], lat=c[1], method="full_wcs_geometric_center", env=env, env_reason=why_e)
 
 
 def noaa_set(*vals):
@@ -1579,7 +1706,10 @@ def match_overlap(smarp, hmi, fmap, incomplete=(), tick=lambda *a: None):
             r[f"in_G{int(R)}"] = int(inn)
             r[f"unique_in_G{int(R)}"] = int(inn and g["deg_s"][p["s"]["_id"]] == 1 and g["deg_h"][p["h"]["_id"]] == 1)
         r["ambiguous_on_widening"] = int(r["unique_in_G5"] == 1 and r["unique_in_G10"] == 0)
-        r["box_only"] = int(p["dist"] is not None and p["dist"] > 10.0 and (ov.get("inter") or 0) > 0)
+        r["center_method_smarp"], r["center_method_hmi"] = p["s"]["_geom"].get("method"), p["h"]["_geom"].get("method")
+        r["envelope_reason_smarp"], r["envelope_reason_hmi"] = p["s"]["_geom"].get("env_reason"), p["h"]["_geom"].get("env_reason")
+        r["envelope_assessable"] = int(p["ov"] is not None)
+        r["box_only"] = int(p["dist"] > 10.0 and ov["inter"] > 0) if p["ov"] is not None else None
         rows.append(r)
     by_s = {}
     for p in pairs:
@@ -1929,7 +2059,10 @@ def _analyze(run, reg=None):
         summ[f"unique_G{int(R)}"] = sum(r[f"unique_in_G{int(R)}"] for r in rows)
         summ[f"distinct_pairs_G{int(R)}"] = len({(r["TARPNUM"], r["HARPNUM"]) for r in rows if r[f"in_G{int(R)}"]})
     summ["ambiguous_on_widening"] = sum(r["ambiguous_on_widening"] for r in rows)
-    summ["box_only"] = sum(r["box_only"] for r in rows)
+    summ["box_only"] = sum(r["box_only"] == 1 for r in rows)
+    summ["box_only_not_assessable"] = sum(r["box_only"] is None for r in rows)
+    if summ["box_only_not_assessable"]:
+        limits.append("Patch-envelope overlap and box_only are not assessable for some pairs; unknown is not zero")
     summ["records_with_incomplete_geometry_competitors"] = sum(1 for s in states if not s["geometry_complete_competitors"])
     summ["records_with_incomplete_search"] = sum(1 for s in states if not s["search_complete"])
     summ["noaa_concordance"] = {c: sum(1 for r in rows if r["noaa_concordance"] == c)
@@ -1970,6 +2103,25 @@ def parse_step(s, unit=None):
     return v * STEP_UNITS[u]
 
 
+def product_label(value, rule):
+    """Exact numeric-second comparison when declared; preserve the original value and never round into a class."""
+    mode = rule.get("normalization", "string")
+    if mode == "string":
+        return rule["map"].get(str(value).strip()) if value is not None else None
+    if mode != "numeric_seconds_exact":
+        raise TechnicalError(f"unsupported product normalization {mode!r}")
+    try:
+        number = Decimal(str(value).strip())
+    except InvalidOperation:
+        return None
+    if not number.is_finite():
+        return None
+    labels = {label for key, label in rule["map"].items() if Decimal(str(key)) == number}
+    if len(labels) > 1:
+        raise TechnicalError("conflicting numeric product-rule values")
+    return next(iter(labels), None)
+
+
 def product_states(run, fmap, rules):
     """documented_1min / documented_5min / unknown / conflict with reasons, per source epoch and per patch record,
     overall and per year (§5.3). The SMARP source time comes from a documented SMARP keyword or from the documented
@@ -1984,7 +2136,7 @@ def product_states(run, fmap, rules):
             fd_state[r["_id"]] = ("unknown", "not_documented")
             continue
         v = r.get(rule["keyword"])
-        cls = rule["map"].get(str(v).strip()) if v is not None else None
+        cls = product_label(v, rule)
         fd_state[r["_id"]] = (cls, "rule") if cls in ("documented_1min", "documented_5min") else ("unknown", "value_not_mapped")
     tl = sorted((r["_t"], r["_id"]) for r in fd if r["_t"] is not None)
     times = [t for t, _ in tl]
@@ -3021,6 +3173,101 @@ def selftest_regressions(ok):
         fake.close()
 
 
+def selftest_reviewed_fields(ok):
+    """Regressions for the schema-verified map: explicit centre, unknown envelopes, exact integration time."""
+    g = synth_cea(359.9, -12.0, 61, 45)
+    rows = [dict(profile="smarp_overlap", series=SMARP, role=k, name=FITS_NAME[k], status="present",
+                 normalization="documented_patch_center" if k in ("crval1", "crval2") else "") for k in GEOM_ROLES]
+    rec = {FITS_NAME[k]: v for k, v in g.items()}
+    rec.pop("NAXIS1"); rec.pop("NAXIS2")
+    d = geom_of(rec, rows, "smarp_overlap")
+    ok("reviewed centre: documented CRVAL gives a CEA centre without dimensions, envelope unknown",
+       d["status"] == "ok" and d["lon"] == 359.9 and d["lat"] == -12.0 and d["env"] is None
+       and d["method"] == "schema_documented_patch_center", "")
+    unreviewed = [dict(r, normalization="") for r in rows]
+    ok("reviewed centre: arbitrary CRVAL without the registered centre method is not used",
+       geom_of(rec, unreviewed, "smarp_overlap")["status"] == "not_assessable", "")
+    ok("reviewed centre: wrong frame or units, non-finite coordinates and latitude beyond 90 are rejected",
+       all(geom_of(dict(rec, **v), rows, "smarp_overlap")["status"] == "not_assessable"
+           for v in ({"CTYPE1": "HPLN-TAN"}, {"CUNIT1": "arcsec"}, {"CRVAL1": "nan"}, {"CRVAL2": 91})), "")
+    ok("reviewed centre: longitude is periodic and zero latitude is valid",
+       geom_of(dict(rec, CRVAL1=-0.1, CRVAL2=0), rows, "smarp_overlap")["lon"] == 359.9
+       and geom_of(dict(rec, CRVAL2=0), rows, "smarp_overlap")["lat"] == 0, "")
+    frows = rows + [dict(r, profile="hmi_overlap", series=HMI) for r in rows]
+    t = datetime(2010, 6, 1)
+    sm = dict(_id="S", _t=t, TARPNUM=1, _geom=d)
+    hm = dict(_id="H", _t=t, HARPNUM=2, _geom=dict(d, lon=0.1))
+    pairs, _, _ = match_overlap([sm], [hm], frows)
+    ok("reviewed centre: G5/G10 still work across 0/360 when envelopes and box_only are not assessable",
+       len(pairs) == 1 and pairs[0]["in_G5"] == pairs[0]["in_G10"] == 1
+       and pairs[0]["iou"] is None and pairs[0]["box_only"] is None and pairs[0]["envelope_assessable"] == 0, "")
+    rule = dict(normalization="numeric_seconds_exact", map={"60": "documented_1min", "300": "documented_5min"})
+    ok("integration: equivalent exact numeric spellings of 60 and 300 are classified identically",
+       all(product_label(v, rule) == "documented_1min" for v in (60, 60.0, "60", "60.000000", "6e1"))
+       and all(product_label(v, rule) == "documented_5min" for v in (300, "300.0", "3e2")), "")
+    ok("integration: missing, non-finite and unmapped values remain unknown without rounding",
+       all(product_label(v, rule) is None for v in (None, "", "nan", "inf", "60.00000000000000000000000000001", "299.9999", 120)), "")
+    ok("integration: existing exact-string rules remain compatible; unknown normalizations refuse",
+       product_label("one", dict(map={"one": "documented_1min"})) == "documented_1min"
+       and _raises(lambda: product_label(60, dict(normalization="guess", map={})), TechnicalError), "")
+
+    # A complete synthetic schema review exercises the preparation and registration guards without real records.
+    with _tmpdir() as tmp:
+        run = Run("reviewed_fields", raw_base=Path(tmp) / "raw", res_base=Path(tmp) / "res")
+        catalog = SynthCatalog()
+        for series, schema in catalog.schemas.items():
+            kws = {k["name"]: dict(k) for k in schema["keywords"]}
+            for k in kws.values():
+                k.setdefault("type", "string"); k.setdefault("units", "none"); k.setdefault("recscope", "variable")
+            wanted = ["CODEVER7", "DATE", "INSTRUME", "BLD_VERS", "ORIGIN", "DATAVALS"]
+            if series == FD:
+                wanted += ["INTERVAL", "DPC", "BLDVER15", "BLDVER18"]
+            for name in wanted:
+                kws[name] = dict(name=name, type="string", units="none", recscope="variable", note="synthetic")
+            kws["ORIGIN"]["recscope"] = "constant"
+            if series in (SMARP, HMI):
+                kws["DATAVALS"]["recscope"] = "segment"
+                for name, direction in (("CRVAL1", "Longitude"), ("CRVAL2", "Latitude")):
+                    kws[name].update(type="float", units="degree", note=f"{direction} at center of patch")
+            if series == FD:
+                kws["INTERVAL"].update(type="float", units="s", note="Observable integration interval")
+            schema["keywords"] = list(kws.values())
+            write_json(run.p(f"SCHEMA_{series}.json"), schema)
+        write_csv(run.p("FIELD_MAP_PROPOSED.csv"), propose_field_map(run.schemas()), FIELD_COLS)
+        review = prepare_reviewed_fields(run)
+        keys = review["request_keys"]
+        ok("reviewed configuration: builds and DPC requested, constants and segment DATAVALS not queried per patch",
+           {"DPC", "INTERVAL", "BLD_VERS", "BLDVER15", "BLDVER18"} <= set(keys["fd_min"])
+           and all("ORIGIN" not in k for k in keys.values())
+           and all("DATAVALS" not in keys[p] for p in ("smarp_min", "smarp_overlap", "hmi_overlap")), "")
+        ok("reviewed configuration: a second preparation refuses overwrite",
+           _raises(lambda: prepare_reviewed_fields(run), TechnicalError), "")
+        original_rules = run.p("PRODUCT_RULES.json").read_bytes()
+        run.p("PRODUCT_RULES.json").write_text("{}")
+        ok("reviewed registration: rules changed after review are refused",
+           _raises(lambda: register_map(run, "selftest"), TechnicalError)
+           and not run.p("FIELD_MAP_REGISTRATION.json").exists(), "")
+        run.p("PRODUCT_RULES.json").write_bytes(original_rules)
+        schema_file = run.p(f"SCHEMA_{SMARP}.json")
+        original_schema = schema_file.read_bytes()
+        schema_file.write_text("{}")
+        ok("reviewed registration: saved schema changed after review is refused",
+           _raises(lambda: register_map(run, "selftest"), TechnicalError), "")
+        schema_file.write_bytes(original_schema)
+        registration = register_map(run, "selftest")
+        _, rules = registered_map(run)
+        ok("reviewed registration: map, numeric product rules and review are bound; no patch source is invented",
+           registration["field_map_review_sha256"] == sha_file(run.p("FIELD_MAP_REVIEW.json"))
+           and rules["smarp_source_time"] is None and rules["smarp_source_lookup"] is None, "")
+        schema_file.write_text("{}")
+        ok("reviewed registration: saved schema changed after registration is refused at use",
+           _raises(lambda: registered_map(run), TechnicalError), "")
+        schema_file.write_bytes(original_schema)
+        run.p("FIELD_MAP_REVIEW.json").write_text("{}")
+        ok("reviewed registration: changed review is refused at use",
+           _raises(lambda: registered_map(run), TechnicalError), "")
+
+
 def selftest():
     real = [p for p in (RAW_BASE, RES_BASE) if p.exists()]
     before = {str(p): sorted(str(x) for x in p.rglob("*")) for p in real}
@@ -3050,6 +3297,7 @@ def _selftest():
         selftest_checks(ok)
         selftest_end_to_end(ok)
         selftest_regressions(ok)
+        selftest_reviewed_fields(ok)
         meta.update(n_checks=len(res), n_passed=sum(r["passed"] for r in res))
         meta["outcome"] = "superato" if out_ok else "non superato"
         code = 0 if out_ok else 1
@@ -3076,6 +3324,7 @@ if __name__ == "__main__":
     g.add_argument("--selftest", action="store_true")
     g.add_argument("--phase", choices=("schema", "counts", "overlap", "history", "aux", "continuum"))
     g.add_argument("--register-map", action="store_true")
+    g.add_argument("--prepare-fields", action="store_true")
     g.add_argument("--analyze", action="store_true")
     ap.add_argument("--run-id")
     ap.add_argument("--verified-by")
@@ -3084,6 +3333,9 @@ if __name__ == "__main__":
         sys.exit(selftest())
     if not a.run_id:
         ap.error("--run-id is required")
+    if a.prepare_fields:
+        print(json.dumps(prepare_reviewed_fields(Run(a.run_id)), indent=2))
+        sys.exit(0)
     if a.phase:
         sys.exit(run_phase(a))
     if a.register_map:
