@@ -2,6 +2,11 @@
 
 ## v8.4 (Python, branch `v8.4-python-gianluca`) — in corso
 
+- 2026-11-16, congelato il piano dell'inventario MDI/SMARP dopo la verifica esterna di `c70e91d`
+  e tre precisazioni: tetti motivati, origini WCS esplicite, arresto per budget anche nel caso peggiore
+  dei retry. File senza `_DRAFT`; SHA-256/commit in ricevuta separata dopo il commit del piano.
+  Nessun raccoglitore, query o download in questo passaggio; S in pausa e rete dopo fine T5 e revisione
+  del codice. Manifesto riallineato ai soli file tracciati; nessun push.
 - 2026-11-16, inventario MDI/SMARP: bozza revisione 2, non congelata, dopo le due revisioni e la
   sintesi in nove punti. Preventivo richieste ridotto (base 468; 868 con riserve), campi minimi nello
   storico, conteggi preliminari, sovrapposizione prioritaria e trasporto con deadline/byte durante

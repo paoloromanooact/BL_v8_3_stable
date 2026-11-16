@@ -1,9 +1,11 @@
 # MDI/SMARP — piano dell'inventario limitato dei metadati
 
-**BOZZA NON CONGELATA, revisione 2 — 2026-11-16.** Preparata per revisione prima del codice e delle
-interrogazioni. Non autorizza ancora query JSOC, export o download di mappe. Questa preparazione ha usato
-documenti locali e documentazione pubblica; non ha interrogato il catalogo JSOC. Il piano è non cieco
-rispetto allo studio di fattibilità e ai risultati HMI già noti.
+**CONGELATO il 2026-11-16**, dopo la verifica esterna della revisione 2 (`c70e91d`) e le tre
+precisazioni registrate in §12, **prima del codice del raccoglitore e delle interrogazioni JSOC**.
+Dopo il congelamento questo file non si modifica: nuove regole richiedono un emendamento separato,
+scritto e registrato prima dell'uso. Il congelamento non avvia query, export o download di mappe.
+La preparazione ha usato documenti locali e documentazione pubblica, senza interrogare JSOC.
+Il piano è non cieco rispetto allo studio di fattibilità e ai risultati HMI già noti.
 
 Documento di partenza: [MDI_SMARP_FEASIBILITY.md](MDI_SMARP_FEASIBILITY.md), aggiornamento `1e02049`.
 Recepisce la revisione interna di Codex e la revisione esterna di Claude Opus 5.5, riunite nei nove punti
@@ -100,7 +102,7 @@ Implementazione successiva in uno script separato; nessun riuso dei percorsi dei
 **Nessuna fase di rete, nemmeno lo schema, prima della fine della griglia T5**, della revisione del piano
 e del codice e del superamento delle prove offline. Ambiente effettivo registrato, senza aggiornamenti.
 
-### 4.1 Trasporto e tetti proposti prima di qualunque misura
+### 4.1 Trasporto e tetti fissati prima di qualunque misura
 
 `drms 0.9.0` è fissato nei requisiti. La verifica offline di `HttpJsonRequest.raw_data` conferma la lettura
 integrale `self._http.read()`: il raccoglitore non usa `Client.query()` o il lettore standard per ricevere
@@ -119,8 +121,12 @@ registro persistente, anche dopo una ripresa o fra schema e record:
 - **90 minuti cumulativi di parete delle invocazioni**, incluse ricezione, attese ed elaborazione, contro
   60 minuti della revisione 1. Escluso soltanto il tempo fra invocazioni per la revisione umana.
 
-Volume e tempo sono tetti operativi proposti, non durate o consumi previsti. La loro modifica è anteriore
-a qualsiasi query e va approvata nella revisione della bozza; non è un adeguamento a risultati acquisiti.
+Volume e tempo sono tetti operativi, non durate o consumi previsti. Sono fissati prima di qualunque
+query, dopo la revisione esterna, senza un adeguamento a risultati acquisiti. I profili minimi riducono
+il costo dello storico, ma la densità di byte del profilo ricco HMI, a cadenza nativa, non è misurata;
+1 GiB lascia margine alla sua variabilità e alle risposte da conservare. Il tetto di 90 minuti lascia
+margine anche a latenza, ricezione ed elaborazione, ancora non misurate. Nessuno dei due promette il
+completamento: preventivi e limiti effettivi restano attivi come in §4.2.
 
 Massimo tre tentativi per richiesta, attese 5 e 15 s. Timeout di inattività massimo 45 s, ridotto al tempo
 residuo, più scadenza complessiva monotona durante connessione e lettura: un server che invia lentamente
@@ -145,6 +151,9 @@ Si riservano inoltre al massimo **200 tentativi** per lookup ausiliari raggruppa
 suddivisioni/retry: preventivo **868**, margine **132** rispetto al tetto 1000. Queste riserve non
 autorizzano a superare il tetto né garantiscono che tutti i retry possibili siano eseguibili. Lo script
 ricalcola il preventivo dalle finestre effettive: la tabella non sostituisce il conteggio delle chiamate.
+Il caso estremo di tre tentativi per tutte le richieste di base sarebbe `3 × 468 = 1404`, oltre il
+tetto: non è garantito. In quel caso si arresta con inventario parziale; non si amplia la riserva per
+completare la corsa.
 
 Prima degli elenchi, una fase di **soli conteggi** visita prima la sovrapposizione, poi le restanti
 finestre delle tre serie principali. Se un conteggio supera **25 000**, la finestra è suddivisa
@@ -278,7 +287,11 @@ così ottenute sono il dominio temporale su cui valutare geometria, coordinate m
 ### 6.2 Centro e riquadro, senza immagini
 
 Centro = trasformazione WCS del punto `((nx-1)/2, (ny-1)/2)` con origine pixel zero; dimensioni per
-record e WCS completa come in §3. `CRVAL1/2` non sono automaticamente il centro dell'immagine. In
+record e WCS completa come in §3. **CRPIX nelle intestazioni FITS usa origine 1**: si conserva il valore
+originale nell'header passato ad Astropy, senza sottrarre manualmente 1. La chiamata sui pixel centrali
+usa esplicitamente origine 0 (`wcs_pix2world(..., 0)`); il controllo equivalente con pixel traslati di
++1 usa origine 1 e deve dare la stessa posizione entro `1e-10°` di distanza sferica. La prova con CRPIX
+lontano dal centro verifica anche questa convenzione. `CRVAL1/2` non sono automaticamente il centro. In
 alternativa è ammesso un centro geometrico esplicitamente documentato nella mappa dei campi, con metodo
 registrato. Senza i dati necessari: `not_assessable`. Nessun uso sostitutivo di centri magnetici pesati.
 Distanze di cerchio massimo in coordinate Carrington/eliografiche, longitudini periodiche.
@@ -337,7 +350,7 @@ trasferito; il guadagno di potenza T3 non si deduce dal numero di archi.
 Cartella nuova per ogni corsa in `data/sharp/metadata_inventory_mdi/<run_id>/` per risposte originali e
 schema; non sovrascrivere i metadati HMI esistenti. Tabelle compatte e rapporto, se autorizzati dopo
 l'esecuzione, in `results/MDI_SMARP_INVENTORY/<run_id>/` e `docs/MDI_SMARP_METADATA_INVENTORY_RESULTS.md`.
-Nessun output è stato prodotto con questa bozza.
+Nessun output dell'inventario è stato prodotto.
 
 | Artefatto | Contenuto minimo |
 |---|---|
@@ -380,22 +393,23 @@ Se sono raggiunti i tetti o l'archivio non risponde, rapporto **parziale/non ver
 trasforma l'intervallo non acquisito in una lacuna solare. Nessuna soglia sul numero minimo di coppie:
 l'inventario serve a descrivere la fattibilità, non ad approvare l'estensione.
 
-## 9. Sequenza e decisioni da chiudere in revisione
+## 9. Sequenza operativa dopo il congelamento
 
-1. Rivedere questa bozza, in particolare serie/periodi, tetti, regole temporali/spaziali e prodotti ignoti.
-2. Congelare piano e SHA-256 in un commit dedicato **prima** del codice; nessuna modifica dei protocolli HMI.
+1. Revisione del piano completata sulla bozza `c70e91d`; precisazioni finali in §12.
+2. Piano congelato in un commit dedicato **prima** del codice; SHA-256 e commit registrati separatamente
+   come in §12, senza auto-riferimento. Nessuna modifica dei protocolli HMI.
 3. Scrivere e provare offline il raccoglitore separato; revisione del trasporto, del budget e del codice
    prima della rete. Verificare la fine della griglia T5 senza aprirne i risultati scientifici.
 4. Eseguire la sola fase schema, conservare risposte e proposta della mappa, far verificare e registrare
    la mappa. Solo dopo: conteggi/preventivo → primi elenchi della sovrapposizione → verifica del volume e
    tempo → storico → ausiliari. Ogni passaggio rispetta i consumi cumulativi; non è un via alla rete dato
-   dalla presente revisione della bozza.
+   dal solo congelamento del piano.
 5. Controllo tecnico e riconteggio, rapporto descrittivo e revisione esterna. Nessun download automatico
    al raggiungimento di un numero di coppie.
 6. Valutare un **nuovo piano** per potenza prospettica di T3 e confrontabilità strumentale. Lo studio
    morfologico su S non è un prerequisito; T3 dentro i cicli resta distinto dal quenching fra cicli.
 
-Nessuna di queste fasi è stata avviata dalla stesura della bozza. L'eventuale durata della rete sarà
+Nessuna fase di codice o rete è stata avviata dalla preparazione/congelamento del piano. La durata sarà
 misurata: il tetto di 90 minuti non è una stima di completamento.
 
 ## 10. Fonti consultate per questo piano
@@ -416,8 +430,8 @@ misurata: il tetto di 90 minuti non è una stima di completamento.
   riferimento WCS, trasformazione pixel/mondo e origine pixel. I metodi geometrici di questo piano non
   sono raccomandazioni di calibrazione della documentazione.
 
-Le scelte operative (finestre, tetti, soglie di associazione e output) sono proposte di questo piano,
-non raccomandazioni delle fonti né criteri già validati.
+Le scelte operative (finestre, tetti, soglie di associazione e output) sono fissate da questo piano,
+non sono raccomandazioni delle fonti né criteri già validati.
 
 
 ## 11. Revisione 2: provenienza delle correzioni
@@ -438,5 +452,28 @@ e dalla sintesi in nove punti inviata dall'utente. Non sono revisioni cieche; ne
 | 9. Ignoti/contesto | rumore per record aperto se prodotto ignoto; conteggi 127/137 riscontrati in B21, non bersagli (§§5.3,6.3) |
 
 Scelte aggiuntive esplicite della revisione: volume massimo da 500 MiB a 1 GiB e tempo da 60 a 90 minuti,
-prima di qualunque misura; richieste e righe restano 1000 e 2 milioni. La revisione resta **bozza**,
-non congela le soglie e non avvia l'inventario. Studio morfologico S in pausa, intatto.
+prima di qualunque misura; richieste e righe restano 1000 e 2 milioni. Questa descrive la fase di
+bozza della revisione 2; il successivo congelamento con precisazioni è registrato in §12. Studio
+morfologico S in pausa, intatto.
+
+
+## 12. Verifica finale e registrazione del congelamento
+
+L'utente ha trasmesso la verifica esterna di Claude Opus 5.5 su `c70e91d`: nove punti recepiti, somme
+ricontrollate, nessun problema bloccante e tre precisazioni prima del congelamento. È una verifica
+esterna riportata nella chat, non una prova di esecuzione del raccoglitore. Precisazioni recepite:
+
+1. motivazione dei tetti 1 GiB / 90 minuti, compreso il profilo ricco HMI non misurato (§4.1);
+2. origine dei pixel: CRPIX FITS a base 1, centro e chiamata WCS a base 0, equivalenza da verificare
+   nelle prove offline previste (§6.2);
+3. tre tentativi su tutte le richieste possono superare il budget: arresto parziale esplicito (§4.2).
+
+Il documento è rinominato da `MDI_SMARP_METADATA_INVENTORY_PLAN_DRAFT.md` a
+`MDI_SMARP_METADATA_INVENTORY_PLAN.md`. SHA-256 dei byte congelati e commit del congelamento sono
+registrati **fuori da questo file**, in `docs/MDI_SMARP_METADATA_INVENTORY_FREEZE.json`, dopo il commit
+dedicato e prima del codice. Il raccoglitore dovrà verificare quell'hash e riportarlo nelle ricevute.
+La ricevuta non modifica il piano né attesta che il codice o l'inventario esistano già.
+
+Nessuna query eseguita, nessuna mappa scaricata, nessun codice del raccoglitore scritto in questo
+passaggio. Rimangono obbligatori i test offline, la revisione del codice e la fine della griglia T5
+prima della rete. Nessun risultato T5 aperto per questo congelamento. Nessun push.

@@ -1,5 +1,20 @@
 # Cold restart — SHARP BL
 
+## MDI/SMARP: piano dell'inventario congelato — 2026-11-16
+
+Piano definitivo `docs/MDI_SMARP_METADATA_INVENTORY_PLAN.md`, rinominato dal file `_DRAFT.md` dopo la
+verifica esterna della rev. 2 (`c70e91d`) trasmessa dall'utente. Recepiti motivo dei tetti 1 GiB/90 min,
+CRPIX FITS a origine 1 contro chiamata WCS a origine 0 e caso estremo dei retry oltre budget. Nessun
+campo scientifico, soglia di associazione o tetto cambiato rispetto alla rev. 2; è esplicitata la prova
+offline di equivalenza delle origini. Il piano ora è immutabile: nuove regole in emendamenti separati.
+SHA-256 e commit dedicato in `docs/MDI_SMARP_METADATA_INVENTORY_FREEZE.json`, registrati dopo il commit
+del piano e prima del codice. Il riferimento corrente è il file senza `_DRAFT`; le sezioni precedenti
+nel tempo sotto restano storiche e il vecchio nome è consultabile in Git a `c70e91d` e `5563c8b`.
+**Raccoglitore non scritto, nessuna rete o mappa acquisita.** Prossimo compito: codice separato,
+prove offline e revisione del codice. Nessuna query, nemmeno schema, prima della fine della griglia T5
+e del superamento di questi passaggi. Stato T5 non ricontrollato, risultati non aperti. Studio S
+sempre in pausa; HMI, protocolli e output scientifici invariati. Nessun push.
+
 ## MDI/SMARP: inventario metadati, bozza revisione 2 — 2026-11-16
 
 Recepita la sintesi in nove punti della revisione interna Codex e della revisione esterna Claude
