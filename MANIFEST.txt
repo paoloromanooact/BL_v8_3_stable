@@ -801,6 +801,7 @@ scripts/review_morphology.py
 scripts/run_pipeline.sh
 scripts/t5_oracle_se_recompute.py
 scripts/t5_postcheck_external_probe.py
+scripts/t5_power_check.py
 scripts/t5_power_gate_diagnostic.py
 scripts/t5_power_gate_diagnostic_v2.py
 scripts/t5_power_sensitivity.py
