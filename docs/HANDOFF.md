@@ -1,5 +1,14 @@
 # Cold restart — SHARP BL
 
+## MDI/SMARP: studio aggiornato dopo la seconda revisione — 2026-11-16
+
+`docs/MDI_SMARP_FEASIBILITY.md` aggiornato (§8): codice dei cicli oltre la sola fase e segno (`samples()`,
+`CH`), rumore per prodotto (mappe di 1 e 5 min), condizioni della relazione 1,40 di Liu et al. 2012 (riportate
+dal revisore, testo non accessibile a noi), Kosovich et al. 2024 verificato (dieci regioni, tabella 2),
+bersaglio esplicito della potenza prospettica di T3, copertura nominale del ciclo 23 con la lacuna del 1998 e
+il limite SMARP di ottobre 2010. Prossimo passo indicato: inventario limitato dei metadati (piano prima,
+nessun download). Nessuna query eseguita.
+
 ## Morfologia di S: bozza di piano — 2026-11-16
 
 Bozza non congelata `docs/PROTOCOL_HMI_MORPHOLOGY_S_DRAFT.md` (rev. 1), permessa dalla regola operativa dello

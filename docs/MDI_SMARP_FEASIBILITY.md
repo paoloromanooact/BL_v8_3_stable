@@ -1,7 +1,7 @@
 # MDI/SMARP e ciclo 23 — studio di fattibilità
 
-Stato: **studio documentale, versione del 2026-11-13 (prima bozza del 2026-11-11); non è un
-protocollo.** Nessuna query JSOC, nessun download di mappe e nessun calcolo scientifico eseguito per
+Stato: **studio documentale, revisione del 2026-11-16 dopo la seconda revisione esterna (§8); versioni
+precedenti del 2026-11-13 e 2026-11-11; non è un protocollo.** Nessuna query JSOC, nessun download di mappe e nessun calcolo scientifico eseguito per
 questo studio. Le affermazioni con una fonte sono verificate sulla fonte indicata (§1); quelle senza
 fonte sono valutazioni nostre e lo dicono. Disponibilità effettiva degli archivi da verificare.
 
@@ -23,26 +23,29 @@ sovrapposizione, con un protocollo proprio. Non si concatena nulla con P1.
 | [S95] | Scherrer et al. 1995, *The Solar Oscillations Investigation – Michelson Doppler Imager*, Sol. Phys. 162, 129 ([Springer](https://link.springer.com/doi/10.1007/BF00733429)) | strumento MDI, magnetogrammi LOS full-disk ogni 96 min |
 | [S12] | Schou et al. 2012, *Design and Ground Calibration of HMI*, Sol. Phys. 275, 229 | strumento HMI (riga Fe I 6173 Å, camere 4096²) |
 | [MJ21] | Muñoz-Jaramillo, Navarrete & Campusano 2021, ApJ 920, 31; catalogo BARD v3.0 ([doi:10.7910/DVN/QEMSZ2](https://doi.org/10.7910/DVN/QEMSZ2)) | tilt di regioni bipolari MDI 1996–2010 e HMI 2010–2016; **già in `data/sharp/external/BARD/`** |
-| [K24] | Kosovich et al. 2024, *Time Series of Magnetic Field Parameters of Merged MDI and HMI SHARPs* ([arXiv:2401.05591](https://arxiv.org/abs/2401.05591v3)) | esempio di fusione di parametri SMARP/SHARP per i brillamenti |
+| [K24] | Kosovich et al. 2024, *Time Series of Magnetic Field Parameters of Merged MDI and HMI SHARPs* ([arXiv:2401.05591](https://arxiv.org/abs/2401.05591v3), testo completo v3) | precedente metodologico di fusione di parametri riassuntivi SMARP/SHARP; lacuna del 1998 |
 
-Non verificati sulla fonte e quindi non usati: i fattori di riscalatura di [K24] (l'abstract non li
-riporta); i dettagli del repository [github.com/mbobra/SMARPs](https://github.com/mbobra/SMARPs) oltre
-a quanto già riportato nella prima bozza.
+**Riscontro sui testi (2026-11-16).** [B21] §II e [K24] §2.3, tabella 2 e didascalia della figura sulla
+copertura sono stati letti da noi sul testo completo. Per [L12] il testo completo non ci è accessibile
+(editore con autenticazione): le condizioni del fit in §4.1.1 e tabella 1 sono quelle **riportate dal
+revisore** sul testo completo (§8), non riscontrate direttamente da noi. Non verificati e quindi non usati:
+i dettagli del repository [github.com/mbobra/SMARPs](https://github.com/mbobra/SMARPs) oltre a quanto già
+riportato nella prima bozza.
 
 ## 2. Differenze strumentali e di prodotto
 
 | Aspetto | SMARP / MDI | SHARP / HMI (P1) | Fonte | Conseguenza per noi (valutazione nostra) |
 |---|---|---|---|---|
 | Serie | `mdi.smarp_96m`, `mdi.smarp_cea_96m` | `hmi.sharp_720s`, `hmi.sharp_cea_720s` | [B21] tab. 1 | nuove query e nuovo inventario dei metadati |
-| Copertura | gennaio 1996 – 28 ottobre 2010 | dal 2010 | [B21] | ciclo 23 completo e coda del 24 |
+| Copertura | **nominale** gennaio 1996 – 28 ottobre 2010; MDI ha osservato dal 19 dicembre 1995 all'11 aprile 2011, ma SMARP si ferma al 28 ottobre 2010 perché verso la fine della missione diventano frequenti intervalli di oltre 36 h fra le mappe di intensità del continuo usate dalla pipeline; lacuna giugno–ottobre 1998 (perdita e recupero di SOHO) e numerose lacune minori | dal 2010 | [B21] §II, [K24] | copertura **temporale nominale** del ciclo 23 e di una parte del 24, con lacune, non un ciclo 23 completo [corretto dopo la seconda revisione]; confronti oltre ottobre 2010 richiederebbero un percorso diverso dalla pipeline SMARP standard |
 | **Sovrapposizione** | **1 maggio – 28 ottobre 2010** (circa 6 mesi, vicino al minimo) | | [B21] | poche regioni per il confronto; [B21] ne confronta 51 regioni NOAA |
 | Cadenza | 96 minuti | 12 minuti | [B21], [S95], [B14] | record vicino al meridiano meno preciso (fino a ±48 min) |
 | **Campo misurato** | **solo linea di vista (LOS)** | vettore completo; P1 usa **Br** | [B21], [H14] | **S_BL, D e il tilt di P1 non sono calcolabili nello stesso modo**: serve un Br approssimato |
 | Br nel prodotto CEA | non fornito: il segmento `magnetogram` CEA è il campo LOS rimappato, non trasformato in Br | Br dall'inversione | [B21], [B14] tab. A.8, [S13] | la rimappatura CEA sposta i punti, non trasforma il vettore. Per proiezione B_LOS = μ·Br + termine delle componenti orizzontali: B_LOS = Br è garantito solo al centro del **disco**, non al centro della patch [corretto dopo la revisione: la prima versione parlava del centro della patch]. Br ≈ B_LOS/μ è un'ipotesi di campo radiale, da validare (§3) |
 | Griglia CEA | 0,12°/pixel | 0,03°/pixel | [B21] | area del pixel 16 volte maggiore ([B21] scala CMASKL per 16); soglie in pixel non trasferibili |
 | Riga e risoluzione | Ni I 6768 Å, risoluzione circa 4″ | Fe I 6173 Å, 4096², risoluzione circa 1″ | [L12], [S12] | risposta diversa a campi forti e a risoluzione; centroidi e separazioni da verificare |
-| **Scala della densità di flusso LOS** | **MDI = −0,18 + 1,40 × HMI** (densità di flusso LOS in Mx cm⁻², magnetogrammi full-disk, MDI ricalibrato), con dipendenza dalla distanza dal centro del disco | | [L12] (abstract; pagina ed equazione del fit e sue condizioni da recuperare dal testo completo) | è una relazione affine pixel per pixel della densità di flusso, non una calibrazione di Φ integrato: non si trasferisce automaticamente a somme dei moduli, soglie o Br; l'intercetta non è un offset del flusso totale e 1,40 non è una calibrazione universale |
-| Rumore LOS (magnetogrammi full-disk) | 26,4 Mx cm⁻² (1 min), 16,2 (5 min) | 6,3 Mx cm⁻² (720 s); [B21] riporta 6,4 | [L12], [B21] | rapporto MDI/HMI circa 4,2 per i magnetogrammi di 1 min e circa 2,6 per quelli di 5 min [corretto: la prima versione diceva «circa 4 volte»]; la cadenza di 96 min non è il tempo di integrazione; sulla griglia CEA rimappata il rumore è correlato tra pixel; la soglia di 100 G di P1 ha un altro significato in termini di segnale/rumore |
+| **Scala della densità di flusso LOS** | **MDI = −0,18 + 1,40 × HMI** (densità di flusso LOS in Mx cm⁻², magnetogrammi full-disk, MDI ricalibrato), con dipendenza dalla distanza dal centro del disco. Condizioni (§4.1.1, tab. 1, riportate dal revisore): HMI degradato e ricampionato alla scala MDI; 12 coppie di magnetogrammi di giugno–agosto 2010; pixel entro circa 60° dal centro del disco; saturazioni evidenti escluse; separando campi deboli e forti, pendenze circa 1,44 e 1,31 | | [L12] (abstract; condizioni dal testo completo secondo il revisore, §1) | relazione affine pixel per pixel della densità di flusso su pochi giorni vicino al minimo, con pendenza diversa per campi deboli e forti: **non si trasferisce a Φ, tilt o S_BL**, né a somme dei moduli, soglie o Br; l'intercetta non è un offset del flusso totale e 1,40 non è una calibrazione universale. [K24] trova per il flusso non segnato LOS di patch (USFLUXL) una pendenza media 1,438 su dieci regioni: è un parametro riassuntivo, non una calibrazione del nostro tilt o della sorgente BL |
+| Rumore LOS (magnetogrammi full-disk) | 26,4 Mx cm⁻² (1 min), 16,2 (5 min); la serie a 96 min raccoglie **mappe di 1 minuto e di 5 minuti** (media di cinque mappe di 1 min) | 6,3 Mx cm⁻² (720 s); [B21] riporta 6,4 | [L12], [B21] §II | rapporto MDI/HMI circa 4,2 per i magnetogrammi di 1 min e circa 2,6 per quelli di 5 min [corretto: la prima versione diceva «circa 4 volte»]; **il rumore va assegnato per prodotto, record per record** [aggiunto dopo la seconda revisione]: l'inventario deve identificare il prodotto effettivo di ogni record, e una composizione dei prodotti variabile nel tempo può influenzare selezione e misure; non basta un rumore unico per l'era MDI; la cadenza di 96 min non è il tempo di integrazione; sulla griglia CEA rimappata il rumore è correlato tra pixel; la soglia di 100 G di P1 ha un altro significato in termini di segnale/rumore |
 | Altri effetti | perdita di p-mode significativa nei magnetogrammi MDI | praticamente assente | [L12] | rumore spazialmente correlato nei centroidi delle regioni deboli |
 | Maschera | TARP: bitmap di attività > 36 | HARP: P1 usa bitmap ≥ 33 | [B21] | definizioni diverse; i codici non sono intercambiabili; TARPNUM ≠ HARPNUM |
 | Parametri nella sovrapposizione | SMARP-LOS contro SHARP-LOS: Spearman 0,94 per il flusso non segnato e 0,79 per il gradiente medio; SMARP-LOS contro SHARP vettoriale per il gradiente: 0,36 [corretto: la prima versione attribuiva 0,36 a SHARP-LOS contro vettore]; 51 regioni NOAA co-osservate con osservazioni ripetute, non 51 istanti indipendenti | | [B21] §3.2, fig. 3 | correlazioni di rango, non un'accuratezza assoluta né una calibrazione per regione o per S_BL |
@@ -69,6 +72,12 @@ cieco per questo progetto: i cataloghi sono già stati letti per P3.
   cambiare anche se il fattore si semplifica (selezione, geometria, contributi delle polarità).
 - **Selezione.** I criteri di P1/P2 in pixel (20 pixel per polarità in P2) e la soglia di 100 G vanno
   riformulati in grandezze fisiche (area, flusso, segnale/rumore) e il campione va ridichiarato.
+- **Codice dei cicli [aggiunto dopo la seconda revisione].** L'estensione è più ampia della sola fase e del
+  segno del dipolo: `run_p2.samples()` tiene solo i cicli 24 e 25 (`run_p2.py`, righe 106 e 124), e `CH`
+  (riga 42) contiene solo i quattro gruppi ciclo–emisfero da cui `ch_columns` costruisce le colonne del
+  modello di T3 e T5. Un percorso nuovo deve includere campioni, colonne del modello e controlli delle
+  numerosità (come `V.EXPECTED`), **senza modificare la pipeline HMI congelata**: modulo o variante
+  separati, con gli output HMI riprodotti identici.
 - **Cicli.** La finestra 23/24 esiste già in P1/P1c e la legge di Hale ha già la parità di ciclo in
   `cycle.py` [corretto: la prima versione suggeriva regole nuove]: vanno verificati dominio e
   trasferibilità sui dati MDI. La data di minimo per la fase (`run_p2.T_MIN`) e il segno del dipolo
@@ -80,12 +89,18 @@ cieco per questo progetto: i cataloghi sono già stati letti per P3.
 - **Confusione strumento/ciclo.** Il cambio di strumento coincide con il cambio di ciclo: una
   differenza strumentale residua può confondersi con un effetto fisico tra cicli, cioè proprio con il
   quenching tra cicli della letteratura.
+- **Bersaglio di T3 [aggiunto dopo la seconda revisione].** T3 misura la dipendenza del coefficiente di
+  Joy dall'attività **dentro** i cicli, con coefficienti di base separati per ciclo ed emisfero; è distinto
+  dal quenching fra ampiezze di cicli diversi. Valutazione nostra: uno scarto strumentale costante dentro
+  un gruppo ciclo–emisfero sarebbe assorbito dal suo coefficiente di base, ma il ciclo 24 è osservato da MDI
+  dal suo inizio (dicembre 2008) fino a ottobre 2010 e poi da HMI, quindi lì lo scarto non è assorbito;
+  e una sistematica che dipende dall'attività o dalla latitudine entra direttamente nella pendenza.
 
 ## 4. Questioni da verificare (nessuna è risolta da questo studio)
 
 | # | Questione | Come verificarla | Prima di |
 |---|---|---|---|
-| Q1 | Disponibilità attuale delle serie SMARP su JSOC, segmenti e versioni; copertura e lacune 1996–2010 | inventario dei metadati con un piano, risposte e hash conservati | qualunque download |
+| Q1 | Disponibilità attuale delle serie SMARP su JSOC, segmenti e versioni; copertura e lacune 1996–2010; **prodotto effettivo (1 o 5 min) di ogni record** e sua composizione nel tempo; indicatori di qualità | inventario dei metadati con un piano, risposte e hash conservati | qualunque download |
 | Q2 | Numero di coppie TARP–HARP utilizzabili nella sovrapposizione (maggio–ottobre 2010) | inventario; associazione spaziale e temporale fissata prima, non solo NOAA | stima della potenza del confronto |
 | Q3 | Bontà di Br ≈ B_LOS/μ per S_BL, D e tilt | su HMI stesso: Br contro LOS/μ, regione per regione | uso di qualunque Br MDI |
 | Q4 | Effetto di risoluzione e risposta MDI | HMI LOS degradato a griglia e risoluzione MDI (con una specifica di risposta spaziale) contro MDI LOS | riscalatura |
@@ -94,12 +109,14 @@ cieco per questo progetto: i cataloghi sono già stati letti per P3.
 | Q7 | Corrispondenza tra maschere TARP (> 36) e HARP (≥ 33) e tra indicatori di qualità | specifiche delle due serie, non somiglianza dei nomi | campione |
 | Q8 | Regole del ciclo 23 (confini 23/24, Hale, fase, segno del dipolo) | nuovo protocollo, come P1c | serie del ciclo 23 |
 | Q9 | Normalizzazione dell'attività su un periodo esteso e suo effetto sulla scala degli effetti | decisione registrata prima | test P2/P2f estesi |
-| Q10 | Beneficio statistico reale (HMI contro HMI+MDI) per T3, con incertezza della trasformazione e sistematiche dipendenti dall'attività | simulazioni sul disegno osservabile, semi indipendenti, regola di arresto | qualunque test inferenziale esteso |
+| Q10 | Beneficio statistico reale (HMI contro HMI+MDI) per T3, **con bersaglio esplicito** (dipendenza dall'attività dentro i cicli, coefficienti di base per ciclo ed emisfero, distinta dal quenching fra cicli), incertezza del raccordo fra strumenti e sistematiche dipendenti da attività e latitudine, comprese componenti condivise fra le regioni dello stesso strumento; più anni o regioni non garantiscono da soli più informazione utile | simulazioni sul disegno osservabile (dall'inventario), semi indipendenti, regola di arresto | qualunque test inferenziale esteso |
 | Q11 | Trasferibilità fuori dalla sovrapposizione (stabilità di MDI nel tempo, regioni più intense del ciclo 23) | verifiche temporali aggiuntive; dominio coperto contro estrapolato | uso del ciclo 23 intero |
 
 ## 5. Percorso proposto
 
-1. **Inventario dei metadati** (Q1, Q2, Q7) con un piano registrato: nessun download di mappe.
+1. **Inventario limitato dei metadati** (Q1, Q2, Q7) con un piano registrato: copertura, lacune,
+   qualità, prodotto di ogni record e coppie utilizzabili nella sovrapposizione; nessun download di mappe.
+   Da questo si progetta la valutazione prospettica del beneficio per T3 (Q10).
 2. **Esperimento solo HMI** (Q3, Q4, Q6): una **prova di sensibilità della pipeline a
    trasformazioni simulate**, sulla scala HMI. Non replica MDI e non ne valida risposta spettrale,
    saturazione, distorsioni, tracciamento e maschere, né la stabilità temporale; un esito favorevole
@@ -149,4 +166,28 @@ rumore (circa 4,2 a 1 min, 2,6 a 5 min); qualificazione della relazione 1,40 com
 di flusso LOS pixel per pixel; esperimento solo HMI come prova di sensibilità con i punti da fissare
 prima; numeri BARD confermati (68 abbinamenti in 62 famiglie, δ 2,107°) con il contesto del rapporto
 dei flussi; finestra 23/24 e parità di Hale già presenti. Il revisore non ha avuto accesso al testo
-completo di [L12]: l'intercetta −0,18 e le condizioni del fit restano da riscontrare sul testo.
+completo di [L12]: l'intercetta −0,18 e le condizioni del fit restano da riscontrare sul testo (condizioni poi riportate dalla seconda revisione, §8).
+
+## 8. Seconda revisione esterna (2026-11-16)
+
+Il revisore ha giudicato lo studio una base utile, da aggiornare prima di progettare l'estensione;
+confrontabilità con HMI e guadagno di potenza restano da misurare. Recepiti sopra e segnati
+«[corretto/aggiunto dopo la seconda revisione]»:
+1. estensione del codice al ciclo 23 più ampia di fase e segno del dipolo (`samples()`, `CH`, colonne del
+   modello, controlli delle numerosità), da fare senza toccare la pipeline HMI congelata (§3);
+2. rumore MDI distinto per prodotto (mappe di 1 e 5 minuti nella serie a 96 min), da identificare record
+   per record nell'inventario (§2, Q1);
+3. condizioni della relazione 1,40 di [L12] dal testo completo (12 coppie giugno–agosto 2010, HMI degradato e
+   ricampionato, entro circa 60° dal centro, saturazioni escluse, pendenze circa 1,44 e 1,31 per campi deboli
+   e forti): chiusa la nota «da verificare», con il divieto di trasferire il fattore a Φ, tilt o S_BL.
+   Riportate dal revisore; non riscontrate da noi per mancanza di accesso al testo (§1);
+4. [K24] verificato sul testo completo: coefficienti in tabella 2, da dieci regioni selezionate nella
+   sovrapposizione (NOAA 11087–11113); precedente metodologico su parametri riassuntivi, non calibrazione del
+   nostro tilt o della sorgente BL (§2);
+5. bersaglio esplicito della potenza prospettica di T3, con raccordo e sistematiche condivise (§3, Q10);
+6. «ciclo 23 completo» sostituito da copertura temporale nominale, con la lacuna del 1998 e il limite SMARP
+   di ottobre 2010 dovuto al continuo; MDI osservò fino all'aprile 2011 (§2).
+
+Il revisore ha inoltre confermato nei risultati P3 i 68 abbinamenti in 62 famiglie, lo scarto mediano del
+tilt di 2,107° e il rapporto dei flussi 1,17: confronti descrittivi, non una calibrazione. Prossimo passo
+indicato: l'inventario limitato dei metadati (§5.1). Nessuna query o download eseguiti.
