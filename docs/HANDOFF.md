@@ -1,5 +1,24 @@
 # Cold restart — SHARP BL
 
+## MDI/SMARP: mappa verificata e registrata offline — 2026-11-16
+
+Stato corrente: configurazione della corsa `schema_20261116_http_ac06138` preparata, verificata e
+registrata dopo il via dell'utente. Nessuna richiesta a JSOC in questo passaggio; **20 tentativi cumulativi,
+zero righe di record**, registro e log byte-identici a prima. Nessun conteggio o elenco acquisito.
+
+Codice `50db300d02c0`: centro CEA documentato come alternativa del piano §6.2, inviluppi e box_only
+sconosciuti senza dimensioni; confronto numerico esatto di INTERVAL (60/300 s) senza arrotondamenti;
+preparazione offline riproducibile e controlli sugli hash di configurazione/schemi. Selftest **130/130** su
+quel commit, ricevuta locale `results/MDI_SMARP_INVENTORY_SELFTEST/50db300d02c0/`; test repository **60/60**.
+Mappa SHA-256 `63b0416967d1bd003b5364b2504399f1823d6287ced842856bbe4b2224aab99d`; regole `0f64079baa7ed3a9ed0ff843481c388f5284316f0dcdad56f8f5e1ae0337ed89`.
+
+Dettagli e hash in `docs/MDI_SMARP_FIELD_MAP_REVIEW.md`; i quattro file FIELD_MAP, PRODUCT_RULES,
+FIELD_MAP_REVIEW e FIELD_MAP_REGISTRATION restano nella cartella locale della corsa. DPC conservato grezzo;
+nessun collegamento documentato delle patch SMARP al full-disk: prodotto patch `unknown`, senza correggere
+T_REC/T_OBS di 30 s o interrogare serie fuori piano. **Prossimo: fase counts separata**, poi verifica del
+preventivo prima degli elenchi. Non è stato avviato l'inventario completo. MDI mappe, piano prospettico e
+morfologia S restano non avviati/in pausa secondo le decisioni già registrate. Nessun push.
+
 ## MDI/SMARP: fase schema riuscita in HTTP, poi fermo — 2026-11-16
 
 Via di Codex alla **sola fase schema** su `2c21550` (script `ac06138`, SHA-256 `b45ca5c8…`, 115/115 ripetuti da Codex).

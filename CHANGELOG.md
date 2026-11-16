@@ -2,6 +2,12 @@
 
 ## v8.4 (Python, branch `v8.4-python-gianluca`) — in corso
 
+- 2026-11-16, MDI/SMARP: mappa dei campi e regole di prodotto verificate e registrate offline; centri CEA
+  documentati senza dimensioni inventate, riquadri non valutabili, INTERVAL numerico esatto 60/300 s,
+  DPC grezzo e prodotto delle patch ignoto senza collegamento documentato. Codice 50db300, selftest 130/130,
+  test repository 60/60. Nessuna nuova richiesta JSOC, registro invariato (20 tentativi, 0 righe).
+  Dettagli in docs/MDI_SMARP_FIELD_MAP_REVIEW.md; nessun push.
+
 - 2026-11-16, sintesi HMI consolidata (`docs/HMI_QUENCHING_SYNTHESIS.md`): proxy, T3, T5 rinviato, morfologia,
   sequenza decisa (piano prospettico prima di MDI). Raccoglitore MDI: quattro revisioni di Codex recepite
   (`5c5d8b4`, 105/105); fase schema tentata e bloccata da un errore TLS (`2552b11`), lavoro fermo.
