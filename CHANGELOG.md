@@ -2,6 +2,11 @@
 
 ## v8.4 (Python, branch `v8.4-python-gianluca`) — in corso
 
+- 2026-11-16, inventario MDI/SMARP: bozza revisione 2, non congelata, dopo le due revisioni e la
+  sintesi in nove punti. Preventivo richieste ridotto (base 468; 868 con riserve), campi minimi nello
+  storico, conteggi preliminari, sovrapposizione prioritaria e trasporto con deadline/byte durante
+  ricezione; margini HMI, WCS, overlap dei riquadri e grafi G5/G10. Proposte ex ante: 1 GiB e 90 min.
+  Nessuna query, download o codice scientifico; rete dopo fine T5 e revisioni. Manifesto verificato.
 - 2026-11-16, MDI/SMARP: bozza non congelata del piano dell'inventario limitato dei metadati
   (`docs/MDI_SMARP_METADATA_INVENTORY_PLAN_DRAFT.md`): schema e mappa dei campi prima dei record,
   copertura/qualità/prodotti MDI e associazioni candidate nella sovrapposizione; tetti operativi,

@@ -1,11 +1,13 @@
 # MDI/SMARP — piano dell'inventario limitato dei metadati
 
-**BOZZA NON CONGELATA, revisione 1 — 2026-11-16.** Preparata per revisione prima del codice e delle
+**BOZZA NON CONGELATA, revisione 2 — 2026-11-16.** Preparata per revisione prima del codice e delle
 interrogazioni. Non autorizza ancora query JSOC, export o download di mappe. Questa preparazione ha usato
 documenti locali e documentazione pubblica; non ha interrogato il catalogo JSOC. Il piano è non cieco
 rispetto allo studio di fattibilità e ai risultati HMI già noti.
 
 Documento di partenza: [MDI_SMARP_FEASIBILITY.md](MDI_SMARP_FEASIBILITY.md), aggiornamento `1e02049`.
+Recepisce la revisione interna di Codex e la revisione esterna di Claude Opus 5.5, riunite nei nove punti
+trasmessi dall'utente (§11). La revisione interna è dello stesso autore della bozza; non è indipendente.
 Obiettivo generale invariato: misura della sorgente Babcock–Leighton e studio del quenching. T3 resta
 non deciso; T5 resta descrittivo. La pipeline HMI, i suoi campioni, protocolli e output non cambiano.
 
@@ -39,9 +41,9 @@ osservativa né appartenenza al ciclo 23.
 |---|---|---|
 | `mdi.smarp_cea_96m` | `[1996-01-01, 2010-10-29)` | inventario principale, tutti i record alla cadenza nativa, senza filtri di qualità o flusso |
 | `mdi.fd_M_96m_lev182` | stesso periodo | soli metadati full-disk: separare assenze della sorgente da assenze di patch; ricostruire il prodotto se documentabile |
-| `hmi.sharp_cea_720s` | `[2010-05-01, 2010-10-29)` | tutti i record a 12 minuti per le associazioni; nessun sottocampionamento orario dei vecchi file P1 |
+| `hmi.sharp_cea_720s` | `[2010-04-30 23:54, 2010-10-29 00:06)` | cadenza nativa 12 min; margine di 360 s su entrambi i lati della finestra SMARP; record di margine separati nei conteggi |
 | `mdi.smarp_96m` | solo record identificati della serie CEA | schema; lookup mirati se servono link o keyword di provenienza assenti in CEA; non un secondo inventario completo |
-| `mdi.fd_Ic_interp` | `[1996-01-01, 2010-10-29)` | schema; soli conteggi per mese se la documentazione non consente di interpretare le lacune del continuo dai primi due inventari |
+| `mdi.fd_Ic_interp` | `[1996-01-01, 2010-10-29)` | schema; al più 15 conteggi annuali ausiliari, soltanto se necessari dopo l'inventario principale; nessun elenco |
 
 Sono cinque serie ammesse; nessuna ricerca aperta di altre serie. I lookup seguono al massimo **un link**
 esplicitamente documentato, solo verso una delle serie ammesse. Se la ricostruzione richiede altri
@@ -50,7 +52,8 @@ Non si estende SMARP fino alla fine della missione MDI, aprile 2011.
 
 Le serie e il periodo comune derivano da [B21] e dal repository degli autori [SM]; la disponibilità
 attuale è ancora da verificare. La distinzione tra prodotti MDI da 1 e 5 minuti non si ricava dalla
-cadenza di 96 minuti [B21].
+cadenza di 96 minuti [B21]. Quest'ultimo descrive entrambi i prodotti, ma non documenta una keyword che li
+distingua: non si presume che l'inventario riuscirà a identificarli record per record.
 
 ## 3. Fase 0: schema prima dei record
 
@@ -68,9 +71,17 @@ SHARP né che keyword omonime abbiano significato identico.
 | Identità | serie, tutte le chiavi primarie; `TARPNUM` o `HARPNUM`; `T_REC`, `T_OBS` se presente; identificatore completo del record e numero di revisione/record se esposto |
 | Qualità | `QUALITY` originale, tipo e significato documentato dei bit; eventuali altre keyword di qualità e validità presenti |
 | Provenienza | link alla sorgente, tempo sorgente, identificatore del prodotto, integrazione/media temporale, versione di elaborazione e data di produzione, se esposti |
-| Geometria | sistema di coordinate e unità; centro geometrico della patch, `CRVAL1/2`, `CTYPE1/2`, `CRLN_OBS`, `CRLT_OBS`; estensione e dimensioni se esposte; `LAT_FWT`, `LON_FWT` come descrittori distinti, se presenti |
-| Associazioni | `NOAA_AR`, `NOAA_ARS`, `NOAA_NUM`, se presenti; stringhe originali conservate |
-| Descrittori del prodotto | `USFLUXL`/`USFLUX`, area e numero di pixel se presenti, con unità e definizione della rispettiva serie; descrizioni di bitmap e segmenti |
+| Geometria (solo sovrapposizione) | sistema/unità, dimensioni per record (`NAXIS1/2` o equivalenti documentati), `CRPIX1/2`, `CRVAL1/2`, `CDELT1/2`, `CTYPE1/2`, `CUNIT1/2` e termini PC/CD, rotazione e parametri di proiezione effettivamente necessari; `CRLN_OBS`/`CRLT_OBS` se richiesti; in alternativa centro/limiti eliografici esplicitamente documentati |
+| Associazioni (solo sovrapposizione) | `NOAA_AR`, `NOAA_ARS`, `NOAA_NUM`, se presenti; stringhe originali conservate |
+| Descrittori (solo sovrapposizione) | `USFLUXL`/`USFLUX`, area, numero di pixel e centri pesati se esposti, con unità e definizioni originarie; descrizioni di bitmap/segmenti dallo schema |
+
+**Profili di campi.** Per lo storico SMARP fuori dalla sovrapposizione e per il full-disk si richiedono
+soltanto identità, tempo, QUALITY e provenienza documentabile. Le costanti dello schema non sono richieste
+di nuovo su ogni record se possono essere ricostruite dallo schema salvato. Geometria, NOAA e descrittori
+sono richiesti soltanto per SMARP nella sovrapposizione e per HMI nella finestra con margine. Nessun
+`**ALL**`: la mappa contiene la lista esatta per ogni profilo e i campi opzionali assenti. Geometria e
+attività dello storico per una futura potenza T3 richiederanno una raccolta successiva pianificata: il
+presente inventario minimo non produce già quel disegno completo.
 
 La mappa indica per ciascun campo: serie, nome reale, tipo/unità, riferimento della definizione,
 normalizzazione proposta e operazioni che ne dipendono. Assenza di un campo facoltativo = `not_exposed`;
@@ -79,42 +90,114 @@ interpretabili impediscono l'associazione spaziale, non la tabella di copertura 
 
 Un adattamento puramente nominale documentato nella mappa non cambia il piano. Una nuova interpretazione
 scientifica, una soglia, una serie o un criterio di abbinamento richiedono un emendamento prima dell'uso.
-Con lo schema remoto non disponibile si termina come **schema non verificato**, senza inventare campi.
+Se manca lo schema di una serie principale, si dichiara quella parte non verificabile. L'indisponibilità
+di una serie ausiliaria non rende assenti i record delle altre: si rinuncia alla relativa verifica,
+con stato esplicito. Non si inventano campi o equivalenze.
 
 ## 4. Acquisizione limitata e completezza delle risposte
 
-Implementazione successiva in uno script separato, senza riusare i percorsi di output dei downloader HMI.
-Ambiente e versioni effettive, compreso `drms`, registrati; nessun aggiornamento di librerie durante T5.
+Implementazione successiva in uno script separato; nessun riuso dei percorsi dei downloader HMI.
+**Nessuna fase di rete, nemmeno lo schema, prima della fine della griglia T5**, della revisione del piano
+e del codice e del superamento delle prove offline. Ambiente effettivo registrato, senza aggiornamenti.
 
-- Un processo, una richiesta attiva; almeno un secondo tra richieste. Nessuna simulazione e nessun accesso
-  ai risultati della griglia T5. L'inventario non parte insieme a un altro rilancio pesante sulla macchina.
-- Finestre mensili in ordine cronologico. Per ogni finestra si acquisisce prima il conteggio server
-  (`rs_summary`), poi l'elenco, controllando uguaglianza del numero di record e unicità delle chiavi.
-- Se il conteggio supera **25 000**, suddivisione deterministica in intervalli di 7 giorni, poi giorni,
-  poi intervalli di 96 minuti; nessun sottocampionamento. Un blocco minimo ancora troppo grande resta
-  incompleto e ferma l'acquisizione della serie. Il limite delle righe restituite non certifica completezza.
-- Estremi delle query costruiti nell'ordine reale delle chiavi primarie. Ogni risposta è filtrata
-  localmente sull'intervallo semiaperto richiesto; eventuali righe degli estremi si registrano prima
-  della deduplicazione. Conteggio server e righe ricevute si confrontano sul record set interrogato;
-  il conteggio locale dopo il filtro si conserva separatamente.
-- Massimo **1000 tentativi HTTP complessivi**, **2 000 000 righe accettate distinte** fra tutte le serie,
-  **500 MiB di corpi di risposta** complessivi anche falliti o duplicati, **60 minuti di tempo di parete**
-  cumulativi per l'inventario. Schema e record hanno ricevute separate; i consumi di tutte le fasi,
-  comprese riprese, sono sommati nel registro e sottoposti agli stessi tetti. Il tempo è la somma
-  delle durate delle invocazioni, incluse le attese di rete; esclude il tempo fra le fasi per la revisione.
-  I tetti sono scelte operative conservative, non una previsione del volume o della durata.
-- Timeout per tentativo 45 s, al massimo tre tentativi per richiesta, attese 5 e 15 s; per rate limit
-  si rispetta `Retry-After` solo entro il tempo residuo, altrimenti si arresta. Contatori e attese non
-  si azzerano alla ripresa. Controlli del tempo anche prima di attese e richieste; il timeout è ridotto
-  al tempo residuo. Lettura dei corpi con limite di byte, senza scrivere una risposta oltre il tetto.
-- Se un blocco fallisce, non si continua saltandolo. Si conserva la risposta/errore e si dichiara
-  l'inventario parziale con intervalli richiesti, completati e non interrogati. Nessun aumento dei tetti
-  dopo i risultati senza un nuovo emendamento.
+### 4.1 Trasporto e tetti proposti prima di qualunque misura
 
-Le risposte originali JSON e le richieste complete senza credenziali sono conservate con hash. Le
-conversioni non devono trasformare automaticamente stringhe invalide in numeri mancanti indistinguibili:
-valore originale e stato del parsing restano distinti. Un risultato vuoto è assenza di record soltanto
-con risposta riuscita e conteggio zero; errore, timeout e intervallo non interrogato hanno stati separati.
+`drms 0.9.0` è fissato nei requisiti. La verifica offline di `HttpJsonRequest.raw_data` conferma la lettura
+integrale `self._http.read()`: il raccoglitore non usa `Client.query()` o il lettore standard per ricevere
+i corpi. Usa un trasporto proprio limitato, con le operazioni JSON di lettura `series_struct`,
+`rs_summary`, `rs_list`. Nessun export, staging o richiesta ai file; nessun client opaco che generi
+richieste ulteriori non contate. L'eventuale parser drms si usa soltanto su dati già ricevuti e salvati.
+
+Un solo processo e una richiesta attiva; almeno un secondo fra tentativi. Tutti i passaggi usano un unico
+registro persistente, anche dopo una ripresa o fra schema e record:
+
+- **1000 tentativi HTTP**, inclusi errori, retry e redirect; redirect automatici disabilitati, ogni
+  destinazione va verificata come endpoint di soli metadati e ogni nuova richiesta conta;
+- **2 000 000 righe distinte accettate**, su tutte le serie;
+- **1 GiB di corpi JSON non compressi ricevuti**, anche parziali, falliti o duplicati, contro 500 MiB
+  della revisione 1; i file derivati locali sono contabilizzati separatamente;
+- **90 minuti cumulativi di parete delle invocazioni**, incluse ricezione, attese ed elaborazione, contro
+  60 minuti della revisione 1. Escluso soltanto il tempo fra invocazioni per la revisione umana.
+
+Volume e tempo sono tetti operativi proposti, non durate o consumi previsti. La loro modifica è anteriore
+a qualsiasi query e va approvata nella revisione della bozza; non è un adeguamento a risultati acquisiti.
+
+Massimo tre tentativi per richiesta, attese 5 e 15 s. Timeout di inattività massimo 45 s, ridotto al tempo
+residuo, più scadenza complessiva monotona durante connessione e lettura: un server che invia lentamente
+byte non deve oltrepassarla. Controllare budget prima di ogni richiesta, attesa e blocco ricevuto; ricezione
+e letture bloccanti devono essere interrompibili entro la scadenza. Chiedere `Accept-Encoding: identity`;
+una risposta compressa inattesa è arrestata e registrata senza decompressione illimitata. Al tetto di byte
+si conserva il prefisso ricevuto con stato `truncated_by_budget`, non come JSON completo. `Retry-After`
+si rispetta solo entro il tempo residuo. Nessun contatore si azzera alla ripresa.
+
+### 4.2 Finestre e preventivo esplicito
+
+| Parte | Finestre iniziali | Conteggi | Elenchi | Richieste senza retry/suddivisioni |
+|---|---|---:|---:|---:|
+| SMARP CEA | 178 mesi, gennaio 1996–ottobre 2010 (ultimo mese parziale) | 178 | 178 | 356 |
+| Full-disk MDI | 15 anni di calendario, ultimo fino al 29 ottobre | 15 | 15 | 30 |
+| HMI con margini | 26 intervalli consecutivi di massimo 7 giorni, ancorati all'inizio dell'acquisizione | 26 | 26 | 52 |
+| Continuo, ausiliario facoltativo | 15 anni, solo conteggi | 15 | 0 | 15 |
+| Schema e definizioni | riserva massima iniziale, per cinque serie | — | — | 15 |
+| **Preventivo di base** | | | | **468** |
+
+Si riservano inoltre al massimo **200 tentativi** per lookup ausiliari raggruppati e **200** per
+suddivisioni/retry: preventivo **868**, margine **132** rispetto al tetto 1000. Queste riserve non
+autorizzano a superare il tetto né garantiscono che tutti i retry possibili siano eseguibili. Lo script
+ricalcola il preventivo dalle finestre effettive: la tabella non sostituisce il conteggio delle chiamate.
+
+Prima degli elenchi, una fase di **soli conteggi** visita prima la sovrapposizione, poi le restanti
+finestre delle tre serie principali. Se un conteggio supera **25 000**, la finestra è suddivisa
+deterministicamente: anni in mesi, mesi in intervalli consecutivi di 7 giorni, poi giorni, poi intervalli
+di 96 minuti. Niente sottocampionamento. Tutti i conteggi genitori e figli consumano richieste; per gli
+elenchi si contano solo le foglie, senza duplicare gli intervalli. Il continuo resta facoltativo e ultimo.
+
+La ricevuta `BUDGET_COUNTS.json` registra consumi, finestre foglia, somma delle righe previste, elenchi
+ancora necessari e preventivo totale con riserve. Se richieste o righe previste non rientrano, non si
+avvia l'inventario completo: è consentita soltanto la sovrapposizione se il suo preventivo rientra,
+dichiarando lo storico `not_started_budget`. Se nemmeno questa rientra si termina ai conteggi.
+
+I conteggi **non misurano i byte**. Le stime del revisore (0,6–0,9 milioni di righe SMARP e 0,2–0,3 milioni
+HMI) sono ordini di grandezza, non volumi osservati. Dopo i conteggi, i primi elenchi effettivamente
+acquisiti fungono anche da misura di costo e sono riusati, non scartati. Prima lo schema deve fissare i
+quattro profili: SMARP minimo, SMARP nella sovrapposizione, full-disk minimo, HMI nella sovrapposizione.
+Per ogni profilo si misura sul primo blocco non vuoto la densità di byte JSON e il tempo; un profilo
+interamente vuoto non richiede campionamento. Non si scelgono blocchi dopo aver visto le risposte.
+
+Prima dello storico completo si registra `BUDGET_PAYLOAD.json`: byte già ricevuti più **due volte** i
+byte/riga misurati per le righe restanti di ogni profilo. Per il tempo:
+`T_used + 2·Σ_p[(t_p/N_p)·N_rest,p] + R_rest·(1 s + t_count,max)`, con `t_p` durata di ricezione/parsing
+del primo blocco del profilo p, `N_p` sue righe, `R_rest` richieste residue previste e `t_count,max`
+massimo tempo osservato per un conteggio riuscito. Si conservano tutte queste quantità; la formula
+include intenzionalmente un margine di latenza anche per le liste e non modella il costo futuro dei grafi.
+Se il preventivo supera i tetti, si conserva
+la sovrapposizione già acquisita e si arresta la parte restante. Il fattore due è un margine operativo,
+non un limite probabilistico; i tetti restano attivi sulla ricezione anche se la proiezione è favorevole.
+Il primo blocco storico minimo può essere acquisito per questa misura; il resto non parte prima
+della ricevuta. Nessuna modifica dei campi o dei tetti per fare rientrare una risposta già vista.
+
+### 4.3 Ordine degli elenchi e integrità
+
+Ordine fissato: **sovrapposizione 2010 (SMARP, HMI e sorgente MDI) → storico MDI → ausiliari**.
+I conteggi preliminari sono l'eccezione leggera necessaria al preventivo. Per la sorgente si acquisisce
+per primo il blocco annuale 2010 già previsto, riusato anche per gennaio–aprile; nessun secondo elenco
+annuale sovrapposto. Per lo storico restano finestre cronologiche. Ogni blocco riuscito è verificato e
+salvato prima di passare al successivo. Un blocco fallito non viene saltato per dichiarare completezza.
+
+Lookup ausiliari: prima le sorgenti della sovrapposizione, poi quelle storiche in ordine di tempo e
+chiave; deduplicazione delle richieste e cache per sorgente. Massimo 100 record specifici per batch e
+200 tentativi totali ausiliari, inclusi conteggi se necessari. Casi non risolti per il tetto restano
+`unknown_budget`; non si interrogano solo i casi con identificazione favorevole.
+
+Query nell'ordine reale delle chiavi primarie; intervalli semiaperti verificati localmente. Le righe
+aggiunte dal server agli estremi sono annotate prima della deduplicazione. Conteggio server e righe
+ricevute si confrontano sul medesimo record set; il conteggio dopo il filtro locale è distinto. Il
+limite di righe imposto al server non certifica completezza. Un blocco minimo ancora troppo grande,
+una discordanza count/list o un conflitto di identità fermano quella parte come incompleta.
+
+Conservare richieste e JSON originali con hash, stati HTTP/DRMS e contatori. Parsing invalido e dato
+assente restano distinti. Zero righe significa assenza di record soltanto con risposta riuscita e
+conteggio zero; timeout, errore e intervallo non interrogato non diventano lacune solari.
 
 ## 5. Copertura, qualità e prodotto MDI
 
@@ -129,7 +212,7 @@ campi; per ogni intervallo completo elencare slot assenti, sequenze consecutive 
 della griglia non è documentabile, riportare solo tempi osservati e intervalli fra questi, senza una
 percentuale di completezza rispetto a una griglia assunta. Alle finestre parziali non si attribuisce
 copertura zero. Per `mdi.fd_Ic_interp`, se interrogata solo con conteggi, non si dichiarano lacune interne
-localizzate dai soli conteggi mensili.
+localizzate dai soli conteggi annuali.
 
 **Nessuna patch a un'epoca non significa nessuna osservazione solare.** Distinguere record full-disk
 assente, record sorgente presente ma nessuna TARP, patch presenti con qualità segnalata e metadati non
@@ -167,43 +250,87 @@ rumore in pixel CEA viene effettuata qui.
 Riportare composizione e frazioni `unknown`/`conflict` sia per **record full-disk/epoche sorgenti distinti**
 sia per **record di patch**, con denominatori: più patch possono derivare dalla stessa mappa. La quota
 non identificabile è un risultato utile e non viene eliminata per produrre una serie apparentemente pura.
+Se gli ignoti sono prevalenti, il rapporto riporta la copertura di identificazione per periodo e il motivo
+(campo non esposto, significato non documentato, sorgente irrisolta o budget), senza stimare la miscela
+1/5 minuti dai soli casi risolti. Anche con l'inventario completo, **Q6, rumore per record, resta aperta**
+finché il prodotto e il suo trasferimento alla griglia CEA non sono documentati. Non si sostituisce un
+rumore unico per l'era MDI.
 
 ## 6. Associazioni candidate nella sovrapposizione
 
-Periodo `[2010-05-01, 2010-10-29)` TAI, serie CEA definitive. Si usano tutti i record acquisiti; nessuna
-associazione dal solo numero NOAA e nessun confronto di valori di tilt o sorgente.
+Finestra scientifica dei record SMARP: `[2010-05-01, 2010-10-29)` TAI. HMI è acquisito con **360 s di
+margine prima e dopo**; i record di margine servono solo all'abbinamento e sono esclusi dai conteggi
+di HARP/record nella finestra scientifica, con conteggi separati. Nessuna associazione dal solo NOAA.
 
-Regola proposta, da confermare in revisione prima del congelamento:
+### 6.1 Tempi
 
-1. Confrontare i **tempi T_REC in TAI**: distanza assoluta non oltre **360 s**, metà della cadenza HMI.
-   Conservare anche T_OBS e i suoi scarti se esposti; T_REC non è necessariamente il tempo effettivo di
-   esposizione. Non sostituire a posteriori il criterio con T_OBS per aumentare gli abbinamenti.
-2. Usare centri **geometrici di patch** in longitudine di Carrington e latitudine eliografica, dopo
-   verifica di coordinate e unità nella mappa dei campi. Calcolare distanza di cerchio massimo, con
-   longitudini periodiche. `LAT_FWT`/`LON_FWT` non sostituiscono il centro senza un emendamento: sono
-   descrittori dipendenti dal campo e dalle definizioni del prodotto. Coordinate mancanti o non
-   interpretabili producono `not_assessable`, non una distanza zero.
-3. Conservare tutti gli archi entro **5°** e tutti i casi tra **5° e 10°** come fascia separata di
-   sensibilità dell'inventario. Cinque e dieci gradi sono tolleranze operative proposte, non errori di
-   posizione validati o criteri di identità fisica. Non si scelgono guardando il numero delle coppie.
-4. Per ogni record SMARP e per ogni HARPNUM considerare il record HMI temporalmente più vicino entro
-   360 s; pari merito al tempo più antico. Si mantengono tutti gli HARPNUM candidati. Nel grafo fra
-   record, un arco entro 5° è `unique_at_epoch` solo se entrambi gli estremi hanno grado 1; gli altri
-   sono `ambiguous`. I gradi sono calcolati prima dei filtri di qualità e NOAA.
-5. Sovrapposizione degli elenchi NOAA, molteplicità e dati NOAA mancanti sono annotazioni separate;
-   non risolvono automaticamente il grafo. Nessuna scelta manuale della coppia più plausibile.
+Registrare `T_REC_epoch`/`T_REC_step` se esposti, o gli equivalenti documentati, le unità e la scala
+temporale. Se non esposti restano ignoti; non si deduce un'epoca dalla prima osservazione disponibile.
+96 minuti sono 8 passi da 12 minuti: griglie con fase allineata possono dare scarti nulli. Verificare
+la fase degli epoch modulo 720 s e riportare la distribuzione degli scarti firmati e di `|ΔT_REC|`.
+L'allineamento non è imposto e i record mancanti non sono sostituiti.
 
-Riportare: record senza candidato, non valutabili e ambigui; coppie di record per stato; coppie distinte
-TARPNUM–HARPNUM; numero di epoche ripetute per coppia; TARP/HARP coinvolte e componenti connesse del grafo
-**a livello di patch**. Le componenti sono raggruppamenti delle associazioni candidate, non famiglie
-fisiche dimostrate né osservazioni indipendenti. Distinguere i conteggi entro 5° da quelli nella fascia
-5–10°. Per gli archi riportare separatamente QUALITY dei due strumenti, scarti temporali/spaziali e
-concordanza NOAA. Nessun filtro magnetico trasferito da P1.
+Per ogni record SMARP e ogni HARPNUM, scegliere il record HMI temporalmente più vicino entro **360 s**;
+pari merito al tempo più antico. Il criterio è T_REC in TAI; conservare T_OBS e gli scarti corrispondenti
+se esposti, senza sostituirli al criterio dopo aver visto quanti abbinamenti producono. Tutte le coppie
+così ottenute sono il dominio temporale su cui valutare geometria, coordinate mancanti e ambiguità.
 
-Le coppie sono **candidate a un confronto successivo**: maschere, co-registrazione, contaminazione e
-disponibilità dei file richiedono verifiche sulle mappe. Non si dichiarano già coppie scientificamente
-utilizzabili. La futura potenza di T3 richiede inoltre disegno in attività/latitudine, assegnazione del
-ciclo e incertezza strumentale: non si deduce dal numero di archi.
+### 6.2 Centro e riquadro, senza immagini
+
+Centro = trasformazione WCS del punto `((nx-1)/2, (ny-1)/2)` con origine pixel zero; dimensioni per
+record e WCS completa come in §3. `CRVAL1/2` non sono automaticamente il centro dell'immagine. In
+alternativa è ammesso un centro geometrico esplicitamente documentato nella mappa dei campi, con metodo
+registrato. Senza i dati necessari: `not_assessable`. Nessun uso sostitutivo di centri magnetici pesati.
+Distanze di cerchio massimo in coordinate Carrington/eliografiche, longitudini periodiche.
+
+Descrittore prefissato della sovrapposizione dei riquadri: trasformare con la WCS **65 punti per lato**
+del bordo esterno dei pixel (`x=-0,5` e `nx-0,5`, `y=-0,5` e `ny-0,5`, estremi inclusi). Ricavare
+l'inviluppo nei limiti di longitudine svolta intorno al centro e latitudine. L'inviluppo è approssimato:
+le mappe CEA oblique non sono rettangoli in longitudine/latitudine e i soli quattro angoli non bastano
+in generale a descriverne il perimetro. Non è l'area della maschera magnetica né un overlap esatto.
+
+Per i due inviluppi calcolare l'intersezione tenendo conto di 0/360°, la frazione sull'area di ciascun
+inviluppo e `envelope_iou_65` = intersezione/unione. Usare l'angolo solido del rettangolo sferico,
+`Δlon_rad · (sin(lat_max)-sin(lat_min))`. Punti non finiti, ampiezza in longitudine ≥180° o geometria
+non documentabile: overlap non valutabile, mai zero di sostituzione. I casi di contatto hanno area zero.
+Si conservano metodo e flag di approssimazione; nessuna nuova dipendenza software non revisionata.
+
+L'overlap è un **descrittore**, non una prova di identità. Si annota per tutte le coppie temporali
+valutabili; i casi con intersezione positiva ma centro distante oltre 10° si conservano come
+`box_only` separati, senza introdurli nei grafi angolari né eliminarli dal rapporto. Questo permette
+di segnalare estensioni diverse e patch multi-NOAA senza aggiustare la soglia dopo i risultati.
+
+### 6.3 Grafi, completezza e unicità condizionata
+
+Costruire separatamente **G5**, distanza ≤5°, e **G10**, distanza ≤10°, sugli stessi record temporali
+valutabili. Conservare la fascia `5° < distanza ≤10°`. I gradi e gli indicatori di unicità sono
+calcolati **separatamente su ciascun grafo**, prima di filtri di qualità o NOAA. Le soglie sono
+operative/descrittive, non errori di posizione validati o criteri di identità fisica.
+
+Un arco è unico nel suo grafo solo se entrambi gli estremi hanno grado 1. Riportare distintamente:
+
+1. `unique_in_G5`, `unique_in_G10` e ambiguità che compare allargando a 10°;
+2. completezza dell'acquisizione del dominio temporale (query verificate o intervalli mancanti);
+3. completezza geometrica dei concorrenti temporali: una HARP con coordinate mancanti non può essere
+   esclusa perché non genera un arco; contare questi casi anche per ogni record SMARP;
+4. coppie `box_only`, concordanza NOAA e QUALITY di entrambi come descrittori distinti.
+
+Unicità nel grafo dei record valutabili **non** certifica completezza della ricerca, corrispondenza
+fisica o osservabilità della regione. L'etichetta resta condizionata al catalogo e al raggio usato anche
+quando tutte le query sono complete. Nessuna scelta manuale del candidato più plausibile. Stati di
+record (`no_candidate`, `has_candidate`, `not_assessable`), flag di completezza e stati degli archi
+hanno denominatori separati e definizioni di partizione nei controlli; un'incompletezza non è "nessun
+candidato". Eventuali informazioni parziali sono conservate anche se un altro candidato è valutabile.
+
+Riportare coppie di record, coppie distinte TARPNUM–HARPNUM, ripetizioni temporali e componenti connesse
+a livello di patch, per G5 e G10 separatamente; non contare le componenti come famiglie fisiche o
+osservazioni indipendenti. Per contesto [B21, §III.1] riporta **127 regioni SMARP e 137 SHARP** nella
+sovrapposizione e 6063 TARP nel database descritto allora: non sono coppie abbinate né obiettivi da
+raggiungere; un archivio aggiornato e definizioni diverse possono cambiare i conteggi.
+
+Le coppie sono candidate a un confronto futuro. Maschere, co-registrazione, contaminazione, risposta
+strumentale e file recuperabili restano da verificare sulle mappe. Nessun filtro magnetico di S è
+trasferito; il guadagno di potenza T3 non si deduce dal numero di archi.
 
 ## 7. Output e provenienza previsti
 
@@ -214,12 +341,13 @@ Nessun output è stato prodotto con questa bozza.
 
 | Artefatto | Contenuto minimo |
 |---|---|
-| `SCHEMA_*`, `FIELD_MAP.csv` | definizioni originali e adattamento proposto/verificato con riferimenti e hash |
+| `SCHEMA_*`, `FIELD_MAP.csv` | definizioni originali, profili dei campi, epoch/step, WCS e adattamento proposto/verificato con riferimenti e hash |
+| `BUDGET_COUNTS.json`, `BUDGET_PAYLOAD.json` | richieste/righe dal censimento preliminare, byte/tempi misurati dopo i primi elenchi, preventivi e stato della parte non avviata |
 | `QUERY_LOG.jsonl`, `RAW_SHA256.csv` | richieste, UTC di esecuzione, serie, intervalli TAI, esito, tentativi, byte, conteggi, file originali e SHA-256 |
 | `RECORDS_*.csv.gz` | chiavi, metadati originali/normalizzati e stati; ordine per serie e chiavi primarie |
 | `COVERAGE_MONTHLY.csv`, `GAPS.csv` | denominatori, finestre complete/parziali e tipo della lacuna; copertura full-disk distinta dalle patch |
 | `QUALITY_SUMMARY.csv`, `PRODUCT_SUMMARY.csv` | valori/bit e prodotti 1/5 minuti, ignoti e conflitti; denominatori per epoca e per patch |
-| `OVERLAP_CANDIDATES.csv.gz`, `OVERLAP_SUMMARY.csv` | archi e distanze, ambiguità, fasce spaziali, ripetizioni, conteggi per patch/componenti |
+| `OVERLAP_CANDIDATES.csv.gz`, `OVERLAP_SUMMARY.csv` | G5/G10 separati, distanze e scarti di tempo, margini temporali, completezza dei concorrenti, overlap dei riquadri e casi box_only, ambiguità/ripetizioni, patch/componenti |
 | `CHECKS.csv`, `PROVENANCE.json` | controlli, stato completo/parziale, versione e stato Git del produttore, hash piano/mappa/script/input locali, ambiente |
 
 Identità del record = serie e **tutte** le chiavi primarie documentate; TARPNUM/HARPNUM non sono da soli
@@ -235,9 +363,13 @@ conservazione di tabelle derivate, manifesto e commit si decide dopo controllo e
 ## 8. Verifiche e arresto
 
 Prima della rete, prove offline su risposte costruite: errori e zero righe distinti; count/list discordi;
-troncamento; confini mensili; tempi TAI/UTC; chiavi duplicate; QUALITY signed/missing; origine 1/5 minuti
+troncamento; finestre annuali/mensili/settimanali e margini ±360 s; tempi TAI/UTC; chiavi duplicate;
+QUALITY signed/missing; origine 1/5 minuti
 ignota o conflittuale; longitudini 0/360; parità temporali; associazioni uno-a-molti; tutti i tetti,
-divieto di export/download e ripresa senza azzerare i consumi. Prove prive di dati magnetici reali.
+divieto di export/download e ripresa senza azzerare i consumi. Aggiungere server sintetico a ricezione
+lenta ma continua (deadline assoluta), risposta compressa inattesa, retry/redirect, budget di conteggi
+e payload, WCS con CRPIX lontano dal centro, perimetri e inviluppi a cavallo di 0/360°, candidato senza
+coordinate e unicità in G5 che scompare in G10. Prove prive di dati magnetici reali.
 
 Prima di interpretare l'inventario: riconteggio separato da CSV/JSON salvati, hash e provenienza,
 completezza per finestra, chiavi, riconciliazione sorgente/patch e somme dei denominatori, grafo e
@@ -252,16 +384,19 @@ l'inventario serve a descrivere la fattibilità, non ad approvare l'estensione.
 
 1. Rivedere questa bozza, in particolare serie/periodi, tetti, regole temporali/spaziali e prodotti ignoti.
 2. Congelare piano e SHA-256 in un commit dedicato **prima** del codice; nessuna modifica dei protocolli HMI.
-3. Scrivere e provare offline il raccoglitore separato; revisione del codice prima della rete.
+3. Scrivere e provare offline il raccoglitore separato; revisione del trasporto, del budget e del codice
+   prima della rete. Verificare la fine della griglia T5 senza aprirne i risultati scientifici.
 4. Eseguire la sola fase schema, conservare risposte e proposta della mappa, far verificare e registrare
-   la mappa. Solo dopo avviare l'acquisizione limitata con i consumi cumulativi previsti.
+   la mappa. Solo dopo: conteggi/preventivo → primi elenchi della sovrapposizione → verifica del volume e
+   tempo → storico → ausiliari. Ogni passaggio rispetta i consumi cumulativi; non è un via alla rete dato
+   dalla presente revisione della bozza.
 5. Controllo tecnico e riconteggio, rapporto descrittivo e revisione esterna. Nessun download automatico
    al raggiungimento di un numero di coppie.
 6. Valutare un **nuovo piano** per potenza prospettica di T3 e confrontabilità strumentale. Lo studio
    morfologico su S non è un prerequisito; T3 dentro i cicli resta distinto dal quenching fra cicli.
 
 Nessuna di queste fasi è stata avviata dalla stesura della bozza. L'eventuale durata della rete sarà
-misurata: il tetto di un'ora non è una stima di completamento.
+misurata: il tetto di 90 minuti non è una stima di completamento.
 
 ## 10. Fonti consultate per questo piano
 
@@ -277,5 +412,31 @@ misurata: il tetto di un'ora non è una stima di completamento.
   conteggio `rs_summary` e risposte JSON. La documentazione web può descrivere una versione diversa da
   quella locale: firme e comportamento vanno verificati offline sulla versione registrata prima del codice.
 
+- [A] [Documentazione Astropy WCS](https://docs.astropy.org/en/stable/wcs/example_create_imaging.html):
+  riferimento WCS, trasformazione pixel/mondo e origine pixel. I metodi geometrici di questo piano non
+  sono raccomandazioni di calibrazione della documentazione.
+
 Le scelte operative (finestre, tetti, soglie di associazione e output) sono proposte di questo piano,
 non raccomandazioni delle fonti né criteri già validati.
+
+
+## 11. Revisione 2: provenienza delle correzioni
+
+Revisione interna Codex della propria bozza `5563c8b`, seguita dalla revisione esterna Claude Opus 5.5
+e dalla sintesi in nove punti inviata dall'utente. Non sono revisioni cieche; nessun record JSOC usato.
+
+| Punto della sintesi | Recepimento |
+|---|---|
+| 1. Budget richieste | annuali full-disk/continuo; settimanali HMI; preventivo 468 + 200 + 200 = 868, da ricalcolare dopo i conteggi (§4.2) |
+| 2. Ricezione limitata | trasporto proprio, limite byte e deadline durante la ricezione, registro cumulativo (§4.1) |
+| 3. Ordine | sovrapposizione prima degli elenchi storici, ausiliari per ultimi e raggruppati (§4.3) |
+| 4. Volume/campi | profili minimi nello storico, ricchi solo nella sovrapposizione; conteggi prima degli elenchi; byte stimati soltanto dopo misure di payload (§§3–4) |
+| 5. Margini | HMI ±360 s, record di margine distinti (§§2,6.1) |
+| 6. Griglie | epoch/step documentati, fase e distribuzioni degli scarti (§6.1) |
+| 7. Geometria | centro da WCS completa; overlap approssimato dei riquadri, distinto dalla maschera (§6.2) |
+| 8. Unicità | G5/G10 separati, ricerca e geometria complete o parziali distinte dai gradi (§6.3) |
+| 9. Ignoti/contesto | rumore per record aperto se prodotto ignoto; conteggi 127/137 riscontrati in B21, non bersagli (§§5.3,6.3) |
+
+Scelte aggiuntive esplicite della revisione: volume massimo da 500 MiB a 1 GiB e tempo da 60 a 90 minuti,
+prima di qualunque misura; richieste e righe restano 1000 e 2 milioni. La revisione resta **bozza**,
+non congela le soglie e non avvia l'inventario. Studio morfologico S in pausa, intatto.

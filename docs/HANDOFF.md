@@ -1,5 +1,20 @@
 # Cold restart — SHARP BL
 
+## MDI/SMARP: inventario metadati, bozza revisione 2 — 2026-11-16
+
+Recepita la sintesi in nove punti della revisione interna Codex e della revisione esterna Claude
+(`docs/MDI_SMARP_METADATA_INVENTORY_PLAN_DRAFT.md`, §11). **Non congelata**, nessun raccoglitore scritto,
+nessuna query JSOC o download. Full-disk/continuo annuali, HMI settimanale con ±6 min; profili minimi
+nello storico; conteggi prima degli elenchi, sovrapposizione prima dello storico e ausiliari per ultimi.
+Preventivo nominale verificato offline: 468 richieste di base, 868 con due riserve da 200, tetto 1000.
+Proposte ex ante da rivedere: volume 1 GiB e tempo 90 min; 2 milioni di righe invariati. Byte/tempi
+si misureranno soltanto nei primi elenchi con trasporto limitato durante la ricezione. Centro WCS completo,
+overlap approssimato dei riquadri, grafi G5/G10 e completezza separati, prodotti ignoti con Q6 aperta;
+127/137 di B21 sono contesto, non bersagli. **Nessuna rete, nemmeno schema, prima della fine di T5** e
+della revisione di piano/codice. Prossimo: revisione della rev. 2, poi congelamento prima del codice.
+S resta in pausa; HMI e risultati T3/T5 intatti, nessun risultato della griglia aperto. MANIFEST.txt
+verificato rispetto ai file tracciati, invariato perché nessun file aggiunto/rimosso. Nessun push.
+
 ## MDI/SMARP: bozza del piano dell'inventario metadati — 2026-11-16
 
 Preparata `docs/MDI_SMARP_METADATA_INVENTORY_PLAN_DRAFT.md`, revisione 1 **non congelata**, su richiesta
