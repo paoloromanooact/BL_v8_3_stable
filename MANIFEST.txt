@@ -806,6 +806,7 @@ results/T5_PROXY_SENSITIVITY_SELFTEST/RECEIPT_R2.txt
 scripts/check_repo.sh
 scripts/download_test_20240508.sh
 scripts/mdi_smarp_inventory.py
+scripts/mdi_smarp_overlap_analysis.py
 scripts/process_test_20240508_idl_commands.pro
 scripts/repro_compare.py
 scripts/repro_draft_tables.py
