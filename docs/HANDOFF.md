@@ -99,6 +99,9 @@ obiettivo operativo da motivare; prima stima analitica, poi simulazioni; un guad
 esclude l'utilità di MDI per T3 o per il catalogo. MDI operativo (errore TLS da risolvere) e morfologia di S in
 pausa. Nessun push.
 
+**Bozza del piano prospettico** scritta: `docs/PROSPECTIVE_INFORMATION_PLAN_DRAFT.md` (rev. 1, non congelata, nessun
+calcolo); in attesa della revisione di Codex.
+
 ## T5 potenza: risultati letti — 2026-11-16
 
 Esecuzione unica (`44633cb`, 10:38–13:31, 9000 unità, 0 errori tecnici), output `0a6853a`, controllo
