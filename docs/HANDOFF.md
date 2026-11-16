@@ -102,8 +102,10 @@ pausa. Nessun push.
 **Bozza del piano prospettico**: `docs/PROSPECTIVE_INFORMATION_PLAN_DRAFT.md`, rev. 2 dopo la revisione di Codex
 della rev. 1 (`630e6dc`): T3 con matrice e varianza proprie, modelli (a) attuale / (b) protetto / (c) distorsione
 limitata con parametro dichiarato, generatore per ricampionamento congiunto di celle HMI, quantili HMI fissi,
-frequenze con il segno della distorsione, algoritmo univoco per la fase B. Non congelata, nessun calcolo; in
-attesa di una nuova revisione.
+frequenze con il segno della distorsione, algoritmo univoco per la fase B. Rev. 3 dopo la revisione di `c4247d0`
+(solo definizioni): (c) come analisi di sensibilità, matrici esatte per T5 e per le famiglie T3 A e J, posti vuoti,
+fase convenzionale e trasferimento di E1, ordine fisso di unione degli strati, singoletti, realizzazione decima,
+scale degli scarti su E0 (tilt: 2,107° da P3 C1). Non congelata, nessun calcolo; in attesa di revisione.
 
 ## T5 potenza: risultati letti — 2026-11-16
 

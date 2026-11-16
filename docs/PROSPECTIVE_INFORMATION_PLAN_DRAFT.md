@@ -1,7 +1,8 @@
 # Quanta informazione in più servirebbe? Piano prospettico per T5 e T3 — bozza
 
-**BOZZA NON CONGELATA, revisione 2 — 2026-11-16**, dopo la revisione di Codex della revisione 1 (`630e6dc`),
-recepita (§11). Da rivedere di nuovo **prima di qualunque calcolo**. Nessun calcolo prospettico, nessuna
+**BOZZA NON CONGELATA, revisione 3 — 2026-11-16**, dopo le revisioni di Codex della revisione 1 (`630e6dc`,
+§11) e della revisione 2 (`c4247d0`, §12), recepite; la revisione 3 cambia solo definizioni, nessuno scenario
+nuovo. Da rivedere di nuovo **prima di qualunque calcolo**. Nessun calcolo prospettico, nessuna
 simulazione e nessun dato MDI usati per scriverla; i numeri del §2 sono descrittori del disegno HMI esistente o
 risultati già conservati. **Non cieco**: risultati T3, validazione P2f, T5-D1/D2 e sensibilità della potenza sono
 noti.
@@ -34,14 +35,15 @@ calcolati sul disegno HMI attuale, e la normalizzazione dell'attività resta la 
 sui disegni estesi: così l'effetto fisico prescritto è lo stesso e il confronto misura il beneficio dei dati
 aggiunti. **Sensibilità**: quantili ricalcolati sulla serie estesa, riportati a parte.
 
-**Bersagli, ricalcolati per ogni disegno e per ogni matrice del modello** (anche quella protetta, §4):
+**Bersagli, ricalcolati per ogni disegno e per ogni matrice del modello** (anche quelle protette, §4). Il
+coefficiente d'interesse è sempre identificato **per nome di colonna** (§4), non come «ultimo coefficiente»:
 - **T5**: proiezione WLS delle variazioni di cella Δη_c prodotte dal proxy (stessa formula della nota del proxy,
-  record per record) sulla matrice T5 (intercetti ciclo × emisfero, colonna Â_c − 1, pesi W_c = ΣΦ). Sul disegno
+  record per record) sulla matrice T5 (§4), coefficiente della colonna x₅ = Â_c − 1, pesi W_c = ΣΦ. Sul disegno
   attuale vale −3,669·10⁻²⁶ G/Mx = **−0,1031·η̄** per δ_max = 0,20 e −0,0515·η̄ per 0,10 (`39c010c`), non −0,2·η̄.
 - **T3**: proiezione WLS delle variazioni di tilt dei record Δγ_i = −δ(Â_c(i))·24°·sin|λ_i| sulla **matrice T3
   completa** del codice (`p2d.design_t3`): intercetti ciclo × emisfero moltiplicati per sin|λ_i| e colonna
-  (Â_i − 1)·sin|λ_i|, con l'attività del record, pesi Φ_i; il bersaglio è l'ultimo coefficiente. Non ancora
-  calcolato: è il passo A0. Si riporta accanto al bersaglio storico della griglia T3 (−0,2·γ₀).
+  (Â_i − 1)·sin|λ_i|, con l'attività del record, pesi Φ_i; il bersaglio è il coefficiente della colonna
+  x₃ = (Â_i − 1)·sin|λ_i|. Non ancora calcolato: è il passo A0. Si riporta accanto al bersaglio storico della griglia T3 (−0,2·γ₀).
 
 **Livello**: intervallo nominale 97,5 %, un verso all'1,25 % (z = 2,2414), come in P2f.
 
@@ -60,73 +62,101 @@ di β̂_WLS di T5 sotto nulla 0,07–0,27·η̄ a seconda del rumore, 0,10–0,1
 | E3 | E1 + E2 |
 | E4 | come E2, con scarti fra strumenti nulli: riferimento ottimistico, solo analitico |
 
-**Trasferimento temporale di E1** (ipotesi dichiarata, non previsione): sia t₂₅ l'intervallo fra il massimo
-smussato del ciclo 25 e 2026-09, con i massimi calcolati dalla serie SILSO emisferica a 13 mesi già usata in
-`run_p2` (`smooth13`, somma dei due emisferi). La finestra analoga è il quinquennio del ciclo 24 che inizia a
-t₂₅ dopo il massimo smussato del ciclo 24. Le rotazioni di E1 seguono 2316 in ordine, e la k-esima rotazione di E1
-prende le celle e l'attività emisferica della k-esima rotazione della finestra analoga.
+**Posti e date.** Un *posto* è una coppia (CR, emisfero) con osservazioni disponibili. E0: le 221 × 2 coppie di
+CR 2096–2316. E2: le CR il cui inizio cade in 1996-01-01 → 2010-04-30, escluse quelle che intersecano
+1998-06-01 → 1998-10-31 (dati mancanti, non posti vuoti). E1: le 67 CR successive a 2316. Ogni posto ha la data
+d'inizio della sua CR.
 
-**Rotazioni di E2**: tutte le CR il cui inizio cade in 1996-01-01 → 2010-04-30, escluse quelle che intersecano
-1998-06-01 → 1998-10-31; numerazione reale delle CR. Attività: SILSO emisferico mensile osservato, con la
-normalizzazione HMI fissa. Cicli: le rotazioni prima del minimo del ciclo 24 (`run_p2.T_MIN[24]` = 2008-12-01)
-appartengono al ciclo 23, le successive al ciclo 24 (per le celle, l'etichetta di ciclo del modello viene dalla
-regola delle celle modello, sotto).
+**Fase convenzionale.** Fase di un istante rispetto a un ciclo c: (t − m_c)/(11 anni), con m_c il minimo del
+ciclo. m₂₄ e m₂₅ sono `run_p2.T_MIN` (2008-12-01, 2019-12-01); m₂₃ è il minimo della serie SILSO smussata a 13 mesi
+(`smooth13`, somma dei due emisferi) fra 1995-01 e 1998-12, mese registrato nel piano congelato prima dei calcoli.
+Il *ciclo del tempo* di un istante è il ciclo con il minimo più recente; per E1, dove il minimo del ciclo 26 non è
+noto, fase e ciclo del tempo sono quelli **della rotazione analoga** (sotto), con il ciclo traslato di +1.
+Cinque classi di fase: [0; 0,2), [0,2; 0,4), [0,4; 0,6), [0,6; 0,8), [0,8; ∞).
 
-**Celle modello: ricampionamento congiunto.** Ogni cella aggiunta (CR × emisfero) è una **copia completa di una
-cella HMI esistente** del campione S, con tutti i suoi record e tutte le colonne (Φ, latitudine, d, tilt,
-segno di Hale, orientamento, D*, ciclo relativo), così che dipendenze fra flusso, latitudine, geometria e
-orientamento magnetico restano quelle osservate. La cella modello si estrae, con semi fissati, fra le celle HMI
-dello stesso emisfero, della stessa classe di fase del ciclo (cinque classi di uguale ampiezza fra minimo e minimo
-successivo, misurate dal minimo del proprio ciclo) e della stessa classe di attività (terzili dell'attività di
-cella HMI). Se una classe è vuota si unisce alla classe di attività adiacente, con regola registrata. L'attività
-dei record copiati è sostituita da quella della rotazione di arrivo (record per T3, media di cella per T5); la
-latitudine resta quella della cella modello. Etichetta di ciclo: «vecchio» o «nuovo» della cella modello,
-trasferita ai cicli (23, 24) in E2 e (25, 26) in E1. Le CR senza attività registrata o con attività nulla non
-ricevono celle. Nessuna cella è inventata fuori dalle classi osservate.
+**Trasferimento di E1** (ipotesi dichiarata, non previsione): sia t₂₅ l'intervallo fra il massimo smussato del
+ciclo 25 e 2026-09 (massimi dalla stessa serie `smooth13`). La finestra analoga è il quinquennio del ciclo 24 che
+inizia t₂₅ dopo il suo massimo smussato. La k-esima CR di E1 prende **attività emisferica, fase e ciclo del tempo**
+dalla k-esima CR della finestra analoga; le celle invece si estraggono dall'**intero insieme HMI** nello strato
+corrispondente, come per E2.
 
-**Resa e rumore MDI (griglie esplorative, non valori plausibili).** Per E2 ogni record della cella copiata è
-conservato con probabilità f ∈ {0,5; 0,75; 1} (seme fissato), poi si applicano le stesse selezioni: celle T5 con
-almeno 3 regioni, celle T3 con almeno una regione e singoletti esclusi dalla stima come oggi. Conteggi quindi
-interi; celle vuote eliminate. Il rumore individuale dei record MDI è moltiplicato per k ∈ {1; 1,5; 2}.
+**Strati.** Uno strato è (emisfero, classe di fase, terzile di attività emisferica della CR), con i terzili
+calcolati sulle CR di E0. Per ogni strato si registrano da E0: il numero di posti, la frazione di posti **senza
+alcun record di S** e le celle donatrici (celle T3 di S, cioè con almeno un record). Se uno strato non ha posti o
+donatori in E0, si unisce secondo un ordine fisso: prima il terzile di attività adiacente inferiore, poi quello
+superiore; poi la classe di fase adiacente precedente, poi la successiva; infine si uniscono i due emisferi. L'ordine
+è applicato dal codice, senza scelte durante l'esecuzione, e le unioni sono registrate.
 
-**Colonne del modello**: intercetti ciclo × emisfero per tutti i cicli presenti (23, 24, 25, e 26 in E1),
-più, nei modelli con MDI, un intercetto separato per la parte MDI del ciclo 24 (§4). **Covarianza temporale**
-calcolata sulle distanze reali fra numeri di CR, lacune comprese; le CR assenti non entrano.
+**Generazione di un posto aggiunto.** (1) Con probabilità pari alla frazione di posti vuoti del suo strato in E0, il
+posto resta **vuoto** (nessun record di S, che è diverso da dato mancante). (2) Altrimenti si estrae, con semi
+fissati, una cella donatrice dello strato e se ne copiano tutti i record con tutte le colonne (Φ, latitudine, d,
+tilt, segno di Hale, orientamento, D*), così che le dipendenze fra flusso, latitudine, geometria e orientamento
+restano quelle osservate. (3) L'attività dei record copiati diventa quella del posto d'arrivo (per T3 l'attività
+del record, per T5 la media di cella ricalcolata). (4) **Etichetta di ciclo**: per ogni record donatore,
+o = (ciclo del record) − (ciclo del tempo del donatore), con o ∈ {−1, 0}; il record d'arrivo ha ciclo = (ciclo del
+tempo del posto) + o. Così «vecchio» e «nuovo» si trasferiscono senza confondere il ciclo del donatore con quello
+d'arrivo. (5) Solo per MDI: ogni record è conservato con probabilità f ∈ {0,5; 0,75; 1} (seme fissato). (6)
+Selezioni come oggi: un posto con almeno un record è una cella T3; è anche una cella T5 se ha almeno 3 record. Le
+celle T3 con un solo record (singoletti) **restano nella regressione T3** e sono escluse solo dal fit della
+funzione di varianza, come nel codice attuale. Conteggi quindi interi; posti senza record eliminati dopo la
+selezione.
 
-**Realizzazioni del disegno**: 20 per estensione e combinazione di f, con semi nuovi; si riportano mediana,
-minimo e massimo delle grandezze del §5. Non sono repliche di rumore.
+**Rumore individuale MDI**: moltiplicato per k ∈ {1; 1,5; 2}. f e k sono **griglie esplorative**, non valori
+plausibili.
 
-## 4. Rumore e scarti fra strumenti
+**Colonne e covarianza**: matrici del §4; covarianza temporale sulle distanze reali fra numeri di CR, lacune
+comprese.
+
+**Realizzazioni del disegno**: 20 per estensione e valore di f, semi 34 900 000 + 100·e + r (e indice
+dell'estensione e di f, r = 0…19); si riportano mediana, minimo e massimo delle grandezze del §5.
+
+## 4. Rumore, scarti fra strumenti e matrici dei modelli
 
 **Rumore temporale**: le 3 forme × 3 scale della sensibilità della potenza (AR(1) φ = 0,5 e 0,9, salti di 20 CR;
 scale 0,5, 1, 2 della scala P2f), stessa ampiezza sui due strumenti. **Rumore individuale**: come nel generatore
 P2f (T5: η̄ per record; T3: SD_E = 15°), per i record MDI moltiplicato per k.
 
-**Scarti strumentali** sui soli record MDI, distinti per test.
-- **T5** (in G/Mx, sulla risposta z_i = D*_i/Φ_i): s = c₀ + c₁·(Â − 1) + c₂·(t − t_ref)/T.
-- **T3** (in gradi, sul tilt): due tipi distinti. Scarto **additivo del tilt** s_a = a₀ + a₁·(Â − 1), non
-  moltiplicato per sin|λ|: non è assorbito dagli intercetti, che contengono sin|λ|. Scarto **del coefficiente di
-  Joy** s_J = (j₀ + j₁·(Â − 1))·sin|λ|: j₀ è assorbito dagli intercetti del ciclo 23 ma non nel ciclo 24 misto,
-  j₁ entra nella pendenza. Deriva temporale come per T5.
+Notazione: M_i = 1 per i record MDI; I_{c,h} indicatori di ciclo × emisfero per i cicli presenti; I^{M24}_h
+indicatore della parte MDI del ciclo 24 nell'emisfero h; t il tempo in anni dal 2010-05-01.
 
-Griglie: coefficienti di attività (c₁, a₁, j₁) ∈ {0; ±0,25; ±0,5} × |bersaglio del test|; costanti (c₀, a₀, j₀) ∈
-{0; ±0,5} × la deviazione standard degli intercetti stimati in E0; derive (c₂) ∈ {0; ±0,25} × |bersaglio| sull'intero
-periodo MDI. Tutti i valori sono ipotesi esplorative: la sovrapposizione del 2010, vicina al minimo, non permette di
-misurarli.
+**Famiglie di scarto strumentale** (solo record MDI), con **scale fissate su E0** perché lo stesso scarto fisico
+non cambi con il disegno:
+- **T5, famiglia F5** (sulla risposta z_i = D*_i/Φ_i, in G/Mx): s = c₀ + c₁(Â − 1) + c₂ t, con c₁ ∈ {0; ±0,25;
+  ±0,5} × |Δβ₅(E0)|, c₂ ∈ {0; ±0,25} × |Δβ₅(E0)| per decennio, c₀ ∈ {0; ±0,05; ±0,1} × η̄. Per c₀ **nessun
+  risultato conservato** fornisce una scala: sono valori esplorativi dichiarati.
+- **T3, famiglia A (additiva del tilt)**, in gradi, non moltiplicata per sin|λ|: s_A = a₀ + a₁(Â − 1), con
+  a₀ ∈ {0; ±0,5; ±1} × 2,107° e a₁ ∈ {0; ±0,25; ±0,5} × |Δβ₃(E0)|·s̄, con s̄ la media pesata di sin|λ| in E0 (perché
+  a₁ abbia la scala dell'effetto sul tilt). 2,107° è la **mediana della distanza assiale** fra le nostre misure HMI e
+  BARD-MDI nella sovrapposizione (P3 C1, `results/P3/P3_BARD_SUMMARY.csv`, `c41fa4c`): una scala di disaccordo,
+  non uno scarto con segno misurato.
+- **T3, famiglia J (del coefficiente di Joy)**: s_J = (j₀ + j₁(Â − 1))·sin|λ|, con j₀ ∈ {0; ±0,5; ±1} × 2,107°/s̄ e
+  j₁ ∈ {0; ±0,25; ±0,5} × |Δβ₃(E0)|.
+- Derive per T3 come per T5, in unità di |Δβ₃(E0)|·s̄ per decennio (famiglia A) o di |Δβ₃(E0)| (famiglia J).
 
-**Tre modelli, ciascuno con il parametro che stima dichiarato:**
-- **(a) attuale**: un'unica pendenza comune ai due strumenti, intercetti ciclo × emisfero più l'intercetto della
-  parte MDI del ciclo 24. Stima la pendenza comune **se** gli scarti dipendenti dall'attività sono nulli; altrimenti
-  è distorta.
-- **(b) protetto**: pendenze separate per HMI e MDI (termine strumento × attività). Il parametro d'interesse è la
-  pendenza HMI, identificata essenzialmente dai soli dati HMI: **l'informazione aggiuntiva di MDI sulla pendenza
-  può essere interamente assorbita dal termine strumentale**. Si riporta per mostrare quanto beneficio resta quando
-  lo scarto non è vincolato; per E1 coincide con (a).
-- **(c) distorsione limitata**: modello (a) con l'ipotesi |c₁| (o |a₁|, |j₁|) ≤ C, con C dalla griglia; si riporta
-  la frequenza di riconoscimento e di falso verdetto nel caso peggiore entro il limite, cioè con lo scarto di segno
-  più sfavorevole.
-Per ogni disegno si riporta anche la **tolleranza**: lo scarto dipendente dall'attività che sposta la pendenza (a)
-di metà del bersaglio.
+**Matrici esatte** (pesi: W_c per T5, Φ_i per T3). Il parametro d'interesse è sempre β, coefficiente di x₅ o x₃.
+
+| Modello | T5 (celle) | T3, famiglia J | T3, famiglia A |
+|---|---|---|---|
+| (a) attuale | I_{c,h}; I^{M24}_h; x₅ = Â_c − 1 | I_{c,h}·sin\|λ\|; I^{M24}_h·sin\|λ\|; x₃ = (Â − 1)·sin\|λ\| | come J |
+| (b) protetto | (a) + M·(Â_c − 1) | (a) + M·(Â − 1)·sin\|λ\| | (a) + M_h (costanti MDI per emisfero) + M·(Â − 1) |
+
+Nel modello (b) β è la pendenza **HMI** (x applicata a tutti i record, la colonna M·x aggiunge la deviazione MDI): è
+identificata essenzialmente dai soli dati HMI, e l'informazione aggiuntiva di MDI sulla pendenza può essere
+interamente assorbita. Le derive non sono protette in nessun modello. Per E1 (nessun dato MDI) i modelli (b)
+coincidono con (a).
+
+**Condizione di non distorsione**: un modello è non distorto per una famiglia se la **proiezione dello scarto sul
+coefficiente β** è nulla, non solo se il coefficiente di attività è nullo. Nel modello (a) possono distorcere β anche
+costanti non assorbite (a₀ della famiglia A, c₀ e j₀ nel ciclo 24 se mal assorbite) e derive. La distorsione è
+m = Σ (riga WLS di β)·s.
+
+**(c) Analisi di sensibilità alla distorsione** (scelta della revisione 3): **non** è una procedura protetta;
+intervalli e verdetti restano quelli ordinari del modello (a). Per un limite C sul coefficiente di attività della
+famiglia (|c₁|, |a₁| o |j₁| ≤ C, con C ∈ {0,25; 0,5} nelle unità sopra), si calcolano separatamente: il **caso
+peggiore per il riconoscimento** dello scenario (lo scarto con il segno che sposta la pendenza verso zero) e il
+**caso peggiore per i falsi riconoscimenti** sotto nulla (lo scarto con il segno che sposta la pendenza verso
+valori negativi). Per ogni disegno si riporta inoltre la **tolleranza**: lo scarto di attività che sposta β di metà
+del bersaglio.
 
 ## 5. Valutazione: prima analitica, poi solo le simulazioni necessarie
 
@@ -148,23 +178,26 @@ di metà del bersaglio.
   `opposto` e copertura sotto nulla e sotto lo scenario, e la tolleranza.
 
 **B. Simulazioni con M, solo per le combinazioni scelte da un algoritmo fissato ora.**
-1. *Insieme candidato*: {T3, T5} × {E1, E2, E3} × {(a), (b)} × {ar1_05, ar1_09, steps20} alla scala P2f ×
-   coefficiente di attività dello scarto ∈ {0; −0,5; +0,5} × |bersaglio| (costanti e derive nulle), con f = 0,75 e
-   k = 1,5 per E2 ed E3. Per E1 lo scarto non esiste e il modello (b) coincide con (a): una sola riga per rumore.
-   E4 e il modello (c) restano solo analitici.
+1. *Insieme candidato*: (test, famiglia) ∈ {(T5, F5), (T3, A), (T3, J)} × {E1, E2, E3} × {(a), (b)} ×
+   {ar1_05, ar1_09, steps20} alla scala P2f × coefficiente di attività dello scarto della famiglia ∈ {0; −0,5;
+   +0,5} nelle unità del §4 (costanti e derive nulle), con f = 0,75 e k = 1,5 per E2 ed E3. Per E1 lo scarto non
+   esiste e i modelli (b) coincidono con (a): una sola riga per test e rumore (le famiglie A e J coincidono). E4 e
+   l'analisi (c) restano solo analitiche.
 2. *Indice*: per ogni candidato, la frequenza analitica di `supportato` sotto lo scenario, p_min e p_max sulle 20
    realizzazioni del disegno.
 3. *Selezione*: un candidato AR(1) è scelto se [p_min, p_max] interseca [0,20; 0,90]; un candidato steps20 se
    interseca [0,10; 0,95], banda più larga perché nei salti l'approssimazione normale è meno affidabile. Nessuna
    altra eccezione: un candidato fuori dalla sua banda non è simulato.
-4. *Realizzazione del disegno simulata*: quella con p mediana fra le 20; a pari merito la prima per seme.
-5. *Tetto*: al più 24 candidati. Se sono di più si tengono quelli con |p_mediana − 0,5| minore, a pari merito
-   nell'ordine dell'insieme candidato (T3 prima di T5, poi estensione, modello, rumore, scarto).
+4. *Realizzazione del disegno simulata*: la **decima** delle 20 ordinate per p crescente (a pari p, per indice di
+   seme crescente); è una realizzazione concreta, non una mediana numerica.
+5. *Tetto*: al più 24 candidati. Se sono di più si tengono quelli con |p₁₀ − 0,5| minore (p₁₀ della realizzazione
+   del punto 4), a pari merito nell'ordine dell'insieme candidato (T5/F5, T3/A, T3/J, poi estensione, modello,
+   rumore, scarto).
 6. *Per ogni candidato scelto*: 1000 cataloghi **sotto nulla e 1000 sotto lo scenario**, con lo stesso rumore
    appaiato e gli stessi scarti; si riportano falsi verdetti per verso, `supportato`, copertura, R ed errori, con
    denominatori espliciti, e il confronto con la previsione analitica.
 7. *Semi*: candidato j-esimo dell'elenco ordinato, rumore 34 000 000 + 10 000·j + k, k = 0…999 (gli stessi semi
-   per nulla e scenario); estrazioni del disegno 34 900 000 + 100·e + r. Disgiunzione da tutti gli intervalli già
+   per nulla e scenario); estrazioni del disegno quelle del §3. Disgiunzione da tutti gli intervalli già
    usati verificata dal codice.
 8. *Tetto operativo*: benchmark prima del lancio come in A1 del piano di potenza; arresto prima della griglia se
    la durata prevista supera 8 ore su 12 processi.
@@ -172,8 +205,9 @@ di metà del bersaglio.
 ## 6. Significato dell'obiettivo del 50 %
 
 Obiettivo **operativo**, non una garanzia: un'estensione è «potenzialmente sufficiente» per un test se, alla scala
-di rumore P2f, con il modello (a) e scarti nulli, la riduzione del 20 % è riconosciuta almeno metà delle volte, e
-se con il modello (c) al limite C = 0,25·|bersaglio| i falsi verdetti restano vicini al nominale. Motivo della
+di rumore P2f, con il modello (a) e scarti nulli, la riduzione del 20 % è riconosciuta almeno metà delle volte.
+L'analisi di sensibilità (c) si riporta accanto, **solo descrittiva e senza criterio**: tolleranza e falsi
+riconoscimenti nel caso peggiore entro C, perché il giudizio sull'affidabilità del raccordo resti esplicito. Motivo della
 soglia: sotto il 50 % un investimento su nuovi dati darebbe più spesso un esito non deciso che un riconoscimento
 anche se lo scenario fosse vero. Con il 50 % un mancato riconoscimento resta poco informativo. La frequenza con cui
 l'intervallo esclude la riduzione del 20 % sotto nulla si riporta come lettura complementare, ma **nel riferimento
@@ -206,10 +240,9 @@ rapporto e revisione.
 
 ## 10. Punti ancora aperti
 
-1. Ampiezze delle griglie degli scarti e limite C del §6.
-2. Numero di classi di fase e di attività per il ricampionamento, e regola di unione delle classi vuote.
-3. Se le celle modello di E1 debbano venire solo dalla finestra analoga del ciclo 24 (come scritto) o da tutte le
-   celle HMI della stessa classe.
+Nessuna scelta di metodo aperta. Restano esplorativi e dichiarati come tali: f, k, le griglie degli scarti e i
+limiti C; il mese del minimo del ciclo 23 e i massimi smussati per E1 si calcolano con la regola del §3 e si
+registrano nel piano congelato prima di qualunque altro calcolo.
 
 ## 11. Revisione di Codex della revisione 1, recepita
 
@@ -229,3 +262,21 @@ rapporto e revisione.
    tetto, semi, benchmark (§5).
 Precisazioni: f e k griglie esplorative; trasferimento temporale di E1 fissato esattamente; la frequenza di
 esclusione sotto nulla coincide, senza distorsione, con il riconoscimento dell'alternativa simmetrica (§3, §6).
+
+## 12. Revisione di Codex della revisione 2 (`c4247d0`), recepita
+
+1. (c) dichiarata **analisi di sensibilità alla distorsione**, con intervalli e verdetti ordinari; caso peggiore per
+   il riconoscimento e per i falsi riconoscimenti calcolati separatamente, con segni diversi; nel §6 (c) è solo
+   descrittiva, senza criterio (§4, §6).
+2. Matrici esatte per T5 e per le due famiglie T3 (J: colonna M·(Â − 1)·sin|λ|; A: costanti MDI per emisfero e
+   M·(Â − 1)), coefficiente d'interesse identificato per nome di colonna; condizione di non distorsione come
+   proiezione nulla sullo stesso coefficiente, anche per costanti e derive (§2, §4).
+3. Posti vuoti rappresentati: frazione di posti senza record di S per strato in E0, distinta dai dati mancanti;
+   la resa f agisce dopo (§3).
+4. Fase convenzionale con minimi fissati (T_MIN, minimo del ciclo 23 dalla serie smussata), fase e ciclo del tempo di
+   E1 dalla rotazione analoga; etichetta vecchio/nuovo trasferita con lo scarto di ciclo o; celle di E1 dall'intero
+   insieme HMI dello strato; unione degli strati vuoti con ordine fisso (§3).
+5. Singoletti: restano nella regressione T3, esclusi solo dal fit della funzione di varianza; famiglia di scarto
+   T3 (A o J) nell'insieme candidato di B; realizzazione simulata = la decima per p crescente (§3, §5).
+Scale degli scarti fissate su E0; fonte delle costanti di tilt identificata (P3 C1, 2,107°, `c41fa4c`) e dichiarata
+come scala di disaccordo; per c₀ di T5 nessuna fonte, valori esplorativi (§4).
