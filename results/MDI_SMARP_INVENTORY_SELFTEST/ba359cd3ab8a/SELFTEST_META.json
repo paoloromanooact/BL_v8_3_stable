@@ -1,0 +1,18 @@
+{
+  "duration_s": 7.987706184387207,
+  "env": {
+    "astropy": "6.1.7",
+    "drms": "0.9.0",
+    "python": "3.10.12"
+  },
+  "freeze_commit": "9269c10ef16d2c96271a60b53b12277e108170d5",
+  "git_commit": "ba359cd3ab8ae88b63a7469f4bad5183cd48c828",
+  "git_dirty": 0,
+  "mode": "selftest",
+  "n_checks": 95,
+  "n_passed": 95,
+  "outcome": "superato",
+  "plan": "\u00a78 offline checks, no network, no real magnetic data",
+  "plan_sha256": "a31de02a064b08584281930f4a7c7e0fc4216ab83cc7f69c8ee793ea5bce3be0",
+  "script_sha256": "0bd8f52c717719121b26d87ca522a62b4ae05ecfc113df2401965ffa9d580235"
+}
