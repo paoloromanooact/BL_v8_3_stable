@@ -1,5 +1,20 @@
 # Cold restart — SHARP BL
 
+## T5 potenza: script, selftest superato, porta di compatibilità NON superata — 2026-11-16
+
+Emendamento A1 (`8dc6d48`, SHA-256 `60323789…`) su piano `4b67632` (`fac76b1a…`). Script
+`scripts/t5_power_sensitivity.py` in `b769892` (SHA-256 `88df7231…`). Ricevute in
+`results/T5_POWER_SENSITIVITY_PRELIM/` (commit `9a64e88`): **selftest 53/53 superato**; **porta 36/40, non
+superata**. I 20 cataloghi nulli dello scenario 7 coincidono esattamente. In 4 dei 20 cataloghi dello
+scenario 2 a −0,1, lo SE di M differisce da `VALIDATION_RAW` di 3·10⁻⁶–1,5·10⁻⁵ relativo, con β̂ entro
+1,6·10⁻¹⁵ e verdetti uguali. Per il piano §6.6 la sequenza si è fermata: **benchmark e griglia non
+eseguiti**. Diagnosi non pre-registrata (`bf24b7f`, output `438ef56`, nessuna riclassificazione): il
+percorso P2f originale riproduce lo SE esattamente su 20 casi su 20; il percorso dello script differisce in η_c solo per
+l'ordine degli arrotondamenti (≤ 1,03·10⁻¹⁵ relativo); una sonda che scala gli ingressi di 10⁻¹⁵ cambia
+lo SE di M fino a 1,2·10⁻⁵ su 20 casi su 20 (ottimizzatore REML). Prossimo: decisione dell'utente e di Codex su un
+emendamento A2 della porta prima di qualunque nuova esecuzione; poi porta, benchmark, revisione, griglia.
+Nessun push.
+
 ## T5: piano di sensibilità della potenza congelato — 2026-11-16
 
 Dopo la nota di fattibilità (rev. 2) e la sensibilità del proxy (`39c010c`, risultati `61e0aed`), il piano
