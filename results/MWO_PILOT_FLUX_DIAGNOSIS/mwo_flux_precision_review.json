@@ -1,0 +1,17 @@
+{
+  "diagnostic": "post-run diagnosis of FITS reader precision, original receipt and tolerance preserved",
+  "n": 211,
+  "old_rel_min": -2.6183067602936205e-08,
+  "old_rel_median": -1.716964348474903e-08,
+  "old_rel_max": -8.633180725858836e-09,
+  "max_matched_rel": 3.3306690738754696e-16,
+  "max_tilt_error": 1.7621459846850485e-12,
+  "all_leading_equal": true,
+  "bitpix": [
+    16.0
+  ],
+  "bscale": [
+    0.1
+  ],
+  "product_hashes_ok": true
+}

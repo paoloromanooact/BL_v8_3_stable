@@ -690,6 +690,9 @@ results/MWO_PILOT/ROWS.csv
 results/MWO_PILOT/RUN.log
 results/MWO_PILOT/SHA256SUMS.txt
 results/MWO_PILOT/SUMMARY.csv
+results/MWO_PILOT_FLUX_DIAGNOSIS/README.md
+results/MWO_PILOT_FLUX_DIAGNOSIS/mwo_flux_precision_review.json
+results/MWO_PILOT_FLUX_DIAGNOSIS/mwo_flux_precision_review.py
 results/MWO_PILOT_RECOUNT/RECEIPT.json
 results/P1/CYCLE_BOUNDARY_FITS.csv
 results/P1/P1E_METADATA_VERIFICATION_BY_YEAR.csv

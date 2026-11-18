@@ -5,8 +5,14 @@ convention (xi = (x+1-X0)/R0, eta = (y+1-Y0)/R0, n = (mu cos B0 - eta sin B0, xi
 the B_r cuts, the polarity centroids (unit vectors) and the P1 tilt convention, then recomputes the differences with P1,
 the summaries and the criterion from ROWS.csv. Writes results/MWO_PILOT_RECOUNT/RECEIPT.json.
 
+--pipeline-precision (added after the run, Codex's diagnosis): the reader casts the stored integers to float32 BEFORE
+applying BSCALE/BZERO, as the frozen MWO pipeline does; the first receipt (float64 scaling, 5/6, flux item failed at
+2.6e-8 against 1e-9) is kept unchanged in results/MWO_PILOT_RECOUNT/, the new one goes to results/MWO_PILOT_RECOUNT_R2/
+with the same tolerances.
+
     .venv/bin/python scripts/mwo_pilot_recount.py --selftest
     .venv/bin/python scripts/mwo_pilot_recount.py --check
+    .venv/bin/python scripts/mwo_pilot_recount.py --check --pipeline-precision
 """
 import argparse
 import hashlib
@@ -22,6 +28,8 @@ import pandas as pd
 ROOT = Path(__file__).resolve().parents[1]
 PILOT = ROOT / "results/MWO_PILOT"
 OUT = ROOT / "results/MWO_PILOT_RECOUNT"
+OUT_R2 = ROOT / "results/MWO_PILOT_RECOUNT_R2"
+PIPELINE_PRECISION = False   # True: float32 cast before BSCALE/BZERO (numerical convention of the MWO pipeline)
 MWO_DATA = Path("/storage/shared/gianluca/MWO_project/Desktop/MWO/data MWO")
 WIN_LAT, WIN_LON, THR, BMAX, MU_MIN, RSUN = 6.0, 8.0, 50.0, 4000.0, 0.8, 6.96e10
 
@@ -47,8 +55,9 @@ def read_fits(buf):
                 h[c[:8].strip()] = raw.strip("' ")
     n1, n2, bp = int(h["NAXIS1"]), int(h["NAXIS2"]), int(h["BITPIX"])
     dt = {16: ">i2", 32: ">i4", -32: ">f4", -64: ">f8"}[bp]
-    a = np.frombuffer(buf[pos:pos + n1 * n2 * abs(bp) // 8], dtype=dt).astype(float).reshape(n2, n1)
-    return h, a * h.get("BSCALE", 1.0) + h.get("BZERO", 0.0)
+    a = np.frombuffer(buf[pos:pos + n1 * n2 * abs(bp) // 8], dtype=dt)
+    a = a.astype(np.float32 if PIPELINE_PRECISION else float).reshape(n2, n1)
+    return h, a * float(h.get("BSCALE", 1.0)) + float(h.get("BZERO", 0.0))
 
 
 def unit(lon, lat):
@@ -226,8 +235,10 @@ def check(pilot=PILOT, mwo_data=MWO_DATA, match_fn=None, out=OUT):
     v_mine = verdict_of(d)
     ok("final verdict recomputed", v_mine == meta["verdict"], (v_mine, meta["verdict"]))
     Path(out).mkdir(parents=True, exist_ok=False)
-    (Path(out) / "RECEIPT.json").write_text(json.dumps(dict(checks=res, passed=sum(r["ok"] for r in res),
-                                                            total=len(res)), indent=2) + "\n")
+    (Path(out) / "RECEIPT.json").write_text(json.dumps(dict(checks=res, passed=sum(r["ok"] for r in res), total=len(res),
+                                                            reader="float32 before BSCALE (pipeline convention)"
+                                                            if PIPELINE_PRECISION else "float64 scaling"),
+                                                       indent=2) + "\n")
     return all(r["ok"] for r in res)
 
 
@@ -310,6 +321,20 @@ def selftest():
     fits.PrimaryHDU(np.arange(6, dtype=np.float32).reshape(2, 3), hd).writeto(buf)
     hh, a = read_fits(buf.getvalue())
     c2 = hh["X0"] == 256.5 and a.shape == (2, 3) and a[1, 2] == 5
+    # int16 with BSCALE 0.1: float64 scaling by default, float32 cast before scaling with --pipeline-precision
+    global PIPELINE_PRECISION
+    raw = np.array([[1234, -987], [3001, 7]], dtype=np.int16)
+    buf = io.BytesIO()
+    hdu = fits.PrimaryHDU(raw)
+    hdu.header["BSCALE"], hdu.header["BZERO"] = 0.1, 0.0
+    hdu.writeto(buf)
+    saved, out = PIPELINE_PRECISION, []
+    for flag in (False, True):
+        PIPELINE_PRECISION = flag
+        out.append(read_fits(buf.getvalue())[1])
+    PIPELINE_PRECISION = saved
+    c6 = (out[0].dtype == np.float64 and np.array_equal(out[0], raw.astype(float) * 0.1)
+          and out[1].dtype == np.float32 and np.array_equal(out[1], raw.astype(np.float32) * 0.1))
     rng = np.random.default_rng(3)
     rows = []
     for i in range(200):
@@ -323,16 +348,19 @@ def selftest():
     c4 = verdict_of(good) == "variante MWO utilizzabile" and verdict_of(good.iloc[:100]) == "pilota non concludente"
     c5 = e2e_check()
     for n, c in (("own mapping: disk centre at latitude B0", c1), ("own FITS reader round trip", c2),
+                 ("BSCALE: float64 scaling by default, float32 before scaling in pipeline mode", c6),
                  ("check() end to end on synthetic pilot outputs passes, and fails on a tampered summary", c5),
                  ("criterion: flux cut removing a hemisphere refused", c3),
                  ("criterion: usable case and coverage below 150", c4)):
         print(f"[{'OK' if c else 'FALLITO'}] {n}")
-    return c1 and c2 and c3 and c4 and c5
+    return c1 and c2 and c3 and c4 and c5 and c6
 
 
 if __name__ == "__main__":
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--selftest", action="store_true")
     ap.add_argument("--check", action="store_true")
+    ap.add_argument("--pipeline-precision", action="store_true")
     a = ap.parse_args()
-    sys.exit(0 if (a.selftest and selftest()) or (a.check and check()) else 1)
+    PIPELINE_PRECISION = a.pipeline_precision
+    sys.exit(0 if (a.selftest and selftest()) or (a.check and check(out=OUT_R2 if a.pipeline_precision else OUT)) else 1)
