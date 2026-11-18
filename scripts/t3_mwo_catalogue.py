@@ -129,7 +129,7 @@ def dpd_groups(dpd_dir=DPD_DIR, years=range(1974, 2013)):
             rows.append(dict(day=t.strftime("%Y-%m-%d"), t_dpd=t, noaa=line[22:28].strip(), area=area, lat=lat,
                              lon=lon, lcm=lcm))
     g = pd.DataFrame(rows)
-    g = g.sort_values(["day", "noaa", "area"], ascending=[True, True, False]).drop_duplicates(["day", "noaa"])
+    g = g.sort_values(["day", "noaa", "area"], ascending=[True, True, False], kind="stable").drop_duplicates(["day", "noaa"])
     return g.reset_index(drop=True)
 
 
@@ -328,7 +328,7 @@ def select(attempts, set_name):
     """Per group: candidate days (isolated ones for 'isolated'), ordered by |LCM| then date; first 'ok' is the record."""
     df = pd.DataFrame([{k: v for k, v in a.items() if k != "sealed"} for a in attempts])
     cand = df[df.has_magnetogram] if set_name == "all" else df[df.has_magnetogram & df.isolated]
-    cand = cand.assign(abs_lcm=cand.lcm.abs()).sort_values(["noaa", "abs_lcm", "day"])
+    cand = cand.assign(abs_lcm=cand.lcm.abs()).sort_values(["noaa", "abs_lcm", "day"], kind="stable")
     cand["rank"] = cand.groupby("noaa").cumcount() + 1
     cand["n_cand"] = cand.groupby("noaa").noaa.transform("size")
     okc = cand[cand.status == "ok"]

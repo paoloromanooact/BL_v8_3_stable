@@ -29,7 +29,9 @@ tilt):
 2. **Finestre con troppi BLANK.** Se più del **5 %** dei pixel della finestra è BLANK, il tentativo fallisce con causa
    `window_blank` e la regola del primo giorno riuscito passa al candidato successivo.
 3. **Registro.** Per ogni tentativo si salva il numero di pixel BLANK nella finestra.
-4. **Pilota.** Il pilota congelato resta com'è. Come controllo descrittivo, si conta quanti dei suoi 211 record hanno
-   pixel BLANK nella finestra; se ce ne sono, si riporta lo scarto del tilt con e senza BLANK, senza cambiare il verdetto.
+4. **Pilota.** Il pilota congelato resta com'è. Controllo descrittivo già fatto (18 novembre, misura di
+   `scripts/t3_mwo_catalogue.py` con questo emendamento sui 211 record valutabili del pilota): **nessun record ha pixel
+   BLANK nella finestra**, nessuno cambia stato, e il tilt coincide con quello del pilota entro 3·10⁻¹⁴°. Il verdetto del
+   pilota non è toccato.
 
 Nessun'altra regola del protocollo cambia.

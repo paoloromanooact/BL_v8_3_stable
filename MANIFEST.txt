@@ -109,6 +109,7 @@ docs/PROTOCOL_P3C_BARD_TILT_CONVENTION.md
 docs/PROTOCOL_P3_EXTERNAL_VALIDATION.md
 docs/PROTOCOL_T3_DPD_DRAFT.md
 docs/PROTOCOL_T3_MWO.md
+docs/PROTOCOL_T3_MWO_AMENDMENT_A1_DRAFT.md
 docs/PROTOCOL_T3_MWO_DRAFT.md
 docs/PROTOCOL_T3_MWO_FREEZE.json
 docs/PROTOCOL_T5_DIAGNOSTIC_SAVED_OUTPUTS.md
@@ -921,6 +922,9 @@ scripts/repro_draft_tables.py
 scripts/review_morphology.py
 scripts/run_pipeline.sh
 scripts/t3_dpd_feasibility.py
+scripts/t3_mwo_catalogue.py
+scripts/t3_mwo_catalogue_recount.py
+scripts/t3_mwo_fetch_sdpd.py
 scripts/t5_oracle_se_recompute.py
 scripts/t5_postcheck_external_probe.py
 scripts/t5_power_check.py
