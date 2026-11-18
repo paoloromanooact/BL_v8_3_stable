@@ -452,7 +452,7 @@ def preflight_sample(prior_requests, prior_seconds, requests_cap, file_limit=FIL
     return pairs, records, cert, schemas, prior_requests, prior_seconds, sum(sizes)
 
 
-def run_sample(prepared, out, requests_cap, seconds_cap, transport=transfer_a1, check_keys=None):
+def run_sample(prepared, out, requests_cap, seconds_cap, transport=transfer_a1, check_keys=None, total_cap=TOTAL_LIMIT):
     """Fresh acquisition with the A1 transport: exact-record keywords, then FITS (one allowed redirect each);
     every HTTP request counted; at most two attempts per item; stop after 3 consecutive same-class failures."""
     pairs, records, certificates, schemas, prior_req, prior_sec, total = prepared
@@ -484,7 +484,9 @@ def run_sample(prepared, out, requests_cap, seconds_cap, transport=transfer_a1, 
             if sum(1 for e in events if e["key"] == key) >= 2:
                 raise TransportError("exhausted", "two attempts exhausted")
             req, sec = used()
-            if req + 2 > requests_cap or seconds_cap - sec < 1:
+            # every FITS byte received so far counts, failed attempts and earlier runs included (Codex's review)
+            got = sum(x.get("bytes", 0) for x in events if x.get("fits"))
+            if req + 2 > requests_cap or seconds_cap - sec < 1 or (expected and got + cap > total_cap):
                 checkpoint("budget")
                 raise ValueError("budget exhausted")
             e = dict(key=key, url="http://" + HOST + target, body=path.name, state="pending", requests=2,

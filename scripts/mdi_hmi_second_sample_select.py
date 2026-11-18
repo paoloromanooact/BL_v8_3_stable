@@ -82,7 +82,12 @@ def select(arcs, excluded_components):
                     continue
                 used.add(b["component"])
                 taken[s] += 1
-                chosen.append(dict(b, slot=len(chosen) + 1, pair_sha256=pair_key(t, h)))
+                chosen.append(dict(slot=len(chosen) + 1, stratum=s, TARPNUM=t, HARPNUM=h,
+                                   smarp_series="mdi.smarp_cea_96m", smarp_record=f"{t}|{b['T_REC_smarp']}",
+                                   hmi_series="hmi.sharp_cea_720s", hmi_record=f"{h}|{b['T_REC_hmi']}",
+                                   component=b["component"], pair_sha256=pair_key(t, h), quality_mdi=b["quality_mdi"],
+                                   quality_hmi="0x00000000", npix_smarp=b["npix_smarp"], npix_hmi=b["npix_hmi"],
+                                   hmi_lon_abs_deg=b["abslon"], dt_obs_abs_s=b["abs_dt"]))
                 progress = True
                 break
     return chosen, decisions
@@ -113,11 +118,21 @@ def real_arcs():
     return out
 
 
+def gate_problem(protocol_sha, frozen=None):
+    frozen = Path(frozen) if frozen else FROZEN
+    if not frozen.exists():
+        return "frozen protocol missing"
+    if hashlib.sha256(frozen.read_bytes()).hexdigest() != protocol_sha:
+        return "frozen protocol SHA-256 differs"
+    if subprocess.run(["git", "ls-files", "--error-unmatch", str(frozen)], cwd=ROOT, capture_output=True).returncode:
+        return "frozen protocol not committed"
+    return None
+
+
 def run(out, protocol_sha):
-    if not FROZEN.exists() or hashlib.sha256(FROZEN.read_bytes()).hexdigest() != protocol_sha:
-        sys.exit("frozen protocol missing or SHA-256 differs: selection not allowed before the freeze")
-    if subprocess.run(["git", "ls-files", "--error-unmatch", str(FROZEN)], cwd=ROOT, capture_output=True).returncode:
-        sys.exit("frozen protocol not committed")
+    why = gate_problem(protocol_sha)
+    if why:
+        sys.exit(why + ": selection not allowed before the freeze")
     out = Path(out)
     if out.exists():
         sys.exit("refusing to overwrite")
@@ -171,13 +186,22 @@ def selftest():
     tie = [arc("N_lateral", 1, 2, "U", abslon=20.0, T_REC_smarp="2010.06.02_00:00:00_TAI", T_REC_hmi="2010.06.02_00:00:00_TAI"),
            arc("N_lateral", 1, 2, "U", abslon=16.0, abs_dt=200.0), arc("N_lateral", 1, 2, "U", abslon=16.0, abs_dt=20.0)]
     ch4, _ = select(tie, set())
-    ok("arc choice: min |lon|, then |dT|", ch4[0]["abslon"] == 16.0 and ch4[0]["abs_dt"] == 20.0)
+    ok("arc choice: min |lon|, then |dT|", ch4[0]["hmi_lon_abs_deg"] == 16.0 and ch4[0]["dt_obs_abs_s"] == 20.0)
     ok("SHA order uses the V2 prefix", pair_key(1, 2) == hashlib.sha256(b"MDI_HMI_PILOT_V2|1|2").hexdigest()
        and pair_key("007", "02") == pair_key(7, 2))
     ok("empty stratum leaves places empty (no filling)", all(sum(c["stratum"] == s for c in
        select([arc("N_central", i, i + 50, f"K{i}") for i in range(9)], set())[0]) == (5 if s == "N_central" else 0)
        for s in ORDER))
-    ok("--run refuses before the freeze", not FROZEN.exists())
+    import tempfile
+    with tempfile.TemporaryDirectory() as td:
+        f = Path(td) / "P.md"
+        g1 = gate_problem("x" * 64, f)
+        f.write_text("frozen")
+        g2, g3 = gate_problem("y" * 64, f), gate_problem(hashlib.sha256(b"frozen").hexdigest(), f)
+    ok("gate refuses missing, wrong-SHA and uncommitted protocol (temporary files)",
+       (g1, g2, g3) == ("frozen protocol missing", "frozen protocol SHA-256 differs", "frozen protocol not committed"))
+    ok("manifest columns for availability and downloader", ch and {"slot", "smarp_series", "smarp_record", "hmi_series",
+       "hmi_record", "quality_mdi", "quality_hmi"} <= set(ch[0]))
     # real pool counted without ordering or selecting (no pair is revealed): must match the draft §2
     excluded = {r["component"] for r in csv.DictReader(open(FIRST))}
     _, dec = select([], set())
