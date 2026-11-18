@@ -97,6 +97,11 @@ negativo di LOS/μ sopra una soglia → tilt magnetico con polarità e segno di 
 di P1, polarità, sovrapposizioni con MDI (1996–2010) e HMI (2010–2013). Limiti: risoluzione grossolana (regioni compatte
 poco affidabili), cambi di strumentazione MWO nel tempo, regioni vicine nella stessa finestra.
 
+Codice preparato: `scripts/mwo_pilot_tilt.py` (geometria, lettore e controlli di effemeridi importati invariati dalla
+pipeline MWO congelata; selftest 9/9 su magnetogrammi sintetici, tilt ricostruito entro 1°; nessun tilt reale calcolato).
+Nota: nel 2011 l'archivio contiene 295 magnetogrammi Fe I, molti meno degli anni precedenti; il pilota 2010–2013 avrà
+un campione ridotto, da contare prima di congelarne il protocollo.
+
 Prima di qualsiasi analisi T3 con questa variante: **pilota descrittivo** nella sovrapposizione 2010–2013 (tilt MWO
 contro P1 sulle stesse regioni NOAA) e, se utile, 1996–2010 contro MDI, sul modello del confronto MDI–HMI; protocollo
 proprio con soglie fissate prima. **Decisione dell'utente (18 novembre, 13:55): la variante MWO è la strada preferita**, perché dà la stessa grandezza
