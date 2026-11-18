@@ -1,6 +1,6 @@
 # Piccolo confronto MDI–HMI: risultati
 
-**2026-11-18. Descrittivo, non cieco ai metadati.** Protocollo `docs/PROTOCOL_MDI_HMI_SMALL_COMPARISON.md`
+**2026-11-18. Descrittivo, non cieco ai metadati.** Revisione mirata di Codex recepita (scarti fra implementazioni, stati di esclusione, R0, intervalli di flusso); la verifica completa del trasporto A1 resta da fare. Protocollo `docs/PROTOCOL_MDI_HMI_SMALL_COMPARISON.md`
 (congelato in `6d6fd12`, SHA-256 `3713236f…`) con emendamento A1 (`c409666`, trasporto dei FITS e budget).
 Selezione di Codex (`7a9898e`), ricostruita identica da Claude (`a0df545`). Download A1: 84/84 FITS, 6 168 960 byte,
 169 richieste HTTP e 135 s nel budget A1 (tutti da jsoc1.stanford.edu dopo un redirect ammesso). Prodotto di
@@ -10,14 +10,19 @@ Due implementazioni indipendenti, conservate prima della lettura:
 - `scripts/mdi_hmi_comparison_run.py` (adattatore e kernel di Codex), corsa valida `results/MDI_HMI_COMPARISON/run_9f80330/`;
 - `scripts/mdi_hmi_comparison_recount.py` (Claude, codice separato), `results/MDI_HMI_COMPARISON/recount_d278db3/`.
 
-Stessi stati per tutte le 36 righe e stessi 14 confronti valutabili; tilt concordi entro 10⁻⁸ gradi, flussi e dipoli
-entro 10⁻⁸ relativi (arrotondamento float32 delle keyword). Una prima corsa del runner (`run_a6edbae`) divideva per μ
+Stessa valutabilità per tutte le 36 righe e stessi 14 confronti valutabili; scarti massimi 1,214·10⁻⁸ gradi sul tilt e
+1,241·10⁻⁸ relativi sui dipoli (entro 1,3·10⁻⁸; arrotondamento float32 delle keyword nell'adattatore). Gli **stati di
+esclusione** coincidono tranne uno: per la TARP 13670 il runner riporta il rifiuto dell'adattatore (codici bitmap 1 e 2
+non documentati per SMARP), il riconteggio una maschera vuota (non controlla i codici; nessun pixel con il bit 32). Una prima corsa del runner (`run_a6edbae`) divideva per μ
 anche il riferimento Br: errore trovato dal riconteggio prima della lettura, corsa superata e conservata.
 
 ## 1. R0 e disponibilità delle misure
 
-R0 (funzione P1 invariata sui 12 record HMI): sull'unico record coincidente con P1 (HARP 191) flusso e latitudine
-riprodotti entro 4,5·10⁻⁸ e 4·10⁻⁷ relativi; la HARP ha una sola polarità sopra 100 G, quindi nessun tilt né in P1 né qui.
+R0 (funzione P1 invariata sui 12 record HMI): sull'unico record coincidente con P1 (HARP 191) il flusso è riprodotto
+con scarto relativo 4,47·10⁻⁸ con le keyword dell'adattatore e 4,67·10⁻⁸ con quelle del riconteggio (precisione delle
+keyword); la latitudine entro 4·10⁻⁷. Il record è unipolare: la riproduzione storica del **tilt** resta non verificata.
+Nota tecnica: nel `R0.csv` del riconteggio la colonna `rel_phi` vale 0 per un errore di calcolo della colonna; lo scarto
+si ricava da `p1_phi` e `hist_phi`.
 
 Le misure disponibili sono molte meno delle 12 coppie selezionate, senza sostituzioni:
 
@@ -73,10 +78,10 @@ decisione sul catalogo descrittivo MDI resta **aperta**.
 
 ## 4. Lettura
 
-- **Definizione del campo su HMI (A1, A2)**: passare da Br a LOS/μ cambia il tilt di frazioni di grado (mediana di
-  |d_ax| 0,4°, massimo 1,4°), ma riduce il flusso del 10–28 % e il dipolo bilanciato fino al 33 %, con l'eccezione
-  di un D_bal più grande del 41 % (HARP 43, A2). Per un catalogo descrittivo dei tilt la definizione LOS/μ è
-  vicina a Br; per flussi e dipoli no.
+- **Definizione del campo su HMI (A1, A2)**, sulle cinque coppie misurate: passare da Br a LOS/μ cambia il tilt di
+  frazioni di grado (mediana di |d_ax| 0,4°, massimo 1,4°), ma riduce il flusso del 10–28 % in A1 e del 2–28 % in A2, e
+  il dipolo bilanciato fino al 33 %, con l'eccezione di un D_bal più grande del 41 % (HARP 43, A2). In queste cinque
+  coppie la definizione LOS/μ dà tilt vicini a Br; per flussi e dipoli no. Non è una stima per il catalogo.
 - **Strumento (B)**: sulle 4 coppie valutabili la differenza di tilt MDI−HMI è 0,2–3,8° in modulo (mediana 2,15°,
   vicina ai 2,1° del confronto con BARD-MDI), mentre flussi (0,73–1,44) e dipoli (0,48–2,66) differiscono molto di più.
   La scala rilevante per T3 (circa 0,4°) non è risolvibile con questi numeri, come il protocollo prevedeva.
