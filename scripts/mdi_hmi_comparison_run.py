@@ -86,10 +86,19 @@ def summarise(df):
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--out", type=Path, required=True)
+    ap.add_argument("--second-sample", action="store_true", help="frozen protocol bbd719c (second sample)")
     a = ap.parse_args()
     if a.out.exists():
         raise SystemExit("refusing to overwrite")
-    D = io.BASE / "patch_download_a1"
+    if a.second_sample:
+        base = io.INVENTORY / "second_sample_bbd719c"
+        sha = lambda p: hashlib.sha256(Path(p).read_bytes()).hexdigest()  # noqa: E731
+        io.use_sample(base, io.ROOT / "docs/PROTOCOL_MDI_HMI_SECOND_SAMPLE.md",
+                      "b7860445ce4e83b5fb8933797f6f9024ee419cd9c941bcb6299e3711e98d4839",
+                      sha(base / "selection/PAIRS.csv"), sha(base / "availability/SEGMENTS.csv"))
+        D = base / "patch_download"
+    else:
+        D = io.BASE / "patch_download_a1"
     pairs, _ = io.plan()
     rows = []
     for p in pairs:

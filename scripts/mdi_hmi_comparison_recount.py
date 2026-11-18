@@ -178,7 +178,7 @@ def branch_maps(kw, shape):
     return lon, lat, mu, cs, cw, area, float(kw["RSUN_REF"]) * 100.0
 
 
-def run(maps, out, files_csv=None):
+def run(maps, out, files_csv=None, pairs=SEL):
     import mdi_hmi_footprint_mu as fm
     import pandas as pd
     out = Path(out)
@@ -190,7 +190,7 @@ def run(maps, out, files_csv=None):
         listing = {(r["series"], r["record"], r["segment"]): Path(r["path"]) for r in csv.DictReader(open(files_csv))}
     cat = pd.read_csv(CATALOGUE, low_memory=False)
     rows, r0, missing = [], [], []
-    for p in csv.DictReader(open(SEL)):
+    for p in csv.DictReader(open(pairs)):
         st = p["stratum"]
         recs = {}
         for series, rec in ((HMI, p["hmi_record"]), (MDI, p["smarp_record"])):
@@ -333,13 +333,14 @@ def main():
     ap.add_argument("--maps", type=Path)
     ap.add_argument("--files", type=Path)
     ap.add_argument("--out", type=Path)
+    ap.add_argument("--pairs", type=Path, default=SEL)
     a = ap.parse_args()
     if a.selftest:
         return 0 if selftest() else 1
     if a.out and (a.maps or a.files):
         if not selftest():
             return 1
-        return run(a.maps, a.out, a.files)
+        return run(a.maps, a.out, a.files, a.pairs)
     ap.print_help()
     return 1
 
