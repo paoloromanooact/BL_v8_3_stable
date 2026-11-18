@@ -1,0 +1,58 @@
+{
+  "checks": [
+    {
+      "name": "product hashes equal to META",
+      "ok": true,
+      "value": ""
+    },
+    {
+      "name": "outcome eseguita and selftest all passed",
+      "ok": true,
+      "value": ""
+    },
+    {
+      "name": "RAW rows (6 matrices x 9 noise; k only with MDI)",
+      "ok": true,
+      "value": "(30294, 30294)"
+    },
+    {
+      "name": "realisations 0..19 for every (ext, f)",
+      "ok": true,
+      "value": ""
+    },
+    {
+      "name": "E0 T5 target -0.10305075 eta_bar",
+      "ok": true,
+      "value": ""
+    },
+    {
+      "name": "E0 T3 target -1.60265 deg (Codex's separate WLS)",
+      "ok": true,
+      "value": ""
+    },
+    {
+      "name": "zero-offset recognition medians recomputed from RAW",
+      "ok": true,
+      "value": "1566"
+    },
+    {
+      "name": "zero-offset exclusion under null equals recognition (no bias)",
+      "ok": true,
+      "value": ""
+    },
+    {
+      "name": "no bias: 'supportato' under null 1.25 %",
+      "ok": true,
+      "value": ""
+    },
+    {
+      "name": "phase B: 114 candidates; selected = in band (<= 24)",
+      "ok": true,
+      "value": "4"
+    }
+  ],
+  "passed": 10,
+  "total": 10,
+  "meta_sha256": "83eefd8ed4e13513c37093d42e509f9527a2310588841a950418bb891a884b31",
+  "script_sha256": "934b2196230df30554521180238bbc2d24953893f71e7ed8254ac7fb7e745c92"
+}

@@ -1,5 +1,22 @@
 # Cold restart — SHARP BL
 
+## Piano prospettico fase A eseguita; certificato geometrico MDI–HMI — 18 novembre 2026
+
+**Fase A** (Claude; revisione del codice di Codex su `b6c00c0`, emendamento A1 `551d829`, correzioni `ecf0714`):
+corsa unica su `6f4b416`, output conservati prima della lettura in `56a5944`, controllo indipendente 10/10.
+Risultati in [PROSPECTIVE_PHASE_A_RESULTS.md](PROSPECTIVE_PHASE_A_RESULTS.md): nessuna estensione raggiunge il 50 %;
+T5 da 10,7 % (E0) a 19,2 % (E3, f = 1, k = 1), T3 2,9 % → 4,3 % (bersaglio −1,60° = −0,067·γ₀); con il modello
+protetto MDI non aggiunge informazione. Fase B: 4 candidati in banda, non avviata (decisione dell'utente con Codex).
+
+**Certificato 1 MDI–HMI** (Claude, `scripts/mdi_hmi_footprint_mu.py`, `568abb9`, offline sulle 32 finestre
+acquisite da Codex in `geometry_windows_20261118/`, 34 tentativi, 38,8 MB, 537 s): minimo di μ su tutti i centri
+di pixel del ritaglio CEA. Archi certificati su entrambi / coppie: N centrale 838/877 (42/42), S centrale 322/390
+(17/20), N laterale 571/880 (40/48), S laterale 186/455 (19/24); nessun dato mancante. Prima corsa
+(`footprint_mu_20261118`) superata: trattava come mancanti 148 record ripetuti identici ai bordi delle finestre;
+corsa valida `footprint_mu_20261118_r2` (locale, fuori da Git). L'acquisizione è stata ripresa una volta
+(`acquire_continuation.py`): da controllare nella revisione. Prossimo passo: revisione dei conteggi, poi congelamento
+del protocollo e selezione delle 12 coppie.
+
 ## JSOC: prova del campo bitmap.dims — 18 novembre 2026
 
 Due rs_list HTTP 200 sulla coppia tecnica del 2010-05-01 01:36 TAI. La bitmap SMARP del TARP 13394

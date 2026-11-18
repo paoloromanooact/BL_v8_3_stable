@@ -69,6 +69,7 @@ docs/PROJECT_STATUS.md
 docs/PROSPECTIVE_INFORMATION_PLAN.md
 docs/PROSPECTIVE_INFORMATION_PLAN_A1.md
 docs/PROSPECTIVE_INFORMATION_PLAN_FREEZE.json
+docs/PROSPECTIVE_PHASE_A_RESULTS.md
 docs/PROTOCOL_HMI_LOS_SENSITIVITY_DRAFT.md
 docs/PROTOCOL_HMI_MORPHOLOGY.md
 docs/PROTOCOL_HMI_MORPHOLOGY_A1.md
@@ -722,6 +723,16 @@ results/P3/P3_BARD_SUMMARY.csv
 results/P3/P3_C1_DISCORDANT_DESCRIPTIVE.csv
 results/P3/P3_C1_DISCORDANT_SUMMARY.csv
 results/P3/P3_RANDOM_CONTROL.csv
+results/PROSPECTIVE_PHASE_A/B_SELECTION.csv
+results/PROSPECTIVE_PHASE_A/DESIGNS.csv
+results/PROSPECTIVE_PHASE_A/FREQUENCIES.csv.gz
+results/PROSPECTIVE_PHASE_A/META.json
+results/PROSPECTIVE_PHASE_A/RAW.csv.gz
+results/PROSPECTIVE_PHASE_A/SENSITIVITY_C.csv
+results/PROSPECTIVE_PHASE_A/SLOTS.csv.gz
+results/PROSPECTIVE_PHASE_A/STRATA_E0.csv
+results/PROSPECTIVE_PHASE_A/STRATA_MERGES.csv
+results/PROSPECTIVE_PHASE_A_CHECK/RECEIPT.json
 results/REPRO_PHASE1/COMPARATOR_SELFTEST.csv
 results/REPRO_PHASE1/COMPARATOR_SELFTEST_RUN1.csv
 results/REPRO_PHASE1/COMPARATOR_SELFTEST_RUN2.csv
@@ -818,6 +829,7 @@ scripts/mdi_smarp_inventory.py
 scripts/mdi_smarp_overlap_analysis.py
 scripts/process_test_20240508_idl_commands.pro
 scripts/prospective_phase_a.py
+scripts/prospective_phase_a_check.py
 scripts/repro_compare.py
 scripts/repro_draft_tables.py
 scripts/review_morphology.py
