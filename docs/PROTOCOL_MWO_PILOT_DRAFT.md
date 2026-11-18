@@ -25,6 +25,14 @@ UT: 507; con almeno un magnetogramma MWO Fe I 5250 lo stesso giorno: 287; **entr
 5. **Tilt**: baricentri pesati con |B_r|/μ per polarità, sulla sfera; convenzione di P1 (testa = polarità più a ovest,
    `geometry.tilt_deg`); segno della polarità di testa.
 
+**Flusso in Mx (dopo la revisione di Codex).** Flusso = Σ |B_r|·(R☉/R0)²/μ, con R0 il raggio del disco in pixel e
+R☉ = 6,96·10¹⁰ cm (raggio nominale di P1): serve per il rapporto di flusso con P1; nei baricentri il fattore si cancella.
+Prova sintetica: un campo radiale uniforme di 100 G restituisce 100 G × l'area sferica della finestra entro il 3 %.
+
+**Copertura minima (proposta, da fissare prima delle mappe).** Il pilota è informativo solo se almeno **150 dei 272**
+record sono valutabili (due polarità, dominio μ, effemeridi) e almeno **50 per emisfero**; altrimenti l'esito è «pilota
+non concludente» e si riporta la tabella delle cause di esclusione, senza criterio.
+
 ## 3. Confronto con P1 e sintesi
 
 Per ogni record: d = tilt_MWO − tilt_P1, d_ax = differenza assiale modulo 180°, d_γ = sign(λ_P1)·d_ax (convenzione di
@@ -37,8 +45,9 @@ concordi; per emisfero e per terzile del flusso P1 (per vedere l'effetto della r
 La variante MWO è **utilizzabile per T3** se, sui record valutabili: polarità di testa concorde in almeno il 90 %;
 |mediana(d_γ)| < 2,107° complessivamente e in ciascun emisfero; mediana di |d_ax| ≤ 5°. Se il criterio fallisce solo nel
 terzile di flusso più basso, la variante resta utilizzabile con una soglia di flusso fissata in un protocollo successivo.
-Altrimenti si ripiega sui tilt in luce bianca DPD (via parallela). Il criterio non autorizza un T3 combinato con HMI senza
-il controllo dello scarto in funzione dell'attività (stesso limite del protocollo MDI–HMI).
+Altrimenti si ripiega sui tilt in luce bianca DPD (via parallela). Il criterio motiva la costruzione del catalogo MWO; **non** autorizza a interpretare una pendenza T3 senza
+due verifiche ulteriori: lo scarto MWO–riferimento in funzione dell'attività e la stabilità fra le epoche strumentali
+di MWO (stesso limite del protocollo MDI–HMI).
 
 ## 5. Esecuzione
 

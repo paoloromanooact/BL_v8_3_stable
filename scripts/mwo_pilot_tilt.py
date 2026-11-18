@@ -41,6 +41,7 @@ WIN_LAT, WIN_LON = 6.0, 8.0       # half-window around the DPD centre, degrees
 THRESH_G, MAX_G = 50.0, 4000.0    # |B_r| cuts (MWO fields are diluted by ~13"x20" resolution)
 MU_MIN = 0.8
 CENLON_TOL, B0_TOL = 18.0, 0.5    # ephemeris checks as in the MWO pipeline strict QC
+RSUN_CM = 6.96e10                 # P1 nominal radius; flux = sum |B_r| * (R_sun / R0)^2 / mu  (Codex's review)
 
 _spec = importlib.util.spec_from_file_location("mwo_pipeline", MWO_PIPELINE)
 MP = importlib.util.module_from_spec(_spec)
@@ -93,9 +94,10 @@ def measure(h, B, lat0, lon0):
     br = B / mu
     elig = win & np.isfinite(br) & (np.abs(br) <= MAX_G)
     pos, neg = elig & (br >= THRESH_G), elig & (br <= -THRESH_G)
-    wgt = np.abs(br) / mu                      # flux on the sphere per image pixel, up to a constant
-    out = dict(status="ok", npos=int(pos.sum()), nneg=int(neg.sum()), flux_pos=float(wgt[pos].sum()),
-               flux_neg=float(wgt[neg].sum()), mu_min=float(np.nanmin(mu[win])))
+    pix_cm2 = (RSUN_CM / float(h["R0"])) ** 2   # plane-of-sky pixel area; on the sphere divided by mu
+    wgt = np.abs(br) * pix_cm2 / mu            # |B_r| dA on the sphere, in Mx per pixel
+    out = dict(status="ok", npos=int(pos.sum()), nneg=int(neg.sum()), flux_pos_mx=float(wgt[pos].sum()),
+               flux_neg_mx=float(wgt[neg].sum()), mu_min=float(np.nanmin(mu[win])))
     if not (pos.any() and neg.any()):
         out["status"] = "no_two_polarities"
         return out
@@ -159,6 +161,17 @@ def selftest():
     ok("window near the limb refused (mu domain)", measure(h, B, 15.0, 160.0)["status"] in
        ("window_outside_mu_domain", "window_off_disk"))
     ok("unipolar window -> no_two_polarities", measure(h, np.abs(B), 15.0, 110.0)["status"] == "no_two_polarities")
+    # flux in Mx: a uniform radial field of 100 G over the window must give 100 G x the spherical window area
+    hu = dict(X0=256.5, Y0=256.5, R0=240.0, B0=0.0, CENLON=100.0)
+    lat_u, lon_u, cmd_u, mu_u = heliographic(hu, (512, 512))
+    Bu = np.where(np.isfinite(mu_u), 100.0 * mu_u, np.nan)
+    Bu[(np.abs(lat_u) < 1)] *= -1                         # a negative strip, so both polarities exist
+    ru = measure(hu, Bu, 5.0, 100.0)
+    lat1, lat2 = np.radians(5.0 - WIN_LAT), np.radians(5.0 + WIN_LAT)
+    area = RSUN_CM ** 2 * np.radians(2 * WIN_LON) * (np.sin(lat2) - np.sin(lat1))
+    tot = ru.get("flux_pos_mx", 0) + ru.get("flux_neg_mx", 0)
+    ok("flux in Mx: uniform 100 G over the window = 100 G x spherical area within 3 %", abs(tot / (100 * area) - 1) < 0.03,
+       round(tot / (100 * area), 4))
     dt = datetime(2011, 6, 1, 18)
     cen = MP.cenlon_from_carrington_cont(MP.carrington_continuous_from_date(dt))
     hb = dict(CENLON=cen, B0=math.radians(MP.solar_B0_expected_deg(dt)))
