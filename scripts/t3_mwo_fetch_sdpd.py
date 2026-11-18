@@ -29,11 +29,31 @@ def http_get(url, timeout=120):
         return r.status, r.read()
 
 
-def looks_like_spots(body):
+def spot_row_ok(line, year):
+    """One 's' row of the DPD format (DPDformat.txt): fixed columns, numeric fields parse, the date is valid and in the
+    requested year, positions in range (999999 marks an intermittent phase and is accepted)."""
+    if not line.startswith("s ") or len(line.rstrip()) < 93:
+        return False
+    try:
+        y, mo, d, hh, mi, ss = (int(line[a:b]) for a, b in ((2, 6), (7, 9), (10, 12), (13, 15), (16, 18), (19, 21)))
+        datetime(y, mo, d, hh, mi, ss)
+        int(line[29:34]), int(line[35:40]), int(line[41:46]), int(line[47:52]), int(line[53:58])
+        lat, lon, lcm = float(line[59:65]), float(line[66:72]), float(line[73:79])
+        float(line[80:86]), float(line[87:93])
+    except ValueError:
+        return False
+    if y != year or not line[22:29].strip():
+        return False
+    if lat > 900 or lon > 900 or lcm > 900:
+        return True
+    return abs(lat) <= 90 and 0 <= lon <= 360 and abs(lcm) <= 90
+
+
+def looks_like_spots(body, year):
+    """Every non-empty line must be a valid 's' row of the requested year (\r and trailing blanks tolerated)."""
     text = body.decode("ascii", "replace")
-    lines = [l for l in text.splitlines() if l.strip()]
-    n_s = sum(l.startswith("s ") for l in lines)
-    return n_s > 0 and n_s >= 0.95 * len(lines)
+    lines = [l.rstrip("\r") for l in text.splitlines() if l.strip()]
+    return len(lines) > 0 and all(spot_row_ok(l, year) for l in lines)
 
 
 def fetch(out_dir, years=YEARS, get=http_get, pause=1.0):
@@ -43,28 +63,34 @@ def fetch(out_dir, years=YEARS, get=http_get, pause=1.0):
     tmp = out_dir.with_name(out_dir.name + ".partial")
     tmp.mkdir(parents=True, exist_ok=False)
     log, sums = [], []
+
+    def save_log():                                   # written after every request, so it survives an interruption
+        (tmp / "FETCH_LOG.json").write_text(json.dumps(log, indent=2) + "\n")
     for y in years:
         url = BASE.format(year=y)
         for attempt in range(1, TRIES + 1):
             try:
                 status, body = get(url)
-                ok = status == 200 and looks_like_spots(body)
-                log.append(dict(url=url, attempt=attempt, status=status, bytes=len(body), valid=ok))
+                ok = status == 200 and looks_like_spots(body, y)
+                log.append(dict(url=url, attempt=attempt, utc=datetime.now(timezone.utc).isoformat(), status=status,
+                                bytes=len(body), sha256=hashlib.sha256(body).hexdigest(), valid=ok))
+                save_log()
                 if ok:
                     (tmp / f"sDPD{y}.txt").write_bytes(body)
                     sums.append(f"{hashlib.sha256(body).hexdigest()}  sDPD{y}.txt")
                     break
             except Exception as e:                       # noqa: BLE001
-                log.append(dict(url=url, attempt=attempt, error=f"{type(e).__name__}: {e}"))
+                log.append(dict(url=url, attempt=attempt, utc=datetime.now(timezone.utc).isoformat(),
+                                error=f"{type(e).__name__}: {e}"))
+                save_log()
             time.sleep(pause)
         else:
-            (tmp / "FETCH_LOG.json").write_text(json.dumps(log, indent=2) + "\n")
             raise SystemExit(f"failed after {TRIES} attempts: {url} (partial directory kept: {tmp})")
     (tmp / "SHA256SUMS.txt").write_text("\n".join(sums) + "\n")
     (tmp / "RETRIEVED_UTC.txt").write_text(datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ") + "\n"
                                            + f"source {BASE.replace('{year}', '<year>')} via HTTP, "
                                            f"{min(years)}-{max(years)}\n")
-    (tmp / "FETCH_LOG.json").write_text(json.dumps(log, indent=2) + "\n")
+    save_log()
     tmp.rename(out_dir)
     return out_dir
 
@@ -76,33 +102,48 @@ def selftest():
     def ok(n, c):
         res.append(bool(c))
         print(f"[{'OK' if c else 'FALLITO'}] {n}")
-    good = (b"s 1974 01 02 03 20 30    312     1    45   227    23   116 -14.86  43.24  -5.51 155.45 0.2242\n"
-            b"s 1974 01 03 00 56 30    312     1    37   289    19   147 -15.86  43.18   6.29 205.75 0.2435\n")
+    real = ("s 1974 01 02 03 20 30    312     1    45   227    23   116 -14.86  43.24  -5.51 155.45 0.2242\r\n"
+            "s 1974 01 04 09 52 30    312     2     1    -1     1    -1 -15.87  43.35  24.53 241.07 0.4582\n")
+    body = lambda y: real.replace("s 1974", f"s {y}").encode()           # noqa: E731
+    ok("real DPD spot rows accepted (with CRLF and negative shared areas)", looks_like_spots(body(1974), 1974))
+    ok("rows of another year refused", not looks_like_spots(body(1974), 1990))
+    ok("'s garbage' refused", not looks_like_spots(b"s garbage\n", 1974))
+    bad_num = real.splitlines()[0].replace(" -14.86", " -1x.86")
+    ok("non-numeric essential field refused", not looks_like_spots(bad_num.encode(), 1974))
+    ok("invalid date refused", not looks_like_spots(real.splitlines()[0].replace("1974 01 02", "1974 02 30").encode(), 1974))
+    ok("intermittent-phase marker 999999 accepted",
+       looks_like_spots((real.splitlines()[0][:58] + " 999999 999999 999999 999999 999999").encode(), 1974))
     calls = []
 
     def fake(url):
         calls.append(url)
-        if url.endswith("1991.txt") and calls.count(url) == 1:
+        y = int(url[-8:-4])
+        if y == 1991 and calls.count(url) == 1:
             raise OSError("timeout")
-        if url.endswith("1992.txt"):
+        if y == 1992:
             return 200, b"<html>not found</html>"
-        return 200, good
+        if y == 1993:
+            return 200, body(1974)                     # right format, wrong year
+        return 200, body(y)
     with tempfile.TemporaryDirectory() as td:
         d = fetch(Path(td) / "x", years=[1990, 1991], get=fake, pause=0)
         sums = (d / "SHA256SUMS.txt").read_text().split()
-        ok("two years fetched, one after a retry, SHA-256 recorded",
-           sums[0] == hashlib.sha256(good).hexdigest() and len(json.loads((d / "FETCH_LOG.json").read_text())) == 3)
+        ok("two years fetched with their own content, one after a retry; SHA-256 and log recorded",
+           sums[0] == hashlib.sha256(body(1990)).hexdigest() and sums[2] == hashlib.sha256(body(1991)).hexdigest()
+           and (d / "sDPD1991.txt").read_bytes() == body(1991) and len(json.loads((d / "FETCH_LOG.json").read_text())) == 3)
         try:
             fetch(Path(td) / "x", years=[1990], get=fake, pause=0)
             ok("refuses to overwrite", False)
         except SystemExit:
             ok("refuses to overwrite", True)
-        try:
-            fetch(Path(td) / "y", years=[1992], get=fake, pause=0)
-            ok("a page that is not a DPD spot file is refused after three attempts", False)
-        except SystemExit:
-            ok("a page that is not a DPD spot file is refused after three attempts",
-               not (Path(td) / "y").exists() and (Path(td) / "y.partial/FETCH_LOG.json").exists())
+        for y, name in ((1992, "a page that is not a DPD spot file"), (1993, "a spot file of another year")):
+            try:
+                fetch(Path(td) / f"y{y}", years=[1990, y], get=fake, pause=0)
+                ok(f"{name} is refused after three attempts", False)
+            except SystemExit:
+                log = json.loads((Path(td) / f"y{y}.partial/FETCH_LOG.json").read_text())
+                ok(f"{name} is refused after three attempts; the progressive log keeps every request",
+                   not (Path(td) / f"y{y}").exists() and len(log) == 4 and not any(e.get("valid") for e in log[1:]))
     print(f"selftest: {sum(res)}/{len(res)} superati")
     return all(res)
 
