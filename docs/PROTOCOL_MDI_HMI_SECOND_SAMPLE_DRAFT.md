@@ -1,6 +1,6 @@
 # Secondo campione MDI–HMI — bozza
 
-**BOZZA NON CONGELATA, 18 novembre 2026 (Claude). Da rivedere con Codex prima del congelamento.** Nessuna selezione,
+**BOZZA NON CONGELATA, 18 novembre 2026 (Claude), revisione 2 dopo la revisione metodologica di Codex** (NPIX come filtro e non garanzia, segnalazioni separate per secondo campione e unione, verifica del tilt in R0 dichiarata a parte). Restano la revisione del codice (selettore, trasporto) e il congelamento. Nessuna selezione,
 nessuna richiesta a JSOC, nessuna mappa nuova. Estende il protocollo congelato
 `docs/PROTOCOL_MDI_HMI_SMALL_COMPARISON.md` (`6d6fd12`) con l'emendamento A1 (`c409666`): tutto ciò che non è
 scritto qui resta identico (strati, certificato geometrico del §8, regola QUALITY, rami A1/A2/B, dominio μ, soglie
@@ -15,9 +15,14 @@ documentati.
 
 **Non cieco.** Le regole sotto sono scritte dopo aver visto gli stati di disponibilità del primo campione e i suoi
 risultati (differenze di tilt, flussi, dipoli). Il controllo che le motiva usa solo metadati: nelle 12 coppie
-**NPIX mancante (USFLUXL = 0) coincide esattamente con le maschere vuote**, su entrambi gli strumenti (11 record su 24: 4 HMI e 7 SMARP,
-compresa la bitmap SMARP con codici non documentati); delle 5 coppie con NPIX presente su entrambi, 4 hanno dato B e una
+**NPIX mancante (USFLUXL = 0) coincide con i record senza maschera utilizzabile**, su entrambi gli strumenti: 11 record
+su 24, cioè 4 HMI e 6 SMARP con maschera vuota verificata, più 1 SMARP (TARP 13670) rifiutato dall'adattatore per codici
+di bitmap non documentati (1 e 2), caso distinto. Delle 5 coppie con NPIX presente su entrambi, 4 hanno dato B e una
 (HARP 107) una sola polarità. Nessuna soglia di flusso è adottata: sarebbe tarata su un solo caso.
+
+NPIX > 0 è **un filtro sui metadati, non una garanzia**: 24 record non bastano a stabilire che funzioni sempre. Nel
+secondo campione restano possibili maschere vuote, codici di bitmap non documentati e una sola polarità; la maschera
+si verifica comunque sulle mappe e ogni perdita si registra con la sua causa, senza sostituzioni.
 
 ## 2. Regole nuove
 
@@ -51,8 +56,16 @@ tentativi per file. Stima: circa 140 FITS e 10–12 MB.
 - Le misure del primo e del secondo campione si riportano **separate e poi insieme** (fino a 32 coppie, di cui
   valutabili quelle del primo, 4 per B, più quelle del secondo). L'unione è dichiarata ora, prima delle mappe.
 - La soglia operativa di 2,107° e la regola di copertura del §5 congelato si applicano al secondo campione e
-  all'unione. Con almeno una coppia B valutabile in ciascuno dei quattro strati nell'unione e nessuna segnalazione,
-  il seguito proponibile resta un protocollo per un catalogo **descrittivo** MDI; la decisione finale è dell'utente.
+  all'unione, separatamente. **Se scatta una segnalazione nel secondo campione oppure nell'unione, la decisione resta
+  aperta**: una segnalazione del secondo campione non viene assorbita dall'aggregazione con il primo. Con almeno una
+  coppia B valutabile in ciascuno dei quattro strati nell'unione e nessuna segnalazione né nel secondo campione né
+  nell'unione, il seguito proponibile resta un protocollo per un catalogo **descrittivo** MDI; la decisione finale è
+  dell'utente. La segnalazione del primo campione (nord, n = 1) resta documentata e discussa nel rapporto finale;
+  il secondo campione è progettato conoscendola.
+- **R0 con verifica del tilt dichiarata a parte.** R0 applica P1 invariata a tutti i record HMI selezionati. Se un
+  record coincide con un record storico di P1 ed è **bipolare** in entrambi, si confrontano anche tilt, centroidi e
+  D_bal con il catalogo; se nessuna coincidenza è bipolare, si registra che **la riproduzione storica del tilt resta non
+  verificata**, come nel primo campione (HARP 191 unipolare). Flusso e latitudine si riportano comunque.
 - Stesse due implementazioni indipendenti del primo campione (runner sui kernel di Codex e riconteggio di Claude),
   output conservati prima della lettura, confronto riga per riga.
 - Il limite per T3 resta invariato: la scala di circa 0,4° non è risolvibile e nessun esito autorizza un T3 combinato.
