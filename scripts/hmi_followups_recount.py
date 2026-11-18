@@ -18,7 +18,7 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
-from scipy.stats import beta as beta_dist, norm
+from scipy.stats import norm
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "python"))
@@ -96,15 +96,51 @@ def se_from_params(d, m, a, p):
     return math.sqrt(p["sigma_x2"] * float(b @ K @ b) + float(np.sum(a ** 2 * sig2)))
 
 
-def cp_upper(k, n):
-    return 1.0 if k >= n else float(beta_dist.ppf(0.95, k + 1, n - k))
-
-
 def hemispheric_phase(d):
     sm = run_p2.load_silso()["smooth13"]
     mins = {(c, h): pd.Timestamp(sm.loc[lo:hi, h].idxmin() + "-01")
             for c, (lo, hi) in {24: ("2007-01", "2010-12"), 25: ("2018-01", "2021-12")}.items() for h in "NS"}
     return np.array([(t - mins[(int(c), h)]).days / 365.25 / 11 for t, c, h in zip(d.t, d.cyc, d.hemisphere)])
+
+
+def expected_grid():
+    """Expected validation grid, written here independently of the main script."""
+    grid = []
+    for test, effs, sd in (("q1", (-2.4, -4.8), 15.0), ("q2_hem", (1.0, 2.0), 6.0)):
+        grid += [(test, "main", s_, sd, 0.0, 10_000) for s_ in (0, 1, 2, 7, 9)]
+        grid += [(test, "main", s_, sd, e, 2000) for s_ in (1, 2, 7, 9) for e in effs]
+    grid += [("q2_hem", "sensitivity", s_, sd, 0.0, 2000) for sd in (4.0, 9.0) for s_ in (1, 7)]
+    grid += [("q2", "sensitivity", s_, 6.0, 0.0, 2000) for s_ in (0, 1, 2, 7, 9)]
+    return grid
+
+
+def validation_recount(raw, summ):
+    grid = expected_grid()
+    acc = {"q1": True, "q2_hem": True}
+    worst_f = 0.0
+    complete_all = not raw.duplicated(["test", "scenario", "sd_e", "effect", "k"]).any() and not raw.seed.duplicated().any()
+    for test, role, scen, sd, eff, n in grid:
+        g = raw[(raw.test == test) & (raw.scenario == scen) & np.isclose(raw.sd_e, sd) & np.isclose(raw.effect, eff)]
+        complete = len(g) == n and sorted(g.k) == list(range(n))
+        complete_all &= complete
+        e = (g.verdict == "errore").sum() / n
+        sup, opp = (g.verdict == "supportato").sum() / n, (g.verdict == "opposto").sum() / n
+        good = g[g.verdict != "errore"]
+        cov = good.covered.sum() / n
+        tail = (good.lo_above if test == "q1" else good.hi_below).sum() / n
+        srow = summ[(summ.test == test) & (summ.scenario == scen) & np.isclose(summ.sd_e, sd) & np.isclose(summ.effect, eff)]
+        if len(srow) == 1:
+            sr = srow.iloc[0]
+            worst_f = max(worst_f, abs(sr.supportato - sup), abs(sr.opposto - opp), abs(sr.frac_errors - e),
+                          abs(sr.coverage - cov), abs(sr.exclusion_tail - tail))
+        else:
+            worst_f = 1.0
+        if role == "main":
+            good_cfg = complete and ((sup + opp <= 0.030 and sup <= 0.0175 and opp <= 0.0175 and e <= 0.01) if eff == 0
+                                     else (cov >= 0.965 and tail <= 0.020))
+            acc[test] &= bool(good_cfg)
+    acc = {t: bool(v and complete_all) for t, v in acc.items()}
+    return acc, worst_f, len(grid)
 
 
 def check():
@@ -132,24 +168,29 @@ def check():
            and abs(r.hi - (r.beta + Z * r.se)) < 1e-9 * r.se)
     ok("estimates recomputed independently", worst_b < 1e-8, f"max rel {worst_b:.1e}")
     ok("SE recomputed from saved M parameters", worst_se < 1e-6, f"max rel {worst_se:.1e}")
+    vmeta = json.loads((VAL / "META.json").read_text())
+    ok("validation product hashes equal to META", all(
+        __import__("hashlib").sha256((VAL / n).read_bytes()).hexdigest() == h for n, h in vmeta["products_sha256"].items()))
+    rmeta = json.loads((RUN / "META.json").read_text())
+    ok("run used this validation (META hash)", rmeta["validation_meta_sha256"] ==
+       __import__("hashlib").sha256((VAL / "META.json").read_bytes()).hexdigest())
     raw = pd.read_csv(VAL / "RAW.csv.gz")
-    worst = 0.0
-    sample_rows = raw[raw.verdict != "errore"].groupby(["test", "kind", "scenario", "sd_e"]).head(3)
-    for r in sample_rows.itertuples():
-        m, a = contrast(d, r.test, False)
-        worst = max(worst, abs(se_from_params(d, m, a, r._asdict()) / r.se - 1))
-    ok("validation SE recomputed on 3 rows per configuration", worst < 1e-6, f"max rel {worst:.1e}")
+    # SE of every successful row from its own saved parameters
+    worst, n_rows = 0.0, 0
+    for (test,), g in raw[raw.verdict != "errore"].groupby(["test"]):
+        m, a = contrast(d, test, False)
+        for r in g.itertuples():
+            worst = max(worst, abs(se_from_params(d, m, a, r._asdict()) / r.se - 1))
+            n_rows += 1
+    ok("SE recomputed on every successful validation row", worst < 1e-6, f"{n_rows} rows, max rel {worst:.1e}")
     summ = pd.read_csv(VAL / "SUMMARY.csv")
+    acc, worst_f, n_grid = validation_recount(raw, summ)
+    ok("summary frequencies recomputed from RAW (both sides, errors, coverage, exclusion tail)", worst_f < 1e-12,
+       f"max abs {worst_f:.1e}")
     acc_saved = pd.read_csv(VAL / "ACCEPTANCE.csv").iloc[0].to_dict()
-    acc = {}
-    for t in ("q1", "q2", "q2_hem"):
-        rows = []
-        for (kind, scen, sd), g in raw[(raw.test == t) & (raw.effect == 0)].groupby(["kind", "scenario", "sd_e"]):
-            f = int(g.verdict.isin(["supportato", "opposto"]).sum())
-            rows.append(dict(kind=kind, scenario=scen, cp=cp_upper(f, len(g))))
-        acc[t] = all(r["cp"] <= 0.04 for r in rows if r["scenario"] in (0, 1, 2) and r["kind"].endswith("null"))
-    ok("acceptance recounted from RAW", acc == {k: bool(v) for k, v in acc_saved.items()}, acc)
-    ok("summary has one row per configuration", len(summ) == raw.groupby(["test", "kind", "scenario", "sd_e"]).ngroups)
+    ok("acceptance recounted with the P2f criteria on an independently written grid",
+       acc == {k: bool(v) for k, v in acc_saved.items()}, acc)
+    ok("summary rows = grid configurations", len(summ) == n_grid, (len(summ), n_grid))
     OUT.mkdir(parents=True, exist_ok=False)
     (OUT / "RECEIPT.json").write_text(json.dumps(dict(checks=res, passed=sum(r["ok"] for r in res), total=len(res)),
                                                  indent=2) + "\n")
@@ -166,7 +207,7 @@ def selftest():
     m2, a2 = contrast(d, "q2_hem")
     p = dict(var_a=4.0, var_b=0.2, phi=0.5, kappa=0.3, sigma_x2=9.0)
     c2 = np.isfinite(se_from_params(d, m2, a2, p))
-    c3 = abs(cp_upper(0, 100) - (1 - 0.05 ** (1 / 100))) < 1e-12
+    c3 = True
     # equivalence with the P2f variance formula (selftest only; --check never uses P2f code)
     from sharpbl import p2f_pilot as P, p2f_validation as V
     w = d.phi.to_numpy(float)[m2]
@@ -176,10 +217,27 @@ def selftest():
     sig2 = np.exp(p["var_a"] + p["var_b"] * (lp - lp.mean()))
     ref = math.sqrt(V.m_variance_given(u, sig2, p["phi"], p["kappa"], p["sigma_x2"]))
     c4 = abs(se_from_params(d, m2, a2, p) / ref - 1) < 1e-10
-    for n, c in (("Q1 contrast -3 on 2238 regions (independent QR rows)", c1), ("SE from parameters finite", c2),
-                 ("Clopper-Pearson upper bound", c3), ("SE formula equals P2f m_variance_given", c4)):
+    recs = []
+    for i, (test, role, scen, sd, eff, n) in enumerate(expected_grid()):
+        for k in range(n):
+            recs.append(dict(test=test, role=role, scenario=scen, sd_e=sd, effect=eff, k=k, seed=40_000_000 + 100_000 * i + k,
+                             verdict="non deciso", covered=1, lo_above=0, hi_below=0))
+    fr = pd.DataFrame(recs)
+    fs = pd.DataFrame([dict(test=t, scenario=sc, sd_e=sd, effect=e, supportato=0.0, opposto=0.0, frac_errors=0.0,
+                            coverage=1.0, exclusion_tail=0.0) for t, r, sc, sd, e, n in expected_grid()])
+    a_ok, w_ok, _ = validation_recount(fr, fs)
+    fs_bad = fs.copy()
+    fs_bad.loc[3, "supportato"] = 0.001
+    _, w_bad, _ = validation_recount(fr, fs_bad)
+    fr_bad = fr.copy()
+    fr_bad.loc[(fr_bad.test == "q2_hem") & (fr_bad.effect == 1.0) & (fr_bad.k < 60), ["covered", "hi_below"]] = [0, 1]
+    a_bad, _, _ = validation_recount(fr_bad, fs)
+    c5 = a_ok == {"q1": True, "q2_hem": True} and w_ok == 0 and w_bad > 0 and a_bad == {"q1": True, "q2_hem": False}
+    for n, c in (("Q1 contrast -3 on 2238 regions (independent QR rows)", c1),
+                 ("validation recount: clean fake accepted, tampered summary detected, 3 % tail refused", c5), ("SE from parameters finite", c2),
+                 ("(acceptance criteria now P2f point limits)", c3), ("SE formula equals P2f m_variance_given", c4)):
         print(f"[{'OK' if c else 'FALLITO'}] {n}")
-    return c1 and c2 and c3 and c4
+    return c1 and c2 and c3 and c4 and c5
 
 
 if __name__ == "__main__":
