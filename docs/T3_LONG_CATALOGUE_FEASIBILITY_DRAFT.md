@@ -105,6 +105,14 @@ calcolo usa solo date, latitudini e aree dei gruppi, come la fase A usava il dis
    dalla fase A come confronto; anche per i sottoperiodi 1974–1996 e 1996–2016.
 7. **Lettura.** Descrittiva: dice se un catalogo come DPD potrebbe stringere l'intervallo di T3, non stima nulla.
 
+## 8bis. Correzione del calendario (revisione di Codex, 18 novembre)
+
+Nella prima corsa `cycle_of()` assegnava al ciclo 21 anche le date precedenti al minimo di marzo 1976 (ciclo 20).
+Corretto (`e10c5e3`) e ripetuto il solo calcolo analitico, output conservati prima della lettura in `b7d9861`
+(`results/T3_DPD_FEASIBILITY_R2/`; la prima corsa resta conservata). Effetto: semilarghezze cambiate al più di
+0,003·γ₀ e riconoscimenti al più di 0,1 punti; **i valori del §8 restano validi alla seconda cifra decimale**. Il caso
+aggiuntivo a 30° era stato calcolato con il calendario vecchio; data la differenza trascurabile non è stato ripetuto.
+
 ## 8. Risultato del calcolo analitico (output conservati in `1f3cee4` prima della lettura)
 
 Script `scripts/t3_dpd_feasibility.py` (`2513f8b`), selftest 4/4; output `results/T3_DPD_FEASIBILITY/`. Disegni: DPD
