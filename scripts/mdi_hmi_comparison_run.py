@@ -86,14 +86,26 @@ def main():
     rows = []
     for p in pairs:
         s = int(p["slot"])
-        h = io.load_selected(s, io.HMI, ["bitmap", "Br", "Bt", "Bp", "magnetogram"], directory=D)
-        m = io.load_selected(s, io.MDI, ["bitmap", "magnetogram"], directory=D)
-        ref_br = branch(h, h["arrays"]["Br"])
-        with np.errstate(divide="ignore", invalid="ignore"):
-            los_vec = K.vector_to_los(h["arrays"]["Br"], h["arrays"]["Bt"], h["arrays"]["Bp"], h["geometry"])
-        rows.append(row("A1", p, ref_br, branch(h, los_vec)))
-        rows.append(row("A2", p, ref_br, branch(h, h["arrays"]["magnetogram"])))
-        rows.append(row("B", p, branch(h, h["arrays"]["magnetogram"]), branch(m, m["arrays"]["magnetogram"])))
+        # a record the adapter refuses (e.g. undocumented bitmap codes) is unavailable, never substituted
+        loaded = {}
+        for series, segs in ((io.HMI, ["bitmap", "Br", "Bt", "Bp", "magnetogram"]), (io.MDI, ["bitmap", "magnetogram"])):
+            try:
+                loaded[series] = io.load_selected(s, series, segs, directory=D)
+            except ValueError as exc:
+                loaded[series] = dict(error=f"adapter_refused: {exc}")
+        h, m = loaded[io.HMI], loaded[io.MDI]
+        bad = lambda r: dict(status=r["error"])  # noqa: E731
+        ref_br = bad(h) if "error" in h else branch(h, h["arrays"]["Br"])
+        if "error" in h:
+            a1 = a2 = hl = bad(h)
+        else:
+            with np.errstate(divide="ignore", invalid="ignore"):
+                los_vec = K.vector_to_los(h["arrays"]["Br"], h["arrays"]["Bt"], h["arrays"]["Bp"], h["geometry"])
+            a1, a2 = branch(h, los_vec), branch(h, h["arrays"]["magnetogram"])
+            hl = a2
+        rows.append(row("A1", p, ref_br, a1))
+        rows.append(row("A2", p, ref_br, a2))
+        rows.append(row("B", p, hl, bad(m) if "error" in m else branch(m, m["arrays"]["magnetogram"])))
     df = pd.DataFrame(rows)
     a.out.mkdir(parents=True)
     df.to_csv(a.out / "PAIR_ROWS.csv", index=False)
