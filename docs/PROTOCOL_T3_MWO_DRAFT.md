@@ -10,6 +10,8 @@ Modifiche rispetto alla revisione 2:
 - registrate le fonti lette (Ulrich et al. 2002 §2; Győri et al. 2017) e il controllo di omogeneità di DPD
   (`results/DPD_ACTIVITY_HOMOGENEITY/`); nella tabella delle epoche i confini osservati negli header sono distinti dalle date
   documentate.
+- dopo la revisione della revisione 3: seme di S1 69 000 001 (61 000 001 collideva con la griglia), S1 «non determinato» nella
+  regola finale e nella tabella degli esiti, g, Δβ e C calcolati sulla matrice ridotta a rango pieno.
 
 Modifiche della revisione 2 rispetto alla revisione 1 (`38b81a5`):
 - isolamento applicato al giorno candidato, con registro delle perdite;
@@ -283,10 +285,12 @@ sottoinsieme contiene meno del 70 % dei record del campione di β₃, lo si dich
   pesata con la somma dei pesi Φ_MWO di ciascuna epoca), con intervallo bootstrap percentile al 95 %.
 - **Bootstrap.** Blocchi di 6 CR consecutive (circa mezzo anno), non sovrapposti, definiti dentro ciascuna epoca a partire
   dalla prima CR dell'epoca; si ricampionano con reinserimento i blocchi di ciascuna epoca, con entrambi gli emisferi
-  insieme per conservare la correlazione nord-sud; **2000 repliche**; generatore NumPy `default_rng`, seme **61 000 001**
-  (base 61 000 000 non usata da nessuno script del progetto al 18 novembre). Repliche con matrice singolare: scartate e
-  contate; se superano il 5 %, S1 è «non determinato» e β₃ è descrittivo.
-- Esito «instabile» se per qualche (e, h) l'intervallo esclude zero **e** |a_{e,h} − ā_h| > **2,4°**.
+  insieme per conservare la correlazione nord-sud; **2000 repliche**; generatore NumPy `default_rng`, seme **69 000 001**
+  (non usato nel repository al 18 novembre; fuori dall'intervallo dei semi della validazione, 60 000 000 + 100 000·c + k con
+  c < 90; il selftest lo confronta con l'elenco effettivo di tutti i semi della griglia). Repliche con matrice singolare:
+  scartate e contate; se superano il 5 %, S1 è **«non determinato»**.
+- Esiti di S1: «non determinato» se le repliche singolari superano il 5 %; altrimenti «instabile» se per qualche (e, h)
+  l'intervallo esclude zero **e** |a_{e,h} − ā_h| > **2,4°**; altrimenti «stabile fra epoche».
   - 2,4° è il **10 % di γ₀ = 24°**: una soglia operativa, scelta come ordine di grandezza dell'effetto studiato. Non è la
     metà della pendenza proiettata dello scenario al 20 % (Δβ₂₀, §7), che è un'altra grandezza.
   - Il valore 2,107° della revisione 1 viene da un altro confronto (BARD-MDI) ed è abbandonato.
@@ -301,8 +305,8 @@ sottoinsieme contiene meno del 70 % dei record del campione di β₃, lo si dich
 **S2. Scarto contro l'attività, con equivalenza.**
 - Si stima per d_WL lo stesso modello principale del §3 (stessi termini di ciclo e di epoca) e la procedura M dà
   l'intervallo nominale 97,5 % della pendenza di attività dello scarto, β₃^WL.
-- Margine **C = 0,5·|Δβ₂₀|**, dove Δβ₂₀ è il valore vero dell'effetto simulato al 20 % (§7), calcolato sul disegno e sulla
-  matrice MWO con i pesi del controllo.
+- Margine **C = 0,5·|Δβ₂₀|**, dove Δβ₂₀ è il valore vero dell'effetto simulato al 20 % (§7), calcolato sul disegno del
+  sottoinsieme del controllo e sulla sua matrice a rango pieno X_r (riduzione del §3), con i pesi del controllo.
 - Esiti, **in quest'ordine di precedenza**:
   1. **«scarto contenuto»** se l'intero intervallo cade in [−C, +C]. Se in più l'intervallo esclude zero, si registra
      separatamente «scarto contenuto, distinguibile da zero»: l'esito operativo resta «scarto contenuto»;
@@ -323,7 +327,7 @@ sottoinsieme contiene meno del 70 % dei record del campione di β₃, lo si dich
 - d_WL nella sensibilità «tutti i record», per isolati e non isolati (descrittivo).
 
 **Regola.** β₃ è riportato come **descrittivo**, senza verdetto e con la causa, se:
-- S1 è «instabile», oppure
+- S1 è «instabile» o «non determinato», oppure
 - S2 non è «scarto contenuto», oppure
 - le epoche non verificabili contengono più del **20 %** dei record isolati valutabili.
 
@@ -346,9 +350,10 @@ di epoca):
 - Δγ_i = −e·γ₀·clip((Ā_c − q₅)/(q₉₅ − q₅), 0, 1)·sin|λ̄_i|, con γ₀ = 24°, Ā_c l'attività media della cella del record e q₅, q₉₅
   i quantili 5 % e 95 % di Ā_c sul disegno;
 - e = 0,1 e 0,2 (riduzione massima del 10 % e del 20 % del coefficiente);
-- **valore vero** Δβ_e = g·Δγ, con g la riga di β₃ della soluzione WLS (X'WX)⁻¹X'W sulla **matrice completa MWO**, termini di
-  epoca inclusi (come `target` nella fase A); la riduzione delle colonne ridondanti del §3 non cambia lo spazio delle colonne
-  e quindi non cambia g;
+- **valore vero** Δβ_e = g·Δγ, con g la riga di β₃ della soluzione WLS (X_r'WX_r)⁻¹X_r'W, dove X_r è la **matrice a rango
+  pieno** ottenuta dalla matrice completa MWO (termini di epoca inclusi) con la riduzione del §3 (come `target` nella fase
+  A). Sulla matrice originale con colonne ridondanti (X'WX)⁻¹ non esiste; la riduzione non cambia lo spazio delle colonne e
+  quindi β₃. Anche C (§6) e la stima di β₃ usano X_r;
 - copertura e coda di esclusione si misurano rispetto a Δβ_e, mai rispetto a −e·γ₀;
 - non si simula una pendenza lineare −0,2·γ₀ per unità di attività, che è un altro bersaglio;
 - Δβ₂₀ è anche la base del margine C di S2.
@@ -359,7 +364,7 @@ di epoca):
   esclusione ≤ 2,0 % rispetto a Δβ_e; potenza riportata senza criterio;
 - **completezza** come in `scripts/hmi_followups.py`: numero esatto di cataloghi, indici e semi attesi, nessun duplicato;
 - semi nuovi: 60 000 000 + 100 000·configurazione + replica (base 60 000 000 non usata da nessuno script del progetto al
-  18 novembre; disgiunta dal seme del bootstrap di S1).
+  18 novembre); il seme di S1 (69 000 001) è fuori da questo insieme, e il selftest lo verifica sull'elenco effettivo.
 
 **Sensibilità del rumore (senza effetto sul verdetto).** Sono 2000 cataloghi per scenario sotto nulla con rumore
 individuale 25°. Sono riportati senza criterio e **non** servono a sostenere il verdetto, che si appoggia solo alla
@@ -380,7 +385,7 @@ mediana di disaccordo del pilota (4,4°) misura la differenza fra due misure, no
 | copertura del §2 non raggiunta | non concludente (solo cause e conteggi) |
 | β₃ non identificabile (§3) | non concludente |
 | validazione a 15° fallita | β₃ descrittivo |
-| S1 instabile, S2 non «scarto contenuto», o epoche non verificabili > 20 % | β₃ descrittivo, con la causa |
+| S1 «instabile» o «non determinato», S2 non «scarto contenuto», o epoche non verificabili > 20 % | β₃ descrittivo, con la causa |
 | tutto superato | `supportato` (estremo superiore < 0), `opposto` (estremo inferiore > 0) o `non deciso`; intervallo sempre riportato come limite, sulla scala di Δβ_e («una riduzione oltre il X % sulla rampa è esclusa, nei soli scenari validati») |
 
 Lettura accanto a HMI:
@@ -408,7 +413,7 @@ Revisione 2 (precisazioni prima del congelamento):
 | # | Questione | Decisione |
 |---|---|---|
 | 1 | Fusione delle epoche | sostituita dalla verifica dell'identificabilità di β₃; colonne ridondanti eliminate senza cambiare lo spazio delle colonne; β₃ non identificabile → non concludente |
-| 2 | S1 | controllo relativo fra epoche, senza pretese sulle derive interne; 2,4° = 10 % di γ₀; bootstrap a blocchi di 6 CR, 2000 repliche, seme 61 000 001 |
+| 2 | S1 | controllo relativo fra epoche, senza pretese sulle derive interne; 2,4° = 10 % di γ₀; bootstrap a blocchi di 6 CR, 2000 repliche, seme 69 000 001 (corretto dopo la revisione della revisione 3: 61 000 001 coincideva con un seme della griglia) |
 | 3 | S2 | precedenza: «scarto contenuto» prima di «dipendente»; «distinguibile da zero» registrato a parte; copertura e perdite del sottoinsieme con tilt DPD |
 | 4 | Attività | sensibilità (a) Gyula/Debrecen, (b) SILSO emisferico, (c) SILSO totale ripartito con DPD, fissate ora; il controllo di omogeneità resta descrittivo |
 | 5 | Cicli | la validazione è condizionata alle assegnazioni; resta la sensibilità ±1 anno dai minimi |
