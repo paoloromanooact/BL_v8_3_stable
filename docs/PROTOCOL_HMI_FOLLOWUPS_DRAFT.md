@@ -53,6 +53,15 @@ emisferico come in P2. Parametro: β₄ (gradi per unità di attività). Previsi
 **Esito.** `supportato` se l'estremo inferiore è > 0; `opposto` se l'estremo superiore è < 0; altrimenti `non deciso`;
 intervallo sempre riportato. La stima descrittiva di P2 (−0,63°) è nota: l'esito del test non è cieco al segno.
 
+**Sfasamento fra emisferi (punto aperto per la revisione, da decidere prima del congelamento).** In T4 la fase è
+convenzionale, dagli stessi minimi per i due emisferi, mentre nord e sud sono sfasati di un anno o più. Un emisfero è più
+attivo vicino al proprio massimo, cioè più avanti nel proprio ciclo, quando le regioni emergono a latitudini più basse:
+a pari fase convenzionale «più attività» può significare «emisfero più avanzato», quindi un coefficiente negativo senza
+alcun anti-quenching. Proposta: analisi con la **fase emisferica** (minimi della serie SILSO emisferica smussata a
+13 mesi, cercati con regole fissate al congelamento) almeno come sensibilità dichiarata; da valutare con Codex se debba
+diventare l'analisi principale. Il generatore della validazione usa la stessa definizione di fase dell'analisi a cui si
+applica.
+
 **Generatore per la validazione** (scale fissate a priori, non stimate sui dati): |λ| = media del modello senza attività
 (stimata sui dati: è il disegno, non la risposta del test) + rumore individuale con deviazione standard 6° + componente
 temporale per cella con scala 3° (rapporto 0,5 come in P2f), forme P2f 0, 1, 2, 7, 9; sensibilità a 4° e 9° di rumore
