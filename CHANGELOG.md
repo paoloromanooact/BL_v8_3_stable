@@ -2,6 +2,12 @@
 
 ## v8.4 (Python, branch `v8.4-python-gianluca`) — in corso
 
+- 2026-11-18, piano prospettico, fase A (avvio deciso dall'utente): script `scripts/prospective_phase_a.py`
+  per A0 (bersagli T5/T3 su E0-E4 e matrici (a)/(b)), A1 (SE analitici WLS, distorsioni proiettate, frequenze,
+  sensibilità (c), tolleranza) e selezione deterministica dei candidati B. Selftest 32/32 con le prove di
+  riproduzione del §9 (bersaglio T5 −0,10305·η̄, SE T5 = riferimento O, varianza T3 = cell_level, valori del §10).
+  Durata misurata circa 5,5 min. `--run` non eseguito: in attesa della revisione del codice; nessun push.
+
 - 2026-11-18, piccolo confronto MDI/HMI rev. 2 dopo Claude: dominio mu non garantibile dai CSV,
   blocco prima del congelamento; R0/P1 distinto dai rifiuti del kernel; differenze dei centroidi e dei
   flussi per polarità completate, QUALITY a 32 bit esplicito, audit full-disk QUALITY x INTERVAL e

@@ -815,6 +815,7 @@ scripts/mdi_overlap_metadata_review.py
 scripts/mdi_smarp_inventory.py
 scripts/mdi_smarp_overlap_analysis.py
 scripts/process_test_20240508_idl_commands.pro
+scripts/prospective_phase_a.py
 scripts/repro_compare.py
 scripts/repro_draft_tables.py
 scripts/review_morphology.py
