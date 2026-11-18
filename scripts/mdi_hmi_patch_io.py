@@ -31,6 +31,13 @@ NUMERIC = ("CRPIX1", "CRPIX2", "CRVAL1", "CRVAL2", "CDELT1", "CDELT2", "CROTA2",
            "DSUN_OBS", "RSUN_REF", "CRLN_OBS", "CRLT_OBS")
 
 
+def use_sample(base, protocol, protocol_hash, pair_hash, segment_hash):
+    """Point the module at another frozen sample (second sample). Defaults stay those of the first sample."""
+    global BASE, PROTOCOL, PROTOCOL_HASH, PAIR_HASH, SEGMENT_HASH
+    BASE, PROTOCOL = Path(base), Path(protocol)
+    PROTOCOL_HASH, PAIR_HASH, SEGMENT_HASH = protocol_hash, pair_hash, segment_hash
+
+
 def sha(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
 

@@ -125,3 +125,67 @@ def test_success_accounting_and_resume(tmp_path):
     def never(*a):
         raise AssertionError("no new request on resume")
     assert len(dl.run_a1(_prepared(3), old=old, out=tmp_path / "new", transport=never)) == 3
+
+
+# ---------------------------------------------------------------- second-sample fresh acquisition (run_sample)
+
+def _prepared_sample(n_pairs=2):
+    pairs, rec = [], {}
+    for i in range(n_pairs):
+        slot = str(i + 1)
+        p = dict(slot=slot, smarp_series=dl.io.MDI, smarp_record=f"{100 + i}|T", hmi_series=dl.io.HMI,
+                 hmi_record=f"{200 + i}|T", quality_mdi="0x00000200", quality_hmi="0x00000000")
+        pairs.append(p)
+        for series, r, segs in ((dl.io.MDI, p["smarp_record"], ("bitmap", "magnetogram")),
+                                (dl.io.HMI, p["hmi_record"], ("bitmap", "Br"))):
+            rec[(series, r)] = {s: dict(slot=slot, path=f"/SUM1/D{i}{series[:3]}/S00000/{s}.fits", reported_bytes="2880",
+                                        dims="3x2", series=series, record=r, segment=s) for s in segs}
+    return (pairs, rec, {}, {}, 10, 5.0, 0)
+
+
+def _fake(fail_fits=None):
+    calls = []
+
+    def tr(target, dest, limit, expected, timeout):
+        calls.append(target)
+        if expected:
+            if fail_fits:
+                raise dl.TransportError(fail_fits, "boom")
+            dest.write_bytes(b"SIMPLE  =" + b" " * (2880 - 9))
+            return 2, "https://jsoc1.stanford.edu" + target
+        dest.write_text("{}")
+        return 1, "http://jsoc.stanford.edu" + target
+    return tr, calls
+
+
+def test_run_sample_counts_requests_and_resumes(tmp_path):
+    tr, calls = _fake()
+    m = dl.run_sample(_prepared_sample(2), tmp_path / "s", 100, 600, transport=tr, check_keys=lambda *a: None)
+    assert len(m) == 8 and len(calls) == 4 + 8
+    led = json.loads((tmp_path / "s/LEDGER.json").read_text())
+    assert sum(e["requests"] for e in led["events"]) == 4 * 1 + 8 * 2
+    man = json.loads((tmp_path / "s/MANIFEST.json").read_text())
+    assert man["status"] == "complete" and man["requests_used"] == 10 + 20
+
+    def never(*a):
+        raise AssertionError("resume must not request")
+    assert len(dl.run_sample(_prepared_sample(2), tmp_path / "s", 100, 600, transport=never,
+                             check_keys=lambda *a: None)) == 8
+
+
+def test_run_sample_stops_on_systematic_errors(tmp_path):
+    tr, calls = _fake(fail_fits="tls")
+    with pytest.raises(ValueError, match="consecutive 'tls'"):
+        dl.run_sample(_prepared_sample(2), tmp_path / "s", 100, 600, transport=tr, check_keys=lambda *a: None)
+    assert sum(1 for c in calls if c.startswith("/SUM")) == 3
+
+
+def test_run_sample_budget_and_bad_keys(tmp_path):
+    tr, _ = _fake()
+    with pytest.raises(ValueError, match="budget"):
+        dl.run_sample(_prepared_sample(2), tmp_path / "b", 14, 600, transport=tr, check_keys=lambda *a: None)
+
+    def bad_keys(path, series, rec, files):
+        raise ValueError("Keyword identity mismatch")
+    with pytest.raises(ValueError, match="consecutive 'validation'"):
+        dl.run_sample(_prepared_sample(2), tmp_path / "k", 100, 600, transport=tr, check_keys=bad_keys)

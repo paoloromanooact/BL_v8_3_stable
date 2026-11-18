@@ -10,6 +10,7 @@ import fcntl
 import http.client
 import json
 from multiprocessing import get_context
+from pathlib import Path
 import signal
 import ssl
 import time
@@ -428,6 +429,140 @@ def run_a1(prepared, old=OUTPUT, out=OUTPUT_A1, transport=transfer_a1):
                 if len(last_kinds) >= A1_STOP_AFTER and len(set(last_kinds[-A1_STOP_AFTER:])) == 1:
                     checkpoint(f"systematic error: {last_kinds[-1]}")
                     raise ValueError(f"stopped after {A1_STOP_AFTER} consecutive '{last_kinds[-1]}' failures")
+        checkpoint()
+        return manifest
+
+
+# ---------------------------------------------------------------- second sample (draft docs/PROTOCOL_MDI_HMI_SECOND_SAMPLE_DRAFT.md §3)
+
+def preflight_sample(prior_requests, prior_seconds, requests_cap, file_limit=FILE_LIMIT, total_limit=TOTAL_LIMIT):
+    """Budget check for a fresh sample configured with io.use_sample (no earlier ledger)."""
+    pairs, records = io.plan()
+    cert, schemas = io.reference_inputs()
+    sizes = []
+    for (series, key), files in records.items():
+        c = cert["hmi" if series == io.HMI else "smarp", key]
+        for r in files.values():
+            size = int(r["reported_bytes"]) + 1
+            if not 0 < size <= file_limit or r["dims"] != c["dims"] or c["state"] != "certified":
+                raise ValueError("Per-file estimate or certificate")
+            sizes.append(size)
+    if prior_requests + len(records) + 2 * len(sizes) > requests_cap or sum(sizes) > total_limit:
+        raise ValueError("Initial budget insufficient")
+    return pairs, records, cert, schemas, prior_requests, prior_seconds, sum(sizes)
+
+
+def run_sample(prepared, out, requests_cap, seconds_cap, transport=transfer_a1, check_keys=None):
+    """Fresh acquisition with the A1 transport: exact-record keywords, then FITS (one allowed redirect each);
+    every HTTP request counted; at most two attempts per item; stop after 3 consecutive same-class failures."""
+    pairs, records, certificates, schemas, prior_req, prior_sec, total = prepared
+    out = Path(out)
+    out.mkdir(parents=True, exist_ok=True)
+    with (out / "LOCK").open("a") as lock:
+        fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        lp = out / "LEDGER.json"
+        head = dict(protocol=io.PROTOCOL_HASH, pairs=io.PAIR_HASH, segments=io.SEGMENT_HASH,
+                    prior_requests=prior_req, prior_seconds=prior_sec, requests_cap=requests_cap, seconds_cap=seconds_cap)
+        ledger = io.readjson(lp) if lp.exists() else dict(head, events=[])
+        if any(ledger.get(k) != v for k, v in head.items()):
+            raise ValueError("Ledger input mismatch")
+        events, manifest, unavailable, kinds = ledger["events"], [], {}, []
+
+        def used():
+            return prior_req + sum(e.get("requests", 0) for e in events), prior_sec + sum(e.get("seconds", 0) for e in events)
+
+        def checkpoint(stopped=None):
+            save(out / "MANIFEST.json", dict(protocol=io.PROTOCOL_HASH, estimated_bytes=total, stopped=stopped,
+                 status="complete" if len(manifest) == sum(map(len, records.values())) and not unavailable else "partial",
+                 requests_used=used()[0], seconds_used=used()[1], segments=manifest, unavailable=unavailable))
+
+        def attempt(key, target, path, cap, expected, validate):
+            ok = [e for e in events if e["key"] == key and e["state"] == "ok"]
+            if ok:
+                io.verify(out / ok[0]["body"], ok[0]["sha256"])
+                return out / ok[0]["body"], ok[0]
+            if sum(1 for e in events if e["key"] == key) >= 2:
+                raise TransportError("exhausted", "two attempts exhausted")
+            req, sec = used()
+            if req + 2 > requests_cap or seconds_cap - sec < 1:
+                checkpoint("budget")
+                raise ValueError("budget exhausted")
+            e = dict(key=key, url="http://" + HOST + target, body=path.name, state="pending", requests=2,
+                     seconds=min(40., seconds_cap - sec), bytes=cap, fits=bool(expected))
+            events.append(e)
+            save(lp, ledger)
+            start = time.monotonic()
+            try:
+                res = transport(target, path, cap, expected, e["seconds"])
+                if isinstance(res, tuple):
+                    e.update(requests=res[0], final_url=res[1])
+                e["bytes"] = path.stat().st_size
+                validate(path)
+                e.update(state="ok", sha256=io.sha(path))
+                return path, e
+            except TransportError as exc:
+                e.update(state="failed", error=str(exc), kind=exc.kind)
+                raise
+            except ValueError as exc:
+                e.update(state="failed", error=str(exc), kind="validation")
+                raise TransportError("validation", str(exc)) from exc
+            finally:
+                e["seconds"] = time.monotonic() - start
+                save(lp, ledger)
+
+        def note_failure(tag, exc):
+            unavailable[tag] = str(exc)
+            kinds.append(exc.kind)
+            checkpoint()
+            if len(kinds) >= A1_STOP_AFTER and len(set(kinds[-A1_STOP_AFTER:])) == 1:
+                checkpoint(f"systematic error: {kinds[-1]}")
+                raise ValueError(f"stopped after {A1_STOP_AFTER} consecutive '{kinds[-1]}' failures")
+
+        have_keys = set()
+        for p in pairs:
+            for side in ("smarp", "hmi"):
+                series, rec = p[side + "_series"], p[side + "_record"]
+                num, t = rec.split("|")
+                files = records[series, rec]
+                tag = f"{int(p['slot']):02d}_{side}_keys"
+                target = "/cgi-bin/ajax/jsoc_info?" + urlencode(dict(op="rs_list", ds=f"{series}[{num}][{t}]",
+                                                                     key="**ALL**", seg=",".join(files), M=1))
+
+                def check(path, series=series, rec=rec, files=files, side=side, p=p):
+                    if check_keys is not None:
+                        return check_keys(path, series, rec, files)
+                    kw = io.metadata(io.readjson(path), series, rec, files)
+                    nx, ny = map(int, certificates[side, rec]["dims"].split("x"))
+                    io.physical_header(kw, series, p["quality_mdi" if side == "smarp" else "quality_hmi"], (ny, nx),
+                                       schemas[series])
+                try:
+                    attempt(tag, target, out / f"{len(events) + 1:03d}_{tag}.json", 2 * MIB, (), check)
+                    have_keys.add((series, rec))
+                    kinds.clear()
+                except TransportError as exc:
+                    note_failure(tag, exc)
+        for (series, rec), files in records.items():
+            if (series, rec) not in have_keys:
+                continue
+            side = "hmi" if series == io.HMI else "smarp"
+            for name, r in files.items():
+                tag = f"{int(r['slot']):02d}_{side}_{name}"
+                size = int(r["reported_bytes"])
+
+                def check_fits(path, size=size):
+                    with path.open("rb") as f:
+                        if f.read(9) != b"SIMPLE  =" or path.stat().st_size not in (size, size + 1) \
+                                or path.stat().st_size % 2880:
+                            raise TransportError("signature", "unexpected FITS signature or size")
+                try:
+                    path, e = attempt(tag, r["path"], out / f"{len(events) + 1:03d}_{tag}.fits", size + 1,
+                                      (size, size + 1), check_fits)
+                    manifest.append(dict(**r, file=path.name, sha256=e["sha256"], actual_bytes=path.stat().st_size,
+                                         final_url=e.get("final_url")))
+                    kinds.clear()
+                    checkpoint()
+                except TransportError as exc:
+                    note_failure(tag, exc)
         checkpoint()
         return manifest
 
