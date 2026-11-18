@@ -83,8 +83,26 @@ def load_design(with_responses=False):
     base = P.build_design()
     if not d[P.DESIGN_COLS].equals(base):
         raise RuntimeError("design differs from the P2f design")
-    cols = P.DESIGN_COLS + ["phase"] + (["gamma"] if with_responses else [])
-    return d[cols].copy()
+    cols = P.DESIGN_COLS + ["phase", "t"] + (["gamma"] if with_responses else [])
+    out = d[cols].copy()
+    out["phase_hem"] = hemispheric_phase(out)
+    return out
+
+
+HEM_MIN_WINDOWS = {24: ("2007-01", "2010-12"), 25: ("2018-01", "2021-12")}
+
+
+def hemispheric_minima():
+    """Month of the minimum of the 13-month smoothed SILSO hemispheric series, per cycle and hemisphere."""
+    sm = run_p2.load_silso()["smooth13"]
+    return {(c, h): pd.Timestamp(sm.loc[lo:hi, h].idxmin() + "-01") for c, (lo, hi) in HEM_MIN_WINDOWS.items()
+            for h in ("N", "S")}
+
+
+def hemispheric_phase(d):
+    mins = hemispheric_minima()
+    return np.array([(t - mins[(int(c), h)]).days / 365.25 / 11.0 if (int(c), h) in mins else np.nan
+                     for t, c, h in zip(d["t"], d["cyc"], d["hemisphere"])])
 
 
 def q1_window(d, symmetric=False):
@@ -112,8 +130,8 @@ def matrices(d, which, symmetric=False):
         return m, X, w, a(X, w)
     m = np.ones(len(d), bool)
     w = d["phi"].to_numpy(float)
-    if which == "q2":
-        ph = d["phase"].to_numpy()
+    if which in ("q2", "q2_hem"):
+        ph = d["phase" if which == "q2" else "phase_hem"].to_numpy()
         X = np.column_stack([run_p2.ch_columns(d, 1.0), ph, ph ** 2, ph ** 3, d["A_monthly"].to_numpy() - 1.0])
         return m, X, w, p2d.wls_row(X, w, X.shape[1] - 1)
     lphi = np.log10(w)
@@ -145,9 +163,9 @@ def gen_q1(d, scen, rng, effect=0.0):
     return g + effect * d["sinlat"].to_numpy() * (d["cyc"].to_numpy() == 25)
 
 
-def lat_mean(d):
+def lat_mean(d, phase="phase"):
     """mu of the activity-free T4 model fitted on the real |lambda| (design, not the response of the test)."""
-    ph = d["phase"].to_numpy()
+    ph = d[phase].to_numpy()
     X0 = np.column_stack([run_p2.ch_columns(d, 1.0), ph, ph ** 2, ph ** 3])
     y = d["lat"].abs().to_numpy()
     return X0 @ P.wls(X0, d["phi"].to_numpy(float), y)
@@ -292,6 +310,7 @@ def run(protocol_sha):
                                       ("Q1 symmetric window", "q1", True, -1, d["gamma"].to_numpy()),
                                       ("Q1 hemisphere-averaged", "q1_hem", False, -1, d["gamma"].to_numpy()),
                                       ("Q2", "q2", False, +1, d["lat"].abs().to_numpy()),
+                                      ("Q2 hemispheric phase", "q2_hem", False, +1, d["lat"].abs().to_numpy()),
                                       ("Q3 b (log10 Phi)", "q3_b", False, -1, d["gamma"].to_numpy())) + tuple(
             (f"Q3 quintile {q} - 1", f"q3_q{q}", False, -1, d["gamma"].to_numpy()) for q in range(2, 6)):
         m, X, w, a = matrices(d, which, sym)
@@ -344,6 +363,15 @@ def selftest():
     r2 = unit(("q2", "q2_null", 1, 0, 1, SD_LAT, 0.0))
     ok("one Q1 and one Q2 catalogue analysed by M", r1["verdict"] != "errore" and r2["verdict"] != "errore",
        (r1["verdict"], r2["verdict"]))
+    mins = hemispheric_minima()
+    ok("hemispheric minima inside their search windows", all(pd.Timestamp(HEM_MIN_WINDOWS[c][0] + "-01") <= v <=
+       pd.Timestamp(HEM_MIN_WINDOWS[c][1] + "-01") for (c, h), v in mins.items()),
+       {f"{c}{h}": v.strftime("%Y-%m") for (c, h), v in mins.items()})
+    ok("hemispheric phase finite for every record", np.isfinite(d["phase_hem"]).all())
+    mm, X, w, a = matrices(d, "q2_hem")
+    muh = lat_mean(d, "phase_hem")
+    ok("Q2 hemispheric phase: noise-free slope recovers +1.5",
+       abs(a @ (muh + 1.5 * (d["A_monthly"].to_numpy() - 1)) - 1.5) < 1e-9)
     ok("--validate/--run refuse before the freeze", not FROZEN.exists())
     print(f"selftest: {sum(res)}/{len(res)} superati")
     return all(res)
