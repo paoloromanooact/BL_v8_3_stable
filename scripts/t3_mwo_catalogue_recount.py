@@ -354,6 +354,20 @@ def check(cat=CAT, out=OUT, dpd=DPD, archive=MWO_DATA, years=range(1974, 2014), 
        not attempts.duplicated(["day", "noaa"]).any() and not design.duplicated(["record_set", "noaa"]).any()
        and not sealed.duplicated(["record_set", "noaa"]).any()
        and set(zip(design.record_set, design.noaa)) == set(zip(sealed.record_set, sealed.noaa)))
+    required_design = ("lat_bar", "sinlat", "phi_mwo", "dpd_lat", "dpd_lon", "lcm", "abs_lcm", "CR", "cycle",
+                       "rank", "n_cand", "n_neighbours", "dpd_area", "n_blank_win")
+    required_sealed = ("tilt_deg", "gamma_deg", "leading_sign", "lon_pos", "lat_pos", "lon_neg", "lat_neg",
+                       "sep_deg", "hale_expected")
+    finite = (np.isfinite(design[list(required_design)].to_numpy(dtype=float)).all()
+              and np.isfinite(sealed[list(required_sealed)].to_numpy(dtype=float)).all())
+    ok("mandatory numeric design and sealed fields are finite", finite)
+    if not finite:
+        if write:
+            Path(out).mkdir(parents=True, exist_ok=False)
+            (Path(out) / "RECEIPT.json").write_text(json.dumps(dict(
+                checks=res, passed=sum(r["ok"] for r in res), total=len(res), partial=True,
+                reason="non-finite mandatory measurement"), indent=2) + "\n")
+        return False
     att, recs = rebuild(dpd, archive, years)
     border = {k for k, a in att.items() if a["border"]}
     mine = {k: ("no_magnetogram" if a["mag"] is None else a["m"]["status"]) for k, a in att.items()}
@@ -551,6 +565,29 @@ h = {{f.name: hashlib.sha256(f.read_bytes()).hexdigest() for f in out.iterdir()}
                 (td / "cat/META.json").write_text(json.dumps(meta))
                 ok(f"check() fails on a tampered design column {col}",
                    not check(td / "cat", td / "r3", dpd=td, archive=td, years=[1990], write=False, **kw))
+            clean.to_csv(td / "cat/DESIGN.csv", index=False)
+            clean_sealed = pd.read_csv(td / "cat/SEALED.csv.gz", dtype={"noaa": str})
+            for filename, column, value in (("DESIGN.csv", "sinlat", np.nan),
+                                            ("DESIGN.csv", "phi_mwo", np.inf),
+                                            ("SEALED.csv.gz", "gamma_deg", np.nan),
+                                            ("SEALED.csv.gz", "tilt_deg", np.inf)):
+                clean.to_csv(td / "cat/DESIGN.csv", index=False)
+                clean_sealed.to_csv(td / "cat/SEALED.csv.gz", index=False)
+                altered = (clean if filename == "DESIGN.csv" else clean_sealed).copy()
+                altered.loc[0, column] = value
+                altered.to_csv(td / "cat" / filename, index=False)
+                # Recompute the hashes so this tests the independent numeric check.
+                for name in ("DESIGN.csv", "SEALED.csv.gz"):
+                    meta["products_sha256"][name] = hashlib.sha256((td / "cat" / name).read_bytes()).hexdigest()
+                (td / "cat/META.json").write_text(json.dumps(meta))
+                ok(f"check() rejects non-finite {column} in {filename}",
+                   not check(td / "cat", td / "r4", dpd=td, archive=td, years=[1990], write=False, **kw))
+                if column == "sinlat":
+                    failed = not check(td / "cat", td / "nonfinite_receipt", dpd=td, archive=td,
+                                       years=[1990], write=True, **kw)
+                    receipt = json.loads((td / "nonfinite_receipt/RECEIPT.json").read_text())
+                    ok("non-finite measurements produce a failed partial receipt",
+                       failed and receipt["partial"] and receipt["passed"] < receipt["total"])
     print(f"selftest: {sum(res)}/{len(res)} superati")
     return all(res)
 

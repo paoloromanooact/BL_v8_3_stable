@@ -1,5 +1,20 @@
 # Cold restart — SHARP BL
 
+## 18 novembre, Codex — chiusura della consegna T3 MWO, misura e dati
+
+- Revisione di `bc3577f` dopo i rilievi sulla consegna 1. Il runner usa l'istante completo per la CR e il
+  riconteggio confronta CR, ciclo, sin|latitudine|, conteggi BLANK, tempi, posizioni, attività e molteplicità.
+- Difetto residuo riprodotto su dati sintetici. Un NaN in `DESIGN.sinlat` o in `SEALED.gamma_deg` passava il
+  controllo perché il massimo degli scarti poteva ignorarlo. Il riconteggio ora richiede valori finiti per
+  le misure numeriche obbligatorie e conserva una ricevuta fallita e parziale quando il controllo fallisce.
+  Le attività di sensibilità conservano i valori mancanti previsti dal protocollo.
+- Selftest del riconteggio 16/16, con regressioni su NaN e infinito e verifica della ricevuta fallita.
+  Verificati i 39 sDPD locali contro gli hash della ricevuta di acquisizione. Totale 81 431 910 byte,
+  40 richieste registrate e 39 risposte valide. Nessun tilt in luce bianca calcolato per questa revisione.
+- A1 congelato `cfa6886`, SHA-256 `bc88452b382d739866ff801a14aecf596968e092904906d7d7298355a0e063c5`.
+  Con queste correzioni i punti 1–2 sono chiusi. La misura lunga può seguire la fine della validazione HMI,
+  con i tilt sigillati e il successivo riconteggio secondo il protocollo.
+
 ## 18 novembre, pomeriggio (Claude): fase B, roadmap, bozze per Codex
 
 - **Fase B** eseguita e controllata: [PROSPECTIVE_PHASE_B_RESULTS.md](PROSPECTIVE_PHASE_B_RESULTS.md); M segue la
