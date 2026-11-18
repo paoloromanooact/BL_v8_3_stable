@@ -99,7 +99,11 @@ poco affidabili), cambi di strumentazione MWO nel tempo, regioni vicine nella st
 
 Prima di qualsiasi analisi T3 con questa variante: **pilota descrittivo** nella sovrapposizione 2010–2013 (tilt MWO
 contro P1 sulle stesse regioni NOAA) e, se utile, 1996–2010 contro MDI, sul modello del confronto MDI–HMI; protocollo
-proprio con soglie fissate prima. La scelta fra luce bianca (§3) e variante MWO va fatta prima del congelamento.
+proprio con soglie fissate prima. **Decisione dell'utente (18 novembre, 13:55): la variante MWO è la strada principale**, perché dà la stessa grandezza
+di P1 con le polarità e il catalogo di Li & Ulrich non è ottenibile; i tilt in luce bianca del §3 restano il ripiego
+se il pilota mostra che a 13–20″ il tilt magnetico non è affidabile. Il protocollo da congelare sarà riscritto per la
+variante MWO (record, finestra, soglia, LOS/μ, Hale, attività, validazione del §6 sul disegno DPD+MWO, raccordo), dopo il
+pilota.
 
 ## 9. Ordine
 
