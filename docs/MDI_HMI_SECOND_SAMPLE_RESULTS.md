@@ -11,7 +11,12 @@
 - **Download** (trasporto A1): 140 FITS su 140, 327 richieste HTTP in tutto (tetto 450), 15 350 400 byte, 362 s.
 - **Due implementazioni** (runner sui kernel di Codex `run_be1b49e`, riconteggio di Claude `recount_be1b49e`), output
   conservati prima della lettura in `e329010`: stessa valutabilità su 60 righe, 49 confronti valutabili; tilt concordi
-  entro 2·10⁻⁸ gradi, flussi e dipoli entro 1,1·10⁻⁸ relativi.
+  entro 2·10⁻⁸ gradi (d_ax 1,71·10⁻⁸), flussi entro 1·10⁻⁸ relativi, dipolo bilanciato entro 1,12·10⁻⁸ relativi;
+  **dipolo ordinario** entro 3,19·10⁻⁷ relativi (HARP 86, confronto A1; scarto assoluto 5,09·10⁻¹⁰ G, su un dipolo
+  piccolo). Correzione dopo la revisione di Codex: la prima versione dichiarava 1,1·10⁻⁸ anche per il dipolo ordinario.
+- **Provenienza**: il `META.json` di `recount_be1b49e` riporta per errore il protocollo del primo campione (`6d6fd12`); il
+  riconteggio è stato eseguito per il secondo campione (protocollo `bbd719c`, manifesto `e34b4598…`). Lo script ora
+  registra il protocollo passato; gli output conservati non vengono modificati.
 - **R0**: la funzione P1 riproduce la misura propria su tutti i record HMI (differenza di flusso 0); **nessun record HMI
   coincide con un record storico di P1, quindi la riproduzione storica del tilt resta non verificata** (§4 del protocollo).
 

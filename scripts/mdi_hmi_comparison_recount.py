@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+import hashlib
 import json
 import math
 import sys
@@ -28,6 +29,8 @@ sys.path.insert(0, str(ROOT / "scripts"))
 from sharpbl import geometry as geo, measure as P1  # noqa: E402
 
 SEL = ROOT / "data/sharp/metadata_inventory_mdi/small_comparison_6d6fd12/selection/PAIRS.csv"
+PROTOCOL_LABEL = {str(SEL): "6d6fd12",
+                  str(ROOT / "data/sharp/metadata_inventory_mdi/second_sample_bbd719c/selection/PAIRS.csv"): "bbd719c"}
 CATALOGUE = ROOT / "results/P1/P1_SBL_CATALOG_BY_HARP.csv"
 MU_MIN, THR, BMAX, FLAG_DEG = 0.8, 100.0, 10000.0, 2.107
 HMI, MDI = "hmi.sharp_cea_720s", "mdi.smarp_cea_96m"
@@ -251,7 +254,9 @@ def run(maps, out, files_csv=None, pairs=SEL):
     pd.DataFrame(rows).to_csv(out / "PAIR_ROWS.csv", index=False)
     pd.DataFrame(summ).to_csv(out / "SUMMARY.csv", index=False)
     pd.DataFrame(r0).to_csv(out / "R0.csv", index=False)
-    (out / "META.json").write_text(json.dumps(dict(missing_files=missing, protocol="6d6fd12", note="independent recount"),
+    (out / "META.json").write_text(json.dumps(dict(missing_files=missing, protocol=PROTOCOL_LABEL.get(str(pairs), "6d6fd12"),
+                                                   pairs_sha256=hashlib.sha256(Path(pairs).read_bytes()).hexdigest(),
+                                                   note="independent recount"),
                                               indent=2, default=str))
     print(json.dumps(dict(missing=len(missing), rows=len(rows)), indent=1))
     return 0
