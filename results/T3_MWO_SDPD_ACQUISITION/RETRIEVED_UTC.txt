@@ -1,0 +1,2 @@
+2026-11-18T17:23:02Z
+source http://fenyi.solarobs.epss.hun-ren.hu/ftp/pub/DPD/data/sDPD<year>.txt via HTTP, 1974-2012

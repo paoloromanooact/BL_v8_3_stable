@@ -1,0 +1,359 @@
+[
+  {
+    "url": "http://fenyi.solarobs.epss.hun-ren.hu/ftp/pub/DPD/data/sDPD1974.txt",
+    "attempt": 1,
+    "utc": "2026-11-18T17:20:31.637894+00:00",
+    "status": 200,
+    "bytes": 996265,
+    "sha256": "d4995d164add8db7ba65072398fba06b607e7ee761dbf388ad64cf5ff43b89c3",
+    "valid": true
+  },
+  {
+    "url": "http://fenyi.solarobs.epss.hun-ren.hu/ftp/pub/DPD/data/sDPD1975.txt",
+    "attempt": 1,
+    "utc": "2026-11-18T17:20:32.329174+00:00",
+    "status": 200,
+    "bytes": 465690,
+    "sha256": "f07e665b750574cbbf0e89cd9b941408570ab122c1460d8a9ce2dadda9ad6cbf",
+    "valid": true
+  },
+  {
+    "url": "http://fenyi.solarobs.epss.hun-ren.hu/ftp/pub/DPD/data/sDPD1976.txt",
+    "attempt": 1,
+    "utc": "2026-11-18T17:20:32.910086+00:00",
+    "status": 200,
+    "bytes": 345990,
+    "sha256": "7e18df6fcf7a0091063b721bbd5c206aaf31b4edb538b5d92fc52a0eec490a1c",
+    "valid": true
+  },
+  {
+    "url": "http://fenyi.solarobs.epss.hun-ren.hu/ftp/pub/DPD/data/sDPD1977.txt",
+    "attempt": 1,
+    "utc": "2026-11-18T17:20:33.705370+00:00",
+    "status": 200,
+    "bytes": 743565,
+    "sha256": "9dfa1a40756b3fba7c17932c1756308f120edccd5bda9a426589b0ed91fa5635",
+    "valid": true
+  },
+  {
+    "url": "http://fenyi.solarobs.epss.hun-ren.hu/ftp/pub/DPD/data/sDPD1978.txt",
+    "attempt": 1,
+    "utc": "2026-11-18T17:20:34.874184+00:00",
+    "status": 200,
+    "bytes": 2528710,
+    "sha256": "c2f7d47c6e68dee8d29a284bda08e7e531c7890c05738332b8fa9426e9321cd4",
+    "valid": true
+  },
+  {
+    "url": "http://fenyi.solarobs.epss.hun-ren.hu/ftp/pub/DPD/data/sDPD1979.txt",
+    "attempt": 1,
+    "utc": "2026-11-18T17:20:36.637325+00:00",
+    "status": 200,
+    "bytes": 4515540,
+    "sha256": "d3de60a8ba1c8e1f791ec7646f9e2c9d4c9068823d6c9701f00ec7613a9f30e6",
+    "valid": true
+  },
+  {
+    "url": "http://fenyi.solarobs.epss.hun-ren.hu/ftp/pub/DPD/data/sDPD1980.txt",
+    "attempt": 1,
+    "utc": "2026-11-18T17:20:38.478344+00:00",
+    "status": 200,
+    "bytes": 4700980,
+    "sha256": "3c06e9f86ec379bea7a03d66fd11332ef467ff3c43cd3a346647f52be2fac6bb",
+    "valid": true
+  },
+  {
+    "url": "http://fenyi.solarobs.epss.hun-ren.hu/ftp/pub/DPD/data/sDPD1981.txt",
+    "attempt": 1,
+    "utc": "2026-11-18T17:20:40.317843+00:00",
+    "status": 200,
+    "bytes": 4564750,
+    "sha256": "416c68bd938a217d0510356c9abc3000109526a380dc6675cd356fe8c609619f",
+    "valid": true
+  },
+  {
+    "url": "http://fenyi.solarobs.epss.hun-ren.hu/ftp/pub/DPD/data/sDPD1982.txt",
+    "attempt": 1,
+    "utc": "2026-11-18T17:20:41.687221+00:00",
+    "status": 200,
+    "bytes": 3812255,
+    "sha256": "349a9338cb56c8242fb56e107eae366344fefe589fad562e92c1ae9211655218",
+    "valid": true
+  },
+  {
+    "url": "http://fenyi.solarobs.epss.hun-ren.hu/ftp/pub/DPD/data/sDPD1983.txt",
+    "attempt": 1,
+    "utc": "2026-11-18T17:20:43.165524+00:00",
+    "status": 200,
+    "bytes": 2403785,
+    "sha256": "5727e6123ea677aea2950c30058a4f5c982d274e6efe35766717dde422eaf9f5",
+    "valid": true
+  },
+  {
+    "url": "http://fenyi.solarobs.epss.hun-ren.hu/ftp/pub/DPD/data/sDPD1984.txt",
+    "attempt": 1,
+    "utc": "2026-11-18T17:20:43.907969+00:00",
+    "status": 200,
+    "bytes": 1400300,
+    "sha256": "10688d395e38f9ee96237305142fc9c32fbab34532724752ec28a56ea9c679a5",
+    "valid": true
+  },
+  {
+    "url": "http://fenyi.solarobs.epss.hun-ren.hu/ftp/pub/DPD/data/sDPD1985.txt",
+    "attempt": 1,
+    "utc": "2026-11-18T17:20:44.347621+00:00",
+    "status": 200,
+    "bytes": 412110,
+    "sha256": "0a980064a36b16b99759c561cbb24c32662828c39586591de4c0c431f95efe04",
+    "valid": true
+  },
+  {
+    "url": "http://fenyi.solarobs.epss.hun-ren.hu/ftp/pub/DPD/data/sDPD1986.txt",
+    "attempt": 1,
+    "utc": "2026-11-18T17:20:44.955578+00:00",
+    "status": 200,
+    "bytes": 291745,
+    "sha256": "96cc7ded85842d8984b6682847399b3f40fbf8becf5234454fa5996fcbe8b0bc",
+    "valid": true
+  },
+  {
+    "url": "http://fenyi.solarobs.epss.hun-ren.hu/ftp/pub/DPD/data/sDPD1987.txt",
+    "attempt": 1,
+    "utc": "2026-11-18T17:20:45.927060+00:00",
+    "status": 200,
+    "bytes": 815290,
+    "sha256": "d761984192a6a1b6d10d42a2810ef8fdbca87588ad191e2d0b5e4055a37f2a86",
+    "valid": true
+  },
+  {
+    "url": "http://fenyi.solarobs.epss.hun-ren.hu/ftp/pub/DPD/data/sDPD1988.txt",
+    "attempt": 1,
+    "utc": "2026-11-18T17:20:47.063770+00:00",
+    "status": 200,
+    "bytes": 2545525,
+    "sha256": "96ef87313bd335745eec1b5d37abc6845a3997200bfd7f3c0f92bb6e67822654",
+    "valid": true
+  },
+  {
+    "url": "http://fenyi.solarobs.epss.hun-ren.hu/ftp/pub/DPD/data/sDPD1989.txt",
+    "attempt": 1,
+    "utc": "2026-11-18T17:20:49.362779+00:00",
+    "status": 200,
+    "bytes": 4293620,
+    "sha256": "14f1aece319ba14dd852fc73373314c85b1e42ac6cfeedcfa3f9d903f52d98b0",
+    "valid": true
+  },
+  {
+    "url": "http://fenyi.solarobs.epss.hun-ren.hu/ftp/pub/DPD/data/sDPD1990.txt",
+    "attempt": 1,
+    "utc": "2026-11-18T17:20:52.134723+00:00",
+    "status": 200,
+    "bytes": 5017520,
+    "sha256": "ecfe4b4027a2f57cc72ff7c7ced907bb55c214f030eb5695264ef8c4fcac96b2",
+    "valid": true
+  },
+  {
+    "url": "http://fenyi.solarobs.epss.hun-ren.hu/ftp/pub/DPD/data/sDPD1991.txt",
+    "attempt": 1,
+    "utc": "2026-11-18T17:20:53.923358+00:00",
+    "status": 200,
+    "bytes": 4350050,
+    "sha256": "9a8812485ea5e6db93fc015a144a83b58388dbc5a5e7e4a99c56b787b220a16d",
+    "valid": true
+  },
+  {
+    "url": "http://fenyi.solarobs.epss.hun-ren.hu/ftp/pub/DPD/data/sDPD1992.txt",
+    "attempt": 1,
+    "utc": "2026-11-18T17:20:55.346365+00:00",
+    "status": 200,
+    "bytes": 2541820,
+    "sha256": "c44628e9c7253324095d9b4b5cd20ae283a3b3f140ae5bf5c410d44180a11fba",
+    "valid": true
+  },
+  {
+    "url": "http://fenyi.solarobs.epss.hun-ren.hu/ftp/pub/DPD/data/sDPD1993.txt",
+    "attempt": 1,
+    "utc": "2026-11-18T17:20:56.065852+00:00",
+    "status": 200,
+    "bytes": 1567120,
+    "sha256": "bf8d02cd28b02e6e1e4b715284b006159024483fe075c1e2648058fa3bf95aac",
+    "valid": true
+  },
+  {
+    "url": "http://fenyi.solarobs.epss.hun-ren.hu/ftp/pub/DPD/data/sDPD1994.txt",
+    "attempt": 1,
+    "utc": "2026-11-18T17:20:56.689272+00:00",
+    "status": 200,
+    "bytes": 860415,
+    "sha256": "33c6d0e3e1eb7b7be24fc1c6141f7610949f2f9493c734a76d51de7f1b065587",
+    "valid": true
+  },
+  {
+    "url": "http://fenyi.solarobs.epss.hun-ren.hu/ftp/pub/DPD/data/sDPD1995.txt",
+    "attempt": 1,
+    "utc": "2026-11-18T17:20:57.576114+00:00",
+    "status": 200,
+    "bytes": 607905,
+    "sha256": "6fe9f47f8a9bc3157e187a06eda4be466d8f109fd58fa208e4599c9d2d3205a0",
+    "valid": true
+  },
+  {
+    "url": "http://fenyi.solarobs.epss.hun-ren.hu/ftp/pub/DPD/data/sDPD1996.txt",
+    "attempt": 1,
+    "utc": "2026-11-18T17:20:57.866555+00:00",
+    "status": 200,
+    "bytes": 208525,
+    "sha256": "1b08ff1da96b7c7ca4959359f634c60233b9b9d1ea3639eabccc991c80dc12b9",
+    "valid": true
+  },
+  {
+    "url": "http://fenyi.solarobs.epss.hun-ren.hu/ftp/pub/DPD/data/sDPD1997.txt",
+    "attempt": 1,
+    "utc": "2026-11-18T17:20:58.549477+00:00",
+    "status": 200,
+    "bytes": 631465,
+    "sha256": "c69d832eba491bb0b744b3d813bb9e80882832480829ac1febe1c0f6972f59fc",
+    "valid": true
+  },
+  {
+    "url": "http://fenyi.solarobs.epss.hun-ren.hu/ftp/pub/DPD/data/sDPD1998.txt",
+    "attempt": 1,
+    "utc": "2026-11-18T17:20:59.841860+00:00",
+    "status": 200,
+    "bytes": 2333105,
+    "sha256": "292419c12468f97e7f37bd39b6cd6a75b6e98c680d521c075ff45a6fd0e7ba68",
+    "valid": true
+  },
+  {
+    "url": "http://fenyi.solarobs.epss.hun-ren.hu/ftp/pub/DPD/data/sDPD1999.txt",
+    "attempt": 1,
+    "utc": "2026-11-18T17:21:01.395950+00:00",
+    "status": 200,
+    "bytes": 3670040,
+    "sha256": "0b5f5556875077df687e95abfff20f6a5be5caa80ca2404fafa66618d1204e82",
+    "valid": true
+  },
+  {
+    "url": "http://fenyi.solarobs.epss.hun-ren.hu/ftp/pub/DPD/data/sDPD2000.txt",
+    "attempt": 1,
+    "utc": "2026-11-18T17:21:03.786395+00:00",
+    "status": 200,
+    "bytes": 5119075,
+    "sha256": "ce9a687a943302c729fd05803908a07a876a27f82370b51163036dbb19065e7d",
+    "valid": true
+  },
+  {
+    "url": "http://fenyi.solarobs.epss.hun-ren.hu/ftp/pub/DPD/data/sDPD2001.txt",
+    "attempt": 1,
+    "utc": "2026-11-18T17:21:05.549648+00:00",
+    "status": 200,
+    "bytes": 4087945,
+    "sha256": "b08aac8486050a172429d41cefa39e0866d154bf2274336e061f2b5454e8aeba",
+    "valid": true
+  },
+  {
+    "url": "http://fenyi.solarobs.epss.hun-ren.hu/ftp/pub/DPD/data/sDPD2002.txt",
+    "attempt": 1,
+    "utc": "2026-11-18T17:21:07.313455+00:00",
+    "status": 200,
+    "bytes": 4117680,
+    "sha256": "2ace1ac4bd849a7a19a98eb9e3c79e500caefc875eb95d7a38dc379d06df9ac4",
+    "valid": true
+  },
+  {
+    "url": "http://fenyi.solarobs.epss.hun-ren.hu/ftp/pub/DPD/data/sDPD2003.txt",
+    "attempt": 1,
+    "utc": "2026-11-18T17:21:08.598275+00:00",
+    "status": 200,
+    "bytes": 2259955,
+    "sha256": "be3b2da580581e364c5d799d5ad7921bfdba1fc596aa65f955ea8a7fc81f115b",
+    "valid": true
+  },
+  {
+    "url": "http://fenyi.solarobs.epss.hun-ren.hu/ftp/pub/DPD/data/sDPD2004.txt",
+    "attempt": 1,
+    "utc": "2026-11-18T17:21:09.709601+00:00",
+    "status": 200,
+    "bytes": 1334560,
+    "sha256": "3321595415d7f5af4370ad2dbee4868512b15ca09e667f0b5dcd3ffa560e96e5",
+    "valid": true
+  },
+  {
+    "url": "http://fenyi.solarobs.epss.hun-ren.hu/ftp/pub/DPD/data/sDPD2005.txt",
+    "attempt": 1,
+    "utc": "2026-11-18T17:21:10.857294+00:00",
+    "status": 200,
+    "bytes": 1486750,
+    "sha256": "9f2e3bba780d3c890d88a96bf6d36a238a24e9e7234470f362f9be91cac7cf93",
+    "valid": true
+  },
+  {
+    "url": "http://fenyi.solarobs.epss.hun-ren.hu/ftp/pub/DPD/data/sDPD2006.txt",
+    "attempt": 1,
+    "utc": "2026-11-18T17:21:11.789330+00:00",
+    "status": 200,
+    "bytes": 523260,
+    "sha256": "97fe3c6d015108f09bb0cc883e4d3f74e8dd52c0f80a017e23efdc5cd9e380f0",
+    "valid": true
+  },
+  {
+    "url": "http://fenyi.solarobs.epss.hun-ren.hu/ftp/pub/DPD/data/sDPD2007.txt",
+    "attempt": 1,
+    "utc": "2026-11-18T17:21:12.106170+00:00",
+    "status": 200,
+    "bytes": 260585,
+    "sha256": "589c347a4b087eb4acd6a5c83707a389f59d2a3d4b97086384ef73bf32ceb7ee",
+    "valid": true
+  },
+  {
+    "url": "http://fenyi.solarobs.epss.hun-ren.hu/ftp/pub/DPD/data/sDPD2008.txt",
+    "attempt": 1,
+    "utc": "2026-11-18T17:21:12.657221+00:00",
+    "status": 200,
+    "bytes": 76855,
+    "sha256": "dd952aeed719a31eaa1e918ec740ad8fa25f9c2ad20bbdda0edc84eeb53f9114",
+    "valid": true
+  },
+  {
+    "url": "http://fenyi.solarobs.epss.hun-ren.hu/ftp/pub/DPD/data/sDPD2009.txt",
+    "attempt": 1,
+    "utc": "2026-11-18T17:21:12.959033+00:00",
+    "status": 200,
+    "bytes": 115995,
+    "sha256": "78f6d3445d4ce59a4623b05095480555b600559e97e3d2184702e598dc6d5610",
+    "valid": true
+  },
+  {
+    "url": "http://fenyi.solarobs.epss.hun-ren.hu/ftp/pub/DPD/data/sDPD2010.txt",
+    "attempt": 1,
+    "utc": "2026-11-18T17:21:13.580519+00:00",
+    "status": 200,
+    "bytes": 439280,
+    "sha256": "5c7be6a08014798d5fa4c9fe931c671b112e63d03b62769c403c257d0754f9c1",
+    "valid": true
+  },
+  {
+    "url": "http://fenyi.solarobs.epss.hun-ren.hu/ftp/pub/DPD/data/sDPD2011.txt",
+    "attempt": 1,
+    "utc": "2026-11-18T17:22:58.462825+00:00",
+    "error": "URLError: <urlopen error [Errno 111] Connection refused>"
+  },
+  {
+    "url": "http://fenyi.solarobs.epss.hun-ren.hu/ftp/pub/DPD/data/sDPD2011.txt",
+    "attempt": 2,
+    "utc": "2026-11-18T17:23:00.567177+00:00",
+    "status": 200,
+    "bytes": 1689005,
+    "sha256": "6a6cf778749bc9a0c0387cecc0e8253572858061c488efb4ee4ba67aca17085a",
+    "valid": true
+  },
+  {
+    "url": "http://fenyi.solarobs.epss.hun-ren.hu/ftp/pub/DPD/data/sDPD2012.txt",
+    "attempt": 1,
+    "utc": "2026-11-18T17:23:01.975516+00:00",
+    "status": 200,
+    "bytes": 3296880,
+    "sha256": "fd65ad47bfa02f95e785c6daf12e48bf5957cd99c0e22daab6b21e532c411fa5",
+    "valid": true
+  }
+]
