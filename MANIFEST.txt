@@ -105,6 +105,7 @@ docs/PROTOCOL_P3B_AXIAL_TILT_STATISTICS.md
 docs/PROTOCOL_P3C_BARD_TILT_CONVENTION.md
 docs/PROTOCOL_P3_EXTERNAL_VALIDATION.md
 docs/PROTOCOL_T3_DPD_DRAFT.md
+docs/PROTOCOL_T3_MWO_DRAFT.md
 docs/PROTOCOL_T5_DIAGNOSTIC_SAVED_OUTPUTS.md
 docs/PROTOCOL_T5_ORACLE.md
 docs/PROTOCOL_T5_ORACLE_A1.md
@@ -684,6 +685,10 @@ results/MORPHOLOGY/REVIEW/META.json
 results/MORPHOLOGY/REVIEW/REVIEW_CHECKS.csv
 results/MORPHOLOGY/SHEETS_CHECKS.csv
 results/MORPHOLOGY/SHEETS_META.json
+results/MWO_HEADER_INVENTORY/BY_YEAR.csv
+results/MWO_HEADER_INVENTORY/HEADERS.csv.gz
+results/MWO_HEADER_INVENTORY/META.json
+results/MWO_HEADER_INVENTORY/RUN.log
 results/MWO_PILOT/CAUSES.json
 results/MWO_PILOT/META.json
 results/MWO_PILOT/ROWS.csv
@@ -894,6 +899,7 @@ scripts/mdi_overlap_kernels.py
 scripts/mdi_overlap_metadata_review.py
 scripts/mdi_smarp_inventory.py
 scripts/mdi_smarp_overlap_analysis.py
+scripts/mwo_header_inventory.py
 scripts/mwo_pilot_recount.py
 scripts/mwo_pilot_tilt.py
 scripts/process_test_20240508_idl_commands.pro

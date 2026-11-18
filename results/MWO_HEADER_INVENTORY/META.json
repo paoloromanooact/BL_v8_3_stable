@@ -1,0 +1,10 @@
+{
+  "script_sha256": "95145ec63be7a81c4d63075473e2e6c8f776b478bdb38094b883810818e0e506",
+  "n_rows": 35753,
+  "n_read": 35753,
+  "git_commit": "7f33688aa79548da6ebef8a91664aad9430ac8e1",
+  "products_sha256": {
+    "HEADERS.csv.gz": "65a14b8674575713cfe293846a2119a0e898d4881549448b0430afd1ab7f7467",
+    "BY_YEAR.csv": "e4083004251478485499edc9c00a09ea769f4e17a072ea2d5edcd49b117bbf28"
+  }
+}
