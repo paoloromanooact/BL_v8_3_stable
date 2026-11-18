@@ -851,6 +851,7 @@ scripts/process_test_20240508_idl_commands.pro
 scripts/prospective_phase_a.py
 scripts/prospective_phase_a_check.py
 scripts/prospective_phase_a_recount.py
+scripts/prospective_phase_b.py
 scripts/repro_compare.py
 scripts/repro_draft_tables.py
 scripts/review_morphology.py
