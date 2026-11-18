@@ -11,8 +11,9 @@ import http.client
 import json
 from multiprocessing import get_context
 import signal
+import ssl
 import time
-from urllib.parse import urlencode
+from urllib.parse import urlencode, urlsplit
 
 import mdi_hmi_patch_io as io
 
@@ -212,12 +213,236 @@ def run(out, prepared, transport=transfer):
         return manifest
 
 
+# ---------------------------------------------------------------- amendment A1 (docs/PROTOCOL_MDI_HMI_SMALL_COMPARISON_A1.md)
+
+A1_HASH = "42ca9d3c802079c4b16ef45b5639a812c25c34596c1b821216d511cd86162778"
+A1_HOSTS = ("jsoc.stanford.edu", "jsoc1.stanford.edu", "jsoc2.stanford.edu")
+A1_REQUESTS = 250
+A1_SECONDS = 1200
+A1_STOP_AFTER = 3
+OUTPUT_A1 = io.BASE / "patch_download_a1"
+
+
+class TransportError(ValueError):
+    """Failure with a class label for the systematic-error stop (A1 §5)."""
+
+    def __init__(self, kind, msg):
+        super().__init__(f"{kind}: {msg}")
+        self.kind = kind
+
+
+def follow_location(location, path):
+    """A1 §3: one redirect to an allowed JSOC host with the same /SUM.../S.../<segment>.fits; else None."""
+    if not location:
+        return None
+    u = urlsplit(location)
+    scheme, host = (u.scheme or "http").lower(), (u.hostname or HOST).lower()
+    if scheme not in ("http", "https") or host not in A1_HOSTS or u.query or u.fragment or u.username:
+        return None
+    if not (u.path == path or u.path.endswith(path)):
+        return None
+    return scheme, host, u.port or (443 if scheme == "https" else 80), u.path
+
+
+def _body(res, dest, limit, expected):
+    raw = res.getheader("Content-Length")
+    length = int(raw) if raw is not None else None
+    if res.getheader("Content-Encoding", "identity").lower() != "identity":
+        raise TransportError("encoding", "unexpected Content-Encoding")
+    if length is not None and not 0 < length <= limit:
+        raise TransportError("length", "invalid Content-Length")
+    if expected and (res.chunked or length not in expected):
+        raise TransportError("length", "FITS Content-Length disagrees with availability")
+    with dest.open("xb") as f:
+        while f.tell() < limit:
+            chunk = res.read1(min(65536, limit - f.tell()))
+            if not chunk:
+                break
+            f.write(chunk)
+        size = f.tell()
+    if size == 0 or (length is not None and size != length) or (length is None and size == limit):
+        raise TransportError("length", "incomplete or capped HTTP body")
+
+
+def receive_a1(target, dest, limit, expected, timeout, sidecar, opener=None):
+    """GET http://jsoc.stanford.edu<target>; follow at most one allowed redirect with verified TLS.
+    The number of HTTP requests and the final URL are written to sidecar (JSON) before any body check."""
+    opener = opener or _open
+    info = dict(requests=0, final_url=None)
+    try:
+        info["requests"] += 1
+        status, location, res, conn = opener("http", HOST, 80, target, timeout)
+        try:
+            if status in (301, 302, 303, 307, 308):
+                nxt = follow_location(location, target)
+                if nxt is None:
+                    raise TransportError("redirect", f"redirect not allowed: {location}")
+                conn.close()
+                info["requests"] += 1
+                status, location, res, conn = opener(*nxt, timeout)
+                if status in (301, 302, 303, 307, 308):
+                    raise TransportError("redirect", "second redirect")
+                info["final_url"] = f"{nxt[0]}://{nxt[1]}{nxt[3]}"
+            else:
+                info["final_url"] = f"http://{HOST}{target}"
+            if status != 200:
+                raise TransportError(f"http_{status}", "unexpected status")
+            _body(res, dest, limit, expected)
+        finally:
+            conn.close()
+    except ssl.SSLError as exc:
+        raise TransportError("tls", str(exc)) from exc
+    finally:
+        sidecar.write_text(json.dumps(info))
+
+
+def _open(scheme, host, port, path, timeout):
+    if scheme == "https":
+        conn = http.client.HTTPSConnection(host, port, timeout=min(timeout, 20), context=ssl.create_default_context())
+    else:
+        conn = http.client.HTTPConnection(host, port, timeout=min(timeout, 20))
+    conn.request("GET", path, headers={"Accept-Encoding": "identity"})
+    res = conn.getresponse()
+    return res.status, res.getheader("Location"), res, conn
+
+
+def _child(target, dest, limit, expected, timeout, sidecar, errfile):
+    signal.setitimer(signal.ITIMER_REAL, timeout)
+    try:
+        receive_a1(target, dest, limit, expected, timeout, sidecar)
+    except TransportError as exc:
+        errfile.write_text(json.dumps(dict(kind=exc.kind, error=str(exc))))
+        raise
+
+
+def transfer_a1(target, dest, limit, expected, timeout):
+    """Spawned worker with an elapsed deadline (as transfer); returns (requests, final_url)."""
+    sidecar, errfile = dest.with_suffix(".transport.json"), dest.with_suffix(".error.json")
+    child = get_context("spawn").Process(target=_child, args=(target, dest, limit, expected, timeout, sidecar, errfile))
+    start = time.monotonic()
+    child.start()
+    try:
+        child.join(max(0, timeout - (time.monotonic() - start)))
+        info = json.loads(sidecar.read_text()) if sidecar.exists() else dict(requests=2, final_url=None)
+        if child.exitcode != 0:
+            kind = json.loads(errfile.read_text())["kind"] if errfile.exists() else "worker"
+            raise TransportError(kind, "HTTP worker failed or exceeded deadline")
+        return info["requests"], info["final_url"]
+    finally:
+        if child.is_alive():
+            child.kill()
+        child.join()
+        child.close()
+
+
+def run_a1(prepared, old=OUTPUT, out=OUTPUT_A1, transport=transfer_a1):
+    """A1 §4-§5: keywords reused from the first ledger (SHA-256 verified), one remaining attempt per FITS,
+    separate budget of HTTP requests and seconds, stop after 3 consecutive failures of the same class."""
+    pairs, records, certificates, schemas, n, seconds, total = prepared
+    io.verify(io.ROOT / "docs/PROTOCOL_MDI_HMI_SMALL_COMPARISON_A1.md", A1_HASH)
+    first = io.readjson(old / "LEDGER.json")
+    if (first["protocol"], first["pairs"], first["segments"]) != (io.PROTOCOL_HASH, io.PAIR_HASH, io.SEGMENT_HASH):
+        raise ValueError("First ledger provenance")
+    out.mkdir(parents=True, exist_ok=True)
+    with (out / "LOCK").open("a") as lock:
+        fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        lp = out / "LEDGER.json"
+        ledger = io.readjson(lp) if lp.exists() else dict(
+            protocol=io.PROTOCOL_HASH, pairs=io.PAIR_HASH, segments=io.SEGMENT_HASH, amendment=A1_HASH,
+            first_ledger_sha256=io.sha(old / "LEDGER.json"), events=[])
+        if ledger.get("amendment") != A1_HASH:
+            raise ValueError("Ledger amendment mismatch")
+        events = ledger["events"]
+        diag = out / "DIAGNOSIS.json"
+        diag_requests = 1 if diag.exists() else 0
+        # keys: copy the verified first-ledger bodies (no network) under the same key names
+        ok_first = {e["key"]: e for e in first["events"] if e["state"] == "ok"}
+        failed_first = {e["key"]: e for e in first["events"] if e["state"] != "ok"}
+        for key, e in ok_first.items():
+            if not key.endswith("_keys") or any(x["key"] == key for x in events):
+                continue
+            src = old / e["body"]
+            io.verify(src, e["sha256"])
+            dst = out / e["body"]
+            dst.write_bytes(src.read_bytes())
+            events.append(dict(e, copied_from=str(src.relative_to(io.BASE)), requests=0))
+        save(lp, ledger)
+        manifest, unavailable, last_kinds = [], {}, []
+
+        def used():
+            return (diag_requests + sum(x.get("requests", 0) for x in events),
+                    sum(x.get("seconds", 0) for x in events if "copied_from" not in x))
+
+        def checkpoint(stopped=None):
+            save(out / "MANIFEST.json", dict(protocol=io.PROTOCOL_HASH, amendment=A1_HASH, estimated_bytes=total,
+                 status=("complete" if len(manifest) == 84 and not unavailable else "partial"),
+                 stopped=stopped, requests_used=used()[0], seconds_used=used()[1],
+                 segments=manifest, unavailable=unavailable))
+        for (series, rec), files in records.items():
+            side = "hmi" if series == io.HMI else "smarp"
+            for name, r in files.items():
+                tag = f"{int(r['slot']):02d}_{side}_{name}"
+                done = [x for x in events if x["key"] == tag and x["state"] == "ok"]
+                if done:
+                    path = out / done[0]["body"]
+                    io.verify(path, done[0]["sha256"])
+                    manifest.append(dict(**r, file=path.name, sha256=done[0]["sha256"], actual_bytes=path.stat().st_size,
+                                         final_url=done[0].get("final_url")))
+                    continue
+                tried = (1 if tag in failed_first else 0) + sum(1 for x in events if x["key"] == tag)
+                if tried >= 2:
+                    unavailable[tag] = "two attempts exhausted"
+                    continue
+                req, secs = used()
+                fits_bytes = sum(x["bytes"] for x in events if x.get("fits") and "copied_from" not in x)
+                size = int(r["reported_bytes"])
+                if req + 2 > A1_REQUESTS or A1_SECONDS - secs < 1 or fits_bytes + size + 1 > TOTAL_LIMIT:
+                    checkpoint("A1 budget")
+                    raise ValueError("A1 budget exhausted")
+                path = out / f"{len(events) + 1:03d}_{tag}.fits"
+                e = dict(key=tag, url="http://" + HOST + r["path"], body=path.name, state="pending",
+                         seconds=min(40., A1_SECONDS - secs), bytes=size + 1, fits=True, requests=2)
+                events.append(e)
+                save(lp, ledger)
+                start = time.monotonic()
+                try:
+                    nreq, final = transport(r["path"], path, size + 1, (size, size + 1), e["seconds"])
+                    e.update(requests=nreq, final_url=final, bytes=path.stat().st_size)
+                    with path.open("rb") as f:
+                        if f.read(9) != b"SIMPLE  =" or path.stat().st_size % 2880:
+                            raise TransportError("signature", "unexpected FITS signature or size")
+                    e.update(state="ok", sha256=io.sha(path))
+                    manifest.append(dict(**r, file=path.name, sha256=e["sha256"], actual_bytes=e["bytes"], final_url=final))
+                    last_kinds = []
+                except TransportError as exc:
+                    e.update(state="failed", error=str(exc), kind=exc.kind)
+                    unavailable[tag] = str(exc)
+                    last_kinds.append(exc.kind)
+                finally:
+                    e["seconds"] = time.monotonic() - start
+                    side_info = path.with_suffix(".transport.json")
+                    if side_info.exists():
+                        e["requests"] = json.loads(side_info.read_text())["requests"]
+                    save(lp, ledger)
+                    checkpoint()
+                if len(last_kinds) >= A1_STOP_AFTER and len(set(last_kinds[-A1_STOP_AFTER:])) == 1:
+                    checkpoint(f"systematic error: {last_kinds[-1]}")
+                    raise ValueError(f"stopped after {A1_STOP_AFTER} consecutive '{last_kinds[-1]}' failures")
+        checkpoint()
+        return manifest
+
+
 if __name__ == "__main__":
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--fetch", action="store_true", help="perform the reviewed download")
+    ap.add_argument("--fetch-a1", action="store_true", help="amendment A1 transport (one allowed redirect)")
     args = ap.parse_args()
     data = preflight()
     print(f"{len(data[0])} pairs; {len(data[1])} records; FITS budget estimate {data[-1]} bytes")
+    if args.fetch_a1:
+        acquired = run_a1(data)
+        print(f"Verified {len(acquired)}/84 FITS. See {OUTPUT_A1}/MANIFEST.json")
+        raise SystemExit(0 if len(acquired) == 84 else 1)
     if args.fetch:
         acquired = run(OUTPUT, data)
         print(f"Verified {len(acquired)}/84 FITS. See {OUTPUT}/MANIFEST.json")

@@ -232,15 +232,16 @@ def adapt_record(series, record, files, paths, kw, quality, cert, schema):
     return dict(arrays=arrays, header=hdr, lon=lon, lat=lat, footprint=mask, geometry=view,
                 area_cm2=geometry.pixel_area_cm2(hdr), radius_cm=geometry.rsun_cm(hdr))
 
-def load_selected(slot, series, names):
-    """Load one selected record from verified receipts, with an explicit subset for R0."""
+def load_selected(slot, series, names, directory=None):
+    """Load one selected record from verified receipts, with an explicit subset for R0.
+    directory: patch_download (default) or patch_download_a1 (amendment A1, keys copied from the first ledger)."""
     pairs, records = plan()
     certificates, schemas = reference_inputs()
     p, = (p for p in pairs if int(p["slot"]) == slot)
     side, q = ("hmi", "quality_hmi") if series == HMI else ("smarp", "quality_mdi")
     record = p[side+"_record"]
     files = records[series, record]
-    directory = BASE/"patch_download"
+    directory = BASE/"patch_download" if directory is None else Path(directory)
     ledger = readjson(directory/"LEDGER.json")
     if (ledger["protocol"], ledger["pairs"], ledger["segments"]) != (PROTOCOL_HASH, PAIR_HASH, SEGMENT_HASH):
         raise ValueError("Unexpected acquisition provenance")

@@ -853,6 +853,7 @@ scripts/t5_reading_paired_indicator.py
 test/test_process_day.pro
 test/test_sharp_bl_source_single.pro
 tests/test_geometry.py
+tests/test_mdi_hmi_download_a1.py
 tests/test_mdi_hmi_patch_io.py
 tests/test_mdi_overlap_kernels.py
 tests/test_p2_synthetic.py
