@@ -1,0 +1,9 @@
+{
+  "protocol": "docs/PROTOCOL_MWO_PILOT.md",
+  "sha256": "74e6b58279c96a9179970aff0609ab078cbb5ef541b419e19b60c9aa84992cfe",
+  "freeze_commit": "e48b14036f58dc632e18f7f5a2a1d816df848aab",
+  "frozen_utc": "2026-11-18T16:02:00.295859+00:00",
+  "approved_by": "Codex (freeze with approved choices; run after recount fix 305191e)",
+  "candidates": 534,
+  "matched": 267
+}
