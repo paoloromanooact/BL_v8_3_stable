@@ -32,7 +32,7 @@ def main():
     prior_s = sum(r["seconds"] for r in req["requests"])
     prepared = dl.preflight_sample(prior_n, prior_s, REQUESTS_CAP)
     print(f"{len(prepared[0])} pairs; {len(prepared[1])} records; FITS estimate {prepared[-1]} bytes; prior requests {prior_n}")
-    m = dl.run_sample(prepared, BASE / "patch_download", REQUESTS_CAP, math.inf)
+    m = dl.run_sample(prepared, BASE / "patch_download", REQUESTS_CAP, 1e9)   # no overall time limit (finite for JSON)
     print(f"verified {len(m)} FITS")
     return 0 if len(m) == sum(map(len, prepared[1].values())) else 1
 
