@@ -1,0 +1,37 @@
+{
+  "checks": [
+    {
+      "name": "pilot product hashes",
+      "ok": true,
+      "value": ""
+    },
+    {
+      "name": "every evaluable record re-measured from its FITS with own geometry (tilt, flux, leading polarity)",
+      "ok": true,
+      "value": "211 records, max |dtilt| 1.8e-12 deg, max rel flux 3.3e-16, leading mismatches 0"
+    },
+    {
+      "name": "candidates, matching and exclusion causes rebuilt independently",
+      "ok": true,
+      "value": "534 candidates, 267 matched, 0 mismatches"
+    },
+    {
+      "name": "d_ax and d_gamma recomputed",
+      "ok": true,
+      "value": ""
+    },
+    {
+      "name": "summary table (all, hemispheres, terciles, upper terciles by hemisphere) rebuilt",
+      "ok": true,
+      "value": "max abs 1.1e-16, 9 groups"
+    },
+    {
+      "name": "final verdict recomputed",
+      "ok": true,
+      "value": "('variante MWO utilizzabile', 'variante MWO utilizzabile')"
+    }
+  ],
+  "passed": 6,
+  "total": 6,
+  "reader": "float32 before BSCALE (pipeline convention)"
+}
