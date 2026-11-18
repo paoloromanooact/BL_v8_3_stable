@@ -1,0 +1,23 @@
+{
+  "protocol": "docs/PROTOCOL_HMI_FOLLOWUPS.md",
+  "sha256": "316fa968e610559362174513b411395912d87a34585f9022d910f5385b7951c8",
+  "freeze_commit": "255e6587ea4a77062a67aedcf624734d1075259c",
+  "frozen_utc": "2026-11-18T15:22:27.612569+00:00",
+  "approved_by": "Codex review (go for freeze and synthetic validation of Q1 and Q2, 5 processes)",
+  "silso_max": {
+    "24": [
+      "2014-04",
+      115.3
+    ],
+    "25": [
+      "2024-10",
+      159.2
+    ]
+  },
+  "hemispheric_minima": {
+    "24N": "2007-12",
+    "24S": "2009-02",
+    "25N": "2019-12",
+    "25S": "2019-05"
+  }
+}
