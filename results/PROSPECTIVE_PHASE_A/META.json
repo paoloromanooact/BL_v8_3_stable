@@ -1,0 +1,250 @@
+{
+  "plan": "docs/PROSPECTIVE_INFORMATION_PLAN.md",
+  "plan_sha256": "c92be19b5ccbbe2bfe0770046b72ba8f8ae16cd36fb386996530a1a02939dc5f",
+  "freeze_commit": "71c7d179b2161b49c1f4c1c7c1d1c3f91d303037",
+  "amendment": "docs/PROSPECTIVE_INFORMATION_PLAN_A1.md",
+  "amendment_sha256": "61c766eb16982c10991b4589c1986a49b0c8dfadecf79a61de2eaeaa09e4e487",
+  "git_commit": "6f4b416b7869190d349651e78b38f96fc5a78874",
+  "script_sha256": "e99df1d295cac35a4e64dade8e51b32045b2e0acbcc4e63b5b2f8caab96adcec",
+  "inputs": {
+    "results/P1/P1_SBL_CATALOG_BY_HARP.csv": "67dc6a74a27b44f9ddd958f5a5dcc972a564300af89444c781665926ca0488af",
+    "ancillary/SILSO_HEMI/SN_m_hem_V2.0.csv": "32690e4372ab6355d05f54d9ccd96158564029892a62128db42eb3fa8b79292f",
+    "results/T5_PROXY_SENSITIVITY/META.json": "82bda819493c6c5f092b46d5f1b8b929d551ff34e73f01d157ca14d319919e86",
+    "results/T5_POWER_SENSITIVITY/RAW.csv.gz": "96c4a7f8cb9d3cfe5e3f6d00a98a1f8e5fb1f17d43fccabc3b27b27b77eb0b01",
+    "results/P3/P3_BARD_SUMMARY.csv": "3834b23ef0e9b0b432389d261fa3c32715fd9506e6155b89f7be5822dc254495"
+  },
+  "env": {
+    "python": "3.10.12",
+    "numpy": "2.2.6",
+    "pandas": "2.3.3"
+  },
+  "A_lo": "0.5020189558504007",
+  "A_hi": "2.7602501179328134",
+  "terciles": [
+    0.4834392219445365,
+    1.2871279860224054
+  ],
+  "units": {
+    "eta_bar": 3.56e-25,
+    "abs_dbeta5_E0": 3.6686068380640123e-26,
+    "abs_dbeta3_E0": 1.602647454341313,
+    "sbar_E0": 0.27917948049178304,
+    "tilt_scale_deg": 2.107
+  },
+  "t3_historical_grid_target_deg": -4.800000000000001,
+  "seconds": 327.1,
+  "selftest": [
+    {
+      "name": "CR 1 starts on 1853-11-09 (Carrington's definition)",
+      "ok": true,
+      "value": "1853-11-09 21:36:25.504540805"
+    },
+    {
+      "name": "cycle of time and phase",
+      "ok": true,
+      "value": ""
+    },
+    {
+      "name": "phase classes",
+      "ok": true,
+      "value": ""
+    },
+    {
+      "name": "WLS row reproduces the coefficient of the named column",
+      "ok": true,
+      "value": ""
+    },
+    {
+      "name": "bias is linear in the offset coefficients",
+      "ok": true,
+      "value": ""
+    },
+    {
+      "name": "null without bias: each side 1.25 %",
+      "ok": true,
+      "value": ""
+    },
+    {
+      "name": "exclusion under null = recognition of the symmetric alternative",
+      "ok": true,
+      "value": ""
+    },
+    {
+      "name": "negative bias raises false 'supportato'",
+      "ok": true,
+      "value": ""
+    },
+    {
+      "name": "seeds disjoint from every used range and unique",
+      "ok": true,
+      "value": ""
+    },
+    {
+      "name": "exclusion under null: formula, both bias signs, equals symmetric recognition only without bias",
+      "ok": true,
+      "value": ""
+    },
+    {
+      "name": "worst cases over both signs (also with a positive target)",
+      "ok": true,
+      "value": ""
+    },
+    {
+      "name": "phase B: 114 candidates on a complete synthetic RAW",
+      "ok": true,
+      "value": ""
+    },
+    {
+      "name": "phase B refuses a duplicated realisation",
+      "ok": true,
+      "value": ""
+    },
+    {
+      "name": "phase B refuses a non-finite index",
+      "ok": true,
+      "value": ""
+    },
+    {
+      "name": "outputs: existing destination refused, META last with hashes, no partial left",
+      "ok": true,
+      "value": ""
+    },
+    {
+      "name": "f = 0 keeps no MDI record",
+      "ok": true,
+      "value": ""
+    },
+    {
+      "name": "same seed, same design",
+      "ok": true,
+      "value": ""
+    },
+    {
+      "name": "empty probability 1 gives empty slots",
+      "ok": true,
+      "value": ""
+    },
+    {
+      "name": "hemispheres never merged",
+      "ok": true,
+      "value": ""
+    },
+    {
+      "name": "arrival cycles >= 22",
+      "ok": true,
+      "value": ""
+    },
+    {
+      "name": "registered m23, cycle-24 and cycle-25 maxima (plan \u00a710)",
+      "ok": true,
+      "value": "{'m23': '1996-08', 'max24': '2014-04', 'max25': '2024-10', 'last': '2026-09'}"
+    },
+    {
+      "name": "A1 \u00a71: 67 analogue CR for 67 E1 CR, one to one in order (CR 2317->2175 ... 2383->2241)",
+      "ok": true,
+      "value": "67 CR 2175..2241"
+    },
+    {
+      "name": "A1 \u00a71: a different analogue count stops (no wrap-around)",
+      "ok": true,
+      "value": ""
+    },
+    {
+      "name": "A1 \u00a72: E2 has 184 CR, CR 2096 only in E0, none in the 1998 gap",
+      "ok": true,
+      "value": "184 CR 1905..2095"
+    },
+    {
+      "name": "record dates inside their CR (Meeus starts)",
+      "ok": true,
+      "value": "2485/2485"
+    },
+    {
+      "name": "cycle offsets o in {-1,0,+1}; plan \u00a73 quotes +1: 2, -1: 2 (record dates)",
+      "ok": true,
+      "value": "slot dates {-1: 2, 0: 2481, 1: 2}; record dates {-1: 2, 0: 2481, 1: 2}"
+    },
+    {
+      "name": "E0 T5 design 2375 records in 318 cells",
+      "ok": true,
+      "value": ""
+    },
+    {
+      "name": "E0 T3 design 2485 records in 394 cells",
+      "ok": true,
+      "value": ""
+    },
+    {
+      "name": "A_lo, A_hi equal to the proxy note",
+      "ok": true,
+      "value": "(0.5020189558504007, 2.7602501179328134)"
+    },
+    {
+      "name": "A0 T5 target on E0, delta_max 0.2 (39c010c)",
+      "ok": true,
+      "value": "-3.6686068380640123e-26 (-0.10305 eta_bar)"
+    },
+    {
+      "name": "A0 T5 target on E0, delta_max 0.1 (39c010c)",
+      "ok": true,
+      "value": "-1.8331887834593415e-26 (-0.05149 eta_bar)"
+    },
+    {
+      "name": "E0 model (b) equals (a) without MDI",
+      "ok": true,
+      "value": ""
+    },
+    {
+      "name": "A1 T5 SE on E0 equals the O reference of the power study (9 configurations)",
+      "ok": true,
+      "value": "max rel 6.66e-16"
+    },
+    {
+      "name": "T3 WLS record row equal to P2f units (as a multiset)",
+      "ok": true,
+      "value": ""
+    },
+    {
+      "name": "A1 T3 variance on E0 equals the individual + temporal parts of V.cell_level",
+      "ok": true,
+      "value": "max rel 0.00e+00"
+    },
+    {
+      "name": "A0 T3 target on E0 computed (not previously registered)",
+      "ok": true,
+      "value": "-1.6026 deg = -0.0668 gamma0 (historical grid -4.800000000000001 deg)"
+    },
+    {
+      "name": "tilt scale 2.107 deg = P3 C1 MDI median axial distance",
+      "ok": true,
+      "value": "2.107382427987936"
+    },
+    {
+      "name": "one E3 realisation analysed end to end",
+      "ok": true,
+      "value": "1480 added records, 135/502 empty slots, 0 discarded (cycle < 22)"
+    },
+    {
+      "name": "no column dropped on a design with MDI records",
+      "ok": true,
+      "value": ""
+    },
+    {
+      "name": "on E0 exactly the MDI columns are dropped",
+      "ok": true,
+      "value": "{'M24N|M24S|M_x3', 'M24N|M24S', 'M24N|M24S|M_x5', 'M24N|M24S|M_N|M_S|M_A'}"
+    }
+  ],
+  "n_b_selected": 4,
+  "products_sha256": {
+    "RAW.csv.gz": "09ceadab4d6979e2576afef22b42aea7abbdf27e652b41d95d47e3b62327d104",
+    "FREQUENCIES.csv.gz": "f98af8d58de912c76ed05413495fabb200adda89387aab1f8b9b7a249d1512b5",
+    "SENSITIVITY_C.csv": "4ae9561bd748fb0ba44a365c7a57864092d388e1f887e356868dd4c18af7e1e1",
+    "B_SELECTION.csv": "c97599d8b32560a6a32b37d1369270b1e7cae271ef067f7fbcfc636001fc841d",
+    "DESIGNS.csv": "571312a108d2aefcf86e8036f20e1e0c64865405d001a5ba3f238600725a9c65",
+    "SLOTS.csv.gz": "1aeff6f3ad9eb05fcc20947410bd2bee5d182bd7670ae5e16aaacbf6af8fcba8",
+    "STRATA_E0.csv": "3cd764aa9327ba359fa4904f3daa55fde1f5ed1276b90f62a170a0f97b54e9b8",
+    "STRATA_MERGES.csv": "defe103477b6b190921ba7a4561ab52ee73bc6a5cd00daefde5e0691404591ef"
+  },
+  "outcome": "eseguita"
+}
