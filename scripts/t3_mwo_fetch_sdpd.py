@@ -48,7 +48,7 @@ def spot_row_ok(line, year):
         return False
     if lat > 900 or lon > 900 or lcm > 900:
         return True
-    return abs(lat) <= 90 and 0 <= lon <= 360 and abs(lcm) <= 90
+    return abs(lat) <= 90 and 0 <= lon <= 360 and abs(lcm) <= 95      # |LCM| up to 91.02 at the limb in the real files
 
 
 def looks_like_spots(body, year):
@@ -114,6 +114,8 @@ def selftest():
     ok("non-numeric essential field refused", not looks_like_spots(bad_num.encode(), 1974))
     ok("seconds = 60 accepted (as in the real 1977 file)",
        looks_like_spots(real.splitlines()[0].replace("03 20 30", "03 20 60").encode(), 1974))
+    ok("limb spot with |LCM| slightly above 90 accepted (real rows of 1978, 1979, 1998)",
+       looks_like_spots(real.splitlines()[0].replace(" -5.51", "-91.02").encode(), 1974))
     ok("invalid date refused", not looks_like_spots(real.splitlines()[0].replace("1974 01 02", "1974 02 30").encode(), 1974))
     ok("intermittent-phase marker 999999 accepted",
        looks_like_spots((real.splitlines()[0][:58] + " 999999 999999 999999 999999 999999").encode(), 1974))
