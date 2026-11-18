@@ -1,5 +1,16 @@
 # Cold restart — SHARP BL
 
+## Piccolo confronto MDI–HMI eseguito (Claude, Codex senza token) — 18 novembre 2026
+
+Downloader di Codex: prima corsa (`a19d3b6`) con HTTP 302 su tutti gli 84 FITS e 149 tentativi consumati; emendamento
+A1 (`c409666`) prima di nuove richieste; diagnosi (redirect a https://jsoc1.stanford.edu, stesso percorso); trasporto A1
+(`6904765`, 13 prove offline); download 84/84 (169 richieste, 135 s). R0 superato su HARP 191. Confronti con il runner
+sui kernel di Codex (`run_9f80330`) e riconteggio indipendente di Claude (`recount_d278db3`): concordi entro 1e-8.
+Valutabili solo A1/A2 su 5 coppie e B su 4 (maschere vuote o una sola polarità al minimo; una bitmap SMARP con codici
+non documentati). Risultati in [MDI_HMI_SMALL_COMPARISON_RESULTS.md](MDI_HMI_SMALL_COMPARISON_RESULTS.md):
+tilt Br→LOS/μ mediana |d_ax| 0,4°, MDI−HMI mediana |d_ax| 2,15°; flussi e dipoli molto più diversi; segnalazione nel
+nord con n = 1; strato N laterale vuoto per B, quindi decisione sul catalogo MDI aperta. Da rivedere con Codex.
+
 ## Piccolo confronto MDI–HMI — downloader e adattatore per la revisione di Claude
 
 Il downloader `scripts/mdi_hmi_patch_download.py` senza argomenti esegue solo il preventivo
