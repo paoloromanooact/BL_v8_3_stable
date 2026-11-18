@@ -1,0 +1,16 @@
+{
+  "plan_sha256": "c92be19b5ccbbe2bfe0770046b72ba8f8ae16cd36fb386996530a1a02939dc5f",
+  "amendment_sha256": "61c766eb16982c10991b4589c1986a49b0c8dfadecf79a61de2eaeaa09e4e487",
+  "git_commit": "9cc4cf7b9ed55c6eb4cdec38209bf784af106fa0",
+  "script_sha256": "d85124a4cdbd9f536136f7817a46db0e558416e45a3eca892c8a8ca0f5335afd",
+  "phase_a_meta_sha256": "83eefd8ed4e13513c37093d42e509f9527a2310588841a950418bb891a884b31",
+  "b_selection_sha256": "c97599d8b32560a6a32b37d1369270b1e7cae271ef067f7fbcfc636001fc841d",
+  "n_catalogues": 1000,
+  "hours": 1.7579469809929529,
+  "predicted_hours": 0.40393911762002066,
+  "products_sha256": {
+    "RAW.csv.gz": "3ef46f27341b1024904f6b48673ff13e6ea16c99837e22e6de2512e8b67cbb37",
+    "SUMMARY.csv": "3fe2f86de02ef04d2d3a383c663e06b1d7032d56170683c1f56b3720acad2c9b"
+  },
+  "outcome": "eseguita"
+}
