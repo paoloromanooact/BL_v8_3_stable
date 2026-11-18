@@ -120,8 +120,9 @@ def dpd_groups(dpd_dir=DPD_DIR, years=range(1974, 2013)):
                 continue
             try:
                 lat, lon, lcm, area = float(line[59:65]), float(line[66:72]), float(line[73:79]), int(line[53:58])
-                t = datetime(int(line[2:6]), int(line[7:9]), int(line[10:12]), int(line[13:15]), int(line[16:18]),
-                             int(line[19:21]))
+                # seconds = 60 occur in DPD (75 group rows 1974-2012): added as an interval, never dropped
+                t = datetime(int(line[2:6]), int(line[7:9]), int(line[10:12]), int(line[13:15]), int(line[16:18])) \
+                    + timedelta(seconds=int(line[19:21]))
             except ValueError:
                 continue
             if lat > 900 or lon > 900 or lcm > 900:
@@ -388,7 +389,8 @@ def cr_of(times):
     spec = importlib.util.spec_from_file_location("t3_dpd_feasibility", ROOT / "scripts/t3_dpd_feasibility.py")
     F = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(F)
-    return F.cr_of(pd.DatetimeIndex(times).normalize().to_series(index=range(len(times))))
+    # full instant of the measurement (no truncation to midnight: Codex's review)
+    return F.cr_of(pd.Series(pd.DatetimeIndex(times), index=range(len(times))))
 
 
 def losses(g, cands, design, acts):
@@ -515,6 +517,13 @@ def selftest():
         epoch_of("1996/m960413_2273_0fe1.fits", {}, datetime(1996, 4, 13)),
         epoch_of("1990/MP00_5250078_x.fits", {"MRKMOD": 1284}, datetime(1990, 2, 1))] == ["E1", "E5",
                                                                                            "E6", "E7", "E8", "unassigned"])
+    spec = importlib.util.spec_from_file_location("ppa", ROOT / "scripts/prospective_phase_a.py")
+    PA = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(PA)
+    tb = PA.cr_start(1800)
+    crs = cr_of([tb - pd.Timedelta(hours=1), tb + pd.Timedelta(hours=1), pd.Timestamp("1988-03-15 07:52")])
+    ok("Carrington rotation from the full instant: one hour before / after the start of CR 1800, and 1988-03-15 07:52",
+       list(crs) == [1799, 1800, 1800] and tb < pd.Timestamp("1988-03-15 07:52"), (str(tb), list(crs)))
     ok("cycle by date (20 before 1976-03)", [cycle_of(pd.Timestamp(x)) for x in
                                              ("1975-12-31", "1976-03-01", "1996-07-31", "2008-12-01")] == [20, 21, 22, 24])
     t0 = datetime(1990, 5, 1, 9)
@@ -530,6 +539,13 @@ def selftest():
     gi = add_isolation(g)
     ok("isolation: neighbour centre inside the window (also across 0/360), other days ignored",
        gi.isolated.tolist() == [False, False, False, False, True])
+    with tempfile.TemporaryDirectory() as td:
+        line = "g 1977 03 09 08 55 60    790          13    84     7    47  16.99 202.17  11.52 335.04 0.4534"
+        for y in range(1974, 2013):
+            (Path(td) / f"gDPD{y}.txt").write_text(line + "\r\n" if y == 1977 else "")
+        gg = dpd_groups(td)
+    ok("DPD group row with seconds = 60 kept (time 08:56:00), not dropped",
+       len(gg) == 1 and gg.t_dpd.iloc[0] == datetime(1977, 3, 9, 8, 56, 0) and gg.noaa.iloc[0] == "790")
     # measurement on a synthetic magnetogram: equals the pilot measurement without BLANK, BLANK pixels excluded
     h, B = P.synthetic(lat0=15.0, lon0=110.0, tilt=10.0)
     h = dict(h, BLANK=-32768, BSCALE=0.1, BZERO=0.0)

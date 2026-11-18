@@ -47,7 +47,7 @@ def groups(dpd=DPD):
             f = line[59:65], line[66:72], line[73:79], line[53:58]
             try:
                 lat, lon, lcm, area = float(f[0]), float(f[1]), float(f[2]), int(f[3])
-                t = datetime.strptime(line[2:21], "%Y %m %d %H %M %S")
+                t = datetime.strptime(line[2:18], "%Y %m %d %H %M") + timedelta(seconds=int(line[19:21]))
             except ValueError:
                 continue
             if max(lat, lon, lcm) > 900:
@@ -62,12 +62,12 @@ def isolation(gr):
     by_day = {}
     for (d, n), r in gr.items():
         by_day.setdefault(d, []).append(r)
-    iso = {}
+    nb = {}
     for d, rs in by_day.items():
         for r in rs:
-            iso[(d, r["noaa"])] = not any(o["noaa"] != r["noaa"] and abs(o["lat"] - r["lat"]) <= WIN_LAT
-                                          and abs((o["lon"] - r["lon"] + 180) % 360 - 180) <= WIN_LON for o in rs)
-    return iso
+            nb[(d, r["noaa"])] = sum(o["noaa"] != r["noaa"] and abs(o["lat"] - r["lat"]) <= WIN_LAT
+                                     and abs((o["lon"] - r["lon"] + 180) % 360 - 180) <= WIN_LON for o in rs)
+    return nb
 
 
 def header_and_data(buf):
@@ -237,11 +237,21 @@ def measure(h, B, blank, g, lat0, lon0):
     return dict(status="ok", tilt=t, lead=lead, lat_bar=lat_bar, phi=float(w[pos].sum() + w[neg].sum()), nb=nb)
 
 
+def carrington_number(t):
+    """Own Carrington rotation number of an instant: fraction of rotation from the Meeus longitude L0 of the disc
+    centre (L0 = 360 at the start of a rotation, decreasing), integer from the mean synodic period."""
+    from astropy.time import Time
+    L0, _ = meeus(t)
+    frac = ((360.0 - L0) % 360.0) / 360.0
+    approx = (Time(t, scale="utc").jd - 2398140.2270) / 27.2752316
+    return int(round(approx - frac)), min(L0, 360.0 - L0)
+
+
 # ---------------------------------------------------------------- rebuild
 
 def rebuild(dpd=DPD, archive=MWO_DATA, years=range(1974, 2014)):
     gr = groups(dpd)
-    iso = isolation(gr)
+    nbr = isolation(gr)
     mags = magnetograms(archive, years)
     by_day = {}
     for m in mags:
@@ -254,7 +264,7 @@ def rebuild(dpd=DPD, archive=MWO_DATA, years=range(1974, 2014)):
         ok = [m for m in by_day.get(r["day"], []) if m["eph"] and m["epoch"] != "unassigned"]
         best = min(ok, key=lambda m: (rank[m["cls"]], abs((m["ot"] - r["t"]).total_seconds()), m["tavg"], m["member"])) \
             if ok else None
-        att[k] = dict(r, iso=iso[k], mag=best, border=any(m["border"] for m in by_day.get(r["day"], [])))
+        att[k] = dict(r, iso=nbr[k] == 0, nbr=nbr[k], mag=best, border=any(m["border"] for m in by_day.get(r["day"], [])))
     need = {}
     for k, a in att.items():
         if a["mag"]:
@@ -283,29 +293,52 @@ def rebuild(dpd=DPD, archive=MWO_DATA, years=range(1974, 2014)):
     return att, recs
 
 
-def activity_main(dpd=DPD):
-    """Monthly mean over observed days of the daily hemispheric sum of corrected group areas, per hemisphere,
-    normalised to the 1974-2012 mean (own computation from all group rows with valid positions)."""
-    days = []
+def activities(dpd=DPD, silso_tot=ROOT / "ancillary/SILSO_TOT/SN_m_tot_V2.0.txt",
+               silso_hem=ROOT / "ancillary/SILSO_HEMI/SN_m_hem_V2.0.csv"):
+    """Own monthly hemispheric activities, normalised by their mean: A_main (DPD group areas over observed days, all
+    group rows with valid positions), A_own (only Gyula/Debrecen days), A_silso_hem (1992-2012), A_silso_split (SILSO
+    total times the DPD area fraction of the month, 0.5 when the month has no area)."""
+    days, src = [], {}
     for line in (Path(dpd) / "dailyDPD1974_2016.txt").read_text().splitlines():
         t = line.split()
         if line.startswith("d ") and len(t) >= 12:
             d = f"{t[1]}-{t[2]}-{t[3]}"
             if D0 <= d < D1:
                 days.append(d)
+                src[d] = t[7]
     tot = {d: {"N": 0.0, "S": 0.0} for d in days}
     for (d, _), r in groups(dpd).items():
         if d in tot:
             tot[d]["N" if r["lat"] >= 0 else "S"] += r["area"]
-    df = pd.DataFrame.from_dict(tot, orient="index")
+    df = pd.DataFrame.from_dict(tot, orient="index")[["N", "S"]]
     df.index = pd.to_datetime(df.index)
     m = df.groupby(df.index.to_period("M")).mean()
-    return m / m.mean()
+    own = df[[src[d.strftime("%Y-%m-%d")] in ("GYUL", "DEBR") for d in df.index]]
+    mo = own.groupby(own.index.to_period("M")).mean().reindex(m.index)
+    sn = {}
+    for line in Path(silso_tot).read_text().splitlines():
+        f = line.split()
+        if len(f) >= 4:
+            sn[pd.Period(f"{int(f[0])}-{int(f[1]):02d}", "M")] = float(f[3])
+    snm = pd.Series(sn).reindex(m.index)
+    t_ = m.N + m.S
+    fn = (m.N / t_).where(t_ > 0, 0.5)
+    split = pd.DataFrame({"N": snm * fn, "S": snm * (1 - fn)})
+    hem = {}
+    for line in Path(silso_hem).read_text().splitlines():
+        f = line.split(";")
+        if len(f) >= 6:
+            per = pd.Period(f"{int(f[0])}-{int(f[1]):02d}", "M")
+            if pd.Period("1992-01", "M") <= per <= pd.Period("2012-12", "M"):
+                hem[per] = {"N": float(f[4]), "S": float(f[5])}
+    h = pd.DataFrame.from_dict(hem, orient="index").replace(-1.0, np.nan)
+    return dict(A_main=m / m.mean(), A_own=mo / mo.mean(), A_silso_hem=(h / h.mean()).reindex(m.index),
+                A_silso_split=split / split.mean())
 
 
 # ---------------------------------------------------------------- comparison with the runner products
 
-def check(cat=CAT, out=OUT, dpd=DPD, archive=MWO_DATA, years=range(1974, 2014), write=True):
+def check(cat=CAT, out=OUT, dpd=DPD, archive=MWO_DATA, years=range(1974, 2014), write=True, **act_kw):
     design = pd.read_csv(Path(cat) / "DESIGN.csv", dtype={"noaa": str})
     attempts = pd.read_csv(Path(cat) / "ATTEMPTS.csv.gz", dtype={"noaa": str})
     sealed = pd.read_csv(Path(cat) / "SEALED.csv.gz", dtype={"noaa": str})
@@ -317,21 +350,27 @@ def check(cat=CAT, out=OUT, dpd=DPD, archive=MWO_DATA, years=range(1974, 2014), 
         print(f"[{'OK' if c else 'FALLITO'}] {n} {v}")
     ok("product hashes", all(hashlib.sha256((Path(cat) / n).read_bytes()).hexdigest() == h
                              for n, h in meta["products_sha256"].items()))
+    ok("multiplicity: one attempt per (day, group), one design and one sealed row per (set, group), same keys",
+       not attempts.duplicated(["day", "noaa"]).any() and not design.duplicated(["record_set", "noaa"]).any()
+       and not sealed.duplicated(["record_set", "noaa"]).any()
+       and set(zip(design.record_set, design.noaa)) == set(zip(sealed.record_set, sealed.noaa)))
     att, recs = rebuild(dpd, archive, years)
+    border = {k for k, a in att.items() if a["border"]}
     mine = {k: ("no_magnetogram" if a["mag"] is None else a["m"]["status"]) for k, a in att.items()}
     theirs = {(r.day, r.noaa): r.status for r in attempts.itertuples()}
-    border = {k for k, a in att.items() if a["border"]}
     diff = {k for k in set(mine) | set(theirs) if mine.get(k) != theirs.get(k)}
-    ok("candidate days and status of every attempt", len(diff - border) == 0 and len(mine) == len(theirs),
+    ok("candidate days and status of every attempt", not diff and len(mine) == len(theirs),
        f"{len(mine)} mine, {len(theirs)} runner, {len(diff)} differ ({len(diff & border)} on ephemeris-borderline days)")
     mem = {(r.day, r.noaa): r.member for r in attempts.itertuples() if isinstance(r.member, str)}
-    dm = [k for k, a in att.items() if a["mag"] and mem.get(k) != a["mag"]["member"] and k not in border]
-    ok("chosen magnetogram of every candidate day", not dm, f"{len(dm)} differ")
+    nbw = {(r.day, r.noaa): r.n_blank_win for r in attempts.itertuples()}
+    dm = {k for k, a in att.items() if a["mag"] and mem.get(k) != a["mag"]["member"]}
+    ok("chosen magnetogram of every candidate day", not dm, f"{len(dm)} differ ({len(dm & border)} borderline)")
     keys_r = {(r.record_set, r.noaa) for r in design.itertuples()}
     ok("record sets (isolated, all): same groups", keys_r == set(recs), f"runner {len(keys_r)}, mine {len(recs)}")
-    act = activity_main(dpd)
-    worst = dict(lat=0.0, phi=0.0, tilt=0.0, gamma=0.0, A=0.0)
-    bad_cat, bad_lead, n = 0, 0, 0
+    acts = activities(dpd, **act_kw)
+    worst = dict(lat=0.0, sinlat=0.0, phi=0.0, tilt=0.0, gamma=0.0, A=0.0, pos=0.0)
+    bad = {c: 0 for c in ("categorical", "CR", "cycle", "blank", "time", "activity_nan")}
+    cr_border, bad_lead, n, bad_keys = 0, 0, 0, set()
     sx = sealed.set_index(["record_set", "noaa"])
     for r in design.itertuples():
         k = (r.record_set, r.noaa)
@@ -340,30 +379,68 @@ def check(cat=CAT, out=OUT, dpd=DPD, archive=MWO_DATA, years=range(1974, 2014), 
         a = recs[k]
         m = a["m"]
         hem = "N" if m["lat_bar"] >= 0 else "S"
-        bad_cat += int((a["day"], a["mag"]["member"], a["mag"]["epoch"], a["mag"]["cls"], hem, a["rank"], a["n_cand"],
-                        bool(a["iso"])) != (r.day, r.member, r.epoch, r.res_class, r.hemisphere, r.rank, r.n_cand,
-                                            bool(r.isolated)))
+        cat_mine = (a["day"], a["mag"]["member"], a["mag"]["epoch"], a["mag"]["cls"], hem, a["rank"], a["n_cand"],
+                    bool(a["iso"]), a["nbr"], a["area"])
+        cat_run = (r.day, r.member, r.epoch, r.res_class, r.hemisphere, r.rank, r.n_cand, bool(r.isolated),
+                   r.n_neighbours, r.dpd_area)
+        if cat_mine != cat_run:
+            bad["categorical"] += 1
+            bad_keys.add((a["day"], a["noaa"]))
+        cyc = 20
+        for c_, d_ in ((21, "1976-03-01"), (22, "1986-09-01"), (23, "1996-08-01"), (24, "2008-12-01")):
+            if a["day"] >= d_:
+                cyc = c_
+        bad["cycle"] += int(cyc != r.cycle)
+        crn, dist = carrington_number(a["mag"]["ot"])
+        if crn != r.CR:
+            if dist < 0.1:                         # within ~11 minutes of a rotation start: reported as borderline
+                cr_border += 1
+            else:
+                bad["CR"] += 1
+        bad["blank"] += int(m["nb"] != r.n_blank_win or nbw.get((a["day"], a["noaa"])) != r.n_blank_win)
+        bad["time"] += int(pd.Timestamp(r.obs_time) != pd.Timestamp(a["mag"]["ot"]))
         worst["lat"] = max(worst["lat"], abs(m["lat_bar"] - r.lat_bar))
+        worst["sinlat"] = max(worst["sinlat"], abs(math.sin(math.radians(abs(m["lat_bar"]))) - r.sinlat))
         worst["phi"] = max(worst["phi"], abs(m["phi"] / r.phi_mwo - 1))
+        worst["pos"] = max(worst["pos"], abs(a["lat"] - r.dpd_lat), abs((a["lon"] - r.dpd_lon + 180) % 360 - 180),
+                           abs(a["lcm"] - r.lcm), abs(abs(a["lcm"]) - r.abs_lcm))
         per = pd.Period(r.day[:7], "M")
-        worst["A"] = max(worst["A"], abs(act.at[per, hem] - r.A_main))
-        s = sx.loc[k]
-        worst["tilt"] = max(worst["tilt"], abs((m["tilt"] - s.tilt_deg + 180) % 360 - 180))
+        for name, tab in acts.items():
+            v = tab.at[per, hem] if per in tab.index else np.nan
+            w = getattr(r, name)
+            if np.isfinite(v) != np.isfinite(w):
+                bad["activity_nan"] += 1
+            elif np.isfinite(v):
+                worst["A"] = max(worst["A"], abs(v - w))
+        s_ = sx.loc[k]
+        worst["tilt"] = max(worst["tilt"], abs((m["tilt"] - s_.tilt_deg + 180) % 360 - 180))
         g = math.copysign(1.0, m["lat_bar"]) * math.degrees(math.asin(math.sin(math.radians(m["tilt"]))))
-        worst["gamma"] = max(worst["gamma"], abs(g - s.gamma_deg))
-        bad_lead += int(m["lead"] != s.leading_sign)
+        worst["gamma"] = max(worst["gamma"], abs(g - s_.gamma_deg))
+        bad_lead += int(m["lead"] != s_.leading_sign)
         n += 1
-    ok("design columns (day, member, epoch, class, hemisphere, rank, candidates, isolation)", bad_cat == 0, f"{bad_cat} rows differ of {n}")
-    ok("lat_bar, flux, main activity", worst["lat"] < 1e-6 and worst["phi"] < 1e-9 and worst["A"] < 1e-12,
-       f"max |dlat| {worst['lat']:.1e}, max rel flux {worst['phi']:.1e}, max |dA| {worst['A']:.1e}")
+    ok("design: day, member, epoch, class, hemisphere, rank, candidates, isolation, neighbours, DPD area",
+       bad["categorical"] == 0, f"{bad['categorical']} rows differ of {n}")
+    ok("design: Carrington rotation of the full instant, cycle, observation time, BLANK count",
+       bad["CR"] == 0 and bad["cycle"] == 0 and bad["time"] == 0 and bad["blank"] == 0,
+       f"CR {bad['CR']} (+{cr_border} within 0.1 deg of a rotation start), cycle {bad['cycle']}, time {bad['time']}, "
+       f"BLANK {bad['blank']}")
+    ok("design: lat_bar, sin|lat|, flux, DPD position and LCM",
+       worst["lat"] < 1e-6 and worst["sinlat"] < 1e-9 and worst["phi"] < 1e-9 and worst["pos"] < 1e-9,
+       f"max |dlat| {worst['lat']:.1e}, |dsin| {worst['sinlat']:.1e}, rel flux {worst['phi']:.1e}, pos {worst['pos']:.1e}")
+    ok("design: main activity and the three sensitivity activities", worst["A"] < 1e-12 and bad["activity_nan"] == 0,
+       f"max |dA| {worst['A']:.1e}, missing-value mismatches {bad['activity_nan']}")
     ok("sealed tilt, gamma and leading sign (compared automatically, values not shown)",
        worst["tilt"] < 1e-6 and worst["gamma"] < 1e-6 and bad_lead == 0,
        f"max |dtilt| {worst['tilt']:.1e}, max |dgamma| {worst['gamma']:.1e}, leading mismatches {bad_lead}")
+    unresolved = len(diff & border) + len(dm & border) + cr_border
+    ok("no unresolved difference on ephemeris-borderline days or at rotation starts", unresolved == 0,
+       f"{unresolved} (if not zero, this receipt is a PARTIAL check)")
+    partial = unresolved > 0
     if write:
         Path(out).mkdir(parents=True, exist_ok=False)
-        (Path(out) / "RECEIPT.json").write_text(json.dumps(dict(checks=res, passed=sum(r["ok"] for r in res),
-                                                                total=len(res), n_borderline_attempts=len(border & set(mine))),
-                                                           indent=2) + "\n")
+        (Path(out) / "RECEIPT.json").write_text(json.dumps(dict(
+            checks=res, passed=sum(r["ok"] for r in res), total=len(res), partial=partial,
+            n_borderline_days=len(border), n_unresolved_borderline=unresolved), indent=2) + "\n")
     return all(r["ok"] for r in res)
 
 
@@ -431,6 +508,8 @@ def selftest():
         for y in range(1974, 2013):
             (td / f"gDPD{y}.txt").write_text("\n".join(lines) + "\n" if y == 1990 else "")
         (td / "dailyDPD1974_2016.txt").write_text("".join(f"d {d:%Y %m %d} 09 00 00 GYUL   10  100   10  100 0 0 0\n" for d in days))
+        (td / "tot.txt").write_text("1990 04 1990.288  100.0  9.0  400 1\n1990 05 1990.371  140.0 10.0  500 1\n")
+        (td / "hem.csv").write_text("1990;05;1990.371;140.0;80.0;60.0;1;1;1;9;9;9;1\n1993;05;1993.371;60.0;30.0;30.0;1;1;1;9;9;9;1\n")
         code = f"""
 import sys, json, hashlib, importlib.util
 from pathlib import Path
@@ -439,7 +518,7 @@ s = importlib.util.spec_from_file_location('c', {str(ROOT / 'scripts/t3_mwo_cata
 C = importlib.util.module_from_spec(s); s.loader.exec_module(C)
 td = Path({str(td)!r}); out = td / 'cat'; out.mkdir()
 ga = C.dpd_groups(td); mg = C.magnetogram_table(td, years=[1990])
-att, design, sealed, loss, cov = C.build(ga, mg, archive_dir=td, dpd_dir=td)
+att, design, sealed, loss, cov = C.build(ga, mg, archive_dir=td, dpd_dir=td, silso_tot=td / 'tot.txt', silso_hem=td / 'hem.csv')
 design.to_csv(out / 'DESIGN.csv', index=False); sealed.to_csv(out / 'SEALED.csv.gz', index=False)
 att.to_csv(out / 'ATTEMPTS.csv.gz', index=False)
 h = {{f.name: hashlib.sha256(f.read_bytes()).hexdigest() for f in out.iterdir()}}
@@ -448,7 +527,8 @@ h = {{f.name: hashlib.sha256(f.read_bytes()).hexdigest() for f in out.iterdir()}
         r = subprocess.run([sys.executable, "-c", code], capture_output=True, text=True, cwd=ROOT)
         ok("runner executed on the synthetic archive", r.returncode == 0, r.stderr[-300:] if r.returncode else "")
         if r.returncode == 0:
-            good = check(td / "cat", td / "r1", dpd=td, archive=td, years=[1990], write=False)
+            kw = dict(silso_tot=td / "tot.txt", silso_hem=td / "hem.csv")
+            good = check(td / "cat", td / "r1", dpd=td, archive=td, years=[1990], write=False, **kw)
             ok("check() passes on the runner outputs", good)
             s = pd.read_csv(td / "cat/SEALED.csv.gz", dtype={"noaa": str})
             s.loc[0, "tilt_deg"] += 0.5
@@ -457,7 +537,20 @@ h = {{f.name: hashlib.sha256(f.read_bytes()).hexdigest() for f in out.iterdir()}
             meta["products_sha256"]["SEALED.csv.gz"] = hashlib.sha256((td / "cat/SEALED.csv.gz").read_bytes()).hexdigest()
             (td / "cat/META.json").write_text(json.dumps(meta))
             ok("check() fails on a tampered sealed tilt", not check(td / "cat", td / "r2", dpd=td, archive=td, years=[1990],
-                                                                   write=False))
+                                                                   write=False, **kw))
+            s.loc[0, "tilt_deg"] -= 0.5
+            s.to_csv(td / "cat/SEALED.csv.gz", index=False)
+            clean = pd.read_csv(td / "cat/DESIGN.csv", dtype={"noaa": str})
+            for col, delta in (("CR", 1), ("cycle", 1), ("sinlat", 0.01), ("n_blank_win", 3), ("A_own", 0.1),
+                               ("A_silso_split", 0.1)):
+                d2 = clean.copy()
+                d2.loc[0, col] = d2.loc[0, col] + delta
+                d2.to_csv(td / "cat/DESIGN.csv", index=False)
+                meta["products_sha256"]["DESIGN.csv"] = hashlib.sha256((td / "cat/DESIGN.csv").read_bytes()).hexdigest()
+                meta["products_sha256"]["SEALED.csv.gz"] = hashlib.sha256((td / "cat/SEALED.csv.gz").read_bytes()).hexdigest()
+                (td / "cat/META.json").write_text(json.dumps(meta))
+                ok(f"check() fails on a tampered design column {col}",
+                   not check(td / "cat", td / "r3", dpd=td, archive=td, years=[1990], write=False, **kw))
     print(f"selftest: {sum(res)}/{len(res)} superati")
     return all(res)
 

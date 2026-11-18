@@ -36,7 +36,9 @@ def spot_row_ok(line, year):
         return False
     try:
         y, mo, d, hh, mi, ss = (int(line[a:b]) for a, b in ((2, 6), (7, 9), (10, 12), (13, 15), (16, 18), (19, 21)))
-        datetime(y, mo, d, hh, mi, ss)
+        datetime(y, mo, d, hh, mi)                 # seconds may be 60 in DPD (e.g. 1977-03-09 08:55:60)
+        if not 0 <= ss <= 60:
+            return False
         int(line[29:34]), int(line[35:40]), int(line[41:46]), int(line[47:52]), int(line[53:58])
         lat, lon, lcm = float(line[59:65]), float(line[66:72]), float(line[73:79])
         float(line[80:86]), float(line[87:93])
@@ -110,6 +112,8 @@ def selftest():
     ok("'s garbage' refused", not looks_like_spots(b"s garbage\n", 1974))
     bad_num = real.splitlines()[0].replace(" -14.86", " -1x.86")
     ok("non-numeric essential field refused", not looks_like_spots(bad_num.encode(), 1974))
+    ok("seconds = 60 accepted (as in the real 1977 file)",
+       looks_like_spots(real.splitlines()[0].replace("03 20 30", "03 20 60").encode(), 1974))
     ok("invalid date refused", not looks_like_spots(real.splitlines()[0].replace("1974 01 02", "1974 02 30").encode(), 1974))
     ok("intermittent-phase marker 999999 accepted",
        looks_like_spots((real.splitlines()[0][:58] + " 999999 999999 999999 999999 999999").encode(), 1974))
