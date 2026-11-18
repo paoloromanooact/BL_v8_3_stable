@@ -86,6 +86,21 @@ disponibilità da verificare, eventualmente scrivendo agli autori. Prima di cong
 copertura: se lo è, conviene valutare la stessa analisi su di esso (stesso calcolo analitico della nota, poi protocollo
 proprio). I magnetogrammi MWO dell'altro progetto (1967–2012) permetterebbero tilt misurati da noi, a costo molto maggiore.
 
+### 8b. Variante proposta: tilt magnetici nostri da DPD + magnetogrammi MWO
+
+Dati già disponibili sul disco di archivio dell'altro progetto (`/storage/shared/gianluca/MWO_project/Desktop/MWO/data MWO/`,
+archivi annuali 1967–2013, 9,9 GB, circa 1900 magnetogrammi per anno): disco intero 512×512, campo LOS in gauss, keyword
+CARROT, CENLON, B0, X0/Y0/R0; pixel d'immagine 3,8″ ma risoluzione d'osservazione circa 12,9″ × 20,1″ (keyword
+DXB_OBS/DYB_OBS, esempio 1990). Metodo proposto: posizione giornaliera del gruppo da DPD (NOAA, latitudine, longitudine)
+→ magnetogramma MWO più vicino nel tempo → finestra fissa attorno al gruppo → baricentri pesati del flusso positivo e
+negativo di LOS/μ sopra una soglia → tilt magnetico con polarità e segno di Hale, come in P1. Vantaggi: stessa grandezza
+di P1, polarità, sovrapposizioni con MDI (1996–2010) e HMI (2010–2013). Limiti: risoluzione grossolana (regioni compatte
+poco affidabili), cambi di strumentazione MWO nel tempo, regioni vicine nella stessa finestra.
+
+Prima di qualsiasi analisi T3 con questa variante: **pilota descrittivo** nella sovrapposizione 2010–2013 (tilt MWO
+contro P1 sulle stesse regioni NOAA) e, se utile, 1996–2010 contro MDI, sul modello del confronto MDI–HMI; protocollo
+proprio con soglie fissate prima. La scelta fra luce bianca (§3) e variante MWO va fatta prima del congelamento.
+
 ## 9. Ordine
 
 Revisione di Codex → congelamento → acquisizione `sDPD` con SHA-256 → validazione del §6 sul disegno (nessun tilt) →
