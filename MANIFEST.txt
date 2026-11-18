@@ -826,6 +826,7 @@ results/T5_PROXY_SENSITIVITY_SELFTEST/RECEIPT_R2.txt
 scripts/check_repo.sh
 scripts/download_test_20240508.sh
 scripts/mdi_hmi_comparison_recount.py
+scripts/mdi_hmi_comparison_run.py
 scripts/mdi_hmi_footprint_mu.py
 scripts/mdi_hmi_patch_download.py
 scripts/mdi_hmi_patch_io.py
