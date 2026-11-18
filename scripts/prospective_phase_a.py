@@ -1,7 +1,8 @@
 """Phase A of the prospective information plan: A0 targets and A1 analytic WLS precision and bias.
 
 Plan docs/PROSPECTIVE_INFORMATION_PLAN.md, frozen as a conserved plan in 71c7d17 (SHA-256 c92be19b...), launched on
-the user's explicit decision of 2026-11-18. Not a validation and not an application: no real slope, no catalogue
+the user's explicit decision of 2026-11-18; amendment A1 docs/PROSPECTIVE_INFORMATION_PLAN_A1.md (calendar: E1 one to one
+without wrap-around, CR 2096 only in E0, Meeus CR starts), registered after Codex's review of b6c00c0. Not a validation and not an application: no real slope, no catalogue
 simulation (that is phase B), no MDI data. The extended designs E1-E4 are resampled copies of HMI cells (plan §3).
 Not blind: T3, P2f, T5-D1/D2 and the power study are known.
 
@@ -18,12 +19,19 @@ Implementation choices (not new decision rules; listed for the review):
 - Cycle of time and phase of a slot from its CR start date (also for the donor cells, where o = record cycle - cycle
   of time of the donor slot); counts with record dates are reported beside (plan §3 quotes 2 and 2 in S).
 - E2 slots: CR start in [1996-01-01, 2010-05-01), CR interval [start, next start) not intersecting
-  [1998-06-01, 1998-11-01), and CR < 2096 (CR 2096 starts on 2010-04-22 and is already an E0 slot).
-- E1 slots CR 2317..2383; analogue CRs = CR starting in [2016-03-01, 2021-03-01), in order, cyclically (plan §10).
+  [1998-06-01, 1998-11-01), and CR < 2096 (A1 §2: CR 2096 starts on 2010-04-22 and is only an E0 slot); 184 CR.
+- E1 slots CR 2317..2383; analogue CRs = CR starting in [2016-03-01, 2021-03-01), in order, one to one (A1 §1: a
+  different count is a technical error, no wrap-around).
 - E3 has its own seeds (plan §3: seeds per extension and f) and draws its E1 and E2 parts in CR order; E4 reuses the
   E2 designs of the same f and r with zero offsets (plan: "come E2"), analytic only.
 - Draw order per slot, slots in CR order then N, S: one uniform for the empty slot, one integer for the donor, then
   (MDI only) one uniform per copied record for the yield f. Donors are drawn with replacement, uniformly in stratum.
+- Exclusion of the prescribed reduction under null (plan §6): P(lower end of the interval > target) with the signed
+  bias, reported separately from the recognition frequency (they differ when the bias is not zero).
+- Sensitivity (c): both signs of the activity offset are evaluated; the worst case for recognition is the minimum of
+  'supportato' under the scenario, the worst case for false recognitions the maximum of 'supportato' under null.
+- --run refuses an existing output directory, writes into a temporary sibling, re-reads and hashes every product,
+  then renames it; META.json with outcome 'eseguita' is the last file written.
 - The T3-J drift is multiplied by sin|lambda| like the rest of family J; the T3-A drift is not.
 - Columns identically zero on a design (e.g. I^{M24}_h without MDI) are dropped and recorded; any further rank
   deficiency is a technical error. beta is always the column named x5 or x3.
@@ -35,6 +43,7 @@ import argparse
 import hashlib
 import importlib.util
 import json
+import os
 import platform
 import subprocess
 import sys
@@ -55,6 +64,8 @@ _spec.loader.exec_module(PX)
 
 PLAN = ROOT / "docs/PROSPECTIVE_INFORMATION_PLAN.md"
 SHA_PLAN = "c92be19b5ccbbe2bfe0770046b72ba8f8ae16cd36fb386996530a1a02939dc5f"
+AMEND = ROOT / "docs/PROSPECTIVE_INFORMATION_PLAN_A1.md"
+SHA_AMEND = "61c766eb16982c10991b4589c1986a49b0c8dfadecf79a61de2eaeaa09e4e487"
 FREEZE_COMMIT = "71c7d179b2161b49c1f4c1c7c1d1c3f91d303037"
 CATALOGUE = ROOT / "results/P1/P1_SBL_CATALOG_BY_HARP.csv"
 PROXY_META = ROOT / "results/T5_PROXY_SENSITIVITY/META.json"
@@ -182,6 +193,15 @@ def analogue_crs():
     return [int(c) for c in crs[(st >= ANALOGUE[0]) & (st < ANALOGUE[1])]]
 
 
+def e1_pairs(an=None):
+    """A1 §1: the k-th E1 CR takes the k-th analogue CR; a different count stops the run (no wrap-around)."""
+    an = analogue_crs() if an is None else list(an)
+    crs = list(range(E1_CR[0], E1_CR[1] + 1))
+    if len(an) != len(crs):
+        raise TechnicalError(f"{len(an)} analogue CR for {len(crs)} E1 CR: no wrap-around (amendment A1)")
+    return list(zip(crs, an))
+
+
 class Strata:
     """E0 slots, terciles, empty-slot probabilities, donor cells and the fixed merge order (plan §3)."""
 
@@ -266,10 +286,7 @@ def extension_slots(ext, st):
     if ext in ("E2", "E3"):
         out += [make_slot(cr, h, st.silso, "MDI", q=st.q) for cr in e2_crs() for h in ("N", "S")]
     if ext in ("E1", "E3"):
-        an = analogue_crs()
-        crs = range(E1_CR[0], E1_CR[1] + 1)
-        out += [make_slot(cr, h, st.silso, "HMI", analogue=an[k % len(an)], q=st.q)
-                for k, cr in enumerate(crs) for h in ("N", "S")]
+        out += [make_slot(cr, h, st.silso, "HMI", analogue=an, q=st.q) for cr, an in e1_pairs() for h in ("N", "S")]
     out.sort(key=lambda s: (s["CR"], s["hem"]))
     return out
 
@@ -448,6 +465,25 @@ def freqs(dbeta, m, se):
     return dict(sup=norm.cdf(-Z - x), opp=norm.cdf(-Z + x), cov=norm.cdf(Z - m / se) - norm.cdf(-Z - m / se))
 
 
+def exclusion_null(target, m, se):
+    """Plan §6: under null with bias m, P(lower end of the interval > target), i.e. the prescribed (negative)
+    reduction is excluded. Equal to recognition of the symmetric alternative only when m = 0."""
+    return norm.cdf(-Z + (m - target) / se)
+
+
+def worst_case(target, b1, unit, C, se):
+    """Sensitivity (c): both signs of an activity offset |coef| <= C; minimum recognition under the scenario and
+    maximum false 'supportato' under null, computed separately (the sign is not inferred from the target)."""
+    mags = (C * unit * b1, -C * unit * b1)
+    rec = [freqs(target, m, se) for m in mags]
+    nul = [freqs(0.0, m, se) for m in mags]
+    i_rec = int(np.argmin([r["sup"] for r in rec]))
+    i_nul = int(np.argmax([r["sup"] for r in nul]))
+    tol = 0.5 * abs(target) / (unit * abs(b1)) if b1 != 0 else np.inf
+    return dict(sup_scen_worst=rec[i_rec]["sup"], cov_scen_worst=rec[i_rec]["cov"], m_scen_worst=mags[i_rec],
+                sup_null_worst=nul[i_nul]["sup"], m_null_worst=mags[i_nul], tolerance_units=tol)
+
+
 def analyse_design(R, ext, f, r, seed, a_lo, a_hi, k_values):
     """Targets, SE per noise and k, and bias bases for every test/family/model of one design."""
     out = []
@@ -514,6 +550,7 @@ def frequency_table(raw, u):
             tg = df[f"target_{tag}"].to_numpy()
             sc = freqs(tg, m, se)
             cols.update({f"se_over_target_{tag}": se / np.abs(tg), f"m_over_target_{tag}": m / np.abs(tg),
+                         f"excl_null_{tag}": exclusion_null(tg, m, se),
                          f"sup_scen_{tag}": sc["sup"], f"opp_scen_{tag}": sc["opp"], f"cov_scen_{tag}": sc["cov"]})
         parts.append(df[["ext", "f", "r", "test", "family", "model", "noise", "form", "x_scale", "k", "c0", "c1", "c2"]]
                      .assign(**cols))
@@ -532,16 +569,11 @@ def sensitivity_c(raw, u):
     for _, x in sub.iterrows():
         un = family_units(x.family, u)
         for C in C_LIMITS:
-            mag = C * un[1] * abs(x.B1)
             rec = dict(ext=x.ext, f=x.f, r=x.r, test=x.test, family=x.family, noise=x.noise, form=x.form,
                        x_scale=x.x_scale, k=x.k, C=C)
             for tag, col in (("020", "target_020"), ("010", "target_010")):
-                tg = x[col]
-                worst_rec = freqs(tg, +mag * np.sign(-tg), x.se)       # bias towards zero
-                worst_false = freqs(0.0, -mag * np.sign(-tg), x.se)    # bias towards the predicted sign
-                tol = 0.5 * abs(tg) / (un[1] * abs(x.B1)) if x.B1 != 0 else np.inf
-                rec.update({f"sup_scen_worst_{tag}": worst_rec["sup"], f"cov_scen_worst_{tag}": worst_rec["cov"],
-                            f"sup_null_worst_{tag}": worst_false["sup"], f"tolerance_units_{tag}": tol})
+                w = worst_case(x[col], x.B1, un[1], C, x.se)
+                rec.update({f"{k}_{tag}": v for k, v in w.items()})
             recs.append(rec)
     df = pd.DataFrame(recs)
     if df.empty:
@@ -571,10 +603,12 @@ def b_selection(raw, u):
         if ext != "E1":
             sel &= (raw.f == 0.75) & (raw.k == 1.5)
         x = raw[sel].sort_values("r")
-        if len(x) != N_REAL:
-            raise TechnicalError(f"B candidate {test}/{fam}/{ext}/{model}/{form}: {len(x)} realisations")
+        if x.r.tolist() != list(range(N_REAL)):
+            raise TechnicalError(f"B candidate {test}/{fam}/{ext}/{model}/{form}: realisations {x.r.tolist()}")
         un = family_units(fam, u)
         p = np.array([freqs(t, coef * un[1] * b1, se)["sup"] for t, b1, se in zip(x.target_020, x.B1, x.se)])
+        if not np.isfinite(p).all():
+            raise TechnicalError(f"B candidate {test}/{fam}/{ext}/{model}/{form}: non-finite index")
         order_r = sorted(zip(p, x.r), key=lambda v: (v[0], v[1]))
         p10, r10 = order_r[9]
         lo, hi = B_BANDS[form]
@@ -687,6 +721,45 @@ def selftest():
        abs(freqs(3.0, 0.0, 1.0)["opp"] - f2["sup"]) < 1e-15)
     ok("negative bias raises false 'supportato'", freqs(0.0, -1.0, 1.0)["sup"] > f1["sup"])
     ok("seeds disjoint from every used range and unique", seeds_ok())
+    # plan §6: exclusion of the prescribed reduction under null, with a bias of either sign
+    ex_ok = abs(exclusion_null(-3.0, 0.0, 1.0) - freqs(3.0, 0.0, 1.0)["opp"]) < 1e-15
+    for m_ in (0.4, -0.4):
+        direct = 1.0 - norm.cdf((-3.0 + Z * 1.0 - m_) / 1.0)              # P(beta_hat - z se > target)
+        ex_ok &= abs(exclusion_null(-3.0, m_, 1.0) - direct) < 1e-14
+        ex_ok &= abs(exclusion_null(-3.0, m_, 1.0) - freqs(3.0, 0.0, 1.0)["opp"]) > 1e-3   # differs from recognition
+    ok("exclusion under null: formula, both bias signs, equals symmetric recognition only without bias", ex_ok)
+    # sensitivity (c): both signs, independent of the target sign
+    wc_ok = True
+    for tg_ in (-1.0, 1.0):
+        for b1_ in (0.7, -0.7):
+            w_ = worst_case(tg_, b1_, 1.0, 0.5, 0.5)
+            both_null = [freqs(0.0, m_, 0.5)["sup"] for m_ in (0.35, -0.35)]
+            both_rec = [freqs(tg_, m_, 0.5)["sup"] for m_ in (0.35, -0.35)]
+            wc_ok &= abs(w_["sup_null_worst"] - max(both_null)) < 1e-15 and abs(w_["sup_scen_worst"] - min(both_rec)) < 1e-15
+    ok("worst cases over both signs (also with a positive target)", wc_ok)
+    # phase B guards on a synthetic RAW
+    fake_raw = _fake_raw()
+    ok("phase B: 114 candidates on a complete synthetic RAW", len(b_selection(fake_raw, _FAKE_U)) == 114)
+    for label, broken in (("duplicated realisation", _break_raw(fake_raw, "dup")),
+                          ("non-finite index", _break_raw(fake_raw, "nan"))):
+        try:
+            b_selection(broken, _FAKE_U)
+            ok(f"phase B refuses a {label}", False)
+        except TechnicalError:
+            ok(f"phase B refuses a {label}", True)
+    # output protection
+    import tempfile
+    with tempfile.TemporaryDirectory() as td:
+        dest = Path(td) / "OUT"
+        m1 = write_products(dest, {"A.csv": pd.DataFrame(dict(x=[1, 2]))}, {})
+        refused = False
+        try:
+            write_products(dest, {"A.csv": pd.DataFrame(dict(x=[3]))}, {})
+        except TechnicalError:
+            refused = True
+        ok("outputs: existing destination refused, META last with hashes, no partial left",
+           refused and m1["outcome"] == "eseguita" and (dest / "META.json").exists()
+           and pd.read_csv(dest / "A.csv").x.tolist() == [1, 2] and not list(Path(td).glob("*.partial_*")))
     # synthetic strata and generator
     fake = _fake_strata()
     st, R0 = fake
@@ -706,7 +779,18 @@ def selftest():
     ok("registered m23, cycle-24 and cycle-25 maxima (plan §10)",
        (reg["m23"], reg["max24"], reg["max25"]) == ("1996-08", "2014-04", "2024-10"), reg)
     an = analogue_crs()
-    ok("analogue window CR count (67 E1 CR, cyclic)", 60 <= len(an) <= 70, f"{len(an)} CR {an[0]}..{an[-1]}")
+    pairs = e1_pairs()
+    ok("A1 §1: 67 analogue CR for 67 E1 CR, one to one in order (CR 2317->2175 ... 2383->2241)",
+       len(an) == 67 and pairs[0] == (2317, 2175) and pairs[-1] == (2383, 2241)
+       and all(b - a == 1 for (_, a), (_, b) in zip(pairs, pairs[1:])), f"{len(an)} CR {an[0]}..{an[-1]}")
+    try:
+        e1_pairs(an[:-1])
+        ok("A1 §1: a different analogue count stops (no wrap-around)", False)
+    except TechnicalError:
+        ok("A1 §1: a different analogue count stops (no wrap-around)", True)
+    e2 = e2_crs()
+    ok("A1 §2: E2 has 184 CR, CR 2096 only in E0, none in the 1998 gap", len(e2) == 184 and 2096 not in e2
+       and not any(cr_start(c) < E2_GAP[1] and cr_start(c + 1) > E2_GAP[0] for c in e2), f"{len(e2)} CR {e2[0]}..{e2[-1]}")
     st_real = Strata(S, silso)
     rec_t = S["t"]
     lo_ok = (rec_t >= cr_start(S["CR"].to_numpy())) & (rec_t < cr_start(S["CR"].to_numpy() + 1))
@@ -776,6 +860,33 @@ def selftest():
     return n_fail == 0, res
 
 
+_FAKE_U = dict(d5=1.0, d3=1.0, sbar=0.5)
+
+
+def _fake_raw():
+    """Synthetic RAW rows covering every phase B candidate (20 realisations each)."""
+    rows = []
+    for test, fam in (("T5", "F5"), ("T3", "A"), ("T3", "J")):
+        for ext in ("E1", "E2", "E3"):
+            for model in ("a", "b"):
+                for n in (1, 4, 7):
+                    for r in range(N_REAL):
+                        rows.append(dict(ext=ext, test=test, family=fam, model=model, noise=n,
+                                         f=(np.nan if ext == "E1" else 0.75), k=(1.0 if ext == "E1" else 1.5), r=r,
+                                         target_020=-1.0 - 0.01 * r, B1=0.1, se=0.5))
+    return pd.DataFrame(rows)
+
+
+def _break_raw(raw, how):
+    raw = raw.copy()
+    i = raw.index[(raw.ext == "E2") & (raw.test == "T5") & (raw.model == "a") & (raw.noise == 1) & (raw.r == 19)][0]
+    if how == "dup":
+        raw.loc[i, "r"] = 18
+    else:
+        raw.loc[i, "se"] = np.nan
+    return raw
+
+
 def _fake_strata():
     """Synthetic S with two strata per hemisphere, for generator checks only."""
     silso = run_p2.load_silso()
@@ -795,12 +906,41 @@ def _fake_strata():
 
 # ---------------------------------------------------------------- run
 
+def write_products(out, products, meta):
+    """Refuse an existing destination; write into a temporary sibling, re-read and hash every product, rename, then
+    write META.json (outcome 'eseguita') last. An interruption leaves only the temporary directory."""
+    out = Path(out)
+    if out.exists():
+        raise TechnicalError(f"destination {out} already exists: never overwritten")
+    tmp = out.with_name(out.name + f".partial_{os.getpid()}")
+    if tmp.exists():
+        raise TechnicalError(f"temporary directory {tmp} already exists")
+    tmp.mkdir(parents=True)
+    hashes = {}
+    for name, df in products.items():
+        df.to_csv(tmp / name, index=False)
+        back = pd.read_csv(tmp / name, low_memory=False)
+        if back.shape != df.shape or list(back.columns) != [str(c) for c in df.columns]:
+            raise TechnicalError(f"{name}: re-read shape or columns differ")
+        hashes[name] = sha(tmp / name)
+    os.rename(tmp, out)
+    for name, h in hashes.items():
+        if sha(out / name) != h:
+            raise TechnicalError(f"{name}: hash changed after rename")
+    meta = dict(meta, products_sha256=hashes, outcome="eseguita")
+    (out / "META.json").write_text(json.dumps(meta, indent=2, default=str))
+    return meta
+
+
 def run():
     if git("status", "--porcelain", "--untracked-files=no"):
         print("modifiche non committate: la fase A registra il commit e richiede un albero pulito")
         return 2
-    if sha(PLAN) != SHA_PLAN:
-        print("SHA-256 del piano diverso da quello congelato")
+    if sha(PLAN) != SHA_PLAN or sha(AMEND) != SHA_AMEND:
+        print("SHA-256 del piano o dell'emendamento A1 diverso da quello registrato")
+        return 2
+    if OUT.exists():
+        print(f"{OUT} esiste già: la fase A non sovrascrive una corsa")
         return 2
     passed, checks = selftest()
     if not passed:
@@ -810,19 +950,12 @@ def run():
     S, silso = load_inputs()
     res = compute(S, silso)
     raw, u = res["raw"], res["units"]
-    freq = frequency_table(raw, u)
-    sens = sensitivity_c(raw, u)
-    bsel = b_selection(raw, u)
-    OUT.mkdir(parents=True, exist_ok=True)
-    raw.to_csv(OUT / "RAW.csv.gz", index=False)
-    freq.to_csv(OUT / "FREQUENCIES.csv.gz", index=False)
-    sens.to_csv(OUT / "SENSITIVITY_C.csv", index=False)
-    bsel.to_csv(OUT / "B_SELECTION.csv", index=False)
-    res["designs"].to_csv(OUT / "DESIGNS.csv", index=False)
-    res["slots"].to_csv(OUT / "SLOTS.csv.gz", index=False)
-    res["strata"].to_csv(OUT / "STRATA_E0.csv", index=False)
-    res["merges"].to_csv(OUT / "STRATA_MERGES.csv", index=False)
+    products = {"RAW.csv.gz": raw, "FREQUENCIES.csv.gz": frequency_table(raw, u),
+                "SENSITIVITY_C.csv": sensitivity_c(raw, u), "B_SELECTION.csv": b_selection(raw, u),
+                "DESIGNS.csv": res["designs"], "SLOTS.csv.gz": res["slots"], "STRATA_E0.csv": res["strata"],
+                "STRATA_MERGES.csv": res["merges"]}
     meta = dict(plan=str(PLAN.relative_to(ROOT)), plan_sha256=SHA_PLAN, freeze_commit=FREEZE_COMMIT,
+                amendment=str(AMEND.relative_to(ROOT)), amendment_sha256=SHA_AMEND,
                 git_commit=git("rev-parse", "HEAD"), script_sha256=sha(__file__),
                 inputs={str(p.relative_to(ROOT)): sha(p) for p in (CATALOGUE, run_p2.SILSO, PROXY_META, POWER_RAW, P3_SUMMARY)},
                 env=dict(python=platform.python_version(), numpy=np.__version__, pandas=pd.__version__),
@@ -831,8 +964,8 @@ def run():
                            tilt_scale_deg=TILT_SCALE),
                 t3_historical_grid_target_deg=T3_HIST, seconds=round(time.time() - t0, 1),
                 selftest=[dict(name=n, ok=c, value=v) for n, c, v in checks],
-                n_b_selected=int(bsel.selected.sum()), outcome="eseguita")
-    (OUT / "META.json").write_text(json.dumps(meta, indent=2, default=str))
+                n_b_selected=int(products["B_SELECTION.csv"].selected.sum()))
+    meta = write_products(OUT, products, meta)
     print(f"fase A eseguita in {meta['seconds']} s; candidati B selezionati: {meta['n_b_selected']}")
     return 0
 

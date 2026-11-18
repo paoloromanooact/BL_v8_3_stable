@@ -2,6 +2,12 @@
 
 ## v8.4 (Python, branch `v8.4-python-gianluca`) — in corso
 
+- 2026-11-18, fase A dopo la revisione di Codex di b6c00c0: emendamento A1 al piano (E1 uno a uno su 67 CR
+  analoghe senza riavvolgimento, CR 2096 solo in E0, 184 CR in E2); nello script frequenza di esclusione della
+  riduzione sotto nulla con scarto firmato, casi peggiori su entrambi i segni, guardie della selezione B
+  (realizzazioni 0..19 esatte, indici finiti), output protetti (destinazione esistente rifiutata, cartella
+  temporanea, hash, META per ultimo). Selftest 40/40; `--run` non eseguito; nessun push.
+
 - 2026-11-18, piano prospettico, fase A (avvio deciso dall'utente): script `scripts/prospective_phase_a.py`
   per A0 (bersagli T5/T3 su E0-E4 e matrici (a)/(b)), A1 (SE analitici WLS, distorsioni proiettate, frequenze,
   sensibilità (c), tolleranza) e selezione deterministica dei candidati B. Selftest 32/32 con le prove di
