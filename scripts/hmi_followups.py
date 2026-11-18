@@ -17,9 +17,16 @@ Implementation choices (for the review):
   cycle-25 records, then the window. Q2 generator: |lambda| = mu + c sd_e e + x_scale * 3 deg * x_(CR,h) (+ beta (A-1)),
   mu = fit of the activity-free T4 model on the real |lambda| (design, not response of the test), e normal or t4/sqrt2
   (scenario 9), c the heteroscedastic factor of P2f for scenarios 5 and 9, x from V.gen_x.
-- Validation sizes: Q1 and Q2 (sd 6 deg) 2000 null catalogues in scenarios 0, 1, 2, 7, 9 and 500 with effect in 1 and 7;
-  Q2 sensitivity sd 4 and 9 deg: 1000 null catalogues in scenarios 1 and 7. Acceptance: Clopper-Pearson 95 % upper
-  bound of all false verdicts <= 4 % in scenarios 0, 1, 2 (P2f rule).
+- Q2 main analysis: hemispheric phase (minima of the smoothed SILSO hemispheric series); conventional phase and the
+  historical T4 as sensitivity (Codex's review, 18 Nov). The Q2 generator conditions on the sample: mu is the
+  activity-free fit to the observed |lambda| (the response of Q2), which makes the simulation conditional on S.
+- Validation grid and criteria follow P2f (docs/PROTOCOL_P2F_VALIDATED_TEST.md §5) on the scenarios 0, 1, 2, 7, 9:
+  per main test (Q1, Q2 hemispheric) 10 000 null catalogues per scenario, criteria in every scenario: false verdicts
+  <= 3.0 %, each side <= 1.75 %, errors <= 1 %; 2000 catalogues per effect combination (scenarios 1, 2, 7, 9 x two
+  effects), criteria: coverage >= 96.5 % (errors count as non-coverage) and the exclusion tail <= 2.0 % (Q1: lower end
+  above the true value; Q2: upper end below it). Sensitivities (reported, no criterion): Q2 hemispheric with individual
+  SD 4 and 9 deg, Q2 conventional phase. The grid must be complete: exact counts, replica indices and seeds per
+  configuration, no duplicates; otherwise the acceptance is False.
 """
 from __future__ import annotations
 
@@ -45,36 +52,40 @@ FROZEN = ROOT / "docs/PROTOCOL_HMI_FOLLOWUPS.md"
 OUT_VAL = ROOT / "results/HMI_FOLLOWUPS_VALIDATION"
 OUT_RUN = ROOT / "results/HMI_FOLLOWUPS"
 GAMMA0 = 24.0
-EFF_Q1 = -0.1 * GAMMA0          # deg of Joy coefficient in cycle 25
-EFF_Q2 = 1.0                    # deg per unit activity
 SD_LAT, SD_LAT_T = 6.0, 3.0
 SCEN = (0, 1, 2, 7, 9)
-CORRECT = (0, 1, 2)
-N_NULL, N_EFF, N_SENS = 2000, 500, 1000
+EFF_SCEN = (1, 2, 7, 9)
+N0, N1, NS = 10_000, 2000, 2000
+LIM_FALSE, LIM_SIDE, LIM_ERR, LIM_COV, LIM_TAIL = 0.030, 0.0175, 0.01, 0.965, 0.020
 N_PROC, T_MAX_H = 12, 8.0
-Q2_MAIN = "conventional"        # "conventional" or "hemispheric": fixed by the frozen protocol (open point §2)
+Q2_MAIN = "hemispheric"
+MAIN_TESTS = ("q1", "q2_hem")
 USED = ([tuple(r) for r in P.USED] + [(3_000_000, 5_001_000), (6_000_000, 9_002_000), (20_000_000, 20_001_000),
         (28_000_000, 28_400_000), (29_500_000, 29_500_011), (31_000_000, 33_200_000), (34_000_000, 34_240_000),
         (34_900_000, 34_901_000)])
 
 
-# ---------------------------------------------------------------- seeds
+def configs():
+    """Validation grid: one dict per configuration, in a fixed order (index = seed block)."""
+    c = []
+    for test, effs, sd in (("q1", (-0.1 * GAMMA0, -0.2 * GAMMA0), 15.0), ("q2_hem", (1.0, 2.0), SD_LAT)):
+        c += [dict(test=test, role="main", scenario=s, sd_e=sd, effect=0.0, n=N0) for s in SCEN]
+        c += [dict(test=test, role="main", scenario=s, sd_e=sd, effect=e, n=N1) for s in EFF_SCEN for e in effs]
+    c += [dict(test="q2_hem", role="sensitivity", scenario=s, sd_e=sd, effect=0.0, n=NS) for sd in (4.0, 9.0)
+          for s in (1, 7)]
+    c += [dict(test="q2", role="sensitivity", scenario=s, sd_e=SD_LAT, effect=0.0, n=NS) for s in SCEN]
+    for i, x in enumerate(c):
+        x["cfg"] = i
+    return c
 
-def seed(kind, i, k):
-    base = {"q1_null": 35_100_000, "q1_eff": 35_700_000, "q2_null": 36_100_000, "q2_sens": 36_700_000,
-            "q2_eff": 37_200_000, "q2h_null": 37_500_000, "q2h_eff": 38_100_000}[kind]
-    return base + 100_000 * i + k
+
+def seed(cfg, k):
+    return 40_000_000 + 100_000 * cfg + k
 
 
 def seeds_ok():
-    s = ([seed("q1_null", i, k) for i in range(5) for k in range(N_NULL)] +
-         [seed("q1_eff", i, k) for i in range(2) for k in range(N_EFF)] +
-         [seed("q2_null", i, k) for i in range(5) for k in range(N_NULL)] +
-         [seed("q2_sens", i, k) for i in range(4) for k in range(N_SENS)] +
-         [seed("q2_eff", i, k) for i in range(2) for k in range(N_EFF)] +
-         [seed("q2h_null", i, k) for i in range(5) for k in range(N_NULL)] +
-         [seed("q2h_eff", i, k) for i in range(2) for k in range(N_EFF)])
-    return len(set(s)) == len(s) and not any(lo <= x < hi for x in s for lo, hi in USED)
+    s = [seed(c["cfg"], k) for c in configs() for k in range(c["n"])]
+    return len(set(s)) == len(s) and not any(lo <= x < hi for x in s for lo, hi in USED) and max(s) < 50_000_000
 
 
 # ---------------------------------------------------------------- design
@@ -210,54 +221,69 @@ def m_verdict(u, truth, predicted):
     opp = r["lo"] > 0 if predicted < 0 else r["hi"] < 0
     return dict(beta=r["beta"], se=r["se"], lo=r["lo"], hi=r["hi"],
                 verdict="supportato" if sup else ("opposto" if opp else "non deciso"),
-                covered=int(r["lo"] <= truth <= r["hi"]),
+                covered=int(r["lo"] <= truth <= r["hi"]), lo_above=int(r["lo"] > truth), hi_below=int(r["hi"] < truth),
                 **{k: r[k] for k in ("var_a", "var_b", "phi", "kappa", "sigma_x2")})
 
 
 def unit(task):
-    test, kind, i, k, scen, sd_e, effect = task
+    cfg, k = task
+    c = configs()[cfg]
     d = _D["d"]
-    rng = np.random.default_rng(seed(kind, i, k))
-    if test == "q1":
-        y_all = gen_q1(d, scen, rng, effect)
+    rng = np.random.default_rng(seed(cfg, k))
+    if c["test"] == "q1":
+        y_all = gen_q1(d, c["scenario"], rng, c["effect"])
         m, X, w, a = matrices(d, "q1")
-        out = m_verdict(units(d, m, X, w, a, y_all[m]), effect, -1)
+        out = m_verdict(units(d, m, X, w, a, y_all[m]), c["effect"], -1)
     else:
-        hem = test == "q2_hem"
-        y = gen_q2(d, _D["mu_hem" if hem else "mu"], scen, rng, sd_e, effect)
+        hem = c["test"] == "q2_hem"
+        y = gen_q2(d, _D["mu_hem" if hem else "mu"], c["scenario"], rng, c["sd_e"], c["effect"])
         m, X, w, a = matrices(d, "q2_hem" if hem else "q2")
-        out = m_verdict(units(d, m, X, w, a, y), effect, +1)
-    return dict(test=test, kind=kind, i=i, k=k, scenario=scen, sd_e=sd_e, effect=effect, seed=seed(kind, i, k), **out)
+        out = m_verdict(units(d, m, X, w, a, y), c["effect"], +1)
+    return dict(cfg=cfg, k=k, seed=seed(cfg, k), **{x: c[x] for x in ("test", "role", "scenario", "sd_e", "effect")},
+                **out)
 
 
 def tasks():
-    t = [("q1", "q1_null", i, k, s, 15.0, 0.0) for i, s in enumerate(SCEN) for k in range(N_NULL)]
-    t += [("q1", "q1_eff", i, k, s, 15.0, EFF_Q1) for i, s in enumerate((1, 7)) for k in range(N_EFF)]
-    t += [("q2", "q2_null", i, k, s, SD_LAT, 0.0) for i, s in enumerate(SCEN) for k in range(N_NULL)]
-    t += [("q2", "q2_sens", i, k, s, sd, 0.0) for i, (sd, s) in enumerate([(4.0, 1), (4.0, 7), (9.0, 1), (9.0, 7)])
-          for k in range(N_SENS)]
-    t += [("q2", "q2_eff", i, k, s, SD_LAT, EFF_Q2) for i, s in enumerate((1, 7)) for k in range(N_EFF)]
-    # hemispheric-phase version of Q2 (role, main or sensitivity, fixed at the freeze)
-    t += [("q2_hem", "q2h_null", i, k, s, SD_LAT, 0.0) for i, s in enumerate(SCEN) for k in range(N_NULL)]
-    t += [("q2_hem", "q2h_eff", i, k, s, SD_LAT, EFF_Q2) for i, s in enumerate((1, 7)) for k in range(N_EFF)]
-    return t
+    return [(c["cfg"], k) for c in configs() for k in range(c["n"])]
 
 
 def summarise(raw):
-    rows = []
-    for (test, kind, scen, sd_e), g in raw.groupby(["test", "kind", "scenario", "sd_e"]):
+    """Per configuration: denominators, errors, verdicts by side, coverage and tails; acceptance per main test with the
+    P2f criteria. Any incompleteness (missing or extra configuration, wrong counts, replica indices or seeds,
+    duplicates) makes the acceptance False."""
+    rows, problems = [], []
+    expected = {c["cfg"]: c for c in configs()}
+    if raw.duplicated(["cfg", "k"]).any() or raw.seed.duplicated().any():
+        problems.append("duplicated rows or seeds")
+    extra = set(raw.cfg) - set(expected)
+    if extra:
+        problems.append(f"unexpected configurations {sorted(extra)}")
+    for cfg, c in expected.items():
+        g = raw[raw.cfg == cfg]
         n = len(g)
+        complete = (n == c["n"] and sorted(g.k) == list(range(c["n"])) and (g.seed == seed(cfg, g.k)).all()
+                    and all((g[x] == c[x]).all() for x in ("test", "scenario", "sd_e", "effect")))
+        if not complete:
+            problems.append(f"configuration {cfg} incomplete ({n}/{c['n']})")
+        err = int((g.verdict == "errore").sum())
         sup, opp = int((g.verdict == "supportato").sum()), int((g.verdict == "opposto").sum())
-        null = g.effect.iloc[0] == 0
-        r = dict(test=test, kind=kind, scenario=scen, sd_e=sd_e, n=n, errors=int((g.verdict == "errore").sum()),
-                 supportato=sup / n, opposto=opp / n, coverage=float(g.covered.sum() / n))
-        if null:
-            r["false_cp_upper95"] = p2d.cp_upper(sup + opp, n)
-            r["accepted_rule"] = bool(r["false_cp_upper95"] <= 0.04) if (scen in CORRECT and kind.endswith("null")) else None
+        good = g[g.verdict != "errore"]
+        tail = "lo_above" if c["test"] == "q1" else "hi_below"
+        r = dict(c, n_rows=n, complete=complete, errors=err, frac_errors=err / c["n"], supportato=sup / c["n"],
+                 opposto=opp / c["n"], false_total=(sup + opp) / c["n"] if c["effect"] == 0 else np.nan,
+                 coverage=float(good.covered.sum()) / c["n"], lo_above=float(good.lo_above.sum()) / c["n"],
+                 hi_below=float(good.hi_below.sum()) / c["n"], exclusion_tail=float(good[tail].sum()) / c["n"])
+        if c["role"] == "main":
+            if c["effect"] == 0:
+                r["criteria_ok"] = bool(complete and r["false_total"] <= LIM_FALSE and r["supportato"] <= LIM_SIDE
+                                        and r["opposto"] <= LIM_SIDE and r["frac_errors"] <= LIM_ERR)
+            else:
+                r["criteria_ok"] = bool(complete and r["coverage"] >= LIM_COV and r["exclusion_tail"] <= LIM_TAIL)
         rows.append(r)
     tab = pd.DataFrame(rows)
-    acc = {t: bool(tab[(tab.test == t) & tab.accepted_rule.notna()].accepted_rule.all()) for t in ("q1", "q2", "q2_hem")}
-    return tab, acc
+    acc = {t: bool(not problems and tab[(tab.test == t) & (tab.role == "main")].criteria_ok.all()
+                   and (tab.test == t).any()) for t in MAIN_TESTS}
+    return tab, acc, problems
 
 
 # ---------------------------------------------------------------- frozen-protocol gate
@@ -266,13 +292,24 @@ def git(*a):
     return subprocess.run(["git", *a], cwd=ROOT, capture_output=True, text=True).stdout.strip()
 
 
-def gate(protocol_sha):
-    if not FROZEN.exists() or hashlib.sha256(FROZEN.read_bytes()).hexdigest() != protocol_sha:
-        sys.exit("frozen protocol missing or SHA-256 differs")
-    if subprocess.run(["git", "ls-files", "--error-unmatch", str(FROZEN)], cwd=ROOT, capture_output=True).returncode:
-        sys.exit("frozen protocol not committed")
+def gate_problem(protocol_sha, frozen=None):
+    """None if the frozen protocol is present, committed, with the given SHA-256 and the tree is clean; else a reason."""
+    frozen = Path(frozen) if frozen else FROZEN
+    if not frozen.exists():
+        return "frozen protocol missing"
+    if hashlib.sha256(frozen.read_bytes()).hexdigest() != protocol_sha:
+        return "frozen protocol SHA-256 differs"
+    if subprocess.run(["git", "ls-files", "--error-unmatch", str(frozen)], cwd=ROOT, capture_output=True).returncode:
+        return "frozen protocol not committed"
     if git("status", "--porcelain", "--untracked-files=no"):
-        sys.exit("clean tree required")
+        return "clean tree required"
+    return None
+
+
+def gate(protocol_sha):
+    why = gate_problem(protocol_sha)
+    if why:
+        sys.exit(why)
 
 
 def write(out, frames, meta):
@@ -297,18 +334,30 @@ def validate(protocol_sha):
     if h > T_MAX_H:
         sys.exit(f"predicted {h:.1f} h > {T_MAX_H} h: stop before the grid")
     t0 = time.time()
+    rows = []
     with Pool(N_PROC, initializer=_init) as pool:
-        raw = pd.DataFrame(pool.map(unit, tasks(), chunksize=8))
-    tab, acc = summarise(raw)
+        for i, r in enumerate(pool.imap_unordered(unit, tasks(), chunksize=16)):
+            rows.append(r)
+            if (i + 1) % 5000 == 0:
+                print(f"{i + 1}/{len(tasks())} units, {(time.time() - t0) / 3600:.2f} h", flush=True)
+    raw = pd.DataFrame(rows).sort_values(["cfg", "k"]).reset_index(drop=True)
+    tab, acc, problems = summarise(raw)
     write(OUT_VAL, {"RAW.csv.gz": raw, "SUMMARY.csv": tab, "ACCEPTANCE.csv": pd.DataFrame([acc])},
-          dict(protocol_sha256=protocol_sha, hours=(time.time() - t0) / 3600, predicted_hours=h, acceptance=acc))
-    print(tab.to_string(index=False))
-    print(acc)
+          dict(protocol_sha256=protocol_sha, hours=(time.time() - t0) / 3600, predicted_hours=h, acceptance=acc,
+               problems=problems))
+    print(tab.to_string(index=False), flush=True)
+    print(acc, problems, flush=True)
     return 0
 
 
 def run(protocol_sha):
     gate(protocol_sha)
+    vmeta = json.loads((OUT_VAL / "META.json").read_text())
+    for name, h in vmeta["products_sha256"].items():
+        if hashlib.sha256((OUT_VAL / name).read_bytes()).hexdigest() != h:
+            sys.exit(f"validation product {name} changed")
+    if vmeta["protocol_sha256"] != protocol_sha:
+        sys.exit("validation ran under another protocol")
     acc = pd.read_csv(OUT_VAL / "ACCEPTANCE.csv").iloc[0].to_dict()
     if OUT_RUN.exists():
         sys.exit("run output exists")
@@ -317,18 +366,20 @@ def run(protocol_sha):
     for name, which, sym, pred, y in (("Q1 main (T2 window)", "q1", False, -1, d["gamma"].to_numpy()),
                                       ("Q1 symmetric window", "q1", True, -1, d["gamma"].to_numpy()),
                                       ("Q1 hemisphere-averaged", "q1_hem", False, -1, d["gamma"].to_numpy()),
-                                      ("Q2", "q2", False, +1, d["lat"].abs().to_numpy()),
                                       ("Q2 hemispheric phase", "q2_hem", False, +1, d["lat"].abs().to_numpy()),
+                                      ("Q2 conventional phase (historical T4)", "q2", False, +1, d["lat"].abs().to_numpy()),
                                       ("Q3 b (log10 Phi)", "q3_b", False, -1, d["gamma"].to_numpy())) + tuple(
             (f"Q3 quintile {q} - 1", f"q3_q{q}", False, -1, d["gamma"].to_numpy()) for q in range(2, 6)):
         m, X, w, a = matrices(d, which, sym)
         r = m_verdict(units(d, m, X, w, a, y[m]), 0.0, pred)
-        q2_main = "Q2 hemispheric phase" if Q2_MAIN == "hemispheric" else "Q2"
+        q2_main = "Q2 hemispheric phase"
         verdict_allowed = ((name.startswith("Q1 main") and acc["q1"]) or
-                           (name == q2_main and acc["q2_hem" if Q2_MAIN == "hemispheric" else "q2"]))
+                           (name == q2_main and acc["q2_hem"]))
         rows.append(dict(analysis=name, n=int(m.sum()), **{k: v for k, v in r.items() if k != "covered"},
                          verdict_reported=(r.get("verdict") if verdict_allowed else "descrittivo")))
-    write(OUT_RUN, {"ESTIMATES.csv": pd.DataFrame(rows)}, dict(protocol_sha256=protocol_sha, validation=acc))
+    write(OUT_RUN, {"ESTIMATES.csv": pd.DataFrame(rows)},
+          dict(protocol_sha256=protocol_sha, validation=acc, q2_main=Q2_MAIN,
+               validation_meta_sha256=hashlib.sha256((OUT_VAL / "META.json").read_bytes()).hexdigest()))
     print(pd.DataFrame(rows).to_string(index=False))
     return 0
 
@@ -369,8 +420,10 @@ def selftest():
     e = gen_q2(d, mu, 0, rng) - mu
     ok("Q2 generator: individual SD about 6 deg (scenario 0)", abs(e.std() - 6) < 0.3, round(float(e.std()), 2))
     _D.update(d=d, mu=mu, mu_hem=lat_mean(d, "phase_hem"))
-    r1 = unit(("q1", "q1_null", 1, 0, 1, 15.0, 0.0))
-    r2 = unit(("q2", "q2_null", 1, 0, 1, SD_LAT, 0.0))
+    cs = configs()
+    i1 = [c["cfg"] for c in cs if c["test"] == "q1" and c["scenario"] == 1 and c["effect"] == 0][0]
+    i2 = [c["cfg"] for c in cs if c["test"] == "q2_hem" and c["scenario"] == 1 and c["effect"] == 0][0]
+    r1, r2 = unit((i1, 0)), unit((i2, 0))
     ok("one Q1 and one Q2 catalogue analysed by M", r1["verdict"] != "errore" and r2["verdict"] != "errore",
        (r1["verdict"], r2["verdict"]))
     mins = hemispheric_minima()
@@ -382,21 +435,72 @@ def selftest():
     muh = lat_mean(d, "phase_hem")
     ok("Q2 hemispheric phase: noise-free slope recovers +1.5",
        abs(a @ (muh + 1.5 * (d["A_monthly"].to_numpy() - 1)) - 1.5) < 1e-9)
-    ok("--validate/--run refuse before the freeze", not FROZEN.exists())
+    import tempfile
+    with tempfile.TemporaryDirectory() as td:
+        f = Path(td) / "P.md"
+        g1 = gate_problem("x" * 64, f)
+        f.write_text("frozen text")
+        sha_f = hashlib.sha256(f.read_bytes()).hexdigest()
+        g2, g3 = gate_problem("y" * 64, f), gate_problem(sha_f, f)
+    ok("gate: missing, wrong SHA-256 and uncommitted protocol all refused (temporary files; the real file not touched)",
+       g1 == "frozen protocol missing" and g2 == "frozen protocol SHA-256 differs" and g3 == "frozen protocol not committed",
+       (g1, g2, g3))
+    ok("seeds and grid: 150 000 units in 35 configurations", len(tasks()) == 150_000 and len(cs) == 35, len(tasks()))
+    # acceptance must fail on broken grids (Codex's counter-examples)
+    def fake(rows_fn):
+        recs = []
+        for c in cs:
+            for k in range(c["n"]):
+                recs.append(dict(cfg=c["cfg"], k=k, seed=seed(c["cfg"], k), test=c["test"], role=c["role"],
+                                 scenario=c["scenario"], sd_e=c["sd_e"], effect=c["effect"], **rows_fn(c, k)))
+        return pd.DataFrame(recs)
+    good = lambda c, k: dict(verdict="non deciso", covered=1, lo_above=0, hi_below=0)  # noqa: E731
+    base = fake(good)
+    acc0 = summarise(base)[1]
+    q1_null = [c["cfg"] for c in cs if c["test"] == "q1" and c["effect"] == 0 and c["scenario"] == 0][0]
+    only = base[base.cfg == q1_null].assign(verdict="errore")
+    acc1, pr1 = summarise(only)[1:]
+    dup = pd.concat([base, base.iloc[:1]])
+    acc2 = summarise(dup)[1]
+    bad_side = base.copy()
+    sel = (bad_side.cfg == q1_null) & (bad_side.k < 200)
+    bad_side.loc[sel, "verdict"] = "supportato"
+    acc3 = summarise(bad_side)[1]
+    bad_cov = base.copy()
+    eff1 = [c["cfg"] for c in cs if c["test"] == "q2_hem" and c["effect"] > 0][0]
+    sel = (bad_cov.cfg == eff1) & (bad_cov.k < 100)
+    bad_cov.loc[sel, ["covered", "hi_below"]] = [0, 1]
+    acc4 = summarise(bad_cov)[1]
+    ok("acceptance: complete clean grid accepted", acc0 == {"q1": True, "q2_hem": True}, acc0)
+    ok("acceptance: one scenario all in error (and the rest missing) refused for every test",
+       acc1 == {"q1": False, "q2_hem": False} and pr1, acc1)
+    ok("acceptance: duplicated row refused", acc2 == {"q1": False, "q2_hem": False})
+    ok("acceptance: one side at 2 % in one null scenario refused for that test only",
+       acc3 == {"q1": False, "q2_hem": True}, acc3)
+    ok("acceptance: exclusion tail 5 % under effect refused for that test only", acc4 == {"q1": True, "q2_hem": False}, acc4)
     print(f"selftest: {sum(res)}/{len(res)} superati")
     return all(res)
 
 
+def _ready(_):
+    return len(_D["d"])
+
+
 def benchmark():
-    _init()
-    sample = [(t[0], t[1], t[2], 9000 + j, t[4], t[5], t[6]) for j, t in enumerate(tasks()[::1300][:16])]
+    """Representative units on the real 12-process pool, start-up timed separately (workers load S first); units
+    spread over every configuration with replica indices beyond the grid, so no grid seed is used."""
+    cs = configs()
+    sample = [(c["cfg"], c["n"] + 100 + j) for j in range(10) for c in cs]   # 350 units, k outside the grid
     t0 = time.time()
-    for t in sample:
-        unit(t)
-    per = (time.time() - t0) / len(sample)
-    h = per * len(tasks()) / N_PROC / 3600
-    print(f"benchmark: {len(sample)} complete units, {per:.2f} s each; predicted {h:.2f} h on {N_PROC} processes "
-          f"for {len(tasks())} units")
+    with Pool(N_PROC, initializer=_init) as pool:
+        pool.map(_ready, range(4 * N_PROC), chunksize=1)
+        t_start = time.time() - t0
+        t1 = time.time()
+        pool.map(unit, sample, chunksize=2)
+        t_run = time.time() - t1
+    h = (t_run / len(sample)) * len(tasks()) / 3600 + t_start / 3600
+    print(f"benchmark: start-up {t_start:.0f} s; {len(sample)} units in {t_run:.0f} s on {N_PROC} processes; "
+          f"predicted {h:.2f} h for {len(tasks())} units")
     return h
 
 

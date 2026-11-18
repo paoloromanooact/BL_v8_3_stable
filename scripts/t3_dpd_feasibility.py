@@ -30,7 +30,7 @@ A = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(A)
 
 DATA = ROOT / "data/sharp/external_DPD_20261118"
-OUT = ROOT / "results/T3_DPD_FEASIBILITY"
+OUT = ROOT / "results/T3_DPD_FEASIBILITY_R2"   # run 1 (results/T3_DPD_FEASIBILITY) put 1974-1976-02 in cycle 21
 NOTE = ROOT / "docs/T3_LONG_CATALOGUE_FEASIBILITY_DRAFT.md"
 MINIMA = [(21, "1976-03-01"), (22, "1986-09-01"), (23, "1996-08-01"), (24, "2008-12-01")]
 GAMMA0, SD_X, Z = 24.0, 7.5, A.Z
@@ -77,7 +77,8 @@ def cr_of(dates):
 
 
 def cycle_of(dates):
-    c = np.full(len(dates), 21)
+    """Cycle of time: 20 before the 1976-03 minimum (fix after Codex's review: dates before 1976-03 were cycle 21)."""
+    c = np.full(len(dates), 20)
     for k, m in MINIMA:
         c = np.where(dates >= pd.Timestamp(m), k, c)
     return c
@@ -132,9 +133,9 @@ def selftest():
     crs = d.CR.to_numpy()
     st = A.cr_start(crs)
     ok3 = bool(((d.date >= st.normalize()) & (d.date < A.cr_start(crs + 1) + pd.Timedelta(days=1))).all())
-    ok4 = d.noaa.is_unique and set(d.cyc) <= {21, 22, 23, 24}
+    ok4 = d.noaa.is_unique and set(d.cyc) <= {20, 21, 22, 23, 24} and (d[d.date < '1976-03-01'].cyc == 20).all() and (d[(d.date >= '1976-03-01') & (d.date < '1986-09-01')].cyc == 21).all()
     for n, c in (("group rows parsed", ok1), ("activity normalised, 1974-2016", ok2), ("record dates in their CR", ok3),
-                 ("one record per group, cycles 21-24", ok4)):
+                 ("one record per group, cycles 20-24, 1974-1976-02 in cycle 20", ok4)):
         print(f"[{'OK' if c else 'FALLITO'}] {n}")
     return ok1 and ok2 and ok3 and ok4
 
