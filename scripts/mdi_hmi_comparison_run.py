@@ -22,10 +22,18 @@ import mdi_overlap_kernels as K
 MU_MIN, FLAG = 0.8, 2.107
 
 
-def branch(r, field):
+def branch(r, field, divide_by_mu=True):
+    """LOS fields are divided by mu (radial proxy); Br is already radial and is used as is, with the same
+    domain rule (every mask pixel finite and with mu >= 0.8)."""
     if not r["footprint"].any():
         return dict(status="empty_footprint")
-    prox = K.radial_proxy(field, r["geometry"]["mu"], r["footprint"], mu_min=MU_MIN)
+    mu = r["geometry"]["mu"]
+    if not divide_by_mu:
+        bad = r["footprint"] & ~(np.isfinite(field) & (mu >= MU_MIN))
+        if bad.any():
+            return dict(status="invalid_or_outside_mu_domain", n_bad=int(bad.sum()))
+        return K.measure_field(field, r["footprint"], r["lon"], r["lat"], r["area_cm2"], radius_cm=r["radius_cm"])
+    prox = K.radial_proxy(field, mu, r["footprint"], mu_min=MU_MIN)
     if prox["status"] != "ok":
         return dict(status=prox["status"], n_bad=prox["n_bad"])
     return K.measure_field(prox["field_g"], r["footprint"], r["lon"], r["lat"], r["area_cm2"], radius_cm=r["radius_cm"])
@@ -95,7 +103,7 @@ def main():
                 loaded[series] = dict(error=f"adapter_refused: {exc}")
         h, m = loaded[io.HMI], loaded[io.MDI]
         bad = lambda r: dict(status=r["error"])  # noqa: E731
-        ref_br = bad(h) if "error" in h else branch(h, h["arrays"]["Br"])
+        ref_br = bad(h) if "error" in h else branch(h, h["arrays"]["Br"], divide_by_mu=False)
         if "error" in h:
             a1 = a2 = hl = bad(h)
         else:
