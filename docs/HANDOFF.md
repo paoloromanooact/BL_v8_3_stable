@@ -1,5 +1,21 @@
 # Cold restart — SHARP BL
 
+## 18 novembre, pomeriggio (Claude): fase B, roadmap, bozze per Codex
+
+- **Fase B** eseguita e controllata: [PROSPECTIVE_PHASE_B_RESULTS.md](PROSPECTIVE_PHASE_B_RESULTS.md); M segue la
+  previsione analitica; T5 resta descrittivo.
+- **Roadmap** decisa con l'utente: [ROADMAP_2026-11-18.md](ROADMAP_2026-11-18.md). Punti fondamentali Q1 (T2 reso test,
+  ciclo 25 contro 24), Q2 (T4 reso test, con la questione della fase emisferica), Q3 (quenching locale, descrittivo);
+  poi T3 su catalogo lungo (MWO magnetico preferito, luce bianca DPD in parallelo).
+- **Da rivedere con Codex, in ordine:** `docs/PROTOCOL_HMI_FOLLOWUPS_DRAFT.md` con `scripts/hmi_followups.py` e
+  `scripts/hmi_followups_recount.py`; `docs/PROTOCOL_MDI_HMI_SECOND_SAMPLE_DRAFT.md` (rev. 2) con selettore,
+  disponibilità e downloader; `docs/T3_LONG_CATALOGUE_FEASIBILITY_DRAFT.md`, `docs/PROTOCOL_T3_DPD_DRAFT.md`,
+  `docs/PROTOCOL_MWO_PILOT_DRAFT.md` con `scripts/t3_dpd_feasibility.py` e `scripts/mwo_pilot_tilt.py`.
+- **Commit fatti su un worktree** (ramo `t3-dpd-feasibility`, per non cambiare il commit registrato dalla fase B in
+  corsa) e riportati qui con cherry-pick nello stesso ordine. I documenti citano gli hash del ramo: 2513f8b → d92d997,
+  1f3cee4 → c2b0bf7 (output DPD conservati prima della lettura), f818e12 → 4379e48, 13e9830 → 8ab9975, 98d57ca → abddbb6,
+  49b9383 → a5bc76f, 2a0f94f → a433d0b, 5bdd533 → 3aa5556, 4475e49 → 8d361c4.
+
 ## Piccolo confronto MDI–HMI eseguito (Claude, Codex senza token) — 18 novembre 2026
 
 Downloader di Codex: prima corsa (`a19d3b6`) con HTTP 302 su tutti gli 84 FITS e 149 tentativi consumati; emendamento

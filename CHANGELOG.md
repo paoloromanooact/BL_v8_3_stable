@@ -2,6 +2,10 @@
 
 ## v8.4 (Python, branch `v8.4-python-gianluca`) — in corso
 
+- 2026-11-18, pomeriggio: fase B prospettica eseguita (M segue la previsione analitica, T5 resta descrittivo);
+  roadmap con i punti fondamentali Q1–Q3; bozze e codice per Q1–Q3, secondo campione MDI–HMI, T3 su DPD/MWO e pilota MWO,
+  tutti da rivedere prima del congelamento. Calcolo analitico DPD: intervallo T3 circa 2–3 volte più stretto di HMI.
+
 - 2026-11-18, piccolo confronto MDI–HMI: downloader e adattatore FITS/WCS con prove offline per la revisione precedente al download.
 
 - 2026-11-18, congelato il protocollo del piccolo confronto MDI–HMI dopo la revisione sul segno di Joy, sulla soglia descrittiva e sulla dispersione per emisfero.

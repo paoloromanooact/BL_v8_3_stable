@@ -71,6 +71,8 @@ docs/PROSPECTIVE_INFORMATION_PLAN.md
 docs/PROSPECTIVE_INFORMATION_PLAN_A1.md
 docs/PROSPECTIVE_INFORMATION_PLAN_FREEZE.json
 docs/PROSPECTIVE_PHASE_A_RESULTS.md
+docs/PROSPECTIVE_PHASE_B_RESULTS.md
+docs/PROTOCOL_HMI_FOLLOWUPS_DRAFT.md
 docs/PROTOCOL_HMI_LOS_SENSITIVITY_DRAFT.md
 docs/PROTOCOL_HMI_MORPHOLOGY.md
 docs/PROTOCOL_HMI_MORPHOLOGY_A1.md
@@ -79,6 +81,7 @@ docs/PROTOCOL_HMI_MORPHOLOGY_S_DRAFT.md
 docs/PROTOCOL_MDI_HMI_SECOND_SAMPLE_DRAFT.md
 docs/PROTOCOL_MDI_HMI_SMALL_COMPARISON.md
 docs/PROTOCOL_MDI_HMI_SMALL_COMPARISON_A1.md
+docs/PROTOCOL_MWO_PILOT_DRAFT.md
 docs/PROTOCOL_P1B_QUALITY_0x80.md
 docs/PROTOCOL_P1C_CYCLE_RULE.md
 docs/PROTOCOL_P1D_RECURRENCE_EVOLUTION.md
@@ -93,6 +96,7 @@ docs/PROTOCOL_P2_QUENCHING.md
 docs/PROTOCOL_P3B_AXIAL_TILT_STATISTICS.md
 docs/PROTOCOL_P3C_BARD_TILT_CONVENTION.md
 docs/PROTOCOL_P3_EXTERNAL_VALIDATION.md
+docs/PROTOCOL_T3_DPD_DRAFT.md
 docs/PROTOCOL_T5_DIAGNOSTIC_SAVED_OUTPUTS.md
 docs/PROTOCOL_T5_ORACLE.md
 docs/PROTOCOL_T5_ORACLE_A1.md
@@ -107,8 +111,10 @@ docs/REPRO_PHASE1_PLAN.md
 docs/REPRO_PHASE1_RESULTS.md
 docs/REPRO_REVIEW_21E7210.md
 docs/RESULTS_INDEX.md
+docs/ROADMAP_2026-11-18.md
 docs/SEEN_BEFORE_FREEZE_2026-11-03.md
 docs/SENSITIVITY_SUMMARY.md
+docs/T3_LONG_CATALOGUE_FEASIBILITY_DRAFT.md
 docs/T5_DIAGNOSTIC_INPUTS_SHA256.csv
 docs/T5_DIAGNOSTIC_RESULTS.md
 docs/T5_FEASIBILITY_NOTE_DRAFT.md
@@ -748,6 +754,9 @@ results/PROSPECTIVE_PHASE_A/STRATA_MERGES.csv
 results/PROSPECTIVE_PHASE_A_CHECK/RECEIPT.json
 results/PROSPECTIVE_PHASE_A_RECOUNT/RECEIPT.json
 results/PROSPECTIVE_PHASE_A_RECOUNT/RECOUNT.csv
+results/PROSPECTIVE_PHASE_B/META.json
+results/PROSPECTIVE_PHASE_B/RAW.csv.gz
+results/PROSPECTIVE_PHASE_B/SUMMARY.csv
 results/REPRO_PHASE1/COMPARATOR_SELFTEST.csv
 results/REPRO_PHASE1/COMPARATOR_SELFTEST_RUN1.csv
 results/REPRO_PHASE1/COMPARATOR_SELFTEST_RUN2.csv
@@ -770,6 +779,9 @@ results/REPRO_PHASE1/run/requirements-v84-freeze.txt
 results/REPRO_PHASE1/run/run.log
 results/REPRO_PHASE1/run/run_commit.txt
 results/REPRO_PHASE1/run/start.txt
+results/T3_DPD_FEASIBILITY/DESIGNS.csv
+results/T3_DPD_FEASIBILITY/META.json
+results/T3_DPD_FEASIBILITY/PRECISION.csv
 results/T5_DIAGNOSTIC/T5D_CHECKS.csv
 results/T5_DIAGNOSTIC/T5D_GROUPS.csv
 results/T5_DIAGNOSTIC/T5D_META.json
@@ -837,16 +849,21 @@ results/T5_PROXY_SENSITIVITY_SELFTEST/RECEIPT.txt
 results/T5_PROXY_SENSITIVITY_SELFTEST/RECEIPT_R2.txt
 scripts/check_repo.sh
 scripts/download_test_20240508.sh
+scripts/hmi_followups.py
+scripts/hmi_followups_recount.py
+scripts/mdi_hmi_availability.py
 scripts/mdi_hmi_comparison_recount.py
 scripts/mdi_hmi_comparison_run.py
 scripts/mdi_hmi_footprint_mu.py
 scripts/mdi_hmi_patch_download.py
 scripts/mdi_hmi_patch_io.py
+scripts/mdi_hmi_second_sample_select.py
 scripts/mdi_hmi_selection_check.py
 scripts/mdi_overlap_kernels.py
 scripts/mdi_overlap_metadata_review.py
 scripts/mdi_smarp_inventory.py
 scripts/mdi_smarp_overlap_analysis.py
+scripts/mwo_pilot_tilt.py
 scripts/process_test_20240508_idl_commands.pro
 scripts/prospective_phase_a.py
 scripts/prospective_phase_a_check.py
@@ -856,6 +873,7 @@ scripts/repro_compare.py
 scripts/repro_draft_tables.py
 scripts/review_morphology.py
 scripts/run_pipeline.sh
+scripts/t3_dpd_feasibility.py
 scripts/t5_oracle_se_recompute.py
 scripts/t5_postcheck_external_probe.py
 scripts/t5_power_check.py
