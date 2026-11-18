@@ -1,0 +1,7 @@
+{
+ "content": "Monthly mean total sunspot number V2.0 (year month decimal_year SN sd n_obs definitive_marker)",
+ "copied_from": "MWO-HMI-MDI-Polar-Flux-Signed-Sunspots repository, data/silso/SN_m_tot_V2.0.txt (commit 19f9fe0), copied 2026-11-18",
+ "original_url": "https://www.sidc.be/SILSO/DATA/SN_m_tot_V2.0.txt",
+ "credit": "Source: WDC-SILSO, Royal Observatory of Belgium, Brussels",
+ "sha256": "see SHA256.txt"
+}
