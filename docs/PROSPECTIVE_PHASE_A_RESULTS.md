@@ -7,6 +7,13 @@
 commit `6f4b416` (stesso script; il commit aggiunge solo l'handoff di Codex), 327 s, esito «eseguita». Output in
 `results/PROSPECTIVE_PHASE_A/`, conservati **prima della lettura** in `56a5944`. Controllo indipendente
 `scripts/prospective_phase_a_check.py`: **10/10**, ricevuta in `results/PROSPECTIVE_PHASE_A_CHECK/RECEIPT.json`.
+Riconteggio scientifico indipendente (richiesto da Codex dopo la sua verifica degli hash e dei selftest 40/40):
+`scripts/prospective_phase_a_recount.py`, che non importa lo script della fase A, ricostruisce dal registro dei
+posti E0 e le 60 realizzazioni di E1, E2 ed E3 con f = 1 (calendario, trasferimento del ciclo, celle, matrici,
+bersaglio del proxy e covarianza scritti a parte) e confronta bersagli e SE del modello (a), k = 1, AR(1) 0,5 e
+salti alla scala P2f: **244 righe su 244 concordi**, scarto relativo massimo 4·10⁻¹⁵ (ricevuta in
+`results/PROSPECTIVE_PHASE_A_RECOUNT/RECEIPT.json`). Il documento è stato scritto dopo il controllo 10/10 e prima
+di questo riconteggio, che non cambia nessun numero.
 
 Valutazione **condizionata agli stimatori studiati** (pendenza WLS di T5 sulle celle e di T3 sui record, con varianza
 nota nel riferimento normale) e ai disegni generati: copie ricampionate di celle HMI con attività di altri periodi

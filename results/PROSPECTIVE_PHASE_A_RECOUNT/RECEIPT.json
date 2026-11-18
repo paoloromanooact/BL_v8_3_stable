@@ -1,0 +1,14 @@
+{
+  "passed": true,
+  "designs": 61,
+  "rows": 244,
+  "max_rel_target": 3.552713678800501e-15,
+  "max_rel_se": 4.440892098500626e-15,
+  "tol": 1e-08,
+  "A_lo": 0.5020189558504007,
+  "A_hi": 2.7602501179328134,
+  "scope": "model (a), k = 1, f = 1, AR(1) 0.5 and steps20 at the P2f scale",
+  "script_sha256": "a081d86c64f766120dad7e39efe66fdff98449aafd7ede6f854b1c4772ec893e",
+  "raw_sha256": "09ceadab4d6979e2576afef22b42aea7abbdf27e652b41d95d47e3b62327d104",
+  "slots_sha256": "1aeff6f3ad9eb05fcc20947410bd2bee5d182bd7670ae5e16aaacbf6af8fcba8"
+}
