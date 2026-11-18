@@ -126,7 +126,7 @@ def load_geometry():
         raise SystemExit("geometry acquisition not complete")
     if len({(r["series"], r["window"]) for r in led["requests"]}) != 32:
         raise SystemExit("duplicated geometry windows")
-    table, dup = {}, Counter()
+    table, dup, conflict = {}, Counter(), set()
     for r in led["requests"]:
         p = GEOM / f"{r['tag']}.json"
         if sha(p) != r["sha256"]:
@@ -142,8 +142,12 @@ def load_geometry():
         for i in range(js["count"]):
             k = (r["series"], str(int(float(c[key][i]))), normtime(c["T_REC"][i]))
             dup[k] += 1
-            table[k] = dict({n: c[n][i] for n in NEEDED}, dims=seg["dims"][i], window=r["tag"])
-    return table, {k for k, n in dup.items() if n > 1}, led
+            val = dict({n: c[n][i] for n in NEEDED}, dims=seg["dims"][i])
+            if k in table and {n: table[k][n] for n in val} != val:
+                conflict.add(k)      # same record, different values in two windows: not interpretable
+            table.setdefault(k, dict(val, window=r["tag"]))
+    # records repeated at the shared edge of adjacent windows are used once when identical
+    return table, conflict, led, sum(n > 1 for n in dup.values())
 
 
 # ---------------------------------------------------------------- certificate 1
@@ -181,7 +185,7 @@ def classify(arc, table, dups):
     for inst in ("smarp", "hmi"):
         k = arc[inst]
         if k in dups:
-            out[inst] = (None, "duplicated record in responses")
+            out[inst] = (None, "record with different values in two windows")
         elif k not in table:
             out[inst] = (None, "record absent from responses")
         else:
@@ -206,7 +210,7 @@ def run(out_dir):
     n = Counter(a["stratum"] for a in arcs)
     if dict(n) != EXPECTED_ARCS:
         raise SystemExit(f"arcs differ from the revision-2 audit: {dict(n)}")
-    table, dups, led = load_geometry()
+    table, dups, led, n_repeated = load_geometry()
     cache, recs = {}, []
     for a in arcs:
         cat, res = classify(a, table, dups)
@@ -253,7 +257,10 @@ def run(out_dir):
                 probe_sha256=sha(PROBE), registry_unchanged_sha256=reg0,
                 g10_components_certified_in_more_than_one_stratum=shared,
                 g10_components_certified_total=len(comp_strata), not_interpretable_reasons=dict(reasons),
-                duplicated_records_in_responses=len(dups), seconds=round(time.time() - t0, 1),
+                records_repeated_identical_across_windows=n_repeated, records_conflicting_across_windows=len(dups),
+                note_run_1=("footprint_mu_20261118 (2f5531b) treated every repeated record as missing; the 148 repeated "
+                            "records are identical edge records of adjacent windows; superseded by this run"),
+                seconds=round(time.time() - t0, 1),
                 products_sha256={p.name: sha(p) for p in sorted(out_dir.iterdir())},
                 limitations=["mu < 0.8 on the cutout does not show that the mask leaves the domain",
                              "code revisions of findPosition/jsoc_info are not proven identical to production",
