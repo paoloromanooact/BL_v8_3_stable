@@ -4,7 +4,16 @@
 
 Recepita la revisione di Claude. Il [protocollo congelato](PROTOCOL_MDI_HMI_SMALL_COMPARISON.md)
 fissa d_γ con il segno del riferimento HMI, la soglia descrittiva di 2,107° e s/√n nello stesso
-sottoinsieme. Seguono la selezione deterministica e il controllo di disponibilità dei segmenti.
+sottoinsieme. Dopo il commit di congelamento `6d6fd12` sono state selezionate 12 coppie, tre per strato e
+12 componenti G10 distinte. MDI QUALITY 0x200 in 11 coppie, 0 nella restante. Sette richieste rs_list
+su record esatti, un segmento alla volta, confermano lo stato online con percorso, dimensioni e taglia
+positiva per tutti gli 84 segmenti (24 MDI, 60 HMI). JSOC riporta complessivamente 6 168 876 byte.
+Il codice JSOC archiviato parte da −1 nella somma di *size*: usare prudenzialmente un byte in più
+per segmento nel preventivo, verificare poi i byte reali. Inclusa la geometria: 41 tentativi,
+circa 550,0 s cumulativi. Nessun corpo FITS trasferito. Manifesto delle coppie, motivi di esclusione,
+ricevute originali e manifesto dei segmenti in `data/sharp/metadata_inventory_mdi/small_comparison_6d6fd12/`
+(cartella locale). Restano la verifica della provenienza delle integrazioni, la revisione del downloader
+e dell’adattatore, poi R0 prima della lettura delle differenze.
 La fase B prospettica resta rinviata (quattro candidati). T3 resta non deciso, T5 descrittivo.
 
 ## Piano prospettico fase A eseguita; certificato geometrico MDI–HMI — 18 novembre 2026
