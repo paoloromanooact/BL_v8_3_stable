@@ -1,0 +1,14 @@
+{
+  "script_sha256": "1c8061a3af113f108ecb3ecbb68980d3aa0cac48002cacdffc277d2053bfd2d6",
+  "inputs_sha256": {
+    "data/sharp/external_DPD_20261118/dailyDPD1974_2016.txt": "5eecffa429cd0c9a38a9215591b0dcb01afc3b0fff2c82028663a2fc3cb0f7cc",
+    "ancillary/SILSO_TOT/SN_m_tot_V2.0.txt": "e83932c7a47a12c4826e3ed5ca48da0a49ef6da98aebb9580e2b83ff272d87a7",
+    "ancillary/SILSO_HEMI/SN_m_hem_V2.0.csv": "32690e4372ab6355d05f54d9ccd96158564029892a62128db42eb3fa8b79292f"
+  },
+  "hemispheric_monthly_corr_1992_2012": {
+    "N": 0.9422203736995476,
+    "S": 0.9208367903063335
+  },
+  "n_months_common": 252,
+  "git_commit": "6be7719303c51596995f0402771a10ed03c03d1f"
+}

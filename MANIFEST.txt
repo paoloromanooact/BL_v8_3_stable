@@ -11,6 +11,9 @@ ancillary/SILSO_HEMI/PROVENANCE.json
 ancillary/SILSO_HEMI/SHA256.txt
 ancillary/SILSO_HEMI/SN_d_hem_V2.0.csv
 ancillary/SILSO_HEMI/SN_m_hem_V2.0.csv
+ancillary/SILSO_TOT/PROVENANCE.json
+ancillary/SILSO_TOT/SHA256.txt
+ancillary/SILSO_TOT/SN_m_tot_V2.0.txt
 data/.gitkeep
 docs/ARTICLE_OUTLINE.md
 docs/CATALOGUE_DICTIONARY.md
@@ -596,6 +599,9 @@ results/DOMINANT_TRIAL_2HARP/DOMINANT_HARP_SELECTION.csv
 results/DOMINANT_TRIAL_2HARP/README.md
 results/DOMINANT_TRIAL_2HARP/figures/393.png
 results/DOMINANT_TRIAL_2HARP/figures/5249.png
+results/DPD_ACTIVITY_HOMOGENEITY/ANNUAL.csv
+results/DPD_ACTIVITY_HOMOGENEITY/META.json
+results/DPD_ACTIVITY_HOMOGENEITY/SOURCE_SHARE_BY_YEAR.csv
 results/EXPLORATORY/FACTORIAL_BY_RECORD.csv.gz
 results/EXPLORATORY/FACTORIAL_EFFECTS_BY_RECORD_SUMMARY.csv
 results/EXPLORATORY/FACTORIAL_G_EFFECT_BY_INTENSITY.csv
@@ -883,6 +889,7 @@ results/T5_PROXY_SENSITIVITY_SELFTEST/RECEIPT.txt
 results/T5_PROXY_SENSITIVITY_SELFTEST/RECEIPT_R2.txt
 scripts/check_repo.sh
 scripts/download_test_20240508.sh
+scripts/dpd_activity_homogeneity.py
 scripts/hmi_followups.py
 scripts/hmi_followups_recount.py
 scripts/mdi_hmi_availability.py
