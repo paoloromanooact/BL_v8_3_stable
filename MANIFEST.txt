@@ -36,9 +36,11 @@ docs/EXPLORATORY_RESULTS.md
 docs/HANDOFF.md
 docs/HMI_MEASUREMENT_ASSESSMENT.md
 docs/HMI_QUENCHING_SYNTHESIS.md
+docs/MDI_HMI_PREPARATION_REVIEW.md
 docs/MDI_SMARP_COUNTS_REVIEW.md
 docs/MDI_SMARP_FEASIBILITY.md
 docs/MDI_SMARP_FIELD_MAP_REVIEW.md
+docs/MDI_SMARP_METADATA_CLARIFICATIONS.md
 docs/MDI_SMARP_METADATA_INVENTORY_FREEZE.json
 docs/MDI_SMARP_METADATA_INVENTORY_PLAN.md
 docs/MDI_SMARP_OVERLAP_ACQUISITION.md
@@ -70,6 +72,7 @@ docs/PROTOCOL_HMI_MORPHOLOGY.md
 docs/PROTOCOL_HMI_MORPHOLOGY_A1.md
 docs/PROTOCOL_HMI_MORPHOLOGY_A2.md
 docs/PROTOCOL_HMI_MORPHOLOGY_S_DRAFT.md
+docs/PROTOCOL_MDI_HMI_SMALL_COMPARISON_DRAFT.md
 docs/PROTOCOL_P1B_QUALITY_0x80.md
 docs/PROTOCOL_P1C_CYCLE_RULE.md
 docs/PROTOCOL_P1D_RECURRENCE_EVOLUTION.md
@@ -806,6 +809,7 @@ results/T5_PROXY_SENSITIVITY_SELFTEST/RECEIPT.txt
 results/T5_PROXY_SENSITIVITY_SELFTEST/RECEIPT_R2.txt
 scripts/check_repo.sh
 scripts/download_test_20240508.sh
+scripts/mdi_overlap_kernels.py
 scripts/mdi_smarp_inventory.py
 scripts/mdi_smarp_overlap_analysis.py
 scripts/process_test_20240508_idl_commands.pro
@@ -824,6 +828,7 @@ scripts/t5_reading_paired_indicator.py
 test/test_process_day.pro
 test/test_sharp_bl_source_single.pro
 tests/test_geometry.py
+tests/test_mdi_overlap_kernels.py
 tests/test_p2_synthetic.py
 tests/test_p2d.py
 tests/test_p3.py

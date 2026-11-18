@@ -1,5 +1,29 @@
 # Cold restart — SHARP BL
 
+## MDI/HMI: preparazione del piccolo confronto, non congelata — 2026-11-18
+
+Completati i punti indipendenti della lista autorizzata in assenza dell'utente. Nota delle fonti:
+`docs/MDI_SMARP_METADATA_CLARIFICATIONS.md`; nuova bozza circoscritta
+`docs/PROTOCOL_MDI_HMI_SMALL_COMPARISON_DRAFT.md`; consegna `docs/MDI_HMI_PREPARATION_REVIEW.md`.
+Nessun nuovo record, campione, FITS, trasformazione reale o simulazione. Nessun push.
+
+Confermati nel codice ufficiale: LOS CEA rimappato come scalare, copia di QUALITY/T_OBS, percorso
+MTARP/MDATA e distinzione DRMS fra valore e indice di slot. Le revisioni di produzione per-record non
+sono state certificate. **Restano aperti** tabella QUALITY MDI (0x200 non decodificato), collegamento
+alla sorgente effettiva, integrazione 30 s e origine precisa dello scarto dalla griglia full-disk.
+Nessun filtro o tempo dell'inventario è cambiato; nessuna query a serie fuori piano.
+
+Bozza: fino a 12 coppie in quattro strati, confronto Br HMI/LOS vettoriale diviso per mu, Br HMI/LOS
+misurato diviso per mu, MDI/HMI entrambi LOS/mu sulle maschere native. Niente calibrazione o inferenza
+sul quenching; la qualità è un blocco prima del congelamento. Tetti e criteri sono proposte da rivedere.
+Codice puro `scripts/mdi_overlap_kernels.py`, senza lettore FITS, downloader o --run reale; sole grandezze
+indipendenti dal ciclo, senza S_BL/D*/efficienza. Prove sintetiche in `tests/test_mdi_overlap_kernels.py`.
+Ricevute/fonti di preparazione locali sotto `/tmp/bl_mdi_preparation/`.
+
+**Fermo prima di congelamento, selezione e mappe.** Prossimo: revisione della consegna, risoluzione
+QUALITY e specifica dei link; poi eventuale adattatore FITS/WCS con verifica P1. Piano prospettico e
+morfologia S restano in pausa. Nessuna nota o comunicazione a Paolo.
+
 ## MDI/SMARP: associazioni della sovrapposizione verificate offline — 2026-11-16
 
 Analisi dal commit pulito `198785b`, 11 controlli superati, nessuna rete o nuova riga acquisita.

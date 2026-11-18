@@ -2,6 +2,11 @@
 
 ## v8.4 (Python, branch `v8.4-python-gianluca`) — in corso
 
+- 2026-11-18, MDI/HMI: chiarimenti documentati con codice ufficiale fissato; QUALITY MDI e sorgente
+  per-record restano aperti. Bozza del piccolo confronto (fino a 12 coppie) non congelata, codice puro
+  e prove sintetiche, consegna per la revisione. Nessun campione, query JSOC, FITS o risposta reale;
+  niente S_BL/D*/efficienza senza adattatore a ciclo fisso; nessun push.
+
 - 2026-11-16, MDI/SMARP: analisi offline della sola sovrapposizione dal commit 198785b, 11 controlli
   superati; 121 coppie candidate G5 e 161 G10, unicità e completezza distinte. Documentati i limiti
   QUALITY nativo, T_OBS e griglia nominale full-disk; nessuna nuova selezione o correzione temporale.
