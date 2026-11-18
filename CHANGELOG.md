@@ -2,6 +2,8 @@
 
 ## v8.4 (Python, branch `v8.4-python-gianluca`) — in corso
 
+- 2026-11-18, congelato il protocollo del piccolo confronto MDI–HMI dopo la revisione sul segno di Joy, sulla soglia descrittiva e sulla dispersione per emisfero.
+
 - 2026-11-18, piano prospettico fase A eseguita (output `56a5944`, controllo 10/10): nessuna estensione
   raggiunge il 50 %; T5 10,7 % → 19,2 %, T3 2,9 % → 4,3 %; documento `docs/PROSPECTIVE_PHASE_A_RESULTS.md`.
   Certificato geometrico MDI–HMI offline: coppie certificate per strato 42/17/40/19.

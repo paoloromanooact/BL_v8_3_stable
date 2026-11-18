@@ -1,5 +1,12 @@
 # Cold restart — SHARP BL
 
+## Piccolo confronto MDI–HMI, protocollo congelato prima della selezione
+
+Recepita la revisione di Claude. Il [protocollo congelato](PROTOCOL_MDI_HMI_SMALL_COMPARISON.md)
+fissa d_γ con il segno del riferimento HMI, la soglia descrittiva di 2,107° e s/√n nello stesso
+sottoinsieme. Seguono la selezione deterministica e il controllo di disponibilità dei segmenti.
+La fase B prospettica resta rinviata (quattro candidati). T3 resta non deciso, T5 descrittivo.
+
 ## Piano prospettico fase A eseguita; certificato geometrico MDI–HMI — 18 novembre 2026
 
 **Fase A** (Claude; revisione del codice di Codex su `b6c00c0`, emendamento A1 `551d829`, correzioni `ecf0714`):
