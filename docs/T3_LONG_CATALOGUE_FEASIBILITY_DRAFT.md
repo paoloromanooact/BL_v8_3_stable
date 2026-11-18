@@ -105,6 +105,37 @@ calcolo usa solo date, latitudini e aree dei gruppi, come la fase A usava il dis
    dalla fase A come confronto; anche per i sottoperiodi 1974–1996 e 1996–2016.
 7. **Lettura.** Descrittiva: dice se un catalogo come DPD potrebbe stringere l'intervallo di T3, non stima nulla.
 
+## 8. Risultato del calcolo analitico (output conservati in `1f3cee4` prima della lettura)
+
+Script `scripts/t3_dpd_feasibility.py` (`2513f8b`), selftest 4/4; output `results/T3_DPD_FEASIBILITY/`. Disegni: DPD
+1974–2016 19 821 gruppi, 1143 celle, 577 rotazioni; con area ≥ 50 millesimi 6118 gruppi; 1974–1996 11 036; 1996–2016
+8785. HMI E0: 2485 record, 210 rotazioni.
+
+Semilarghezza dell'intervallo nominale 97,5 % della pendenza, in unità di γ₀ per unità di attività, scala di rumore
+P2f (rumore individuale 15°; tra parentesi 25°):
+
+| Disegno | AR(1) 0,5 | AR(1) 0,9 | salti 20 CR | riconoscimento dello scenario |
+|---|---|---|---|---|
+| HMI E0 (fase A) | 0,43 | 0,56 | 0,60 | 2,3–2,9 % |
+| DPD 1974–2016 | 0,16 (0,22) | 0,19 (0,24) | 0,20 (0,25) | 4,1–5,3 % (3,3–3,7 %) |
+| DPD, area ≥ 50 | 0,16 (0,21) | 0,19 (0,24) | 0,20 (0,24) | 4,3–5,6 % |
+| DPD 1974–1996 | 0,20 (0,27) | 0,23 (0,30) | 0,24 (0,30) | 3,3–3,9 % |
+| DPD 1996–2016 | 0,27 (0,36) | 0,35 (0,42) | 0,37 (0,44) | 2,7–3,4 % |
+
+Lettura, descrittiva:
+- con 43 anni e 4 cicli l'intervallo di T3 diventerebbe **circa 2,7–3 volte più stretto** di quello HMI, anche con una
+  dispersione dei tilt in luce bianca di 25°; il guadagno viene dal numero di rotazioni, come atteso dalla fase A;
+- lo **scenario prescritto piccolo resta poco riconoscibile** (circa 5 volte su 100): sul disegno DPD vale −1,07° per
+  unità di attività (unità diversa, attività da aree DPD), con SE/|Δβ| 1,6–2,0;
+- l'uso realistico è quindi un **limite più stretto**: un intervallo di ±0,16–0,20·γ₀ per unità di attività potrebbe
+  escludere effetti dell'ordine di −0,2·γ₀ (la griglia storica di T3), che HMI non può escludere;
+- le unità di attività di HMI (SILSO emisferico) e di DPD (aree emisferiche) non sono identiche: il confronto in unità
+  di γ₀ è indicativo; un protocollo dovrebbe fissare un'attività comune o riportare l'effetto in termini di quantili.
+
+Il catalogo dei tilt DPD non è stato letto. Prossimo passo, se si procede: verifica primaria della letteratura (§6.1),
+poi un protocollo che fissi la definizione del tilt in luce bianca, l'attività emisferica e il raccordo con P1 nella
+sovrapposizione 2010–2016, prima di leggere i tilt.
+
 ## Fonti consultate
 
 - Baranyi et al., confronto fra tilt di Debrecen e di Mount Wilson/Kodaikanal e legge di Joy, MNRAS 447, 1857
