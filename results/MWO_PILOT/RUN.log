@@ -1,0 +1,26 @@
+[OK] disk centre at the image centre, at latitude B0 and longitude CENLON (np.float64(4.880622829934457), np.float64(99.88019932364529))
+[OK] +x is west (Carrington longitude increases with x) 
+[OK] synthetic bipole: tilt recovered within 1 deg (P1 convention), leading positive (170.01, 169.99)
+[OK] southern bipole: tilt recovered within 1 deg (-160.02, -159.99)
+[OK] window near the limb refused (mu domain) 
+[OK] unipolar window -> no_two_polarities 
+[OK] flux in Mx: uniform 100 G over the window = 100 G x spherical area within 3 % 0.9939
+[OK] ephemeris check accepts consistent header, refuses a 1 deg B0 error 
+[OK] real archive readable: Fe members found for 2011 (listing only, no data read) 295
+[OK] end to end: closer magnetogram with wrong CENLON skipped, tilt agrees with P1 within 1 deg, leading agrees ('ok', '1800.fits', -0.019)
+[OK] summary on one record: coverage rule gives 'pilota non concludente' pilota non concludente
+[OK] zero evaluable records: 'pilota non concludente', no error 
+[OK] flux cut removing a whole hemisphere does not give the flux-cut motivation variante MWO non utilizzabile
+[OK] gate refuses missing, wrong-SHA and uncommitted protocol (temporary files) 
+selftest: 14/14 superati
+               group   n  d_gamma_median  d_gamma_mean  s_over_sqrt_n  abs_d_ax_median  leading_agree  flux_ratio_median
+                 all 211       -0.691618     -1.534646       1.191369         4.402603       0.957346           0.158334
+                   N 113       -1.254345     -1.241194       1.859199         5.163844       0.955752           0.158497
+                   S  98       -0.345119     -1.873015       1.418371         4.260211       0.959184           0.154425
+   P1 flux tercile 1  70       -0.701474     -2.519752       2.832888         4.967079       0.942857           0.129244
+   P1 flux tercile 2  70       -0.749562     -0.466243       1.644894         4.623524       1.000000           0.172397
+   P1 flux tercile 3  71       -0.538326     -1.616771       1.481826         4.318147       0.929577           0.175516
+P1 flux terciles 2-3 141       -0.538326     -1.045587       1.103284         4.326883       0.964539           0.174784
+      terciles 2-3 N  81       -1.587708     -0.888778       1.545720         4.166724       0.975309           0.167373
+      terciles 2-3 S  60       -0.013268     -1.257279       1.553310         4.420478       0.950000           0.175786
+{'causes': {'no_mwo_magnetogram': 232, 'ok': 211, 'no_dpd_group': 35, 'window_outside_mu_domain': 29, 'no_two_polarities': 27}, 'n_candidates': 534, 'n_matched': 267, 'n_evaluable': 211} variante MWO utilizzabile

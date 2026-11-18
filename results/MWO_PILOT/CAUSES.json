@@ -1,0 +1,12 @@
+{
+  "causes": {
+    "no_mwo_magnetogram": 232,
+    "ok": 211,
+    "no_dpd_group": 35,
+    "window_outside_mu_domain": 29,
+    "no_two_polarities": 27
+  },
+  "n_candidates": 534,
+  "n_matched": 267,
+  "n_evaluable": 211
+}

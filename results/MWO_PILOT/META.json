@@ -1,0 +1,16 @@
+{
+  "protocol_sha256": "74e6b58279c96a9179970aff0609ab078cbb5ef541b419e19b60c9aa84992cfe",
+  "git_commit": "ac28492e7fe83593a840d5ce588ff3dd752456e7",
+  "script_sha256": "75b534ecd6d39b7c85926af37faac4ff58aebecb0d59def1546c48c362401c9b",
+  "mwo_pipeline_sha256": "7babd2a6031e0425dd6108431ae80f2966eb3edb95cafc2b9e652247410f4789",
+  "dpd_sha256sums": "d34b160555dbb7eee159129c5b5d01ac040d63146dbfd1481d161dd5179efce2",
+  "n_candidates": 534,
+  "n_matched": 267,
+  "n_evaluable": 211,
+  "verdict": "variante MWO utilizzabile",
+  "products_sha256": {
+    "CAUSES.json": "9f34fdf690ed02ccc85924c33d9461c94f932ac2b5c34cfa87155b00e2b2a5e9",
+    "ROWS.csv": "5306328b45001691bec0293cf13ab0f9cec2ba5897a251d76989b66513d8fb7f",
+    "SUMMARY.csv": "1d6839195f8479a3a737e7feee2dab9a4fe481a5c9f9b21104e27cf359ae6252"
+  }
+}
