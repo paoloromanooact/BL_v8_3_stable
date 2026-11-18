@@ -18,14 +18,17 @@ T_lin = −0,00107·S_n + 0,61) prevede un coefficiente di Joy minore nei cicli 
 trovano la dipendenza nel nord. HMI osserva i cicli 24 e 25 con lo stesso strumento: il confronto non ha problemi di
 raccordo fra strumenti.
 
-**Modello.** γ_i = Σ_{c,h} k_{c,h}·sin|λ_i| + errore, con c ∈ {24, 25} (ciclo del record di P1), h ∈ {N, S}, pesi Φ_i.
-**Contrasto**: Δ = ½[(k_{25,N} − k_{24,N}) + (k_{25,S} − k_{24,S})], in gradi di coefficiente di Joy. Stessa riga WLS per
-M; contrasti per emisfero riportati a parte, senza verdetto.
+**È T2 di P2 reso un test.** P2 ha già stimato questo confronto in modo descrittivo (T2, intervallo da bootstrap a
+blocchi, non validato): γ₀(25) − γ₀(24) = **+3,3°** [−4,1; 10,1] al 95 % su 2238 regioni, cioè nel verso opposto alla
+previsione del quenching. **Il test non è cieco** al segno né all'ordine di grandezza.
 
-**Fase confrontabile (analisi principale).** Il ciclo 25 è incompleto (fase ≤ 0,62 al 2026-09) e HMI inizia a fase 0,13
-del ciclo 24. Se il coefficiente varia con la fase, il confronto fra un ciclo intero e uno parziale confonde le due cose.
-Analisi principale: entrambi i cicli ristretti alla stessa finestra di fase convenzionale [0,13; 0,62] (minimi
-`run_p2.T_MIN`, 11 anni). Sensibilità: tutti i record dei due cicli.
+**Modello principale (definizione di T2, invariata per continuità).** γ_i = k₂₄·sin|λ_i|·I₂₄ + k₂₅·sin|λ_i|·I₂₅ + errore,
+pesi Φ_i, ciclo del record di P1; contrasto **Δ = k₂₅ − k₂₄**. Finestra di T2: tutti i record del ciclo 25 e i record del
+ciclo 24 con fase ≤ φ_max, la fase dell'ultimo record del ciclo 25 (fase convenzionale con `run_p2.T_MIN`, 11 anni).
+
+**Sensibilità dichiarate.** (a) Finestra simmetrica: entrambi i cicli ristretti a [0,13; φ_max], perché HMI inizia a fase
+0,13 del ciclo 24 mentre il ciclo 25 è osservato da fase 0. (b) Coefficienti per ciclo × emisfero e contrasto medio sui
+due emisferi, ½[(k₂₅N − k₂₄N) + (k₂₅S − k₂₄S)]; contrasti per emisfero riportati senza verdetto.
 
 **Scala di lettura (non una soglia).** Forza dei cicli = massimo smussato della serie SILSO totale, letto e registrato al
 congelamento; con la relazione di Jiao et al. la riduzione relativa attesa del coefficiente è dell'ordine del 10 %
@@ -40,6 +43,9 @@ risultato dice se i due cicli differiscono, non perché. Possibili differenze di
 flussi) sono parte del contrasto.
 
 ## 2. Q2 — T4 reso un test: la latitudine media cresce con l'attività, a pari fase?
+
+Stima descrittiva di P2: β₄ = **−0,63°** per unità di attività [−1,10; −0,12] (bootstrap, non validato), nel verso
+opposto alla previsione.
 
 **Modello (invariato da P2).** |λ_i| = Σ_{c,h} intercetti + polinomio cubico della fase + β₄·(A_i − 1), pesi Φ_i, A_monthly
 emisferico come in P2. Parametro: β₄ (gradi per unità di attività). Previsione del quenching di latitudine: β₄ > 0.
