@@ -52,6 +52,7 @@ SCEN = (0, 1, 2, 7, 9)
 CORRECT = (0, 1, 2)
 N_NULL, N_EFF, N_SENS = 2000, 500, 1000
 N_PROC, T_MAX_H = 12, 8.0
+Q2_MAIN = "conventional"        # "conventional" or "hemispheric": fixed by the frozen protocol (open point §2)
 USED = ([tuple(r) for r in P.USED] + [(3_000_000, 5_001_000), (6_000_000, 9_002_000), (20_000_000, 20_001_000),
         (28_000_000, 28_400_000), (29_500_000, 29_500_011), (31_000_000, 33_200_000), (34_000_000, 34_240_000),
         (34_900_000, 34_901_000)])
@@ -61,7 +62,7 @@ USED = ([tuple(r) for r in P.USED] + [(3_000_000, 5_001_000), (6_000_000, 9_002_
 
 def seed(kind, i, k):
     base = {"q1_null": 35_100_000, "q1_eff": 35_700_000, "q2_null": 36_100_000, "q2_sens": 36_700_000,
-            "q2_eff": 37_200_000}[kind]
+            "q2_eff": 37_200_000, "q2h_null": 37_500_000, "q2h_eff": 38_100_000}[kind]
     return base + 100_000 * i + k
 
 
@@ -70,7 +71,9 @@ def seeds_ok():
          [seed("q1_eff", i, k) for i in range(2) for k in range(N_EFF)] +
          [seed("q2_null", i, k) for i in range(5) for k in range(N_NULL)] +
          [seed("q2_sens", i, k) for i in range(4) for k in range(N_SENS)] +
-         [seed("q2_eff", i, k) for i in range(2) for k in range(N_EFF)])
+         [seed("q2_eff", i, k) for i in range(2) for k in range(N_EFF)] +
+         [seed("q2h_null", i, k) for i in range(5) for k in range(N_NULL)] +
+         [seed("q2h_eff", i, k) for i in range(2) for k in range(N_EFF)])
     return len(set(s)) == len(s) and not any(lo <= x < hi for x in s for lo, hi in USED)
 
 
@@ -190,7 +193,7 @@ _D = {}
 
 def _init():
     d = load_design()
-    _D.update(d=d, mu=lat_mean_from_saved(d))
+    _D.update(d=d, mu=lat_mean_from_saved(d), mu_hem=lat_mean(d, "phase_hem"))
 
 
 def lat_mean_from_saved(d):
@@ -207,7 +210,8 @@ def m_verdict(u, truth, predicted):
     opp = r["lo"] > 0 if predicted < 0 else r["hi"] < 0
     return dict(beta=r["beta"], se=r["se"], lo=r["lo"], hi=r["hi"],
                 verdict="supportato" if sup else ("opposto" if opp else "non deciso"),
-                covered=int(r["lo"] <= truth <= r["hi"]))
+                covered=int(r["lo"] <= truth <= r["hi"]),
+                **{k: r[k] for k in ("var_a", "var_b", "phi", "kappa", "sigma_x2")})
 
 
 def unit(task):
@@ -219,8 +223,9 @@ def unit(task):
         m, X, w, a = matrices(d, "q1")
         out = m_verdict(units(d, m, X, w, a, y_all[m]), effect, -1)
     else:
-        y = gen_q2(d, _D["mu"], scen, rng, sd_e, effect)
-        m, X, w, a = matrices(d, "q2")
+        hem = test == "q2_hem"
+        y = gen_q2(d, _D["mu_hem" if hem else "mu"], scen, rng, sd_e, effect)
+        m, X, w, a = matrices(d, "q2_hem" if hem else "q2")
         out = m_verdict(units(d, m, X, w, a, y), effect, +1)
     return dict(test=test, kind=kind, i=i, k=k, scenario=scen, sd_e=sd_e, effect=effect, seed=seed(kind, i, k), **out)
 
@@ -232,6 +237,9 @@ def tasks():
     t += [("q2", "q2_sens", i, k, s, sd, 0.0) for i, (sd, s) in enumerate([(4.0, 1), (4.0, 7), (9.0, 1), (9.0, 7)])
           for k in range(N_SENS)]
     t += [("q2", "q2_eff", i, k, s, SD_LAT, EFF_Q2) for i, s in enumerate((1, 7)) for k in range(N_EFF)]
+    # hemispheric-phase version of Q2 (role, main or sensitivity, fixed at the freeze)
+    t += [("q2_hem", "q2h_null", i, k, s, SD_LAT, 0.0) for i, s in enumerate(SCEN) for k in range(N_NULL)]
+    t += [("q2_hem", "q2h_eff", i, k, s, SD_LAT, EFF_Q2) for i, s in enumerate((1, 7)) for k in range(N_EFF)]
     return t
 
 
@@ -248,7 +256,7 @@ def summarise(raw):
             r["accepted_rule"] = bool(r["false_cp_upper95"] <= 0.04) if (scen in CORRECT and kind.endswith("null")) else None
         rows.append(r)
     tab = pd.DataFrame(rows)
-    acc = {t: bool(tab[(tab.test == t) & tab.accepted_rule.notna()].accepted_rule.all()) for t in ("q1", "q2")}
+    acc = {t: bool(tab[(tab.test == t) & tab.accepted_rule.notna()].accepted_rule.all()) for t in ("q1", "q2", "q2_hem")}
     return tab, acc
 
 
@@ -315,7 +323,9 @@ def run(protocol_sha):
             (f"Q3 quintile {q} - 1", f"q3_q{q}", False, -1, d["gamma"].to_numpy()) for q in range(2, 6)):
         m, X, w, a = matrices(d, which, sym)
         r = m_verdict(units(d, m, X, w, a, y[m]), 0.0, pred)
-        verdict_allowed = (name.startswith("Q1 main") and acc["q1"]) or (name == "Q2" and acc["q2"])
+        q2_main = "Q2 hemispheric phase" if Q2_MAIN == "hemispheric" else "Q2"
+        verdict_allowed = ((name.startswith("Q1 main") and acc["q1"]) or
+                           (name == q2_main and acc["q2_hem" if Q2_MAIN == "hemispheric" else "q2"]))
         rows.append(dict(analysis=name, n=int(m.sum()), **{k: v for k, v in r.items() if k != "covered"},
                          verdict_reported=(r.get("verdict") if verdict_allowed else "descrittivo")))
     write(OUT_RUN, {"ESTIMATES.csv": pd.DataFrame(rows)}, dict(protocol_sha256=protocol_sha, validation=acc))
@@ -358,7 +368,7 @@ def selftest():
     rng = np.random.default_rng(1)
     e = gen_q2(d, mu, 0, rng) - mu
     ok("Q2 generator: individual SD about 6 deg (scenario 0)", abs(e.std() - 6) < 0.3, round(float(e.std()), 2))
-    _D.update(d=d, mu=mu)
+    _D.update(d=d, mu=mu, mu_hem=lat_mean(d, "phase_hem"))
     r1 = unit(("q1", "q1_null", 1, 0, 1, 15.0, 0.0))
     r2 = unit(("q2", "q2_null", 1, 0, 1, SD_LAT, 0.0))
     ok("one Q1 and one Q2 catalogue analysed by M", r1["verdict"] != "errore" and r2["verdict"] != "errore",
