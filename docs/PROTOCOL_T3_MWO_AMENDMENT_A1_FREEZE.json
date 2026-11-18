@@ -1,0 +1,8 @@
+{
+  "amendment": "docs/PROTOCOL_T3_MWO_AMENDMENT_A1.md",
+  "sha256": "bc88452b382d739866ff801a14aecf596968e092904906d7d7298355a0e063c5",
+  "freeze_commit": "cfa68867c7f680dce8d2f5f50f1d1f8a38c7a4a8",
+  "frozen_utc": "2026-11-18T17:14:55.979295+00:00",
+  "protocol_sha256": "4408a0ee78d48f65275a1a4936ce687fe324a35598dd5bb18a8f3e53a01df8ff",
+  "approved_by": "Codex (amendment and 5 % threshold approved)"
+}
