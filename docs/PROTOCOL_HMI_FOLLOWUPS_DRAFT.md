@@ -77,7 +77,10 @@ grande e tilt di HARP netto: la lettura resta descrittiva.
 
 Per Q1 e Q2, prima di qualsiasi stima sui dati reali: generatore P2f sul disegno S (Q1: tilt come in P2f con
 SD_E = 15°, SD_X = 7,5°; Q2: §2), scenari 0, 1, 2, 7, 9, **2000 cataloghi sotto nulla ciascuno** e **500 con effetto**
-(Q1: Δ = −0,1·γ₀ = −2,4° nel ciclo 25; Q2: +1°) negli scenari 1 e 7. Criterio di P2f: limite superiore di
+(Q1: Δ = −0,1·γ₀ = −2,4° nel ciclo 25; Q2: +1°) negli scenari 1 e 7; per Q2 anche 1000 cataloghi sotto nulla con
+rumore individuale 4° e 9° negli scenari 1 e 7 (sensibilità). Totale 26 000 unità; benchmark preliminare su 16 unità
+complete: 0,96 s ciascuna, circa 0,6 ore su 12 processi. Codice: `scripts/hmi_followups.py` (selftest 12/12; la
+validazione e la stima si rifiutano di partire senza il protocollo congelato). Criterio di P2f: limite superiore di
 Clopper–Pearson al 95 % dei falsi verdetti complessivi ≤ 4 % negli scenari correttamente specificati (0, 1, 2); quelli
 mal specificati (7, 9) riportati a parte. Benchmark rappresentativo prima della griglia (unità complete, non la sola
 costruzione del disegno), tetto 8 ore su 12 processi. Q3 non ha verdetto: nessuna validazione obbligatoria, intervallo
