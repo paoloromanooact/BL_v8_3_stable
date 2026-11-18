@@ -826,6 +826,8 @@ scripts/check_repo.sh
 scripts/download_test_20240508.sh
 scripts/mdi_hmi_comparison_recount.py
 scripts/mdi_hmi_footprint_mu.py
+scripts/mdi_hmi_patch_download.py
+scripts/mdi_hmi_patch_io.py
 scripts/mdi_hmi_selection_check.py
 scripts/mdi_overlap_kernels.py
 scripts/mdi_overlap_metadata_review.py
@@ -850,6 +852,7 @@ scripts/t5_reading_paired_indicator.py
 test/test_process_day.pro
 test/test_sharp_bl_source_single.pro
 tests/test_geometry.py
+tests/test_mdi_hmi_patch_io.py
 tests/test_mdi_overlap_kernels.py
 tests/test_p2_synthetic.py
 tests/test_p2d.py

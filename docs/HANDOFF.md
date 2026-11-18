@@ -1,5 +1,25 @@
 # Cold restart — SHARP BL
 
+## Piccolo confronto MDI–HMI — downloader e adattatore per la revisione di Claude
+
+Il downloader `scripts/mdi_hmi_patch_download.py` senza argomenti esegue solo il preventivo
+sui manifesti e sui certificati locali. Dopo la revisione, `--fetch` acquisisce le keyword complete
+di un singolo record per richiesta e verifica i percorsi dei segmenti prima dei FITS as-is.
+Si contano i precedenti 41 tentativi e il tempo già consumato. Sono riservati 45 tentativi e
+300 secondi per la provenienza MTARP→MDATA (§8); il downloader conserva un registro separato
+nel percorso fisso `small_comparison_6d6fd12/patch_download/`, con al massimo due tentativi
+per elemento incluse le riprese. Una risposta mancante resta annotata. Il controllo di integrità
+del download usa identità, lunghezza, firma e SHA-256 locale. La lettura dei pixel è separata.
+
+L’adattatore `scripts/mdi_hmi_patch_io.py` espone `load_selected(slot, HMI, ["bitmap", "Br"])`
+per preparare R0; esplicita i segmenti anche per gli altri rami. Verifica SHA, identità, TEMPO TAI,
+scala FITS, unità del segmento da schema, WCS CEA nativa, osservatore e minimo di μ contro il
+certificato del record. Per la prova storica R0 si confrontano separatamente eventuali differenze
+di precisione delle keyword DRMS rispetto ai sidecar P1. Le convenzioni fisiche del segno LOS
+restano quelle documentate per i prodotti nativi. Le prove sintetiche sono in
+`tests/test_mdi_hmi_patch_io.py`. Consegna precedente alla revisione del codice, al download
+e a R0. La verifica delle integrazioni resta un’operazione separata.
+
 ## Verifica indipendente della selezione MDI–HMI (Claude) — 18 novembre 2026
 
 Conferma a posteriori del protocollo congelato `6d6fd12` (ordine effettivo: congelamento, selezione `7a9898e`,

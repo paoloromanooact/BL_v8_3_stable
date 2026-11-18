@@ -2,6 +2,8 @@
 
 ## v8.4 (Python, branch `v8.4-python-gianluca`) — in corso
 
+- 2026-11-18, piccolo confronto MDI–HMI: downloader e adattatore FITS/WCS con prove offline per la revisione precedente al download.
+
 - 2026-11-18, congelato il protocollo del piccolo confronto MDI–HMI dopo la revisione sul segno di Joy, sulla soglia descrittiva e sulla dispersione per emisfero.
 
 - 2026-11-18, piano prospettico fase A eseguita (output `56a5944`, controllo 10/10): nessuna estensione
