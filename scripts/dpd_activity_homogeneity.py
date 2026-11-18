@@ -29,8 +29,12 @@ def daily():
     for line in (DPD / "dailyDPD1974_2016.txt").read_text().splitlines():
         if not line.startswith("d "):
             continue
-        rows.append(dict(date=pd.Timestamp(f"{line[2:6]}-{line[7:9]}-{line[10:12]}"), obs=line[22:26].strip(),
-                         ws_corr=int(line[53:58])))
+        t = line.split()
+        if len(t) < 12:                       # day without observation
+            continue
+        # fields from the end: corrected WS area, Julian date, P, B0; source code after the time when present
+        rows.append(dict(date=pd.Timestamp(f"{t[1]}-{t[2]}-{t[3]}"), obs=t[7] if t[7].isalpha() else "(none)",
+                         ws_corr=int(t[-4])))
     d = pd.DataFrame(rows)
     return d[(d.date >= "1974-01-01") & (d.date < "2013-01-01")]
 
