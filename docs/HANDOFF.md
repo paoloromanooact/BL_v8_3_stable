@@ -1,5 +1,15 @@
 # Cold restart — SHARP BL
 
+## Piccolo confronto MDI/HMI — specifica geometrica per la revisione, 18 novembre 2026
+
+Il §8 di `docs/PROTOCOL_MDI_HMI_SMALL_COMPARISON_DRAFT.md` propone il controllo di μ sull'intera
+impronta con metadati del ritaglio CEA o con estremi eliografici dei quali sia documentata la
+copertura della bitmap rimappata. Per il revisore resta da verificare per entrambe le serie
+l'esistenza di almeno una via: forma effettiva per record e WCS, oppure provenienza degli estremi.
+La bozza specifica anche richieste, tetti, stati indeterminati e percorso separato MTARP→MDATA.
+È stata preparata offline. Il rapporto per strato e la scelta delle mappe vengono dopo la revisione;
+il confronto resta da congelare. Nessuna acquisizione in questo passaggio.
+
 ## MDI/HMI: risposta alla revisione di Claude, dominio ancora aperto — 2026-11-18
 
 Revisione 2 non congelata; nessuna selezione, query, mappa o simulazione. Dettagli e hash in

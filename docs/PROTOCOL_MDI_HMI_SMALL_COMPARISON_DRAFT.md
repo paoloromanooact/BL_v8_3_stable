@@ -1,6 +1,6 @@
 # Piccolo confronto MDI–HMI — bozza descrittiva
 
-**BOZZA NON CONGELATA, revisione 2 — 18 novembre 2026. Nessun campione estratto, nessun download o calcolo reale.**
+**BOZZA NON CONGELATA, revisione 2 con specifica geometrica proposta al §8 — 18 novembre 2026. Nessun campione estratto, nessun download o calcolo reale.**
 Proposte da rivedere prima dell'uso; i nuclei numerici sono scritti soltanto per prove sintetiche.
 Non modifica i protocolli HMI o quello dell'inventario. La vecchia bozza HMI LOS resta rinviata:
 questo è un esperimento più piccolo, senza degradazione, PSF, rumore aggiunto o prova di potenza.
@@ -37,7 +37,7 @@ Applicare la regola di qualità proposta sotto prima di ordinare e scegliere gli
 proposta è un controllo conservativo con estensioni documentate, B0 e distanza/raggio reali di ciascun
 satellite, prima dell'ordinamento. L'audit dei soli file già salvati mostra però che LAT/LON_MIN/MAX,
 DSUN_OBS e RSUN_REF sono negli schemi ma non nei CSV; NAXIS1/2 non sono keyword degli schemi. Non si
-ricavano dimensioni da CRPIX né si sostituisce NPIX a un'estensione geometrica. Anche una rettangolo
+ricavano dimensioni da CRPIX né si sostituisce NPIX a un'estensione geometrica. Anche un rettangolo
 di estremi richiede una verifica che contenga l'impronta attuale: non si presume che estremi storici
 del transito o coordinate del piano dell'immagine siano limiti eliografici del record.
 
@@ -162,3 +162,30 @@ non si modifica o aggira il vecchio piano. L'INTERVAL ignoto non viene imputato 
 Fermo prima di congelamento, selezione, download e risposte reali. Il piano prospettico e la morfologia S
 restano in pausa. Vedi [chiarimenti e fonti](MDI_SMARP_METADATA_CLARIFICATIONS.md) e
 [consegna per il revisore](MDI_HMI_PREPARATION_REVIEW.md).
+
+## 8. Specifica proposta per il controllo preliminare sui metadati
+
+**Per la revisione, prima di acquisire.** La quantità da garantire è il minimo di μ sui centri di tutti i pixel appartenenti alla patch, per entrambi gli strumenti. La certificazione preliminare precede l'ordinamento delle coppie. La verifica sui pixel della bitmap effettiva rimane obbligatoria quando saranno disponibili le mappe.
+
+### Quale informazione serve
+
+Negli schemi salvati di entrambe le serie CEA, LAT_MIN, LAT_MAX, LON_MIN e LON_MAX sono estremi in coordinate Stonyhurst dei pixel della patch. LATDTMIN/MAX e LONDTMIN/MAX descrivono invece il transito. Il segmento bitmap è VARxVAR. Nel sorgente SMARP conservato, findPosition usa gli estremi del transito e arrotonda il numero di righe e colonne del ritaglio CEA. Queste evidenze da sole lasciano aperto se gli estremi istantanei comprendano ogni centro di pixel assegnato alla bitmap **dopo la rimappatura**. La verifica va documentata per entrambe le pipeline e le versioni interessate. Fonti locali: SCHEMA_mdi.smarp_cea_96m.json, SCHEMA_hmi.sharp_cea_720s.json e sharp__apps__smarp.c, funzioni findPosition e setKeys, nei percorsi del rapporto di revisione 2.
+
+Usare uno dei seguenti certificati per ciascun record, registrando fonte, versione, precisione e unità.
+
+1. **Ritaglio CEA.** Se sono documentate e disponibili come metadati le dimensioni effettive (nx, ny) del segmento bitmap di quel record e la WCS completa, calcolare μ su tutti i centri di pixel del ritaglio. Basta elaborare una riga alla volta. Il minimo su questo insieme è un limite inferiore valido per qualsiasi maschera interna. La forma effettiva deve provenire dal segmento per-record. CRPIX e NPIX da soli non la stabiliscono. Nessun uso dei quattro soli angoli o di un reticolo diradato.
+2. **Rettangolo eliografico.** Ammesso se la provenienza documenta che i quattro estremi istantanei racchiudono tutti i centri di pixel della bitmap CEA per quella versione. Conservare l'intervallo di longitudine con la sua convenzione documentata, incluse eventuali discontinuità. Arrotondamenti e precisione di serializzazione vanno trattati verso l'esterno. Una fonte ambigua dà esito indeterminato. Se entrambi i certificati sono disponibili, registrarli separatamente e verificare eventuali incompatibilità per le stesse coordinate.
+
+Per longitudine relativa all'osservatore ℓ e latitudine b, porre q = sin(b) sin(B0) + cos(b) cos(B0) cos(ℓ), poi μ = (q − r)/sqrt(1 + r² − 2rq), r = RSUN_REF/DSUN_OBS. Usare epoca e osservatore del record, B0 = CRLT_OBS e unità coerenti con 0 < r < 1. Per Carrington sottrarre CRLN_OBS una volta. Per Stonyhurst verificare a quale meridiano si riferiscano gli estremi rispetto a SOHO o SDO prima di trattarli come ℓ. μ cresce con q. Per un rettangolo in tali coordinate ricavare il minimo del coseno di ℓ sull'intero intervallo, poi minimizzare in b controllando i due estremi e tutti i punti stazionari interni. Trasformazioni non documentate, pixel con WCS non definita e precisione insufficiente vicino alla soglia lasciano il certificato indeterminato.
+
+### Acquisizione proposta dopo revisione
+
+- **Geometria.** Operazione JSOC di sola lettura rs_list su mdi.smarp_cea_96m e hmi.sharp_cea_720s. Riutilizzare le esatte finestre delle ricevute locali LIST_RECEIPTS.jsonl per i due profili overlap (6 MDI e 26 HMI, inclusi i margini HMI). Per ciascuna serie richiedere le due chiavi primarie, LAT_MIN/MAX, LON_MIN/MAX, DSUN_OBS e RSUN_REF. Unire offline alle WCS, effemeridi e versioni già salvate con la chiave completa. Se l'operazione documenta le dimensioni effettive della bitmap nel JSON, includerle nella stessa risposta. Prima dell'accesso identificare e provare su una risposta archiviata o fixture documentata il campo esatto che porta la forma. Un percorso del segmento o una dimensione VARxVAR lascia la forma ignota. Autorizzare l'acquisizione solo se per almeno una via è già documentato il significato necessario in entrambe le serie.
+- **Budget proposto.** Per la geometria, 32 richieste di base, massimo 40 tentativi inclusi ripetizioni, 64 MiB di corpi JSON, 10 minuti cumulativi. Sono sottolimiti del confronto del §6 per tentativi e tempo. Registrare separatamente i byte dei metadati e quelli dei FITS. In caso di arresto conservare risposte originali, hash e finestre mancanti. Verificare stato del servizio, conteggi, unicità, valori mancanti, righe di bordo e identità delle chiavi contro le ricevute precedenti. Ogni discordanza va localizzata prima di certificare un record. Registrare versione e hash del lettore. L'inventario congelato mantiene il proprio registro.
+- **Provenienza delle integrazioni, fase successiva distinta.** Per le sole coppie eventualmente selezionate, proporre una series_struct di mdi.lostarp_96m per documentare MDATA e la serie destinataria. Risolvere con rs_list il link MTARP del record CEA esatto, poi MDATA del record intermedio esatto. Leggere dalla destinazione verificata mdi.fd_M_96m_lev182 chiavi, identificativo del record, T_OBS, INTERVAL, DPC e QUALITY. Registrare identità di ogni estremo e risposta originale. Al massimo 1 + 3 × 12 = 37 richieste di base, 45 tentativi, 8 MiB JSON e 5 minuti, entro i totali di §6. Casi di link non esposto, destinazione diversa o record non univoco restano con prodotto ignoto e motivo. Non attribuire prodotti per vicinanza temporale. Prima di ogni fase riconciliare i consumi con i tetti complessivi e verificare il costo residuo del download. I sottolimiti sono massimi, non una garanzia di completamento.
+
+### Rapporto prima della selezione
+
+Per ognuno dei quattro strati ripartire gli archi dell'audit (877, 390, 880, 455 nell'ordine N centrale, S centrale, N laterale, S laterale) fra **certificati su entrambi**, **copertura geometrica insufficiente a certificare**, **metadati mancanti o non interpretabili**. Mantenere il dettaglio per strumento, causa e coppia distinta, contando ogni arco una volta. Una coppia con dati mancanti e un altro limite insufficiente figura nella terza categoria con entrambe le cause annotate. Un limite inferiore sotto 0,8 indica che il rettangolo può uscire dal dominio. Per affermare che la maschera lo violi servirebbe un pixel appartenente alla patch che lo dimostri. Riportare sia la quota di archi esclusi dalla preselezione conservativa sia quella con dati mancanti; la perdita fisica effettiva resta distinta. Riportare anche quante componenti G10 hanno almeno un arco certificato per strato e quante sono condivise fra strati, prima di formare qualsiasi lista di mappe.
+
+Per la futura implementazione prevedere casi offline a soglia, un rettangolo che attraversa il meridiano, una parete con estremo interno, una bitmap interamente valida dentro un ritaglio che supera il limite e una coppia con un solo strumento documentato. Se nessuna via documentata garantisce l'impronta su entrambi gli strumenti, il rapporto indicherà il motivo. La scelta successiva da sottoporre a revisione sarà se mantenere la preselezione conservativa o verificare tutta la bitmap dopo l'estrazione, con perdite registrate e senza sostituzioni.
