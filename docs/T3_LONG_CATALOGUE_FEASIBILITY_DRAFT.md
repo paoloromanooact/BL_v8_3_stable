@@ -132,6 +132,20 @@ Lettura, descrittiva:
 - le unità di attività di HMI (SILSO emisferico) e di DPD (aree emisferiche) non sono identiche: il confronto in unità
   di γ₀ è indicativo; un protocollo dovrebbe fissare un'attività comune o riportare l'effetto in termini di quantili.
 
+**Verifica primaria della letteratura (pomeriggio del 18 novembre).**
+- Jiao, Jiang & Wang 2021: la dipendenza studiata è **fra cicli** (coefficiente per ciclo contro forza del ciclo,
+  cicli 21–24 in DPD e altri cataloghi); nessun test interno al ciclo.
+- McClintock & Norton 2013: tilt medi pesati per area inversamente legati alla forza del ciclo nel sud e su tutto il Sole,
+  **nessuna dipendenza nel nord**; il rumore stocastico domina e non permette di determinare la pendenza di Joy sulla
+  scala di 11 anni; **deviazione standard dei tilt 29–31°** in tutti i cicli ed emisferi.
+- Un test esplicito del coefficiente di Joy contro l'attività **dentro** il ciclo (la domanda di T3) non è emerso in due
+  ricerche; esistono studi della variazione dei tilt con la fase del ciclo, che è una domanda diversa (la fase porta con
+  sé la latitudine, che T3 già modella con sin|λ|). La novità non è ancora dimostrata.
+
+**Calcolo aggiuntivo dichiarato, eseguito dopo la lettura del §8** (solo analitico, nessun tilt letto): con dispersione
+individuale 30°, come in McClintock & Norton, la semilarghezza su DPD 1974–2016 alla scala P2f è 0,25, 0,27 e 0,28·γ₀
+(AR(1) 0,5, AR(1) 0,9, salti): ancora 1,7–2,2 volte più stretta di HMI (0,43, 0,56, 0,60).
+
 Il catalogo dei tilt DPD non è stato letto. Prossimo passo, se si procede: verifica primaria della letteratura (§6.1),
 poi un protocollo che fissi la definizione del tilt in luce bianca, l'attività emisferica e il raccordo con P1 nella
 sovrapposizione 2010–2016, prima di leggere i tilt.
@@ -142,7 +156,8 @@ sovrapposizione 2010–2016, prima di leggere i tilt.
   (https://academic.oup.com/mnras/article/447/2/1857/2593777)
 - Jiao, Jiang & Wang 2021, A&A 653, A27 (https://arxiv.org/pdf/2106.11615)
 - Tlatova et al. 2018, tilt dei bipoli nei cicli 15–24 (https://arxiv.org/abs/1807.07913)
-- McClintock & Norton 2013 (https://arxiv.org/pdf/1305.3205)
+- McClintock & Norton 2013 (https://arxiv.org/abs/1305.3205)
+- Variazione dei tilt con la fase (https://arxiv.org/pdf/2410.21715)
 - Jha et al. 2024, quenching dei tilt con AutoTAB (https://arxiv.org/abs/2401.04255v1)
 - Wang et al. 2015, tilt magnetici contro luce bianca (https://arxiv.org/html/1412.2329)
 - Strumenti in linea di Debrecen (https://arxiv.org/pdf/1606.00669)
