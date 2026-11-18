@@ -35,6 +35,9 @@ MWO_PIPELINE = Path("/home/gianluca/MWO-HMI-MDI-Polar-Flux-Signed-Sunspots/src/M
                     "MWO_PIPELINE_CLEAN_ALLDATA_STRICT_REPAIRED_QC.py")
 MWO_DATA = Path("/storage/shared/gianluca/MWO_project/Desktop/MWO/data MWO")
 FROZEN = ROOT / "docs/PROTOCOL_MWO_PILOT.md"
+DPD_DIR = ROOT / "data/sharp/external_DPD_20261118"
+OUT = ROOT / "results/MWO_PILOT"
+FLAG_DEG, LEAD_MIN, DAX_MAX, MIN_EVAL, MIN_HEM = 2.107, 0.90, 5.0, 150, 50
 
 # proposed parameters (to be fixed by the pilot protocol)
 WIN_LAT, WIN_LON = 6.0, 8.0       # half-window around the DPD centre, degrees
@@ -116,6 +119,147 @@ def fe_members(year):
         return [m.name for m in tf.getmembers() if m.isfile() and MP._detect_line(m.name, ("FE",)) == "FE"]
 
 
+# ---------------------------------------------------------------- pilot pipeline (§1-§4 of the draft)
+
+def p1_candidates(end="2014-01-01"):
+    """P1 sample S records before `end` with a numeric NOAA number."""
+    import pandas as pd
+    sys.path.insert(0, str(ROOT / "python"))
+    from sharpbl import run_p2
+    cat = pd.read_csv(ROOT / "results/P1/P1_SBL_CATALOG_BY_HARP.csv", low_memory=False)
+    S = run_p2.samples(cat)["S"]
+    S = S[S["t"] < pd.Timestamp(end)].copy()
+    S["noaa"] = pd.to_numeric(S["NOAA_AR"], errors="coerce")
+    S = S[S["noaa"] > 0]
+    return [dict(HARPNUM=int(r.HARPNUM), T_REC=r.T_REC, t=r.t.to_pydatetime(), noaa=str(int(r.noaa)),
+                 hemisphere=r.hemisphere, p1_tilt=r.tilt_deg, p1_lat=r.lat_mean_deg, p1_phi=r.phi_mx,
+                 p1_leading=r.leading_sign) for r in S.itertuples()]
+
+
+def dpd_rows(years, dpd_dir=DPD_DIR):
+    """DPD group rows: {(date, NOAA string): (lat, Carrington L, corrected WS area)} keeping the largest area."""
+    out = {}
+    for y in years:
+        for line in (Path(dpd_dir) / f"gDPD{y}.txt").read_text().splitlines():
+            if not line.startswith("g "):
+                continue
+            try:
+                lat, lon, area = float(line[59:65]), float(line[66:72]), int(line[53:58])
+            except ValueError:
+                continue
+            if lat > 900 or lon > 900:
+                continue
+            key = (f"{line[2:6]}-{line[7:9]}-{line[10:12]}", line[22:28].strip())
+            if key not in out or area > out[key][2]:
+                out[key] = (lat, lon, area)
+    return out
+
+
+def read_members(year, wanted, archive_dir):
+    with tarfile.open(Path(archive_dir) / f"MWO_{year}.tar.gz") as tf:
+        return {m.name: tf.extractfile(m).read() for m in tf.getmembers() if m.name in wanted}
+
+
+def process(cands, archive_dir=MWO_DATA, dpd_dir=DPD_DIR):
+    """One row per candidate: MWO measurement at the DPD centre on the closest same-day Fe magnetogram passing the
+    ephemeris checks, and the differences with P1. Every exclusion keeps its cause."""
+    years = sorted({c["t"].year for c in cands})
+    dpd = dpd_rows(years, dpd_dir)
+    by_day = {}
+    for y in years:
+        with tarfile.open(Path(archive_dir) / f"MWO_{y}.tar.gz") as tf:
+            names = [m.name for m in tf.getmembers() if m.isfile() and MP._detect_line(m.name, ("FE",)) == "FE"]
+        for n in names:
+            d = MP.filename_date(n, y)
+            if d is not None:
+                by_day.setdefault(d.date(), []).append((y, n))
+    need = {}
+    for c in cands:
+        for y, n in by_day.get(c["t"].date(), []):
+            need.setdefault(y, set()).add(n)
+    blobs = {}
+    for y, names in need.items():
+        blobs.update(read_members(y, names, archive_dir))
+    rows = []
+    for c in cands:
+        row = dict({k: v for k, v in c.items() if k != "t"}, t=c["t"].isoformat())
+        key = (c["t"].strftime("%Y-%m-%d"), c["noaa"])
+        if key not in dpd:
+            rows.append(dict(row, status="no_dpd_group"))
+            continue
+        lat0, lon0, _ = dpd[key]
+        opts = []
+        for y, n in by_day.get(c["t"].date(), []):
+            h, B = MP.parse_fits_bytes(blobs[n])
+            ot = obs_time(h, n, y)
+            if ot is not None:
+                opts.append((abs((ot - c["t"]).total_seconds()), n, h, B, ot))
+        if not opts:
+            rows.append(dict(row, status="no_mwo_magnetogram"))
+            continue
+        chosen = None
+        for dt_s, n, h, B, ot in sorted(opts, key=lambda x: (x[0], x[1])):
+            good, dcen, db0 = ephemeris_ok(h, ot)
+            if good:
+                chosen = (dt_s, n, h, B, ot, dcen, db0)
+                break
+        if chosen is None:
+            rows.append(dict(row, status="ephemeris_check_failed"))
+            continue
+        dt_s, n, h, B, ot, dcen, db0 = chosen
+        m = measure(h, B, lat0, lon0)
+        row.update(member=n, mwo_time=ot.isoformat(), dt_s=dt_s, dpd_lat=lat0, dpd_lon=lon0, dcenlon=dcen, db0=db0,
+                   **{f"mwo_{k}": v for k, v in m.items()})
+        row["status"] = m["status"]
+        if m["status"] == "ok" and np.isfinite(c["p1_tilt"]):
+            d = m["tilt_deg"] - c["p1_tilt"]
+            dax = (d + 90.0) % 180.0 - 90.0
+            row.update(d=d, d_ax=dax, abs_d_ax=abs(dax), d_gamma=math.copysign(1.0, c["p1_lat"]) * dax,
+                       leading_agree=int(m["leading_sign"] == c["p1_leading"]),
+                       flux_ratio=(m["flux_pos_mx"] + m["flux_neg_mx"]) / c["p1_phi"] if c["p1_phi"] else np.nan)
+        elif m["status"] == "ok":
+            row["status"] = "p1_tilt_missing"
+        rows.append(row)
+    return rows
+
+
+def summarise(rows):
+    """§3 summaries and the §4 criterion (with the minimum coverage)."""
+    import pandas as pd
+    df = pd.DataFrame(rows)
+    ev = df[df.get("d_gamma", pd.Series(dtype=float)).notna()] if "d_gamma" in df else df.iloc[0:0]
+    tert = np.quantile(ev.p1_phi, [1 / 3, 2 / 3]) if len(ev) >= 3 else [np.nan, np.nan]
+
+    def stats(g, name):
+        v = g.d_gamma.to_numpy(float)
+        n = len(v)
+        return dict(group=name, n=n, d_gamma_median=float(np.median(v)) if n else np.nan,
+                    d_gamma_mean=float(v.mean()) if n else np.nan,
+                    s_over_sqrt_n=float(v.std(ddof=1) / math.sqrt(n)) if n > 1 else np.nan,
+                    abs_d_ax_median=float(np.median(g.abs_d_ax)) if n else np.nan,
+                    leading_agree=float(g.leading_agree.mean()) if n else np.nan,
+                    flux_ratio_median=float(np.median(g.flux_ratio)) if n else np.nan)
+    groups = [stats(ev, "all")] + [stats(ev[ev.hemisphere == h], h) for h in ("N", "S")]
+    if len(ev) >= 3:
+        cls = np.searchsorted(tert, ev.p1_phi, side="right")
+        groups += [stats(ev[cls == i], f"P1 flux tercile {i + 1}") for i in range(3)]
+    tab = pd.DataFrame(groups)
+    causes = df.status.value_counts().to_dict()
+    g = {r["group"]: r for r in groups}
+    coverage = len(ev) >= MIN_EVAL and all(g[h]["n"] >= MIN_HEM for h in ("N", "S"))
+
+    def passes(r):
+        return bool(r["n"] and r["leading_agree"] >= LEAD_MIN and abs(r["d_gamma_median"]) < FLAG_DEG
+                    and r["abs_d_ax_median"] <= DAX_MAX)
+    overall = coverage and passes(g["all"]) and all(abs(g[h]["d_gamma_median"]) < FLAG_DEG for h in ("N", "S"))
+    verdict = ("pilota non concludente" if not coverage else
+               "variante MWO utilizzabile" if overall else
+               ("utilizzabile con soglia di flusso (fallisce solo il terzile basso)"
+                if len(groups) == 6 and passes(g["P1 flux tercile 2"]) and passes(g["P1 flux tercile 3"])
+                and not passes(g["P1 flux tercile 1"]) else "variante MWO non utilizzabile"))
+    return tab, causes, verdict
+
+
 # ---------------------------------------------------------------- selftest (synthetic only)
 
 def synthetic(B0_deg=5.0, cenlon=100.0, lat0=15.0, lon0=110.0, tilt=10.0, sep=6.0, n=512, R=240.0):
@@ -179,22 +323,116 @@ def selftest():
        ephemeris_ok(hb, dt)[0] and not ephemeris_ok(dict(hb, B0=hb["B0"] + math.radians(1.0)), dt)[0])
     ok("real archive readable: Fe members found for 2011 (listing only, no data read)", len(fe_members(2011)) > 100,
        len(fe_members(2011)))
-    ok("--run refuses before the pilot protocol exists", not FROZEN.exists())
+    # end-to-end on a synthetic archive: two same-day magnetograms, the closer one with a wrong CENLON (must be skipped)
+    import tempfile, io as _io
+    from astropy.io import fits
+    with tempfile.TemporaryDirectory() as td:
+        td = Path(td)
+        ot = datetime(2011, 6, 1, 18, 0)
+        cen = MP.cenlon_from_carrington_cont(MP.carrington_continuous_from_date(ot))
+        b0 = MP.solar_B0_expected_deg(ot)
+        lat0, lon0, tilt = 12.0, (cen + 10.0) % 360, 12.0
+        hs, Bs = synthetic(B0_deg=b0, cenlon=cen, lat0=lat0, lon0=lon0, tilt=tilt)
+        with tarfile.open(td / "MWO_2011.tar.gz", "w:gz") as tf:
+            for name, hour, cenlon in (("2011/MP00_5250078_00_0110601_1800.fits", 18.0, cen),
+                                       ("2011/MP00_5250078_00_0110601_1815.fits", 18.25, (cen + 30) % 360)):
+                hdr = fits.Header()
+                for k, v in dict(X0=256.5, Y0=256.5, R0=240.0, B0=math.radians(b0), CENLON=cenlon).items():
+                    hdr[k] = v
+                hdr["TAVG-UT"] = hour
+                buf = _io.BytesIO()
+                fits.PrimaryHDU(np.nan_to_num(Bs).astype(np.float32), hdr).writeto(buf)
+                ti = tarfile.TarInfo(name)
+                ti.size = len(buf.getvalue())
+                tf.addfile(ti, _io.BytesIO(buf.getvalue()))
+        line = list(" " * 93)
+        for col, txt in ((0, "g 2011 06 01 08 00 00"), (22, f"{'11222':>6}"), (53, f"{120:5d}"), (59, f"{lat0:6.2f}"),
+                         (66, f"{lon0:6.2f}")):
+            line[col:col + len(txt)] = list(txt)
+        (td / "gDPD2011.txt").write_text("".join(line) + "\n")
+        lead = (lon0 + 3 * math.cos(math.radians(tilt)) / math.cos(math.radians(lat0)), lat0 - 3 * math.sin(math.radians(tilt)))
+        foll = (lon0 - 3 * math.cos(math.radians(tilt)) / math.cos(math.radians(lat0)), lat0 + 3 * math.sin(math.radians(tilt)))
+        p1t = geo.tilt_deg(lead, foll)
+        cand = [dict(HARPNUM=1, T_REC="2011.06.01_18:12:00_TAI", t=datetime(2011, 6, 1, 18, 12), noaa="11222",
+                     hemisphere="N", p1_tilt=p1t, p1_lat=lat0, p1_phi=1e21, p1_leading=1)]
+        rows = process(cand, archive_dir=td, dpd_dir=td)
+        r = rows[0]
+    ok("end to end: closer magnetogram with wrong CENLON skipped, tilt agrees with P1 within 1 deg, leading agrees",
+       r["status"] == "ok" and r["member"].endswith("_1800.fits") and abs(r["d_ax"]) < 1.0 and r["leading_agree"] == 1,
+       (r.get("status"), r.get("member", "")[-9:], round(r.get("d_ax", np.nan), 3)))
+    tab, causes, verdict = summarise(rows)
+    ok("summary on one record: coverage rule gives 'pilota non concludente'", verdict == "pilota non concludente", verdict)
+    with tempfile.TemporaryDirectory() as td:
+        f = Path(td) / "P.md"
+        g1 = gate_problem("x" * 64, f)
+        f.write_text("frozen")
+        g2, g3 = gate_problem("y" * 64, f), gate_problem(hashlib.sha256(b"frozen").hexdigest(), f)
+    ok("gate refuses missing, wrong-SHA and uncommitted protocol (temporary files)",
+       (g1, g2, g3) == ("frozen protocol missing", "frozen protocol SHA-256 differs", "frozen protocol not committed"))
     print(f"selftest: {sum(res)}/{len(res)} superati")
     return all(res)
+
+
+def git(*a):
+    import subprocess
+    return subprocess.run(["git", *a], cwd=ROOT, capture_output=True, text=True).stdout.strip()
+
+
+def gate_problem(protocol_sha, frozen=None):
+    import subprocess
+    frozen = Path(frozen) if frozen else FROZEN
+    if not frozen.exists():
+        return "frozen protocol missing"
+    if hashlib.sha256(frozen.read_bytes()).hexdigest() != protocol_sha:
+        return "frozen protocol SHA-256 differs"
+    if subprocess.run(["git", "ls-files", "--error-unmatch", str(frozen)], cwd=ROOT, capture_output=True).returncode:
+        return "frozen protocol not committed"
+    if git("status", "--porcelain", "--untracked-files=no"):
+        return "clean tree required"
+    return None
+
+
+def run(protocol_sha):
+    import json
+    import os
+    import pandas as pd
+    why = gate_problem(protocol_sha)
+    if why:
+        sys.exit(why)
+    if OUT.exists():
+        sys.exit("pilot output exists")
+    commit = git("rev-parse", "HEAD")
+    rows = process(p1_candidates())
+    tab, causes, verdict = summarise(rows)
+    tmp = OUT.with_name(OUT.name + f".partial_{os.getpid()}")
+    tmp.mkdir(parents=True)
+    pd.DataFrame(rows).to_csv(tmp / "ROWS.csv", index=False)
+    tab.to_csv(tmp / "SUMMARY.csv", index=False)
+    (tmp / "CAUSES.json").write_text(json.dumps(causes, indent=2) + "\n")
+    hashes = {f.name: hashlib.sha256(f.read_bytes()).hexdigest() for f in tmp.iterdir()}
+    os.rename(tmp, OUT)
+    meta = dict(protocol_sha256=protocol_sha, git_commit=commit, script_sha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
+                mwo_pipeline_sha256=hashlib.sha256(MWO_PIPELINE.read_bytes()).hexdigest(),
+                dpd_sha256sums=hashlib.sha256((DPD_DIR / "SHA256SUMS.txt").read_bytes()).hexdigest(),
+                n_candidates=len(rows), verdict=verdict, products_sha256=hashes)
+    (OUT / "META.json").write_text(json.dumps(meta, indent=2) + "\n")
+    print(tab.to_string(index=False))
+    print(causes, verdict)
+    return 0
 
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--selftest", action="store_true")
     ap.add_argument("--run", action="store_true")
+    ap.add_argument("--protocol-sha")
     a = ap.parse_args()
     if a.selftest:
         return 0 if selftest() else 1
-    if a.run:
-        if not FROZEN.exists():
-            sys.exit("no frozen pilot protocol: the pilot cannot run")
-        sys.exit("pilot run to be written against the frozen protocol (matching with P1 and DPD, outputs, recount)")
+    if a.run and a.protocol_sha:
+        if not selftest():
+            return 1
+        return run(a.protocol_sha)
     ap.print_help()
     return 1
 

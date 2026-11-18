@@ -865,6 +865,7 @@ scripts/mdi_overlap_kernels.py
 scripts/mdi_overlap_metadata_review.py
 scripts/mdi_smarp_inventory.py
 scripts/mdi_smarp_overlap_analysis.py
+scripts/mwo_pilot_recount.py
 scripts/mwo_pilot_tilt.py
 scripts/process_test_20240508_idl_commands.pro
 scripts/prospective_phase_a.py
