@@ -22,6 +22,7 @@ from scipy.stats import norm
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "python"))
+sys.path.insert(0, str(ROOT / "scripts"))
 from sharpbl import run_p2  # noqa: E402  (shared upstream: catalogue sample S and SILSO activity)
 
 VAL = ROOT / "results/HMI_FOLLOWUPS_VALIDATION"
@@ -143,6 +144,16 @@ def validation_recount(raw, summ):
     return acc, worst_f, len(grid)
 
 
+def analysis_map(d):
+    m = {"Q1 main (T2 window)": ("q1", False, d.gamma), "Q1 symmetric window": ("q1", True, d.gamma),
+         "Q1 hemisphere-averaged": ("q1_hem", False, d.gamma),
+         "Q2 hemispheric phase": ("q2_hem", False, d.lat.abs()),
+         "Q2 conventional phase (historical T4)": ("q2", False, d.lat.abs()),
+         "Q3 b (log10 Phi)": ("q3_b", False, d.gamma)}
+    m.update({f"Q3 quintile {q} - 1": (f"q3_q{q}", False, d.gamma) for q in range(2, 6)})
+    return m
+
+
 def check():
     d = sample()
     d["phase_hem"] = hemispheric_phase(d)
@@ -152,10 +163,9 @@ def check():
         res.append(dict(name=name, ok=bool(cond), value=str(value)))
         print(f"[{'OK' if cond else 'FALLITO'}] {name} {value}")
     est = pd.read_csv(RUN / "ESTIMATES.csv")
-    which = {"Q1 main (T2 window)": ("q1", False, d.gamma), "Q1 symmetric window": ("q1", True, d.gamma),
-             "Q1 hemisphere-averaged": ("q1_hem", False, d.gamma), "Q2": ("q2", False, d.lat.abs()),
-             "Q2 hemispheric phase": ("q2_hem", False, d.lat.abs()), "Q3 b (log10 Phi)": ("q3_b", False, d.gamma)}
-    which.update({f"Q3 quintile {q} - 1": (f"q3_q{q}", False, d.gamma) for q in range(2, 6)})
+    which = analysis_map(d)
+    unknown = sorted(set(est.analysis) - set(which))
+    ok("every analysis of the run is known to the recount", not unknown, unknown)
     worst_b = worst_se = 0.0
     for r in est.itertuples():
         wname, sym, y = which[r.analysis]
@@ -233,11 +243,24 @@ def selftest():
     fr_bad.loc[(fr_bad.test == "q2_hem") & (fr_bad.effect == 1.0) & (fr_bad.k < 60), ["covered", "hi_below"]] = [0, 1]
     a_bad, _, _ = validation_recount(fr_bad, fs)
     c5 = a_ok == {"q1": True, "q2_hem": True} and w_ok == 0 and w_bad > 0 and a_bad == {"q1": True, "q2_hem": False}
-    for n, c in (("Q1 contrast -3 on 2238 regions (independent QR rows)", c1),
+    # every analysis label of the runner is mapped, and runner and recount contrast rows agree (selftest only)
+    import hmi_followups as H
+    dh = H.load_design()
+    amap = analysis_map(d)
+    labels = [x[0] for x in H.ANALYSES]
+    worst_a = 0.0
+    for name, which, sym, *_ in H.ANALYSES:
+        m_r, _, _, a_r = H.matrices(dh, which, sym)
+        wn, ws, _ = amap[name]
+        m_c, a_c = contrast(d, wn, ws)
+        worst_a = max(worst_a, float(np.max(np.abs(a_r - a_c))) / float(np.max(np.abs(a_r)))) if (m_r == m_c).all() else 1.0
+    c6 = set(labels) == set(amap) and worst_a < 1e-8
+    for n, c in (("all runner analyses mapped; runner and recount contrast rows equal on every analysis", c6),
+                 ("Q1 contrast -3 on 2238 regions (independent QR rows)", c1),
                  ("validation recount: clean fake accepted, tampered summary detected, 3 % tail refused", c5), ("SE from parameters finite", c2),
                  ("(acceptance criteria now P2f point limits)", c3), ("SE formula equals P2f m_variance_given", c4)):
         print(f"[{'OK' if c else 'FALLITO'}] {n}")
-    return c1 and c2 and c3 and c4 and c5
+    return c1 and c2 and c3 and c4 and c5 and c6
 
 
 if __name__ == "__main__":

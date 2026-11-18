@@ -310,6 +310,10 @@ def gate(protocol_sha):
     why = gate_problem(protocol_sha)
     if why:
         sys.exit(why)
+    START_COMMIT["sha"] = git("rev-parse", "HEAD")      # recorded at the start, not at the end of a long run
+
+
+START_COMMIT = {}
 
 
 def write(out, frames, meta):
@@ -319,7 +323,8 @@ def write(out, frames, meta):
         df.to_csv(tmp / name, index=False)
     hashes = {f.name: hashlib.sha256(f.read_bytes()).hexdigest() for f in tmp.iterdir()}
     os.rename(tmp, out)
-    (out / "META.json").write_text(json.dumps(dict(meta, products_sha256=hashes, git_commit=git("rev-parse", "HEAD"),
+    (out / "META.json").write_text(json.dumps(dict(meta, products_sha256=hashes,
+                                                   git_commit=START_COMMIT.get("sha") or git("rev-parse", "HEAD"),
                                                    script_sha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest()),
                                               indent=2, default=str) + "\n")
 
@@ -350,6 +355,14 @@ def validate(protocol_sha):
     return 0
 
 
+ANALYSES = (("Q1 main (T2 window)", "q1", False, -1, "gamma"), ("Q1 symmetric window", "q1", True, -1, "gamma"),
+            ("Q1 hemisphere-averaged", "q1_hem", False, -1, "gamma"),
+            ("Q2 hemispheric phase", "q2_hem", False, +1, "abslat"),
+            ("Q2 conventional phase (historical T4)", "q2", False, +1, "abslat"),
+            ("Q3 b (log10 Phi)", "q3_b", False, -1, "gamma")) + tuple(
+    (f"Q3 quintile {q} - 1", f"q3_q{q}", False, -1, "gamma") for q in range(2, 6))
+
+
 def run(protocol_sha):
     gate(protocol_sha)
     vmeta = json.loads((OUT_VAL / "META.json").read_text())
@@ -363,13 +376,8 @@ def run(protocol_sha):
         sys.exit("run output exists")
     d = load_design(with_responses=True)
     rows = []
-    for name, which, sym, pred, y in (("Q1 main (T2 window)", "q1", False, -1, d["gamma"].to_numpy()),
-                                      ("Q1 symmetric window", "q1", True, -1, d["gamma"].to_numpy()),
-                                      ("Q1 hemisphere-averaged", "q1_hem", False, -1, d["gamma"].to_numpy()),
-                                      ("Q2 hemispheric phase", "q2_hem", False, +1, d["lat"].abs().to_numpy()),
-                                      ("Q2 conventional phase (historical T4)", "q2", False, +1, d["lat"].abs().to_numpy()),
-                                      ("Q3 b (log10 Phi)", "q3_b", False, -1, d["gamma"].to_numpy())) + tuple(
-            (f"Q3 quintile {q} - 1", f"q3_q{q}", False, -1, d["gamma"].to_numpy()) for q in range(2, 6)):
+    for name, which, sym, pred, resp in ANALYSES:
+        y = d["gamma"].to_numpy() if resp == "gamma" else d["lat"].abs().to_numpy()
         m, X, w, a = matrices(d, which, sym)
         r = m_verdict(units(d, m, X, w, a, y[m]), 0.0, pred)
         q2_main = "Q2 hemispheric phase"
