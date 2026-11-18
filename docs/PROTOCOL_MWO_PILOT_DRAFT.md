@@ -1,16 +1,22 @@
 # Pilota MWO: tilt magnetici da magnetogrammi Mount Wilson contro P1 (2010–2013) — bozza
 
-**BOZZA NON CONGELATA, 18 novembre 2026 (Claude). Da rivedere con Codex.** Serve a decidere se i tilt magnetici
+**BOZZA NON CONGELATA, 18 novembre 2026 (Claude), revisione 2 dopo la revisione di Codex** (tempi TAI→UTC, denominatore 267 con manifesto dei candidati, criterio dopo il taglio di flusso con copertura per emisfero, riconteggio dell'intera decisione). Da rivedere con Codex prima del congelamento. Serve a decidere se i tilt magnetici
 misurati da noi sui magnetogrammi MWO (risoluzione circa 13″ × 20″) sono abbastanza vicini a P1 da usarli per T3 sul
 periodo 1974–2012 (variante §8b di `docs/PROTOCOL_T3_DPD_DRAFT.md`). Nessun tilt MWO è stato calcolato. Codice:
 `scripts/mwo_pilot_tilt.py` (selftest 9/9 su magnetogrammi sintetici). Non cieco: noti i risultati HMI, il confronto
 MDI–HMI (mediana |d_ax| 2,15° su 4 coppie) e la scala BARD-MDI (2,107°).
 
-## 1. Campione (solo metadati, contato prima della bozza)
+## 1. Campione (solo metadati, ricontato dopo la revisione di Codex)
 
-Record P1 del campione S con data < 2014-01-01 e numero NOAA: 534; con gruppo DPD dello stesso numero lo stesso giorno
-UT: 507; con almeno un magnetogramma MWO Fe I 5250 lo stesso giorno: 287; **entrambi: 272**. Giorni MWO con Fe I:
-2010 212, 2011 292, 2012 253, 2013 12. Tutti i 272 record entrano, senza ordinamento né scelta; nessuna sostituzione.
+**Tempi.** T_REC di P1 è in TAI; gli orari MWO (TAVG-UT) e le date DPD sono in UT: T_REC si converte in UTC (astropy)
+prima di ogni confronto di giorno o di orario. Con la conversione 33 candidati su 534 cambiano giorno.
+
+**Manifesto dei candidati e denominatori.** Candidati: record P1 del campione S con data UTC < 2014-01-01 e numero NOAA,
+**534**. Ogni candidato resta nel manifesto con il suo stato: senza gruppo DPD dello stesso numero lo stesso giorno UT
+**35**; con gruppo DPD ma senza magnetogramma MWO Fe I lo stesso giorno UT **232**; **abbinati 267** (sostituisce il
+conteggio 272, che usava T_REC in TAI come se fosse UT). La misura si tenta su tutti i 267 abbinati; le esclusioni
+successive (effemeridi, dominio μ, una sola polarità, tilt P1 mancante) sono riportate con la causa. Conteggi verificati
+da due implementazioni (runner e riconteggio indipendente).
 
 ## 2. Misura MWO per record
 
@@ -29,9 +35,9 @@ UT: 507; con almeno un magnetogramma MWO Fe I 5250 lo stesso giorno: 287; **entr
 R☉ = 6,96·10¹⁰ cm (raggio nominale di P1): serve per il rapporto di flusso con P1; nei baricentri il fattore si cancella.
 Prova sintetica: un campo radiale uniforme di 100 G restituisce 100 G × l'area sferica della finestra entro il 3 %.
 
-**Copertura minima (proposta, da fissare prima delle mappe).** Il pilota è informativo solo se almeno **150 dei 272**
-record sono valutabili (due polarità, dominio μ, effemeridi) e almeno **50 per emisfero**; altrimenti l'esito è «pilota
-non concludente» e si riporta la tabella delle cause di esclusione, senza criterio.
+**Copertura minima.** Il pilota è informativo solo se almeno **150 dei 267** abbinati sono valutabili (due polarità,
+dominio μ, effemeridi, tilt P1) e almeno **50 per emisfero**; altrimenti l'esito è «pilota non concludente» (anche con
+zero valutabili) e si riporta la tabella delle cause di esclusione, senza criterio.
 
 ## 3. Confronto con P1 e sintesi
 
@@ -43,9 +49,11 @@ concordi; per emisfero e per terzile del flusso P1 (per vedere l'effetto della r
 ## 4. Criterio per proseguire (proposta, da fissare prima del congelamento)
 
 La variante MWO è **utilizzabile per T3** se, sui record valutabili: polarità di testa concorde in almeno il 90 %;
-|mediana(d_γ)| < 2,107° complessivamente e in ciascun emisfero; mediana di |d_ax| ≤ 5°. Se il criterio fallisce solo nel
-terzile di flusso più basso, la variante resta utilizzabile con una soglia di flusso fissata in un protocollo successivo.
-Altrimenti si ripiega sui tilt in luce bianca DPD (via parallela). Il criterio motiva la costruzione del catalogo MWO; **non** autorizza a interpretare una pendenza T3 senza
+|mediana(d_γ)| < 2,107° complessivamente e in ciascun emisfero; mediana di |d_ax| ≤ 5°.
+Se il criterio fallisce nell'insieme ma è soddisfatto nei due terzili di flusso più alti **con almeno 30 regioni
+valutabili per emisfero** in quei terzili, l'esito è «non utilizzabile così; motiva un protocollo successivo con soglia di
+flusso, da validare sul campione ristretto»: non autorizza a usare la variante. Altrimenti la variante MWO non è
+utilizzabile e resta la via dei tilt in luce bianca DPD. Il criterio motiva la costruzione del catalogo MWO; **non** autorizza a interpretare una pendenza T3 senza
 due verifiche ulteriori: lo scarto MWO–riferimento in funzione dell'attività e la stabilità fra le epoche strumentali
 di MWO (stesso limite del protocollo MDI–HMI).
 

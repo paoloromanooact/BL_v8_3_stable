@@ -92,6 +92,63 @@ def p1_tilt_convention(cp, cn):
     return geo.tilt_deg(lead, follow), (1 if abs(t_np) < 90 else -1)
 
 
+def matching():
+    """Own reconstruction: P1 sample S before 2014 with a NOAA number, TAI -> UTC, DPD group the same UT day,
+    MWO Fe I magnetogram the same UT day. Returns {(HARPNUM, T_REC): 'matched'|'no_dpd_group'|'no_mwo_magnetogram'}."""
+    import re
+    from astropy.time import Time
+    sys.path.insert(0, str(ROOT / "python"))
+    from sharpbl import run_p2
+    cat = pd.read_csv(ROOT / "results/P1/P1_SBL_CATALOG_BY_HARP.csv", low_memory=False)
+    S = run_p2.samples(cat)["S"]
+    S = S[S["t"] < pd.Timestamp("2014-01-01")]
+    S = S[pd.to_numeric(S["NOAA_AR"], errors="coerce") > 0]
+    utc = Time(list(np.array(S["t"].dt.to_pydatetime())), scale="tai").utc.to_datetime()
+    dpd = set()
+    for y in (2010, 2011, 2012, 2013):
+        for line in (ROOT / f"data/sharp/external_DPD_20261118/gDPD{y}.txt").read_text().splitlines():
+            if line.startswith("g ") and float(line[59:65]) < 900 and float(line[66:72]) < 900:
+                dpd.add((f"{line[2:6]}-{line[7:9]}-{line[10:12]}", line[22:28].strip()))
+    days = set()
+    for y in (2010, 2011, 2012, 2013):
+        with tarfile.open(MWO_DATA / f"MWO_{y}.tar.gz") as tf:
+            for m in tf.getmembers():
+                low = Path(m.name).name.lower()
+                if not m.isfile() or not ("fe1" in m.name.lower() or low.startswith("mp00_5250")):
+                    continue
+                mo = re.search(r"(?i)(?:^|/)m(\d{2})(\d{2})(\d{2})_", "/" + m.name) or re.search(r"_0(\d{2})(\d{2})(\d{2})_", m.name)
+                if mo:
+                    yy, mm, dd = map(int, mo.groups())
+                    yyyy = min((1900 + yy, 2000 + yy), key=lambda v: abs(v - y))
+                    days.add(f"{yyyy:04d}-{mm:02d}-{dd:02d}")
+    out = {}
+    for r, t in zip(S.itertuples(), utc):
+        day, noaa = t.strftime("%Y-%m-%d"), str(int(float(r.NOAA_AR)))
+        out[(int(r.HARPNUM), r.T_REC)] = ("no_dpd_group" if (day, noaa) not in dpd else
+                                          "no_mwo_magnetogram" if day not in days else "matched")
+    return out
+
+
+def verdict_of(d):
+    """§4 criterion recomputed (coverage, overall, hemispheres, flux-cut motivation with hemispheric coverage)."""
+    def st(g):
+        return dict(n=len(g), med=float(np.median(g.d_gamma)) if len(g) else np.nan,
+                    dax=float(np.median(np.abs(g.d_ax))) if len(g) else np.nan,
+                    lead=float(g.leading_agree.mean()) if len(g) else np.nan)
+    good = lambda x: x["n"] > 0 and x["lead"] >= 0.90 and abs(x["med"]) < 2.107 and x["dax"] <= 5.0  # noqa: E731
+    a, n, s_ = st(d), st(d[d.hemisphere == "N"]), st(d[d.hemisphere == "S"])
+    if not (a["n"] >= 150 and n["n"] >= 50 and s_["n"] >= 50):
+        return "pilota non concludente"
+    if good(a) and abs(n["med"]) < 2.107 and abs(s_["med"]) < 2.107:
+        return "variante MWO utilizzabile"
+    cls = np.searchsorted(np.quantile(d.p1_phi, [1 / 3, 2 / 3]), d.p1_phi, side="right")
+    up = d[cls >= 1]
+    hu = [st(up[up.hemisphere == h]) for h in ("N", "S")]
+    if good(st(up)) and all(x["n"] >= 30 and abs(x["med"]) < 2.107 for x in hu):
+        return "non utilizzabile così; motiva un protocollo successivo con soglia di flusso, da validare sul campione ristretto"
+    return "variante MWO non utilizzabile"
+
+
 def check():
     rows = pd.read_csv(PILOT / "ROWS.csv")
     meta = json.loads((PILOT / "META.json").read_text())
@@ -103,7 +160,7 @@ def check():
     ok("pilot product hashes", all(hashlib.sha256((PILOT / n).read_bytes()).hexdigest() == h
                                    for n, h in meta["products_sha256"].items()))
     ev = rows[rows.status == "ok"].copy()
-    worst_t, worst_f, n = 0.0, 0.0, 0
+    worst_t, worst_f, n, bad_lead = 0.0, 0.0, 0, 0
     for year, g in ev.groupby(ev.member.str.slice(0, 4)):
         names = set(g.member)
         with tarfile.open(MWO_DATA / f"MWO_{year}.tar.gz") as tf:
@@ -116,10 +173,22 @@ def check():
                 continue
             t, lead = p1_tilt_convention(m["cp"], m["cn"])
             worst_t = max(worst_t, abs(((t - r.mwo_tilt_deg) + 180) % 360 - 180))
+            bad_lead += int(lead != r.mwo_leading_sign)
             worst_f = max(worst_f, abs(m["flux"] / (r.mwo_flux_pos_mx + r.mwo_flux_neg_mx) - 1))
             n += 1
-    ok("every evaluable record re-measured from its FITS with own geometry", worst_t < 1e-6 and worst_f < 1e-9,
-       f"{n} records, max |dtilt| {worst_t:.1e} deg, max rel flux {worst_f:.1e}")
+    ok("every evaluable record re-measured from its FITS with own geometry (tilt, flux, leading polarity)",
+       worst_t < 1e-6 and worst_f < 1e-9 and bad_lead == 0,
+       f"{n} records, max |dtilt| {worst_t:.1e} deg, max rel flux {worst_f:.1e}, leading mismatches {bad_lead}")
+    # matching and exclusion causes rebuilt independently (own TAI->UTC, own DPD parse, own Fe member listing)
+    mine = matching()
+    saved = {(int(r.HARPNUM), r.T_REC): r.status for r in rows.itertuples()}
+    mism = [k for k, v in mine.items() if (v == "matched") != (saved.get(k) not in ("no_dpd_group", "no_mwo_magnetogram"))
+            or (v != "matched" and v != saved.get(k))]
+    ok("candidates, matching and exclusion causes rebuilt independently", len(mine) == len(rows) and not mism,
+       f"{len(mine)} candidates, {sum(v == 'matched' for v in mine.values())} matched, {len(mism)} mismatches")
+    # tercile summaries and final verdict recomputed
+    v_mine = verdict_of(d)
+    ok("tercile summaries and final verdict recomputed", v_mine == meta["verdict"], (v_mine, meta["verdict"]))
     d = rows.dropna(subset=["d_gamma"])
     dax = ((d.mwo_tilt_deg - d.p1_tilt) + 90) % 180 - 90
     ok("d_ax and d_gamma recomputed", np.allclose(dax, d.d_ax, atol=1e-9) and
@@ -154,9 +223,22 @@ def selftest():
     fits.PrimaryHDU(np.arange(6, dtype=np.float32).reshape(2, 3), hd).writeto(buf)
     hh, a = read_fits(buf.getvalue())
     c2 = hh["X0"] == 256.5 and a.shape == (2, 3) and a[1, 2] == 5
-    for n, c in (("own mapping: disk centre at latitude B0", c1), ("own FITS reader round trip", c2)):
+    rng = np.random.default_rng(3)
+    rows = []
+    for i in range(200):
+        hem = "N" if i < 120 else "S"
+        small = hem == "S" or i < 40
+        rows.append(dict(hemisphere=hem, p1_phi=(1e20 if small else 1e22) * (1 + 0.01 * i),
+                         d_gamma=(30.0 if small else rng.normal(0, 0.5)), d_ax=(30.0 if small else 0.5), leading_agree=1))
+    c3 = verdict_of(pd.DataFrame(rows)) == "variante MWO non utilizzabile"
+    good = pd.DataFrame([dict(hemisphere="N" if i % 2 else "S", p1_phi=1e21 + i, d_gamma=0.1, d_ax=0.2, leading_agree=1)
+                         for i in range(160)])
+    c4 = verdict_of(good) == "variante MWO utilizzabile" and verdict_of(good.iloc[:100]) == "pilota non concludente"
+    for n, c in (("own mapping: disk centre at latitude B0", c1), ("own FITS reader round trip", c2),
+                 ("criterion: flux cut removing a hemisphere refused", c3),
+                 ("criterion: usable case and coverage below 150", c4)):
         print(f"[{'OK' if c else 'FALLITO'}] {n}")
-    return c1 and c2
+    return c1 and c2 and c3 and c4
 
 
 if __name__ == "__main__":

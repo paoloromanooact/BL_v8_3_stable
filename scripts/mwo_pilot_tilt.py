@@ -38,6 +38,8 @@ FROZEN = ROOT / "docs/PROTOCOL_MWO_PILOT.md"
 DPD_DIR = ROOT / "data/sharp/external_DPD_20261118"
 OUT = ROOT / "results/MWO_PILOT"
 FLAG_DEG, LEAD_MIN, DAX_MAX, MIN_EVAL, MIN_HEM = 2.107, 0.90, 5.0, 150, 50
+MIN_HEM_CUT = 30                  # per hemisphere in the upper two flux terciles, for the flux-cut motivation
+UNMATCHED = ("no_dpd_group", "no_mwo_magnetogram")
 
 # proposed parameters (to be fixed by the pilot protocol)
 WIN_LAT, WIN_LON = 6.0, 8.0       # half-window around the DPD centre, degrees
@@ -131,7 +133,11 @@ def p1_candidates(end="2014-01-01"):
     S = S[S["t"] < pd.Timestamp(end)].copy()
     S["noaa"] = pd.to_numeric(S["NOAA_AR"], errors="coerce")
     S = S[S["noaa"] > 0]
-    return [dict(HARPNUM=int(r.HARPNUM), T_REC=r.T_REC, t=r.t.to_pydatetime(), noaa=str(int(r.noaa)),
+    from astropy.time import Time
+    # T_REC is TAI; MWO TAVG-UT and DPD dates are UT: convert to UTC before any day matching (Codex's review)
+    utc = Time([x.to_pydatetime() for x in S["t"]], scale="tai").utc.to_datetime()
+    S["t_utc"] = list(utc)
+    return [dict(HARPNUM=int(r.HARPNUM), T_REC=r.T_REC, t=r.t_utc, noaa=str(int(r.noaa)),
                  hemisphere=r.hemisphere, p1_tilt=r.tilt_deg, p1_lat=r.lat_mean_deg, p1_phi=r.phi_mx,
                  p1_leading=r.leading_sign) for r in S.itertuples()]
 
@@ -224,40 +230,51 @@ def process(cands, archive_dir=MWO_DATA, dpd_dir=DPD_DIR):
 
 
 def summarise(rows):
-    """§3 summaries and the §4 criterion (with the minimum coverage)."""
+    """§3 summaries and the §4 criterion. Denominators: all candidates; matched = P1 record with a DPD group and an MWO
+    Fe magnetogram the same UT day; evaluable = matched and measured with two polarities and a P1 tilt."""
     import pandas as pd
     df = pd.DataFrame(rows)
-    ev = df[df.get("d_gamma", pd.Series(dtype=float)).notna()] if "d_gamma" in df else df.iloc[0:0]
-    tert = np.quantile(ev.p1_phi, [1 / 3, 2 / 3]) if len(ev) >= 3 else [np.nan, np.nan]
+    n_cand = len(df)
+    n_matched = int((~df.status.isin(UNMATCHED)).sum()) if n_cand else 0
+    ev = df[df["d_gamma"].notna()] if "d_gamma" in df else df.iloc[0:0]
 
     def stats(g, name):
-        v = g.d_gamma.to_numpy(float)
+        v = g["d_gamma"].to_numpy(float) if len(g) else np.array([])
         n = len(v)
         return dict(group=name, n=n, d_gamma_median=float(np.median(v)) if n else np.nan,
                     d_gamma_mean=float(v.mean()) if n else np.nan,
                     s_over_sqrt_n=float(v.std(ddof=1) / math.sqrt(n)) if n > 1 else np.nan,
-                    abs_d_ax_median=float(np.median(g.abs_d_ax)) if n else np.nan,
-                    leading_agree=float(g.leading_agree.mean()) if n else np.nan,
-                    flux_ratio_median=float(np.median(g.flux_ratio)) if n else np.nan)
-    groups = [stats(ev, "all")] + [stats(ev[ev.hemisphere == h], h) for h in ("N", "S")]
+                    abs_d_ax_median=float(np.median(g["abs_d_ax"])) if n else np.nan,
+                    leading_agree=float(g["leading_agree"].mean()) if n else np.nan,
+                    flux_ratio_median=float(np.median(g["flux_ratio"])) if n else np.nan)
+    hemi = ev["hemisphere"] if len(ev) else pd.Series(dtype=str)
+    groups = [stats(ev, "all")] + [stats(ev[hemi == h], h) for h in ("N", "S")]
     if len(ev) >= 3:
-        cls = np.searchsorted(tert, ev.p1_phi, side="right")
+        tert = np.quantile(ev["p1_phi"], [1 / 3, 2 / 3])
+        cls = np.searchsorted(tert, ev["p1_phi"], side="right")
         groups += [stats(ev[cls == i], f"P1 flux tercile {i + 1}") for i in range(3)]
+        upper = ev[cls >= 1]
+        groups += [stats(upper, "P1 flux terciles 2-3")] + [stats(upper[upper["hemisphere"] == h], f"terciles 2-3 {h}")
+                                                            for h in ("N", "S")]
     tab = pd.DataFrame(groups)
-    causes = df.status.value_counts().to_dict()
     g = {r["group"]: r for r in groups}
-    coverage = len(ev) >= MIN_EVAL and all(g[h]["n"] >= MIN_HEM for h in ("N", "S"))
+    causes = df.status.value_counts().to_dict() if n_cand else {}
+    coverage = g["all"]["n"] >= MIN_EVAL and all(g[h]["n"] >= MIN_HEM for h in ("N", "S"))
 
     def passes(r):
         return bool(r["n"] and r["leading_agree"] >= LEAD_MIN and abs(r["d_gamma_median"]) < FLAG_DEG
                     and r["abs_d_ax_median"] <= DAX_MAX)
-    overall = coverage and passes(g["all"]) and all(abs(g[h]["d_gamma_median"]) < FLAG_DEG for h in ("N", "S"))
-    verdict = ("pilota non concludente" if not coverage else
-               "variante MWO utilizzabile" if overall else
-               ("utilizzabile con soglia di flusso (fallisce solo il terzile basso)"
-                if len(groups) == 6 and passes(g["P1 flux tercile 2"]) and passes(g["P1 flux tercile 3"])
-                and not passes(g["P1 flux tercile 1"]) else "variante MWO non utilizzabile"))
-    return tab, causes, verdict
+    if not coverage:
+        verdict = "pilota non concludente"
+    elif passes(g["all"]) and all(abs(g[h]["d_gamma_median"]) < FLAG_DEG for h in ("N", "S")):
+        verdict = "variante MWO utilizzabile"
+    elif ("P1 flux terciles 2-3" in g and passes(g["P1 flux terciles 2-3"])
+          and all(g[f"terciles 2-3 {h}"]["n"] >= MIN_HEM_CUT and abs(g[f"terciles 2-3 {h}"]["d_gamma_median"]) < FLAG_DEG
+                  for h in ("N", "S"))):
+        verdict = "non utilizzabile così; motiva un protocollo successivo con soglia di flusso, da validare sul campione ristretto"
+    else:
+        verdict = "variante MWO non utilizzabile"
+    return tab, dict(causes=causes, n_candidates=n_cand, n_matched=n_matched, n_evaluable=int(g["all"]["n"])), verdict
 
 
 # ---------------------------------------------------------------- selftest (synthetic only)
@@ -362,6 +379,18 @@ def selftest():
        (r.get("status"), r.get("member", "")[-9:], round(r.get("d_ax", np.nan), 3)))
     tab, causes, verdict = summarise(rows)
     ok("summary on one record: coverage rule gives 'pilota non concludente'", verdict == "pilota non concludente", verdict)
+    tab0, c0, v0 = summarise([dict(status="no_dpd_group", hemisphere="N", p1_phi=1e21)])
+    ok("zero evaluable records: 'pilota non concludente', no error", v0 == "pilota non concludente" and c0["n_evaluable"] == 0)
+    rng = np.random.default_rng(3)
+    fake = []
+    for i in range(200):
+        hem = "N" if i < 120 else "S"
+        small = hem == "S" or i < 40               # all southern regions are in the lowest flux tercile
+        fake.append(dict(status="ok", hemisphere=hem, p1_phi=(1e20 if small else 1e22) * (1 + 0.01 * i), p1_lat=10.0,
+                         d_gamma=(30.0 if small else rng.normal(0, 0.5)), d_ax=0.0,
+                         abs_d_ax=(30.0 if small else 0.5), leading_agree=1, flux_ratio=1.0))
+    _, cf, vf = summarise(fake)
+    ok("flux cut removing a whole hemisphere does not give the flux-cut motivation", vf == "variante MWO non utilizzabile", vf)
     with tempfile.TemporaryDirectory() as td:
         f = Path(td) / "P.md"
         g1 = gate_problem("x" * 64, f)
@@ -403,7 +432,8 @@ def run(protocol_sha):
         sys.exit("pilot output exists")
     commit = git("rev-parse", "HEAD")
     rows = process(p1_candidates())
-    tab, causes, verdict = summarise(rows)
+    tab, counts, verdict = summarise(rows)
+    causes = counts
     tmp = OUT.with_name(OUT.name + f".partial_{os.getpid()}")
     tmp.mkdir(parents=True)
     pd.DataFrame(rows).to_csv(tmp / "ROWS.csv", index=False)
@@ -414,7 +444,8 @@ def run(protocol_sha):
     meta = dict(protocol_sha256=protocol_sha, git_commit=commit, script_sha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
                 mwo_pipeline_sha256=hashlib.sha256(MWO_PIPELINE.read_bytes()).hexdigest(),
                 dpd_sha256sums=hashlib.sha256((DPD_DIR / "SHA256SUMS.txt").read_bytes()).hexdigest(),
-                n_candidates=len(rows), verdict=verdict, products_sha256=hashes)
+                n_candidates=counts["n_candidates"], n_matched=counts["n_matched"], n_evaluable=counts["n_evaluable"],
+                verdict=verdict, products_sha256=hashes)
     (OUT / "META.json").write_text(json.dumps(meta, indent=2) + "\n")
     print(tab.to_string(index=False))
     print(causes, verdict)
