@@ -1,0 +1,9 @@
+{
+  "protocol": "docs/PROTOCOL_T3_MWO.md",
+  "sha256": "4408a0ee78d48f65275a1a4936ce687fe324a35598dd5bb18a8f3e53a01df8ff",
+  "freeze_commit": "a01f13c6b43dc949be8093b40d3be6f5a217a4bf",
+  "frozen_utc": "2026-11-18T16:51:27.234454+00:00",
+  "approved_by": "Codex (go after three corrections to rev 3: S1 seed 69000001, S1 non determinato in final rule, reduced full-rank matrix)",
+  "draft": "docs/PROTOCOL_T3_MWO_DRAFT.md (rev 3)",
+  "next": "implementation and code review before measuring the long catalogue"
+}
