@@ -1,5 +1,16 @@
 # Cold restart — SHARP BL
 
+## Verifica indipendente della selezione MDI–HMI (Claude) — 18 novembre 2026
+
+Conferma a posteriori del protocollo congelato `6d6fd12` (ordine effettivo: congelamento, selezione `7a9898e`,
+rilettura di Claude; nessun emendamento). Selezione ricostruita da `scripts/mdi_hmi_selection_check.py`, scritto
+senza leggere `select_pairs.py`, dai certificati della corsa r2: **stesse 12 coppie, stessi archi, stesso ordine**
+del manifesto `selection/PAIRS.csv` (SHA-256 `b9128d9b…`); tre per strato, 12 componenti G10 distinte; SHA-256
+delle coppie, |ΔT_OBS| ≤ 360 s e QUALITY HMI = 0 verificati. Gli 84 segmenti di `availability/SEGMENTS.csv`
+corrispondono esattamente ai 24 record scelti, con dimensioni uguali a quelle del certificato, tutti online
+(6 168 876 byte annunciati). I 41 tentativi indicati sotto sono 34 della geometria (tetto §8: 40) più 7 di
+disponibilità (tetto §6: 200). Prossimo: revisione del downloader e dell'adattatore, poi R0.
+
 ## Piccolo confronto MDI–HMI, protocollo congelato prima della selezione
 
 Recepita la revisione di Claude. Il [protocollo congelato](PROTOCOL_MDI_HMI_SMALL_COMPARISON.md)
