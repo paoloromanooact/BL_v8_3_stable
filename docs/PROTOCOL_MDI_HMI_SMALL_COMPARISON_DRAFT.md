@@ -1,6 +1,6 @@
 # Piccolo confronto MDI–HMI — bozza descrittiva
 
-**BOZZA NON CONGELATA — 18 novembre 2026. Nessun campione estratto, nessun download o calcolo reale.**
+**BOZZA NON CONGELATA, revisione 2 — 18 novembre 2026. Nessun campione estratto, nessun download o calcolo reale.**
 Proposte da rivedere prima dell'uso; i nuclei numerici sono scritti soltanto per prove sintetiche.
 Non modifica i protocolli HMI o quello dell'inventario. La vecchia bozza HMI LOS resta rinviata:
 questo è un esperimento più piccolo, senza degradazione, PSF, rumore aggiunto o prova di potenza.
@@ -32,6 +32,22 @@ Non usare il numero NOAA per escludere: conservare concordanza/mancanza ed event
 La definizione del centro dalla WCS/metadati non è il centroide magnetico e non va sostituita con esso.
 Applicare la regola di qualità proposta sotto prima di ordinare e scegliere gli archi del campione.
 
+**Blocco geometrico esplicito prima del congelamento.** I limiti del centro sopra non garantiscono
+μ ≥ 0,8 sull'impronta. Si mantiene il controllo su tutta la maschera, non sui soli pixel forti. La strada
+proposta è un controllo conservativo con estensioni documentate, B0 e distanza/raggio reali di ciascun
+satellite, prima dell'ordinamento. L'audit dei soli file già salvati mostra però che LAT/LON_MIN/MAX,
+DSUN_OBS e RSUN_REF sono negli schemi ma non nei CSV; NAXIS1/2 non sono keyword degli schemi. Non si
+ricavano dimensioni da CRPIX né si sostituisce NPIX a un'estensione geometrica. Anche una rettangolo
+di estremi richiede una verifica che contenga l'impronta attuale: non si presume che estremi storici
+del transito o coordinate del piano dell'immagine siano limiti eliografici del record.
+
+Perciò l'eleggibilità di dominio e la perdita attesa per strato sono attualmente **non valutabili**,
+non zero. I conteggi diagnostici sulle condizioni disponibili sono nel rapporto di revisione; non
+sono un campione selezionato né una promessa di 12 confronti. La revisione resta aperta su questo
+punto. Servono metadati geometrici aggiuntivi con una specifica/autorizzazione propria, oppure una
+nuova scelta esplicita del disegno da rivedere prima del congelamento. Non si passa automaticamente
+all'opzione di controllare soltanto i pixel che entrano nella misura e non si abbassa 0,8.
+
 Formare quattro strati: emisfero N/S × |longitudine HMI| ≤ 15° oppure 15° < |longitudine| ≤ 30°.
 Per ogni coppia TARP–HARP e strato scegliere l'arco con |longitudine HMI| minimo, poi |ΔT_OBS| minimo,
 poi T_REC più antico, poi chiavi lessicografiche. Ordinare le coppie per SHA-256 della stringa ASCII
@@ -42,8 +58,13 @@ usata, scorrere la lista; se lo strato si esaurisce lasciare il posto vuoto. Nes
 Il manifesto finale deve includere tutte le ragioni di esclusione e le chiavi complete di serie/record.
 
 **Qualità proposta, da rivedere.** Richiedere QUALITY MDI in {0, 0x200}, QUALITY HMI=0,
-valori presenti e interpretabili come interi a 32 bit; ogni altro valore è escluso con il suo valore
-grezzo e i bit conservati. La tabella primaria MDI definisce 0x200 come modo non PRIME 60: non lo si
+valori presenti e interpretabili come interi a 32 bit. Accettare notazione decimale con segno
+nell'intervallo [−2^31, 2^32−1] o esadecimale non negativa con prefisso 0x e al massimo 8 cifre;
+convertire i decimali negativi al medesimo pattern unsigned mediante q & 0xffffffff. Per esempio
+−2147483648 e 0x80000000 hanno lo stesso bit alto e sono entrambi esclusi dalla regola proposta.
+Non azzerare il bit 31 e non usare il valore assoluto. Valori mancanti, float, frazioni e valori fuori
+intervallo sono non valutabili, non QUALITY=0. Conservare sempre il valore originale. Ogni altro
+pattern è escluso con i bit conservati. La tabella primaria MDI definisce 0x200 come modo non PRIME 60: non lo si
 chiama shutterless e non lo si presume equivalente al modo standard. Riportare separatamente i due
 modi nel manifesto e nelle tabelle; nessuna compensazione per la diversa probabilità di inclusione.
 È una scelta prudenziale di un campione tecnico, non la dimostrazione che ogni immagine ammessa sia
@@ -70,19 +91,29 @@ Geometria: coordinate di ogni pixel dalla WCS completa, CRPIX FITS a origine 1 e
 Br,Bt,Bp nei versori sferici locali, non sugli assi del ritaglio. μ calcolato per pixel dall'osservatore
 a distanza finita, usando DSUN_OBS e RSUN_REF in metri, e CRLN_OBS/CRLT_OBS nello stesso riferimento
 delle coordinate dei pixel. Non aggiungere una seconda correzione del tempo di volo senza una specifica.
-Dominio proposto μ ≥ 0,8 su tutta la maschera del ramo; pixel non finiti o fuori dominio rendono il
-confronto della patch non disponibile, senza tagli silenziosi. Registrare quantità e posizione dei pixel
+Dominio proposto μ ≥ 0,8 su tutta la maschera del ramo; pixel fuori dominio rendono il
+confronto della patch non disponibile, senza tagli silenziosi. R0 è calcolato dalla funzione P1
+invariata, con la sua esclusione dei Br non finiti e oltre il massimo. Per A sulla griglia HMI,
+soglia e formula del riferimento restano esattamente P1. Il kernel dei confronti resta più severo:
+un pixel non finito nell'impronta rende il confronto non disponibile. Registrare separatamente
+`r0_reproduction_status`, motivi/conteggi delle esclusioni P1 e `comparison_status`; un rifiuto del
+kernel non si trasforma in fallimento della riproduzione R0. Non imputare NaN con zero, non estendere
+le esclusioni P1 agli altri rami e non ricalcolare il riferimento su una loro maschera ridotta. Registrare quantità e posizione dei pixel
 responsabili. μ dal centro non sostituisce questa verifica.
 
 Area superficiale esplicita in cm² da WCS CEA verificata e raggio; non usare la stessa area numerica
-sulle due griglie. Soglia inclusiva |B_proxy| ≥ 100 G e limite |B_proxy| ≤ 10000 G, come P1; nessun
-filtro di 20 pixel sul campionamento grosso. Distinguere le perdite per soglia da quelle di dominio.
+sulle due griglie. Soglia inclusiva |B_proxy| ≥ 100 G e limite |B_proxy| ≤ 10000 G, come P1. P1 non richiede 20 pixel per polarità: tale filtro è una selezione P2, che non entra qui
+né sulla griglia HMI né su quella MDI. Una polarità con un solo pixel può quindi dare una misura P1
+valida; quantità piccole non diventano automaticamente affidabili. Distinguere le perdite per soglia da quelle di dominio.
 
 ## 5. Misure e lettura
 
 Registrare Φ positivo/negativo/totale, centroidi sferici, distanza, tilt orientato e differenza assiale
-modulo 180°, D e D_bal. Per ogni confronto: differenze firmate, differenze assolute e rapporto del
-flusso solo con denominatore non nullo; conservare anche le differenze dei dipoli senza normalizzarle
+modulo 180°, D e D_bal. Per ogni confronto: differenze firmate e assolute di flussi totale/positivo/negativo e delle
+latitudini dei centroidi positivo/negativo/medio; longitudini come differenze avvolte in [−180°,180°)
+e loro valori assoluti, più spostamento sferico di ciascun centroide. Conservare separatamente il
+cambiamento orientato del tilt e quello assiale in [−90°,90°). Rapporto del flusso totale solo con
+denominatore non nullo; conservare anche le differenze dei dipoli senza normalizzarle
 con quantità vicine a zero. Nessun fallimento diventa misura zero. Stesse coppie confrontabili per
 le tabelle fra rami; riportare anche la tabella completa dei tentativi e delle perdite.
 
@@ -124,7 +155,8 @@ non si modifica o aggira il vecchio piano. L'INTERVAL ignoto non viene imputato 
    del downloader, con test offline; il nucleo puro non li sostituisce.
 4. Prova di riproduzione R0 sui record HMI che coincidono con P1; sugli altri confronto con l'identica
    funzione P1 a ciclo fissato, dichiarando che non esiste un risultato storico per quel record.
-   Le prove ora superate riguardano soltanto mappe sintetiche, non questa porta reale.
+   Le prove ora superate riguardano soltanto mappe sintetiche, non questa porta reale. La porta usa
+   P1 senza modifiche; ogni confronto con il kernel e i relativi rifiuti sono registrati a parte.
 5. Verifica di provenienza, completezza e riconteggio delle differenze prima di interpretare le tabelle.
 
 Fermo prima di congelamento, selezione, download e risposte reali. Il piano prospettico e la morfologia S

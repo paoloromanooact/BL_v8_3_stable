@@ -2,6 +2,11 @@
 
 ## v8.4 (Python, branch `v8.4-python-gianluca`) — in corso
 
+- 2026-11-18, piccolo confronto MDI/HMI rev. 2 dopo Claude: dominio mu non garantibile dai CSV,
+  blocco prima del congelamento; R0/P1 distinto dai rifiuti del kernel; differenze dei centroidi e dei
+  flussi per polarità completate, QUALITY a 32 bit esplicito, audit full-disk QUALITY x INTERVAL e
+  copie persistenti verificate. Nessun campione, nuova rete, FITS o push.
+
 - 2026-11-18, chiarimento primario MDI: recuperate via HTTP le pagine corrette dell'archivio Stanford;
   il bit 9 0x200 significa non PRIME 60. La bozza propone {0,0x200} per MDI e QUALITY=0 per HMI,
   senza selezione o applicazione del filtro. Fonti grezze e ricevute locali conservate, registro

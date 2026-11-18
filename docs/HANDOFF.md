@@ -1,5 +1,28 @@
 # Cold restart — SHARP BL
 
+## MDI/HMI: risposta alla revisione di Claude, dominio ancora aperto — 2026-11-18
+
+Revisione 2 non congelata; nessuna selezione, query, mappa o simulazione. Dettagli e hash in
+`docs/MDI_HMI_SMALL_COMPARISON_REV2.md`, artefatti locali sotto
+`results/MDI_SMARP_INVENTORY_REVIEW/revision2_20261118/` (esclusi da Git).
+
+Punto 1 **non chiuso**: LAT/LON_MIN/MAX, DSUN_OBS, RSUN_REF esistono negli schemi ma non nei CSV;
+NAXIS non è keyword. Con i centri non si garantisce mu >= 0,8 sull'intera maschera. Dominio e perdita
+per strato non valutabili; nessuna stima pari a zero e nessuna inferenza delle dimensioni da CRPIX.
+I soli conteggi diagnostici disponibili sono 877/390/880/455 archi N/S centrali/laterali (non regioni
+indipendenti o campione). Occorre una specifica separata dei metadati aggiuntivi o una revisione
+esplicita del disegno, prima del congelamento. Non si passa automaticamente ai soli pixel forti.
+
+Punti 2-3 corretti: R0 con P1 invariato e rifiuti del kernel separati; differenze complete per flussi
+positivo/negativo e centroidi (longitudini avvolte). Parsing QUALITY signed/unsigned a 32 bit esplicito.
+Tabella full-disk QUALITY x INTERVAL: 0x200 compare sia con 30 s sia con 300 s; nessuna attribuzione
+alle patch senza link sorgente. Verificate tutte le 22 copie persistenti previste dalle ricevute.
+Nuclei verificati con 48 prove sintetiche; suite completa 108/108 (due avvisi attesi), diff-check superato.
+
+**Fermo prima di congelamento e dati reali.** Prossimo: revisione di queste correzioni, soprattutto
+come chiudere il dominio mu; adattatore FITS/segni/observer e link non ancora scritti. Non aprire nuove
+query per colmare i campi senza una specifica autorizzata. T3/T5 invariati, altri studi in pausa, nessun push.
+
 ## MDI/HMI: preparazione del piccolo confronto, non congelata — 2026-11-18
 
 Completati i punti indipendenti della lista autorizzata in assenza dell'utente. Nota delle fonti:

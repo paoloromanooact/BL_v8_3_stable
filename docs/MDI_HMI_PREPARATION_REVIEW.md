@@ -56,3 +56,11 @@ La regola di qualità è ora concreta ma resta da rivedere con il resto della bo
 in questo compito. L'altro agente deve riportare i rilievi
 prima di modificare i file. Non eseguire la bozza o sviluppare una nuova pendenza di quenching.
 Piano prospettico e morfologia S in pausa; nessuna nota o messaggio inviato a Paolo; nessun push.
+
+## Risposta alla prima revisione di Claude — revisione 2
+
+Vedi `MDI_HMI_SMALL_COMPARISON_REV2.md`: metadati geometrici insufficienti a garantire il dominio,
+blocco esplicito prima del congelamento; riferimento P1 invariato e rifiuti del kernel separati;
+differenze di polarità/centroidi completate, interi QUALITY signed/unsigned specificati, 48 prove
+sintetiche. Tabella full-disk QUALITY × INTERVAL senza attribuzione alle patch. Le 22 copie di fonti
+registrate persistenti sono state verificate. Non considerare chiusa la revisione sul dominio μ.

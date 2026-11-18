@@ -9,6 +9,7 @@ Existing P1 geometry is reused; these helpers do not update P1 or T3/T5.
 from __future__ import annotations
 
 import numpy as np
+import re
 from sharpbl import geometry as geo
 
 
@@ -24,6 +25,26 @@ def _mask(mask, shape):
     if value.dtype != bool or value.shape != shape:
         raise ValueError("Footprint must be an explicit Boolean map of the same shape")
     return value
+
+
+def parse_quality32(value):
+    """Preserve the same 32-bit pattern for signed and unsigned integer notation.
+
+    Decimal input may be in [-2**31, 2**32-1]; hex is unsigned (0x prefix).
+    Missing values, booleans, floats and out-of-range integers are errors.
+    This normalizes representation only; it does not apply an eligibility rule.
+    """
+    if isinstance(value, (bool, np.bool_)) or not isinstance(value, (str, int, np.integer)):
+        raise ValueError("QUALITY requires an integer or an exact integer string")
+    s = str(value).strip()
+    if re.fullmatch(r"0[xX][0-9a-fA-F]{1,8}", s):
+        return int(s, 16)
+    if not re.fullmatch(r"[+-]?[0-9]+", s):
+        raise ValueError("Invalid QUALITY notation")
+    q = int(s, 10)
+    if not -(1 << 31) <= q < (1 << 32):
+        raise ValueError("QUALITY outside signed/unsigned 32-bit range")
+    return q & 0xffffffff
 
 
 def patch_membership(bitmap, *, instrument):
@@ -107,7 +128,9 @@ def measure_field(field_g, footprint, lon_deg, lat_deg, area_cm2, *, radius_cm,
     """Cycle-free flux, spherical centroids and axial dipole on an explicit grid.
 
     No S_BL, D*, efficiency or quenching verdict: cycle/Hale adapter is pending.
-    Field cut and threshold follow P1, but geometry failures are explicit here.
+    Field cut and threshold follow P1, but nonfinite footprint pixels reject
+    this strict comparison kernel. R0 must call frozen measure_v84 unchanged:
+    a kernel rejection is distinct from a failure to reproduce the P1 reference.
     Scalar or per-pixel surface area is supported (G * cm^2 gives Mx).
     """
     field, lon, lat = _maps(field_g, lon_deg, lat_deg)
@@ -181,13 +204,26 @@ def paired_differences(reference, candidate):
     """
     if reference.get("status") != "ok" or candidate.get("status") != "ok":
         return {"status": "not_comparable"}
-    keys = ("phi_mx", "d_axial_g", "d_axial_bal_g", "tilt_deg", "d_cm")
-    if not all(np.isfinite(obj.get(k, np.nan)) for obj in (reference, candidate) for k in keys):
+    keys = ("phi_mx", "phi_pos_mx", "phi_neg_mx", "d_axial_g", "d_axial_bal_g",
+            "tilt_deg", "d_cm", "lat_pos", "lat_neg", "lat_mean_deg")
+    lon_keys = ("lon_pos", "lon_neg", "lon_mean_deg")
+    if not all(np.isfinite(obj.get(k, np.nan))
+               for obj in (reference, candidate) for k in keys + lon_keys):
         return {"status": "not_comparable"}
     delta = {"status": "ok"}
     for key in keys:
         delta["delta_" + key] = candidate[key] - reference[key]
+    for key in lon_keys:
+        delta["delta_" + key] = (candidate[key] - reference[key] + 180) % 360 - 180
     delta["delta_tilt_axial_deg"] = (candidate["tilt_deg"] - reference["tilt_deg"] + 90) % 180 - 90
+    for suffix, lon_key, lat_key in (("pos", "lon_pos", "lat_pos"),
+                                    ("neg", "lon_neg", "lat_neg"),
+                                    ("mean", "lon_mean_deg", "lat_mean_deg")):
+        delta["centroid_" + suffix + "_sep_deg"] = geo.great_circle_deg(
+            reference[lon_key], reference[lat_key], candidate[lon_key], candidate[lat_key])
+    for key, value in list(delta.items()):
+        if key.startswith("delta_"):
+            delta["abs_" + key] = abs(value)
     delta["relative_flux"] = ((candidate["phi_mx"] - reference["phi_mx"]) / reference["phi_mx"]
                                if reference["phi_mx"] != 0 else np.nan)
     return delta

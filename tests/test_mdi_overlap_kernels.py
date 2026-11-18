@@ -125,7 +125,9 @@ def test_bad_area_and_map_shape_are_detected():
 
 
 def test_axial_wrap_and_zero_reference_denominator():
-    a = dict(status="ok", phi_mx=0., d_axial_g=0., d_axial_bal_g=0., d_cm=1., tilt_deg=89.)
+    a = dict(status="ok", phi_mx=0., phi_pos_mx=0., phi_neg_mx=0.,
+             d_axial_g=0., d_axial_bal_g=0., d_cm=1., tilt_deg=89.,
+             lon_pos=0., lon_neg=1., lon_mean_deg=.5, lat_pos=0., lat_neg=1., lat_mean_deg=.5)
     b = dict(a, tilt_deg=-89., phi_mx=1.)
     d = core.paired_differences(a, b)
     assert d["delta_tilt_deg"] == -178 and d["delta_tilt_axial_deg"] == 2
@@ -196,3 +198,49 @@ def test_uniform_area_matches_frozen_p1_measure_on_synthetic_map():
     b = measure.measure_v84(field, np.full(field.shape, 33), hdr)
     for key in ("phi_mx", "d_axial_g", "d_axial_bal_g", "d_cm", "tilt_deg", "lat_mean_deg"):
         np.testing.assert_allclose(a[key], b[key], rtol=1e-12, atol=0., err_msg=key)
+
+
+@pytest.mark.parametrize("value,expected", [
+    ("-2147483648", 0x80000000), ("2147483648", 0x80000000), ("0x80000000", 0x80000000),
+    ("-1", 0xffffffff), (4294967295, 0xffffffff), ("0x00000200", 512), (" +512 ", 512)])
+def test_quality_preserves_signed_unsigned_bit_patterns(value, expected):
+    assert core.parse_quality32(value) == expected
+
+
+@pytest.mark.parametrize("bad", [None, True, np.nan, 512., "512.0", "MISSING", "",
+                                 -2147483649, 4294967296, "0x100000000", "-0x200"])
+def test_quality_rejects_ambiguous_or_out_of_range_values(bad):
+    with pytest.raises(ValueError):
+        core.parse_quality32(bad)
+
+
+def test_polarity_and_mean_centroid_differences_wrap_longitude():
+    a = dict(status="ok", phi_mx=300., phi_pos_mx=200., phi_neg_mx=100.,
+             d_axial_g=1., d_axial_bal_g=2., d_cm=3., tilt_deg=10.,
+             lon_pos=359., lon_neg=1., lon_mean_deg=0., lat_pos=0., lat_neg=1., lat_mean_deg=.5)
+    b = dict(a, phi_pos_mx=250., phi_neg_mx=90., phi_mx=340.,
+             lon_pos=1., lon_neg=359., lon_mean_deg=359., lat_pos=1., lat_neg=2., lat_mean_deg=1.5)
+    d = core.paired_differences(a, b)
+    assert d["status"] == "ok" and d["delta_phi_pos_mx"] == 50 and d["delta_phi_neg_mx"] == -10
+    assert d["delta_lon_pos"] == 2 and d["delta_lon_neg"] == -2 and d["delta_lon_mean_deg"] == -1
+    assert d["delta_lat_pos"] == d["delta_lat_neg"] == d["delta_lat_mean_deg"] == 1
+    assert d["abs_delta_lon_neg"] == 2
+    assert d["centroid_pos_sep_deg"] > 2
+    b.pop("lon_mean_deg")
+    assert core.paired_differences(a, b)["status"] == "not_comparable"
+
+
+@pytest.mark.parametrize("value", [np.nan, np.inf])
+def test_r0_retains_p1_nan_policy_separate_from_strict_kernel(value):
+    from sharpbl import geometry, measure
+    field = np.array([[200., -200., value]])
+    hdr = dict(CTYPE1="CRLN-CEA", CTYPE2="CRLT-CEA", CRVAL1=30., CRVAL2=15.,
+               CDELT1=.03, CDELT2=.03, CRPIX1=2., CRPIX2=1.,
+               CUNIT1="deg", CUNIT2="deg", T_REC="2024.06.01_00:00:00_TAI", RSUN_REF=6.96e8)
+    ref = measure.measure_v84(field, np.full(field.shape, 33), hdr)
+    lon, lat = geometry.lonlat_maps(hdr, field.shape)
+    strict = core.measure_field(field, np.ones(field.shape, bool), lon, lat,
+                                geometry.pixel_area_cm2(hdr), radius_cm=geometry.rsun_cm(hdr))
+    assert ref["valid_bl"] == 1 and ref["npos"] == ref["nneg"] == 1  # P1 has no 20-pixel filter
+    assert strict["status"] == "invalid_input" and strict["n_bad"] == 1
+    assert np.isfinite(ref["d_axial_bal_g"]) and np.isfinite(ref["tilt_deg"])
