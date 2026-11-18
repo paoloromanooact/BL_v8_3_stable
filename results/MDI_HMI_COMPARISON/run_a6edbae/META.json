@@ -1,0 +1,11 @@
+{
+  "protocol": "3713236fe12815dcd07f5149677ed97b5ece5803a57136f8fa3530936056b910",
+  "amendment": "42ca9d3c802079c4b16ef45b5639a812c25c34596c1b821216d511cd86162778",
+  "git_commit": "a6edbaea893e0f970710b49f5bb3d29b7a3b2e4a",
+  "script_sha256": "e02fab23abfe7c12470bfad6bd2bb27e598e85080ab7735d4c33621a368fc504",
+  "manifest_sha256": "3e5146078f9d19a35345d690864e45d0d5ecbeb554811acd4879a95bb2244abb",
+  "products_sha256": {
+    "PAIR_ROWS.csv": "3156c6cf174e2e0a3e700d56cbdc6f4588a94097210d336c5b3f0710a24af9dd",
+    "SUMMARY.csv": "7570b66a2dc33a7caa6c3f62ff855a15869a0469c9eb0aeac073dad19bba9d0a"
+  }
+}
