@@ -13,6 +13,7 @@ Questa nota non modifica il piano dell'inventario o le sue associazioni.
 | Collegamento alla sorgente | `smarp.c` registra MTARP; `m2lostarp.c` registra MDATA e PDATA sul record LOS selezionato | Esiste un percorso di provenienza nel codice, ma i link dei record della corsa non sono stati acquisiti |
 | Tempo DRMS | `drms_keyword_slotval2indexval` converte il valore in un indice con epoca, passo e regole di arrotondamento | Essere assegnato a uno slot non impone che il valore T_REC sia esattamente epoca + n·passo |
 | Tempi nella migrazione MDI | `ACT_TIME` conserva T_REC e T_OBS distinti, usa INTERVAL per EXPTIME e T_OBS−EXPTIME/2 per DATE__OBS | Non confondere cadenza, intervallo di integrazione, slot e tempo di osservazione |
+| QUALITY MDI 0x200 | Tabella standard MDI: bit 9 = non in PRIME 60 | È un flag di modo operativo; non è una definizione di shutterless o, da solo, di dato inutilizzabile |
 | Bitmap SMARP | `smarp_functions.c` documenta il bit 32 di appartenenza e i codici combinati con il continuo | Per la maschera di patch usare l'appartenenza, non il solo flag di campo attivo o la presenza di macchie |
 
 Riferimenti al codice ufficiale JSOC-SDP, versione fissata `0cf0b90d354705ed866fdba040772b0d712de785`:
@@ -38,16 +39,33 @@ Le direzioni del vettore non coincidono in generale con gli assi del ritaglio CE
 
 ## Che cosa resta irrisolto
 
-**QUALITY MDI 0x200.** Non è stata verificata una tabella primaria dei bit applicabile al prodotto
-SMARP acquisito. La documentazione Stanford indicata dalla letteratura
-([MDI lev182](http://soi.stanford.edu/mdi/observables/fd_m_96m_lev182/),
-[interpolazione del continuo](http://jsoc.stanford.edu/data/mdi/mdi-tarp/mdi-interp-ic/)) non era
-accessibile attraverso il lettore web. Il tentativo diretto nel sandbox ha fallito la risoluzione del
-nome; il successivo tentativo con autorizzazione è stato interrotto dai riavvii e non ha lasciato
-un file verificabile. Non è dimostrata un'indisponibilità generale del server. Non sono stati usati
-come definizione né una pagina secondaria né i bit HMI. Nessun filtro QUALITY è stato introdotto.
+**QUALITY MDI 0x200: definizione ora verificata.** Il vecchio indirizzo lev182 senza `.html` restituisce
+404, ma l'[indice ufficiale MDI](http://soi.stanford.edu/mdi/observables/) collega la
+[scheda corretta lev182](http://soi.stanford.edu/mdi/observables/fd_m_96m_lev182.html) e la
+[tabella magnetica](http://soi.stanford.edu/production/QUALITY/bits.fd_M.html).
+Questa rinvia alla [tabella standard MDI](http://soi.stanford.edu/production/QUALITY/DATASWtable.html):
+il bit 9 (0x200) indica che MDI non è in PRIME 60. Il bit 10 (0x400) segnala raggi cosmici; i bit 0–7
+riguardano problemi di telemetria, dati mancanti o elaborazione, il bit 8 una anomalia di puntamento.
+Non confondere questi significati con quelli HMI. Un valore composto come 0x600 contiene anche 0x400.
+La pagina standard è storica (2003): per il bit alto, in particolare, va usata la semantica del prodotto
+migrato lev182, che documenta i record senza immagine, non la sola nota legacy sullo stato PROBLEM.
 
-**Prodotto 1/5 minuti.** La classificazione registrata resta esattamente 60/300 secondi di INTERVAL.
+L'acquisizione diretta HTTP delle pagine corrette è riuscita il 18 novembre (solo documentazione pubblica,
+nessuna query a serie). Nessun redirect è stato seguito automaticamente: gli URL indicati sullo stesso
+server sono stati letti separatamente con limiti di 25 s e 2 MiB per richiesta. Il precedente blocco del
+lettore web non dimostrava indisponibilità della documentazione. La nota iniziale del commit `4186079`
+è superata da questa verifica. Corpi originali, intestazioni e SHA-256 sono conservati localmente.
+
+**Continuo interpolato.** La [nota primaria JSOC](http://jsoc.stanford.edu/data/mdi/mdi-tarp/mdi-interp-ic/)
+conferma l'uso di T_OBS come tempo effettivo, distinto da T_REC. Definisce anche flag specifici della serie
+`mdi.fd_Ic_interp`: 0x10000 per il criterio di interpolazione oltre 18 h, 0x20000/0x40000 per il segmento
+segnaposto/triviale oltre 36 h. Questi bit non diventano automaticamente i bit QUALITY del magnetogramma
+SMARP: occorre tracciare le effettive sorgenti e propagazioni. Nessun filtro su questa serie viene applicato.
+
+**Prodotto 1/5 minuti.** La classificazione registrata resta esattamente 60/300 secondi di INTERVAL. La scheda primaria
+lev182 descrive osservazioni da 30 s, singole o mediate su cinque campioni consecutivi a cadenza di
+un minuto: questo chiarisce che cadenza e integrazione non coincidono, ma non modifica la regola
+già eseguita né assegna automaticamente una RMS ai record con INTERVAL=30.
 I 30 s e i valori mancanti rimangono ignoti. Il solo DPC non è decodificato senza una definizione.
 La provenienza patch–full-disk richiede i link effettivi e la relativa documentazione. Interrogare
 `mdi.lostarp_96m` esulerebbe dall'inventario congelato: servirà una specifica nuova, non un aggiramento.
@@ -64,7 +82,17 @@ informato da questo audit. Non cambia retroattivamente i grafi dell'inventario. 
 
 ## Blocco e attività indipendenti
 
-La definizione dei filtri di qualità e l'attribuzione del rumore MDI per record restano bloccate
-dalle fonti mancanti. Questo non impedisce la bozza descrittiva e le prove geometriche sintetiche.
-Impedisce di presentare la bozza come pronta al congelamento o di avviare un campione già certificato
-come scientificamente confrontabile. Nessuna nuova calibrazione o conclusione sul quenching.
+Il significato nativo del bit dominante è risolto. La nuova bozza propone esplicitamente di ammettere
+QUALITY MDI pari a 0 oppure 0x200, con flag di modo conservato, ed escludere gli altri valori; HMI resta
+QUALITY=0 per il piccolo campione. È una proposta operativa non congelata, non una certificazione di
+qualità o di equivalenza fra modi. Non è stata applicata all'inventario o a un campione.
+Restano aperti sorgente per-record, revisione produttiva e rumore di integrazione. La bozza e i nuclei
+sintetici sono preparati; servono revisione esterna e autorizzazione separata prima del congelamento.
+Nessuna calibrazione o nuova conclusione sul quenching.
+
+## Conservazione delle fonti e dei controlli
+
+Corpi e intestazioni HTTP, copie del codice primario, ricevuta della preparazione e log dei test
+restano locali in `data/sharp/metadata_inventory_mdi/documentation_20261118/`, esclusi da Git.
+Ricevuta HTTP SHA-256: `c61b4efb7158589e6da057ee76be75f933266bda3d586630e0fee3e3987f037c`.
+Registro dell’inventario byte-identico prima/dopo questa conservazione: SHA-256 `b2b6643784843816eef9411ed1584c90f501706a5d93c9a5a0b79f5cc376f933`.

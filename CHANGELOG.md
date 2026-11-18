@@ -2,6 +2,11 @@
 
 ## v8.4 (Python, branch `v8.4-python-gianluca`) — in corso
 
+- 2026-11-18, chiarimento primario MDI: recuperate via HTTP le pagine corrette dell'archivio Stanford;
+  il bit 9 0x200 significa non PRIME 60. La bozza propone {0,0x200} per MDI e QUALITY=0 per HMI,
+  senza selezione o applicazione del filtro. Fonti grezze e ricevute locali conservate, registro
+  dell'inventario invariato; suite repository 87/87, nessun FITS o push.
+
 - 2026-11-18, MDI/HMI: chiarimenti documentati con codice ufficiale fissato; QUALITY MDI e sorgente
   per-record restano aperti. Bozza del piccolo confronto (fino a 12 coppie) non congelata, codice puro
   e prove sintetiche, consegna per la revisione. Nessun campione, query JSOC, FITS o risposta reale;

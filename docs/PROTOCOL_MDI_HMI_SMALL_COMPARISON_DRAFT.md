@@ -30,6 +30,7 @@ entrambi e |ΔT_OBS| ≤ 360 s; centri documentati, stesso emisfero e |latitudin
 longitudine di Stonyhurst del centro HMI entro 30°. Coordinate di osservatore complete richieste.
 Non usare il numero NOAA per escludere: conservare concordanza/mancanza ed eventuali conflitti.
 La definizione del centro dalla WCS/metadati non è il centroide magnetico e non va sostituita con esso.
+Applicare la regola di qualità proposta sotto prima di ordinare e scegliere gli archi del campione.
 
 Formare quattro strati: emisfero N/S × |longitudine HMI| ≤ 15° oppure 15° < |longitudine| ≤ 30°.
 Per ogni coppia TARP–HARP e strato scegliere l'arco con |longitudine HMI| minimo, poi |ΔT_OBS| minimo,
@@ -40,10 +41,15 @@ Una componente del grafo G10 tra patch può contribuire al massimo una volta. Se
 usata, scorrere la lista; se lo strato si esaurisce lasciare il posto vuoto. Nessun riempimento fra strati.
 Il manifesto finale deve includere tutte le ragioni di esclusione e le chiavi complete di serie/record.
 
-**Qualità: decisione ancora aperta e bloccante.** Registrare i valori grezzi MDI/HMI, senza equipararli.
-Prima del congelamento serve una tabella primaria dei bit, una regola esplicita di eleggibilità per
-ciascun prodotto e il riesame della sua influenza sul campione. Non proporre QUALITY=0 come default MDI.
-Una successiva mancata mappa/polarità/geometria non dà diritto a una sostituzione del record.
+**Qualità proposta, da rivedere.** Richiedere QUALITY MDI in {0, 0x200}, QUALITY HMI=0,
+valori presenti e interpretabili come interi a 32 bit; ogni altro valore è escluso con il suo valore
+grezzo e i bit conservati. La tabella primaria MDI definisce 0x200 come modo non PRIME 60: non lo si
+chiama shutterless e non lo si presume equivalente al modo standard. Riportare separatamente i due
+modi nel manifesto e nelle tabelle; nessuna compensazione per la diversa probabilità di inclusione.
+È una scelta prudenziale di un campione tecnico, non la dimostrazione che ogni immagine ammessa sia
+utilizzabile o che le escluse siano sempre inutilizzabili. La regola è proposta dopo aver visto le
+frequenze dei metadati, prima di selezione/mappe. Una successiva mancata mappa/polarità/geometria non
+dà diritto a una sostituzione del record. Vedi le fonti nella nota dei chiarimenti.
 
 ## 4. Tre confronti distinti
 
@@ -111,7 +117,7 @@ non si modifica o aggira il vecchio piano. L'INTERVAL ignoto non viene imputato 
 
 ## 7. Porte prima del congelamento e dell'esecuzione
 
-1. Revisione della tabella QUALITY nativa e del percorso di sorgente; risolvere o dichiarare che una
+1. Revisione della regola QUALITY proposta sulle fonti native e del percorso di sorgente; risolvere o dichiarare che una
    misura resta descrittiva con prodotto di integrazione ignoto. La regola di qualità deve essere concreta.
 2. Revisione di campione, maschere, dominio μ, convenzioni LOS, area e tetti; nessuna garanzia statistica.
 3. Manifesto di selezione solo dopo congelamento; revisione del successivo adattatore FITS/WCS/tempi e

@@ -8,7 +8,7 @@ protocollo congelato e non applicazione ai dati. I dati dell'inventario restano 
 
 | Punto | Stato | Prodotto o blocco |
 |---|---|---|
-| 1. Qualità MDI | Parziale, bloccato sulla definizione nativa | Copia di QUALITY verificata nel codice ufficiale; significato di 0x200 non certificato |
+| 1. Qualità MDI | Definizione primaria verificata | 0x200 = non PRIME 60; nuova proposta {0,0x200} da rivedere, nessun filtro applicato |
 | 2. Tempi e provenienza | Chiarimenti verificati, legami per-record aperti | Distinzione valore/indice dello slot; percorso MTARP→MDATA documentato nel codice, non acquisito sui record |
 | 3. Piccolo confronto | Bozza completata, da rivedere | Fino a 12 coppie, tre confronti separati, criteri informati dall'audit dichiarati, budget proposti |
 | 4. Codice offline | Nuclei geometrici e misure indipendenti dal ciclo | Nessun lettore FITS, selettore, downloader o comando di esecuzione reale; adattatori rinviati |
@@ -27,6 +27,7 @@ Le 27 prove sintetiche coprono proiezione a osservatore finito (contro un risult
 segni Bt/Bp, inversa LOS/μ per un campo radiale, contributi orizzontali, mu nullo e patch non tagliate,
 codici bitmap diversi fra strumenti, dipolo di un bipolo analitico, area variabile, soglie inclusive,
 centroidi intorno a 0/360°, geometria degenerata, dati mancanti, denominatore nullo e overflow.
+Suite ordinaria dopo installazione: 87/87, con due avvisi attesi per correlazioni di input costanti.
 Un caso sintetico a area uniforme confronta anche flusso, dipoli, distanza e tilt con `measure_v84`.
 
 Primo lancio nello staging temporaneo: 19 prove superate e due fallite per un nome di parametro del
@@ -38,7 +39,8 @@ Ricevuta e log della preparazione sono locali, non risultati scientifici da aggi
 ## Richiesta concreta al revisore
 
 1. Verificare che le deduzioni da `smarp.c`, `m2lostarp.c` e DRMS non vengano estese impropriamente
-   alle revisioni effettivamente usate nei record. Cercare la tabella QUALITY MDI prima di una regola.
+   alle revisioni effettivamente usate nei record. Rivedere la nuova proposta QUALITY con la tabella
+   primaria ora recuperata (non PRIME 60, nessuna equivalenza dimostrata fra modi).
 2. Rivedere la proposta del campione (G5/G10, tempo effettivo, quattro strati, una componente G10),
    la mancanza di sostituzioni e la sua natura intenzionale, senza rappresentatività statistica.
 3. Confermare che il confronto B con maschere native sia letto come differenza congiunta di misura
@@ -50,6 +52,7 @@ Ricevuta e log della preparazione sono locali, non risultati scientifici da aggi
 6. Rivedere tetti di 512 MiB/30 min/200 tentativi e la specifica ancora mancante per gli eventuali
    link fuori dalle serie del vecchio inventario. Nessun via alla rete o ai FITS è dato da questa nota.
 
-Non congelare finché la regola di qualità non è concreta. L'altro agente deve riportare i rilievi
+La regola di qualità è ora concreta ma resta da rivedere con il resto della bozza, senza congelarla
+in questo compito. L'altro agente deve riportare i rilievi
 prima di modificare i file. Non eseguire la bozza o sviluppare una nuova pendenza di quenching.
 Piano prospettico e morfologia S in pausa; nessuna nota o messaggio inviato a Paolo; nessun push.
