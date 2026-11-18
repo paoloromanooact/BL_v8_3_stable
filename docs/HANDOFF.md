@@ -1,5 +1,17 @@
 # Cold restart — SHARP BL
 
+## JSOC: prova del campo bitmap.dims — 18 novembre 2026
+
+Due rs_list HTTP 200 sulla coppia tecnica del 2010-05-01 01:36 TAI. La bitmap SMARP del TARP 13394
+ha 77 × 70 pixel; quella SHARP della HARP 2 ha 388 × 285 pixel. Le due chiavi, l'ordine degli assi,
+CRPIX e la ricostruzione con gli estremi DT concordano. DSUN_OBS, RSUN_REF e le coordinate
+dell'osservatore sono presenti. Risposte grezze, SHA-256 e copie delle quattro fonti nella cartella
+locale `data/sharp/metadata_inventory_mdi/geometry_probe_20261118/`, ricevuta `RECEIPT.json`.
+Addebitati al controllo geometrico 2 tentativi, 2072 byte di corpo e 2,71 s di trasferimento.
+Restano 38 tentativi su 40 (32 finestre di base, 6 tentativi di riserva). Il registro dell'inventario
+storico è invariato. Questa prova documenta il formato in servizio; il minimo di μ e il numero di coppie
+certificabili per strato restano da determinare. Le 32 finestre e i FITS richiedono un passaggio successivo.
+
 ## Piccolo confronto MDI/HMI — specifica geometrica per la revisione, 18 novembre 2026
 
 Il §8 di `docs/PROTOCOL_MDI_HMI_SMALL_COMPARISON_DRAFT.md` propone il controllo di μ sull'intera
