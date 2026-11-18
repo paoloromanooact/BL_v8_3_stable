@@ -861,6 +861,7 @@ scripts/mdi_hmi_comparison_run.py
 scripts/mdi_hmi_footprint_mu.py
 scripts/mdi_hmi_patch_download.py
 scripts/mdi_hmi_patch_io.py
+scripts/mdi_hmi_second_sample_check.py
 scripts/mdi_hmi_second_sample_select.py
 scripts/mdi_hmi_selection_check.py
 scripts/mdi_overlap_kernels.py
