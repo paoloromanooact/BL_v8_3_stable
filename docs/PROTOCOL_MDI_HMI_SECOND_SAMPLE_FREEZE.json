@@ -1,0 +1,7 @@
+{
+  "protocol": "docs/PROTOCOL_MDI_HMI_SECOND_SAMPLE.md",
+  "sha256": "b7860445ce4e83b5fb8933797f6f9024ee419cd9c941bcb6299e3711e98d4839",
+  "freeze_commit": "bbd719cbbab6aac37a0690c94b385f2a8bab62eb",
+  "frozen_utc": "2026-11-18T15:43:52.206672+00:00",
+  "approved_by": "Codex (go after removing the 30-minute overall limit)"
+}
