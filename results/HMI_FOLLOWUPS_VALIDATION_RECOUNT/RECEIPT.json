@@ -1,0 +1,35 @@
+{
+  "checks": [
+    {
+      "name": "validation product hashes equal to META",
+      "ok": true,
+      "value": ""
+    },
+    {
+      "name": "SE recomputed on every successful validation row",
+      "ok": true,
+      "value": "149928 rows, max rel 4.0e-13"
+    },
+    {
+      "name": "summary frequencies recomputed from RAW (both sides, errors, coverage, exclusion tail)",
+      "ok": true,
+      "value": "max abs 0.0e+00"
+    },
+    {
+      "name": "acceptance recounted with the P2f criteria on an independently written grid",
+      "ok": true,
+      "value": "{'q1': False, 'q2_hem': False}"
+    },
+    {
+      "name": "summary rows = grid configurations",
+      "ok": true,
+      "value": "(35, 35)"
+    }
+  ],
+  "passed": 5,
+  "total": 5,
+  "recounted_acceptance": {
+    "q1": false,
+    "q2_hem": false
+  }
+}
