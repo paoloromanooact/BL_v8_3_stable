@@ -379,10 +379,15 @@ def build(groups_all, mags, archive_dir=MWO_DATA, dpd_dir=DPD_DIR, silso_tot=SIL
             sealed.append(dict(record_set=set_name, noaa=r.noaa, day=r.day, gamma_deg=gamma,
                                hale_expected=cyc_mod.expected_leading_sign(cycle, r.lat_bar), **s))
     design = pd.DataFrame(design)
-    design["CR"] = cr_of(pd.to_datetime(design.obs_time))
+    design["CR"] = cr_of(parse_times(design.obs_time))
     sealed = pd.DataFrame(sealed)
     att = pd.DataFrame([{k: v for k, v in a.items() if k != "sealed"} for a in attempts])
     return att, design, sealed, losses(g, cands, design, acts), coverage(design)
+
+
+def parse_times(s):
+    """ISO strings with and without fractional seconds (TAVG-UT is fractional): first run of 19 Nov 07:40 failed here."""
+    return pd.to_datetime(s, format="ISO8601")
 
 
 def cr_of(times):
@@ -524,6 +529,9 @@ def selftest():
     crs = cr_of([tb - pd.Timedelta(hours=1), tb + pd.Timedelta(hours=1), pd.Timestamp("1988-03-15 07:52")])
     ok("Carrington rotation from the full instant: one hour before / after the start of CR 1800, and 1988-03-15 07:52",
        list(crs) == [1799, 1800, 1800] and tb < pd.Timestamp("1988-03-15 07:52"), (str(tb), list(crs)))
+    pt = parse_times(pd.Series(["1990-05-01T18:00:00", "1990-05-01T18:13:22.800000"]))
+    ok("observation times with and without fractional seconds parsed together",
+       pt.iloc[1] == pd.Timestamp("1990-05-01 18:13:22.8") and pt.iloc[0] == pd.Timestamp("1990-05-01 18:00"))
     ok("cycle by date (20 before 1976-03)", [cycle_of(pd.Timestamp(x)) for x in
                                              ("1975-12-31", "1976-03-01", "1996-07-31", "2008-12-01")] == [20, 21, 22, 24])
     t0 = datetime(1990, 5, 1, 9)
@@ -600,7 +608,7 @@ def selftest():
                 hdr = fits.Header()
                 for k, v in hs.items():
                     hdr[k] = v
-                hdr["TAVG-UT"] = 18.0
+                hdr["TAVG-UT"] = 18.0 if "0900501" in name else 18.2230    # fractional seconds on days 2 and 3
                 raw = np.round(np.nan_to_num(Bs) / 0.1).clip(-32767, 32767).astype(np.int16)
                 buf = io.BytesIO()
                 hdu = fits.PrimaryHDU(raw, hdr)

@@ -1,0 +1,1 @@
+Run of 19 Nov 2026 07:40 (commit at start: b2898f6): measurement finished, then crashed while converting the observation times (mixed ISO strings with and without fractional seconds) before writing any product. No catalogue output, no sealed file, nothing read. Fixed in the next commit (parse_times, ISO8601) with a dedicated test; the measurement is rerun once.
