@@ -1,0 +1,17 @@
+{
+  "protocol_sha256": "316fa968e610559362174513b411395912d87a34585f9022d910f5385b7951c8",
+  "hours": 15.020409674843153,
+  "predicted_hours": 13.413308307765023,
+  "acceptance": {
+    "q1": false,
+    "q2_hem": false
+  },
+  "problems": [],
+  "products_sha256": {
+    "RAW.csv.gz": "cbd585f50277174b85c8c4142ceefb97abd55aa739b36cf631b908d0448dfca7",
+    "SUMMARY.csv": "bac9b422c210d6bb11339acb5de56dad55a5b97fb0d119308c9f06003c54d81a",
+    "ACCEPTANCE.csv": "c2e22364ed79c7d2479ec9c6e684de0494c7a80af1e6f15566b2cf6521a6f895"
+  },
+  "git_commit": "8e1ff12f0273c16b8c7c30677299151c8eccb6fc",
+  "script_sha256": "75a10e3ed4062915d96e6a323c2fffeb23e8e0fdffd2e43fcf3c40d1774294e7"
+}

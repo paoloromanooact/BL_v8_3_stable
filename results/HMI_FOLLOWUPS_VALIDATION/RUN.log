@@ -1,0 +1,90 @@
+[OK] seeds unique and disjoint from every used range 
+[OK] Q1 window reproduces P2's T2 (2238 regions) (2238, 0.62)
+[OK] q1: noise-free contrast = -3 -2.999999999999999
+[OK] q1 sym: noise-free contrast = -3 -2.9999999999999982
+[OK] q1_hem: noise-free contrast = -3 -3.000000000000002
+[OK] Q2: noise-free slope recovers +1.5 
+[OK] Q2: activity-free mean gives slope 0 
+[OK] Q3: noise-free local slope recovers +2 
+[OK] Q3 quintiles: noise-free offsets 1..4 recovered 
+[OK] Q2 generator: individual SD about 6 deg (scenario 0) 6.02
+[OK] one Q1 and one Q2 catalogue analysed by M ('non deciso', 'non deciso')
+[OK] hemispheric minima inside their search windows {'24N': '2007-12', '24S': '2009-02', '25N': '2019-12', '25S': '2019-05'}
+[OK] hemispheric phase finite for every record 
+[OK] Q2 hemispheric phase: noise-free slope recovers +1.5 
+[OK] gate: missing, wrong SHA-256 and uncommitted protocol all refused (temporary files; the real file not touched) ('frozen protocol missing', 'frozen protocol SHA-256 differs', 'frozen protocol not committed')
+[OK] seeds and grid: 150 000 units in 35 configurations 150000
+[OK] acceptance: complete clean grid accepted {'q1': True, 'q2_hem': True}
+[OK] acceptance: one scenario all in error (and the rest missing) refused for every test {'q1': False, 'q2_hem': False}
+[OK] acceptance: duplicated row refused 
+[OK] acceptance: one side at 2 % in one null scenario refused for that test only {'q1': False, 'q2_hem': True}
+[OK] acceptance: exclusion tail 5 % under effect refused for that test only {'q1': True, 'q2_hem': False}
+selftest: 21/21 superati
+benchmark: start-up 1 s; 350 units in 113 s on 5 processes; predicted 13.41 h for 150000 units
+5000/150000 units, 0.31 h
+10000/150000 units, 0.65 h
+15000/150000 units, 0.86 h
+20000/150000 units, 1.05 h
+25000/150000 units, 1.35 h
+30000/150000 units, 1.85 h
+35000/150000 units, 2.37 h
+40000/150000 units, 2.68 h
+45000/150000 units, 2.95 h
+50000/150000 units, 3.23 h
+55000/150000 units, 3.49 h
+60000/150000 units, 3.77 h
+65000/150000 units, 4.12 h
+70000/150000 units, 4.62 h
+75000/150000 units, 5.25 h
+80000/150000 units, 5.63 h
+85000/150000 units, 6.44 h
+90000/150000 units, 7.60 h
+95000/150000 units, 8.80 h
+100000/150000 units, 10.10 h
+105000/150000 units, 11.10 h
+110000/150000 units, 11.56 h
+115000/150000 units, 12.00 h
+120000/150000 units, 12.31 h
+125000/150000 units, 12.78 h
+130000/150000 units, 13.27 h
+135000/150000 units, 13.69 h
+140000/150000 units, 14.12 h
+145000/150000 units, 14.54 h
+150000/150000 units, 15.02 h
+  test        role  scenario  sd_e  effect     n  cfg  n_rows  complete  errors  frac_errors  supportato  opposto  false_total  coverage  lo_above  hi_below  exclusion_tail criteria_ok
+    q1        main         0  15.0     0.0 10000    0   10000      True       9       0.0009      0.0079   0.0085       0.0164    0.9827    0.0085    0.0079          0.0085        True
+    q1        main         1  15.0     0.0 10000    1   10000      True       6       0.0006      0.0138   0.0134       0.0272    0.9722    0.0134    0.0138          0.0134        True
+    q1        main         2  15.0     0.0 10000    2   10000      True       3       0.0003      0.0254   0.0203       0.0457    0.9540    0.0203    0.0254          0.0203       False
+    q1        main         7  15.0     0.0 10000    3   10000      True       7       0.0007      0.0108   0.0127       0.0235    0.9758    0.0127    0.0108          0.0127        True
+    q1        main         9  15.0     0.0 10000    4   10000      True       2       0.0002      0.0136   0.0146       0.0282    0.9716    0.0146    0.0136          0.0146        True
+    q1        main         1  15.0    -2.4  2000    5    2000      True       1       0.0005      0.0355   0.0035          NaN    0.9760    0.0090    0.0145          0.0090        True
+    q1        main         1  15.0    -4.8  2000    6    2000      True       0       0.0000      0.0690   0.0010          NaN    0.9695    0.0160    0.0145          0.0160        True
+    q1        main         2  15.0    -2.4  2000    7    2000      True       2       0.0010      0.0360   0.0115          NaN    0.9560    0.0190    0.0240          0.0190       False
+    q1        main         2  15.0    -4.8  2000    8    2000      True       2       0.0010      0.0505   0.0100          NaN    0.9485    0.0210    0.0295          0.0210       False
+    q1        main         7  15.0    -2.4  2000    9    2000      True       0       0.0000      0.0190   0.0100          NaN    0.9740    0.0130    0.0130          0.0130        True
+    q1        main         7  15.0    -4.8  2000   10    2000      True       1       0.0005      0.0295   0.0065          NaN    0.9700    0.0150    0.0145          0.0150        True
+    q1        main         9  15.0    -2.4  2000   11    2000      True       0       0.0000      0.0275   0.0045          NaN    0.9755    0.0120    0.0125          0.0120        True
+    q1        main         9  15.0    -4.8  2000   12    2000      True       0       0.0000      0.0595   0.0020          NaN    0.9750    0.0120    0.0130          0.0120        True
+q2_hem        main         0   6.0     0.0 10000   13   10000      True       1       0.0001      0.0098   0.0095       0.0193    0.9806    0.0098    0.0095          0.0095        True
+q2_hem        main         1   6.0     0.0 10000   14   10000      True       6       0.0006      0.0132   0.0128       0.0260    0.9734    0.0132    0.0128          0.0128        True
+q2_hem        main         2   6.0     0.0 10000   15   10000      True       4       0.0004      0.0130   0.0152       0.0282    0.9714    0.0130    0.0152          0.0152        True
+q2_hem        main         7   6.0     0.0 10000   16   10000      True       7       0.0007      0.0165   0.0160       0.0325    0.9668    0.0165    0.0160          0.0160       False
+q2_hem        main         9   6.0     0.0 10000   17   10000      True       3       0.0003      0.0101   0.0129       0.0230    0.9767    0.0101    0.0129          0.0129        True
+q2_hem        main         1   6.0     1.0  2000   18    2000      True       2       0.0010      0.2535   0.0000          NaN    0.9765    0.0105    0.0120          0.0120        True
+q2_hem        main         1   6.0     2.0  2000   19    2000      True       1       0.0005      0.7700   0.0000          NaN    0.9730    0.0130    0.0135          0.0135        True
+q2_hem        main         2   6.0     1.0  2000   20    2000      True       2       0.0010      0.1905   0.0000          NaN    0.9710    0.0125    0.0155          0.0155        True
+q2_hem        main         2   6.0     2.0  2000   21    2000      True       0       0.0000      0.6320   0.0000          NaN    0.9650    0.0180    0.0170          0.0170        True
+q2_hem        main         7   6.0     1.0  2000   22    2000      True       1       0.0005      0.2125   0.0000          NaN    0.9620    0.0220    0.0155          0.0155       False
+q2_hem        main         7   6.0     2.0  2000   23    2000      True       0       0.0000      0.6355   0.0000          NaN    0.9745    0.0120    0.0135          0.0135        True
+q2_hem        main         9   6.0     1.0  2000   24    2000      True       0       0.0000      0.0845   0.0005          NaN    0.9685    0.0200    0.0115          0.0115        True
+q2_hem        main         9   6.0     2.0  2000   25    2000      True       0       0.0000      0.2840   0.0000          NaN    0.9750    0.0120    0.0130          0.0130        True
+q2_hem sensitivity         1   4.0     0.0  2000   26    2000      True       4       0.0020      0.0165   0.0135       0.0300    0.9680    0.0165    0.0135          0.0135         NaN
+q2_hem sensitivity         7   4.0     0.0  2000   27    2000      True       0       0.0000      0.0170   0.0180       0.0350    0.9650    0.0170    0.0180          0.0180         NaN
+q2_hem sensitivity         1   9.0     0.0  2000   28    2000      True       1       0.0005      0.0145   0.0135       0.0280    0.9715    0.0145    0.0135          0.0135         NaN
+q2_hem sensitivity         7   9.0     0.0  2000   29    2000      True       1       0.0005      0.0160   0.0130       0.0290    0.9705    0.0160    0.0130          0.0130         NaN
+    q2 sensitivity         0   6.0     0.0  2000   30    2000      True       1       0.0005      0.0140   0.0125       0.0265    0.9730    0.0140    0.0125          0.0125         NaN
+    q2 sensitivity         1   6.0     0.0  2000   31    2000      True       1       0.0005      0.0135   0.0110       0.0245    0.9750    0.0135    0.0110          0.0110         NaN
+    q2 sensitivity         2   6.0     0.0  2000   32    2000      True       1       0.0005      0.0090   0.0155       0.0245    0.9750    0.0090    0.0155          0.0155         NaN
+    q2 sensitivity         7   6.0     0.0  2000   33    2000      True       3       0.0015      0.0200   0.0195       0.0395    0.9590    0.0200    0.0195          0.0195         NaN
+    q2 sensitivity         9   6.0     0.0  2000   34    2000      True       0       0.0000      0.0100   0.0135       0.0235    0.9765    0.0100    0.0135          0.0135         NaN
+{'q1': False, 'q2_hem': False} []
