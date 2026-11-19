@@ -207,6 +207,44 @@ def check():
     return all(r["ok"] for r in res)
 
 
+OUT_VAL_ONLY = ROOT / "results/HMI_FOLLOWUPS_VALIDATION_RECOUNT"
+
+
+def check_validation():
+    """Validation part only (before any estimate exists): product hashes, SE of every successful row from its saved M
+    parameters, frequencies, acceptance on the independently written grid, grid size."""
+    d = sample()
+    d["phase_hem"] = hemispheric_phase(d)
+    res = []
+
+    def ok(name, cond, value=""):
+        res.append(dict(name=name, ok=bool(cond), value=str(value)))
+        print(f"[{'OK' if cond else 'FALLITO'}] {name} {value}")
+    vmeta = json.loads((VAL / "META.json").read_text())
+    ok("validation product hashes equal to META", all(
+        __import__("hashlib").sha256((VAL / n).read_bytes()).hexdigest() == h for n, h in vmeta["products_sha256"].items()))
+    raw = pd.read_csv(VAL / "RAW.csv.gz")
+    worst, n_rows = 0.0, 0
+    for (test,), g in raw[raw.verdict != "errore"].groupby(["test"]):
+        m, a = contrast(d, test, False)
+        for r in g.itertuples():
+            worst = max(worst, abs(se_from_params(d, m, a, r._asdict()) / r.se - 1))
+            n_rows += 1
+    ok("SE recomputed on every successful validation row", worst < 1e-6, f"{n_rows} rows, max rel {worst:.1e}")
+    summ = pd.read_csv(VAL / "SUMMARY.csv")
+    acc, worst_f, n_grid = validation_recount(raw, summ)
+    ok("summary frequencies recomputed from RAW (both sides, errors, coverage, exclusion tail)", worst_f < 1e-12,
+       f"max abs {worst_f:.1e}")
+    acc_saved = pd.read_csv(VAL / "ACCEPTANCE.csv").iloc[0].to_dict()
+    ok("acceptance recounted with the P2f criteria on an independently written grid",
+       acc == {k: bool(v) for k, v in acc_saved.items()}, acc)
+    ok("summary rows = grid configurations", len(summ) == n_grid, (len(summ), n_grid))
+    OUT_VAL_ONLY.mkdir(parents=True, exist_ok=False)
+    (OUT_VAL_ONLY / "RECEIPT.json").write_text(json.dumps(dict(checks=res, passed=sum(r["ok"] for r in res),
+                                                               total=len(res), recounted_acceptance=acc), indent=2) + "\n")
+    return all(r["ok"] for r in res)
+
+
 def selftest():
     d = sample()
     d["phase_hem"] = hemispheric_phase(d)
@@ -267,5 +305,7 @@ if __name__ == "__main__":
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--selftest", action="store_true")
     ap.add_argument("--check", action="store_true")
+    ap.add_argument("--check-validation", action="store_true")
     a = ap.parse_args()
-    sys.exit(0 if (a.selftest and selftest()) or (a.check and check()) else 1)
+    sys.exit(0 if (a.selftest and selftest()) or (a.check and check())
+             or (a.check_validation and check_validation()) else 1)
