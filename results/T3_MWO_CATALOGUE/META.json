@@ -1,0 +1,37 @@
+{
+  "protocol_sha256": "4408a0ee78d48f65275a1a4936ce687fe324a35598dd5bb18a8f3e53a01df8ff",
+  "amendment_a1_sha256": "bc88452b382d739866ff801a14aecf596968e092904906d7d7298355a0e063c5",
+  "git_commit": "e4ccd305dae458726e04197197a2d14410e20596",
+  "script_sha256": "1b3bec312f86d28ca0d5f97aa5e033b411bf5e0c6067186cdea3929e292f50b9",
+  "pilot_script_sha256": "75b534ecd6d39b7c85926af37faac4ff58aebecb0d59def1546c48c362401c9b",
+  "mwo_pipeline_sha256": "7babd2a6031e0425dd6108431ae80f2966eb3edb95cafc2b9e652247410f4789",
+  "dpd_sha256sums": "d34b160555dbb7eee159129c5b5d01ac040d63146dbfd1481d161dd5179efce2",
+  "silso_tot_sha256": "e83932c7a47a12c4826e3ed5ca48da0a49ef6da98aebb9580e2b83ff272d87a7",
+  "silso_hem_sha256": "32690e4372ab6355d05f54d9ccd96158564029892a62128db42eb3fa8b79292f",
+  "n_attempts": 91967,
+  "n_records": {
+    "all": 5941,
+    "isolated": 5229
+  },
+  "coverage": {
+    "n_isolated_records": 5229,
+    "per_cycle_hemisphere": {
+      "21N": 595,
+      "21S": 657,
+      "22N": 781,
+      "22S": 900,
+      "23N": 838,
+      "23S": 937
+    },
+    "outcome": "informativo"
+  },
+  "products_sha256": {
+    "ATTEMPTS.csv.gz": "aa33fbf7f2c93b097a74d47eee146775d80e75870a4b9583bb8bf76bc3ee64be",
+    "COVERAGE.json": "30ea9f5cd47b7414e5c480dedf4460d26da9a53c9b17cad7fdd8d08a29606b91",
+    "DESIGN.csv": "e436f094c89d5799e868881997b789170e2ab23bb9a8fea6661c9b786861ece0",
+    "LOSSES.csv": "7844fdc90648d426ebc5013c89195141b28c7117752381c615e0fca60c639bd8",
+    "MAGNETOGRAMS.csv.gz": "88dfcc154701701d7d07ccae751e3951be4dab98322c707f1696cc4da269fabc",
+    "SEALED.csv.gz": "de58577872e09a82747f4d7a6bc8041c9ef36aa018bc4d1d6b22a6b0ca2d7cde"
+  },
+  "sealed_note": "SEALED.csv.gz is not to be read before the validation is preserved, recounted and read"
+}

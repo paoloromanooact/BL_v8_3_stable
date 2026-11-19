@@ -1,0 +1,77 @@
+[OK] resolution classes on both dimensions, order R1 R2 R3, missing -> R0 
+[OK] epochs from MRKMOD and the 1996-04-10 split 
+[OK] Carrington rotation from the full instant: one hour before / after the start of CR 1800, and 1988-03-15 07:52 ('1988-03-15 06:52:27.811652718', [np.int64(1799), np.int64(1800), np.int64(1800)])
+[OK] observation times with and without fractional seconds parsed together 
+[OK] cycle by date (20 before 1976-03) 
+[OK] choice: ephemeris failures skipped, finest class first, then closest time 
+[OK] choice: no valid magnetogram -> None 
+[OK] isolation: neighbour centre inside the window (also across 0/360), other days ignored 
+[OK] DPD group row with seconds = 60 kept (time 08:56:00), not dropped 
+[OK] measure equals the pilot measurement when there are no BLANK pixels 
+[OK] BLANK pixels: excluded (tilt as without them within 0.5 deg), counted; the pilot reader alone is biased (18, 0.473, -1.992)
+[OK] window with more than 5 % BLANK pixels -> window_blank 
+[OK] lat_bar is the flux-weighted latitude of the measured pixels (near the bipole centre) 14.997
+measured 1990: 4 attempts
+[OK] end to end: day 3 fails (one polarity), isolated record of 6000 on day 1 (day 2 not isolated), rank 2 {'6000': '1990-05-01'}
+[OK] end to end: 'all' set takes day 2 for 6000 (|LCM| 10 < 18); 6001 has no isolated day 
+[OK] end to end: sealed gamma = Joy convention of the synthetic tilt (8 deg) within 1 deg; design has no tilt column 7.96
+[OK] end to end: epoch E5, class R1, activity filled, coverage 'non concludente' 
+[OK] end to end: attempts table has no tilt and keeps every candidate day with its status 
+[OK] gate refuses missing, wrong-SHA and uncommitted protocol or amendment ('frozen protocol missing', 'frozen protocol SHA-256 differs', 'frozen amendment A1 missing', 'frozen protocol not committed')
+selftest: 19/19 superati
+magnetograms: 30952 Fe I headers
+measured 1974: 1106 attempts
+measured 1975: 580 attempts
+measured 1976: 446 attempts
+measured 1977: 678 attempts
+measured 1978: 2051 attempts
+measured 1981: 3321 attempts
+measured 1982: 2464 attempts
+measured 1983: 1998 attempts
+measured 1984: 1028 attempts
+measured 1985: 464 attempts
+measured 1986: 299 attempts
+measured 1987: 713 attempts
+measured 1988: 2167 attempts
+measured 1989: 3641 attempts
+measured 1990: 3225 attempts
+measured 1991: 3641 attempts
+measured 1992: 2157 attempts
+measured 1993: 1314 attempts
+measured 1994: 908 attempts
+measured 1995: 392 attempts
+measured 1996: 253 attempts
+measured 1998: 803 attempts
+measured 1999: 2931 attempts
+measured 2000: 3641 attempts
+measured 2001: 3482 attempts
+measured 2002: 3303 attempts
+measured 2003: 1943 attempts
+measured 2004: 1265 attempts
+measured 2005: 187 attempts
+measured 2006: 630 attempts
+measured 2007: 376 attempts
+measured 2008: 12 attempts
+measured 2009: 112 attempts
+measured 2010: 524 attempts
+measured 2011: 1715 attempts
+measured 2012: 2108 attempts
+{
+  "n_attempts": 91967,
+  "n_records": {
+    "all": 5941,
+    "isolated": 5229
+  },
+  "coverage": {
+    "n_isolated_records": 5229,
+    "per_cycle_hemisphere": {
+      "21N": 595,
+      "21S": 657,
+      "22N": 781,
+      "22S": 900,
+      "23N": 838,
+      "23S": 937
+    },
+    "outcome": "informativo"
+  }
+}
