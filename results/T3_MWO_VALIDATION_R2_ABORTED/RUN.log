@@ -1,0 +1,43 @@
+[OK] seeds: grid unique, outside every registered range, S1 seed 69000001 not in the grid 76000
+[OK] identifiable synthetic design; reference epoch E8 excluded; the true redundancies (one epoch per cycle pair) dropped ['d_E3N', 'd_E3S', 'd_E5N', 'd_E5S']
+[OK] redundant column removed in fixed order; beta3 = minimum-norm solution of the full matrix (1.685484, 1.685484)
+[OK] beta3 not identifiable when x3 lies in the span of the other columns 
+[OK] empty columns reported as empty 
+[OK] form 'additive': epoch columns constant 
+[OK] form 'none': epoch columns absent 
+[OK] ramp target: projection on the full reduced matrix, linear in e, negative -1.813
+[OK] generator + procedure M: mean estimate under the 20 % ramp near the projected target (60 catalogues) (np.float64(-2.927), -1.813)
+[OK] null unit: truth 0, a verdict or 'errore' 
+[OK] summary: complete clean grid accepted 
+[OK] summary: one side at 2 % in a null scenario refused (consistent rows) 
+[OK] summary: a missing catalogue refused 
+[OK] summary: 25 deg sensitivity does not decide acceptance 
+[OK] summary: successful row with NaN SE blocks the acceptance and is reported 
+[OK] summary: verdict outside the admitted states blocks the acceptance and is reported 
+[OK] summary: covered inconsistent with the bounds blocks the acceptance and is reported 
+[OK] summary: bounds not beta -/+ z SE blocks the acceptance and is reported 
+[OK] summary: true value different from the projection blocks the acceptance and is reported 
+[OK] white-light tilt: head closer to the equator in the north gives positive Joy variable 9.63
+[OK] white-light tilt: south, head closer to the equator, positive; across 0/360 14.28
+[OK] white-light tilt: one side empty or single spot refused 
+[OK] records -> spot rows of the kept group row (seconds = 60), tilt only when allowed 
+[OK] axial difference in (-90, 90] 
+[OK] S1: stable without a step, unstable with a Joy-coefficient step in one epoch ('stabile fra epoche', 'instabile')
+[OK] S1: bootstrap seed fixed (same table twice) 
+[OK] S2 precedence: contained (also non-zero), activity-dependent, undetermined 
+[OK] final rule: verdict only when everything passes; 'non determinato' S1 and >20 % unverifiable block the verdict 
+[OK] single-hemisphere subset: matrix built without exception 
+[OK] empty sample: explicit state, no exception 
+[OK] availability before the seal never calls wl_tilt 
+[OK] seal: committed directories alone do not open SEALED (receipts and reading record required) 
+[OK] constant activity: beta3 not identifiable 
+[OK] chain: missing, incomplete, count-less and 0/0 catalogue receipts refused; complete bound receipt accepted ('cat_recount: receipt counts missing or not complete (None/None)', 'cat_recount: receipt counts missing or not complete (0/0)')
+[OK] chain: validation needs the bound design-check recount ("chain product missing or unreadable (FileNotFoundError: [Errno 2] No such file or directory: '/tmp/tmptscx4u1i/check_recount/RECEIPT.json')", None)
+[OK] chain: stability needs the recorded reading; a negative but valid validation opens the descriptive path ("chain product missing or unreadable (FileNotFoundError: [Errno 2] No such file or directory: '/tmp/tmptscx4u1i/val_read/READ.json')", None)
+[OK] chain: a validation bound to a previous design check is refused at the seal validation not bound to the current design check
+[OK] chain: a technically invalid validation is refused validation technically invalid (incomplete grid or invalid rows): not a negative result, refuse
+[OK] summary: NaN or out-of-domain variance parameter of M blocks the acceptance (Codex's second review) 
+[OK] seal: SEALED cannot be read before the validation is preserved 
+[OK] seal: SEALED.csv.gz is opened only inside read_sealed() 
+selftest: 41/41 superati
+benchmark: start-up 0 s; 108 stratified units in 249 s on 5 processes; predicted 48.86 h for 76000 units (no duration limit)
