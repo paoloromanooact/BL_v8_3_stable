@@ -1,0 +1,41 @@
+--- a/scripts/t3_mwo_analysis.py	2026-11-20 11:46:31.725237077 +0100
++++ b/scripts/t3_mwo_analysis.py	2026-11-20 11:46:31.738236994 +0100
+@@ -869,12 +869,15 @@
+     idf = json.loads((OUT_CHECK / "IDENTIFIABILITY.json").read_text())["joy"]["identifiable"]
+     rule = final_rule(s1_res["status"], s2_status, unver, val["accepted_15deg"], idf, cov["outcome"] == "informativo")
+     s4 = s4_table(d)
++    d_all = load_design("all")                  # descriptive outputs of §6 (Codex's second review, point 3)
++    ex = EX.extras(sys.modules[__name__], d, sealed, d_all)
+     res = dict(S1=s1_res, S2=dict(r2, C=C, status=s2_status, distinguishable_from_zero=s2_nonzero, by_hemisphere=s2_hem),
+                unverifiable_share=unver, verifiable=[f"{e}{h}" for (e, h), v in verif.items() if v],
+                subset=dict(n=len(sub), share=len(sub) / len(d)), rule=dict(outcome=rule[0], reasons=rule[1]))
+     write_out(OUT_STAB, {"STABILITY.json": res, "S1_TABLE.csv": s1_tab, "S3_HALE.csv": s3, "S4.csv": s4,
+-                         "WL_TILTS.csv": d[["noaa", "day", "epoch", "hemisphere", "wl_status", "gamma_wl", "d_wl"]]},
+-              dict(protocol_sha256=protocol_sha, amendment_a1_sha256=amendment_sha))
++                         "WL_TILTS.csv": d[["noaa", "day", "epoch", "hemisphere", "wl_status", "gamma_wl", "d_wl"]], **ex},
++              dict(protocol_sha256=protocol_sha, amendment_a1_sha256=amendment_sha,
++                   extras_sha256=sha(ROOT / "scripts/t3_mwo_stability_extras.py")))
+     print(json.dumps(dict(S1=s1_res["status"], S2=s2_status, rule=rule), indent=2))
+     return 0
+ 
+--- a/scripts/t3_mwo_stability_extras.py	2026-11-20 11:46:31.725237077 +0100
++++ b/scripts/t3_mwo_stability_extras.py	2026-11-20 11:46:31.739236988 +0100
+@@ -12,8 +12,7 @@
+   s4_dwl_all         d_WL of the 'all records' sensitivity, isolated against non-isolated records, overall and by
+                      activity tercile (descriptive)
+ 
+-Not yet wired into the stability stage (that file must not change while the validation runs): IMPLEMENTED stays
+-False until the call is added and reviewed.
++Wired into the stability stage after the validation (patch reviewed by Codex before it is applied).
+ """
+ from pathlib import Path
+ 
+@@ -21,7 +20,7 @@
+ import pandas as pd
+ 
+ ROOT = Path(__file__).resolve().parents[1]
+-IMPLEMENTED = False
++IMPLEMENTED = True
+ DAILY = ROOT / "data/sharp/external_DPD_20261118/dailyDPD1974_2016.txt"
+ P1_CAT = ROOT / "results/P1/P1_SBL_CATALOG_BY_HARP.csv"
+ 

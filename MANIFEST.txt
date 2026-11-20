@@ -521,6 +521,7 @@ idl/sharp_string_from_header.pro
 idl/sharp_valid_mask_1ar.pro
 logs/.gitkeep
 output/.gitkeep
+patches/T3_MWO_STABILITY_WIRING.patch
 python/download_sharp_day.py
 python/sharpbl/__init__.py
 python/sharpbl/compare_test_case.py
