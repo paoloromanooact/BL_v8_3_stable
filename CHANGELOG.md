@@ -1,5 +1,10 @@
 # Cronologia
 
+## 2026-11-20 — revisione positiva del codice A3
+
+- Rivisto fd3fe95, runner 22/22 e riconteggio 28/28 nuovamente eseguiti. Esclusioni A2/A3 e hash verificati.
+- Via alla misura R4, poi conservazione, riconteggio e controllo del disegno. Nessun codice di produzione modificato.
+
 ## 2026-11-20 — revisione e congelamento metodologico A3
 
 - Ricostruiti indipendentemente gli otto file dai riepiloghi salvati; chiarite le sette date UTC e i confronti indeterminati.

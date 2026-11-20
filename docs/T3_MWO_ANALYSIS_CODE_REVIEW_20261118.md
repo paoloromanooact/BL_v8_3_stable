@@ -1,5 +1,24 @@
 # Revisione della consegna statistica T3 MWO — 18 novembre 2026
 
+## 20 novembre — revisione del codice A3 fd3fe95: via alla misura R4
+
+- Rivisto il diff completo del runner e del riconteggio: A3 escluso prima della selezione, con verifica
+  dello SHA del contenuto di ogni membro e stato excluded_A3 separato da excluded_A2. Il comando reale
+  richiede l'hash A3, verifica elenchi disgiunti e presenza di tutti i 18+8 membri, poi registra i due
+  hash di emendamento/elenco nel META. Nessuna variazione di geometria, pesi o regola del primo successo.
+- Selftest eseguiti nuovamente: runner 22/22, riconteggio 28/28. Provati i due percorsi A2 e A3 su archivi
+  sintetici: esclusione reale, scansione sana dello stesso giorno, SHA errato, membro etichettato sotto
+  l'emendamento errato, marcatura mancante anche con hash di prodotto aggiornato. Non letti tilt reali.
+- Verificati direttamente il legame dei CSV ai testi congelati, l'accordo dei due lettori e l'assenza di
+  sovrapposizione (18 A2, 8 A3). Gate sui quattro documenti congelati positivo, R4 ancora assente.
+- Controllati i percorsi: misura, analisi, riconteggi e patch usano tutti R4; nessun riuso delle cartelle
+  R2/R3 per le nuove fasi. git apply --check positivo; la patch di stabilità resta non applicata.
+- Nessun nuovo rilievo bloccante in fd3fe95. **Via alla misura R4**, conservazione dei prodotti e riconteggio
+  indipendente completo, senza leggere i tilt; poi controllo del disegno e suo riconteggio, precisione
+  attesa a pesi invariati. La validazione lunga viene dopo questi passaggi, non parte da questa revisione.
+- Nessun codice di produzione modificato dalla revisione. Nessun avvio di R4 o push da Codex.
+
+
 ## 20 novembre — revisione metodologica di A3, otto esclusioni confermate
 
 - R3: verificata la ricevuta 15/15 completa, legata al META corrente; non ripetuta la misura lunga e nessun
