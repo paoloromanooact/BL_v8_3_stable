@@ -155,7 +155,11 @@ def eligible(g):
 # ---------------------------------------------------------------- magnetograms
 
 def magnetogram_table(archive_dir=MWO_DATA, years=ARCHIVE_YEARS):
-    """Header table of every Fe I magnetogram (pass 1: headers only are kept)."""
+    """Header table of every Fe I magnetogram. day is the UTC date of obs_time.
+
+    TAVG-UT can exceed 24 hours: filename_day is the observing-session date and
+    is kept separately; it must not be used for same-UTC-day DPD matching.
+    """
     rows = []
     for y in years:
         path = Path(archive_dir) / f"MWO_{y}.tar.gz"
@@ -183,12 +187,13 @@ def magnetogram_table(archive_dir=MWO_DATA, years=ARCHIVE_YEARS):
                     rows.append(dict(archive_year=y, member=m.name, day=day.strftime("%Y-%m-%d"), status="no_tavg"))
                     continue
                 good, dcen, db0 = P.ephemeris_ok(h, ot)
-                rows.append(dict(archive_year=y, member=m.name, day=day.strftime("%Y-%m-%d"), obs_time=ot,
+                rows.append(dict(archive_year=y, member=m.name, day=ot.strftime("%Y-%m-%d"),
+                                 filename_day=day.strftime("%Y-%m-%d"), obs_time=ot,
                                  tavg=float(h["TAVG-UT"]), eph_ok=bool(good), dcenlon=dcen, db0=db0,
                                  dxb=h.get("DXB_OBS"), dyb=h.get("DYB_OBS"), mrkmod=h.get("MRKMOD"),
                                  psepma=h.get("PSEPMA"), bscale=h.get("BSCALE"), blank=h.get("BLANK"),
                                  res_class=res_class(h.get("DXB_OBS"), h.get("DYB_OBS")),
-                                 epoch=epoch_of(m.name, h, day), status="ok"))
+                                 epoch=epoch_of(m.name, h, ot), status="ok"))
     return pd.DataFrame(rows)
 
 

@@ -1,5 +1,12 @@
 # T3 su MWO: misura del catalogo (consegna 1, senza tilt)
 
+> **Rilievo di Codex del 20 novembre, successivo al riconteggio.** Questa corsa conserva un errore comune
+> a runner e riconteggio: il raggruppamento per giorno usava il nome del file invece dell'istante UTC completo.
+> Nei soli metadati sono discordanti 32 record isolati e 30 nell'insieme completo. I conteggi e la ricevuta
+> sotto rimangono storici; non autorizzano a usare questa selezione per la validazione o la stima di T3.
+> Occorre una corsa corretta in una destinazione nuova, con tilt ancora sigillati.
+> [Diagnosi e correzione](T3_MWO_METADATA_AND_CALIBRATION_REVIEW.md).
+
 Protocollo `docs/PROTOCOL_T3_MWO.md` (SHA-256 `4408a0ee…`) ed emendamento A1 (`bc88452b…`). Misura avviata il 19 novembre
 alle 07:48 da `e4ccd30`, dopo la fine della validazione HMI (via di Codex). Una prima corsa (07:40) si è fermata alla
 fine, prima di scrivere qualsiasi prodotto: le ore d'osservazione ISO miste, con e senza frazioni di secondo, non si

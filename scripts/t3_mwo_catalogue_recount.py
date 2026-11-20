@@ -176,10 +176,10 @@ def magnetograms(archive=MWO_DATA, years=range(1974, 2014)):
                 L0, B0 = meeus(ot)
                 dcen = (h["CENLON"] - L0 + 180) % 360 - 180
                 db0 = math.degrees(h["B0"]) - B0
-                rows.append(dict(year=y, member=m.name, day=d.strftime("%Y-%m-%d"), ot=ot, tavg=h["TAVG-UT"],
+                rows.append(dict(year=y, member=m.name, day=ot.strftime("%Y-%m-%d"), ot=ot, tavg=h["TAVG-UT"],
                                  dcen=dcen, db0=db0, eph=abs(dcen) <= CENLON_TOL and abs(db0) <= B0_TOL,
                                  border=abs(abs(dcen) - CENLON_TOL) < BORDER_CEN or abs(abs(db0) - B0_TOL) < BORDER_B0,
-                                 cls=res_class(h.get("DXB_OBS"), h.get("DYB_OBS")), epoch=epoch(m.name, h, d)))
+                                 cls=res_class(h.get("DXB_OBS"), h.get("DYB_OBS")), epoch=epoch(m.name, h, ot)))
     return rows
 
 

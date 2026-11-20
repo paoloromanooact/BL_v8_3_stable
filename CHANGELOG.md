@@ -1,5 +1,16 @@
 # Cronologia
 
+## 2026-11-20 — audit di Codex su MWO e validazione HMI
+
+- Corretto il giorno UTC dei magnetogrammi con TAVG-UT oltre mezzanotte, nel runner T3 MWO e nel suo
+  riconteggio; due regressioni sintetiche. Il catalogo già misurato conserva 32/30 abbinamenti discordanti
+  (isolati/tutti) e deve essere rigenerato prima dell'analisi; risultati storici preservati.
+- Audit documentale della calibrazione MWO e della capacità dei metadati, senza nuovi tilt reali.
+- Revisione della consegna statistica 678ff2f con controesempi sintetici riproducibili, da correggere prima dell'uso.
+- Audit indipendente dei 150 000 risultati della validazione HMI: integrità e riconteggi confermati;
+  Q1 e Q2 restano descrittivi. Corrette due formulazioni del rapporto, senza cambiare soglie o risultati.
+
+
 ## v8.4 (Python, branch `v8.4-python-gianluca`) — in corso
 
 - 2026-11-18, pomeriggio: fase B prospettica eseguita (M segue la previsione analitica, T5 resta descrittivo);

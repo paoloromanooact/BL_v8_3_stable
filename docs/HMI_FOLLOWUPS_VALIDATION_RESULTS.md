@@ -27,14 +27,15 @@ viene eseguita, Q1 e Q2 si riportano con l'intervallo nominale e l'avvertenza, s
 | Q2 emisferico | scenario 7, effetto +1° | copertura 0,962 | ≥ 0,965 |
 
 Tutte le altre configurazioni principali passano: Q1 negli scenari 0, 1, 7 e 9; Q2 negli scenari 0, 1, 2 e 9. La quota
-di `errore` è al massimo 0,09 %.
+di `errore` è al massimo 0,10 %.
 
 ## Lettura
 
-- **Q1** confronta due cicli. Con una componente temporale molto persistente (φ = 0,9) le rotazioni dello stesso ciclo
-  si muovono insieme. Il contrasto fra cicli ha quindi poche unità indipendenti, e la stima REML della componente
-  temporale ne sottostima la varianza: l'intervallo è troppo stretto in entrambi i versi. È un limite strutturale di un
-  confronto fra due soli cicli, non un difetto numerico, e non si corregge con più cataloghi.
+- **Q1** confronta due cicli. Con una componente temporale molto persistente (φ = 0,9), la correlazione fra
+  rotazioni riduce l'informazione del contrasto. Nei generatori provati M produce intervalli con sottocopertura
+  ed eccesso di falsi verdetti in entrambi i versi. Una sottostima della componente temporale è una spiegazione
+  possibile, ma la validazione non ne isola la causa e non dimostra un limite insuperabile per altre procedure.
+  Aumentare soltanto le repliche Monte Carlo preciserebbe queste frequenze senza aumentare l'informazione solare.
 - **Q2 emisferico** fallisce di poco (3,25 % contro 3,0 %; copertura 0,962 contro 0,965) solo con salti a gradino di 20
   rotazioni. Questo scenario è mal specificato rispetto all'AR(1) di M, ma il protocollo lo include fra i principali.
 - **Sensibilità senza criterio:** Q2 con fase convenzionale nello scenario 7 dà 3,95 % di falsi verdetti; Q2 emisferico
@@ -49,3 +50,11 @@ di `errore` è al massimo 0,09 %.
    descrittivi.
 3. Un test di Q2 robusto ai gradini richiederebbe un protocollo nuovo, per esempio una procedura con blocchi o una
    componente a gradini nella stima. Non è proposto qui.
+
+## Audit di Codex, 20 novembre
+
+[Controllo indipendente aggiuntivo](HMI_FOLLOWUPS_CODEX_AUDIT_20261120.md) su tutte le 150 000 righe:
+semi, integrità, intervalli, verdetti e frequenze coerenti; SE delle 149 928 righe riuscite riprodotti
+entro 4,1·10⁻¹³ relativo. Confermati entrambi gli esiti negativi della validazione. Nessuna stima HMI
+sui dati reali eseguita per questo controllo. Corrette la quota massima di errore e la formulazione
+causale del paragrafo Q1; i risultati numerici e le soglie restano quelli della corsa congelata.

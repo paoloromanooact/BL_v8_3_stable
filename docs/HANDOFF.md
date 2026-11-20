@@ -1,5 +1,36 @@
 # Cold restart — SHARP BL
 
+## 20 novembre, Codex — audit autonomo ripreso e rilievo sul catalogo già misurato
+
+- Audit delle fonti e dei metadati in [T3_MWO_METADATA_AND_CALIBRATION_REVIEW.md](T3_MWO_METADATA_AND_CALIBRATION_REVIEW.md).
+  La calibrazione di saturazione e dello zero già presente nei FITS nativi resta non documentata. Il rilascio
+  del 2024 descrive immagini 256×256 alle 20 UT; l'archivio locale usa 512×512 e TAVG variabile. Nessuna nuova
+  correzione fisica applicata. Verificati gli hash dell'inventario e dei 41 ingressi DPD usati nell'audit.
+- **Corretto un nuovo difetto prima della misura lunga.** In 2797 header TAVG-UT ≥ 24 ore. Runner e riconteggio
+  raggruppavano per il giorno del nome anziché per la data UTC dell'istante completo. Ora usano quest'ultima;
+  filename_day resta registrato nel runner. Due regressioni su FITS sintetici falliscono entrambe sul codice
+  precedente e passano sul corretto. Il pilota storico ha tre abbinamenti interessati, HARP 421, 495 e 1527;
+  i suoi risultati restano conservati, con questo limite documentato nell'audit.
+- Il conteggio senza effemeridi né misura dà 12 585 gruppi isolati potenziali. Non è il campione definitivo
+  e non aggiorna i conteggi congelati. E1 ed E7 sono particolarmente fragili rispetto alla verificabilità
+  per emisfero. Dettagli, denominatori e script riproducibile nell'audit.
+- **Consegna statistica 678ff2f da correggere prima dell'uso.** Revisione e controesempi in
+  [T3_MWO_ANALYSIS_CODE_REVIEW_20261118.md](T3_MWO_ANALYSIS_CODE_REVIEW_20261118.md). Il controllo di disponibilità
+  calcola tilt WL prima del sigillo; la matrice su un solo emisfero solleva un'eccezione; il sigillo non richiede
+  il riconteggio; servono percorsi espliciti per non identificabilità e righe numeriche non valide. Anche il
+  benchmark va reso rappresentativo. File statistico di Claude non modificato.
+- **Catalogo f718114 da rigenerare prima dell'analisi statistica.** Il confronto dei soli metadati
+  day/obs_time trova 32 record isolati e 30 nell'insieme completo che non sono nello stesso giorno UTC.
+  La ricevuta 12/12 di dad6f6b riproduce lo stesso errore del runner. Corsa e ricevuta storiche preservate;
+  nessun tilt sigillato letto. Una misura corretta deve usare una destinazione nuova.
+- Validazione HMI terminata: q1 e q2_hem non superano i criteri congelati e restano descrittivi
+  (rapporto b2898f6). Audit aggiuntivo completato da Codex su 150 000 righe, 35 configurazioni, semi e
+  indicatori coerenti; 149 928 SE riprodotti entro 4,1e-13 relativo. Dettagli in
+  [HMI_FOLLOWUPS_CODEX_AUDIT_20261120.md](HMI_FOLLOWUPS_CODEX_AUDIT_20261120.md). Nessuna stima HMI reale eseguita.
+- Verifiche della correzione UTC: runner 19/19 e riconteggio 16/16; suite 142 test passati nel sandbox e
+  quattro test HTTP localhost passati separatamente con i permessi necessari (146 complessivi, due avvisi
+  noti sulle correlazioni costanti). Protocolli, pipeline MWO congelata e risultati storici non modificati.
+
 ## 18 novembre, Codex — chiusura della consegna T3 MWO, misura e dati
 
 - Revisione di `bc3577f` dopo i rilievi sulla consegna 1. Il runner usa l'istante completo per la CR e il
