@@ -1,6 +1,30 @@
 --- a/scripts/t3_mwo_analysis.py	2026-11-20 11:46:31.725237077 +0100
-+++ b/scripts/t3_mwo_analysis.py	2026-11-20 11:46:31.738236994 +0100
-@@ -869,12 +869,15 @@
++++ b/scripts/t3_mwo_analysis.py	2026-11-20 12:53:00.175667662 +0100
+@@ -47,6 +47,7 @@
+ CAT_RECOUNT = ROOT / "results/T3_MWO_CATALOGUE_R2_RECOUNT"
+ VAL_RECOUNT = ROOT / "results/T3_MWO_VALIDATION_RECOUNT"
+ CHECK_RECOUNT = ROOT / "results/T3_MWO_DESIGN_CHECK_RECOUNT"
++STAB_RECOUNT = ROOT / "results/T3_MWO_STABILITY_RECOUNT"      # S1-S4 verified before beta3 (user and Codex, 20 Nov)
+ VAL_READ = ROOT / "results/T3_MWO_VALIDATION_READING"
+ BENCH_SEED_BASE = 59_000_000                           # benchmark only, outside the grid and every registered range
+ PROVENANCE_FILES = ("scripts/t3_mwo_analysis.py", "python/sharpbl/p2f_validation.py", "python/sharpbl/p2f_pilot.py",
+@@ -632,8 +633,13 @@
+         if rd.get("acceptance_sha256") != sha(Path(val) / "ACCEPTANCE.json") or \
+                 rd.get("recount_receipt_sha256") != sha(Path(vrc) / "RECEIPT.json"):
+             return "reading record not bound to the current validation and its recount"
+-    if i >= 4 and not committed(stb):
+-        return "stability outputs not preserved in Git"
++    if i >= 4:
++        if not committed(stb):
++            return "stability outputs not preserved in Git"
++        good, why = receipt_ok(Path(rp.get("stab_recount", STAB_RECOUNT)) / "RECEIPT.json", "stability_meta_sha256",
++                               Path(stb) / "META.json")
++        if not good:
++            return why
+     return None
+ 
+ 
+@@ -869,12 +875,15 @@
      idf = json.loads((OUT_CHECK / "IDENTIFIABILITY.json").read_text())["joy"]["identifiable"]
      rule = final_rule(s1_res["status"], s2_status, unver, val["accepted_15deg"], idf, cov["outcome"] == "informativo")
      s4 = s4_table(d)
