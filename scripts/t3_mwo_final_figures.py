@@ -28,6 +28,7 @@ import pandas as pd  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[1]
 REL = ROOT / "results/MWO_TILT_CATALOGUE_RELEASE"
+REL_RC = ROOT / "results/MWO_TILT_CATALOGUE_RELEASE_RECOUNT"
 EST = ROOT / "results/T3_MWO_ESTIMATE_R4"
 OUT = ROOT / "results/T3_MWO_FINAL_FIGURES"
 EPOCHS = ("E1", "E2", "E3", "E4", "E5", "E6", "E7", "E8")
@@ -43,13 +44,15 @@ def fig_beta3(est_tab, final, out):
     tg = final.get("targets") or {}
     for key, ls in (("delta_beta_10", ":"), ("delta_beta_20", "--")):
         if key in tg:
-            ax.axvline(tg[key], color="tab:red", ls=ls, lw=1, label=f"ramp {key[-2:]} %: {tg[key]:.2f}")
+            ax.axvline(tg[key], color="tab:red", ls=ls, lw=1,
+                       label=f"ramp {key[-2:]} % target of the MAIN analysis only: {tg[key]:.2f}")
     ax.set_yticks(y)
     ax.set_yticklabels(t.analysis)
     ax.set_xlabel("beta3 (deg of Joy coefficient per unit of activity), nominal 97.5 % interval")
     status = {"verdetto": "validated: verdict allowed", "descrittivo": "descriptive (no verdict)",
               "non concludente": "non-conclusive"}.get(final.get("outcome"), str(final.get("outcome")))
-    ax.set_title(f"T3 on MWO 1974-2012 - {status}")
+    ax.set_title(f"T3 on MWO 1974-2012 - main analysis: {status}\n"
+                 "sensitivities: nominal intervals, not covered by the validation of the main design", fontsize=9)
     ax.legend(fontsize=7, loc="lower right")
     fig.tight_layout()
     fig.savefig(out / "fig_beta3_summary.png", dpi=150)
@@ -96,6 +99,8 @@ def fig_wl(s1, out):
 
 
 def fig_p1(matched, out):
+    if len(matched) == 0:
+        return                                   # no matched region: no histogram and no NaN median drawn
     fig, ax = plt.subplots(figsize=(5, 3.5))
     ax.hist(matched.d_p1, bins=np.arange(-90, 91, 5), color="tab:blue")
     ax.axvline(np.median(matched.d_p1), color="k", ls="--", label=f"median {np.median(matched.d_p1):.2f} deg")
@@ -143,9 +148,36 @@ def make_all(rel, est, out):
     return sorted(f.name for f in out.iterdir())
 
 
+def h256(p):
+    return hashlib.sha256(Path(p).read_bytes()).hexdigest()
+
+
+def figure_problem(rel=REL, rel_rc=REL_RC, est=EST):
+    """Codex (20 Nov): figures only from verified products: release recount receipt complete and bound to the release
+    META, release and estimate products equal to their META, release bound to the current estimate."""
+    for d in (rel, est, rel_rc):
+        if not (Path(d) / ("RECEIPT.json" if d == rel_rc else "META.json")).exists():
+            return f"{Path(d).name} missing"
+    r = json.loads((Path(rel_rc) / "RECEIPT.json").read_text())
+    is_int = lambda x: isinstance(x, int) and not isinstance(x, bool)     # noqa: E731
+    if not (is_int(r.get("total")) and r["total"] > 0 and r.get("passed") == r["total"] and r.get("partial") is False
+            and isinstance(r.get("checks"), list) and len(r["checks"]) == r["total"]
+            and all(c.get("ok") is True for c in r["checks"]) and r.get("release_meta_sha256") == h256(Path(rel) / "META.json")):
+        return "release recount receipt not complete or not bound to the release META"
+    for d in (rel, est):
+        m = json.loads((Path(d) / "META.json").read_text())
+        files = {str(f.relative_to(d)) for f in Path(d).rglob("*") if f.is_file() and f.name not in ("META.json", "RUN.log")}
+        if set(m.get("products_sha256", {})) != files or any(h256(Path(d) / n) != h for n, h in m["products_sha256"].items()):
+            return f"{Path(d).name}: products do not match META"
+    if json.loads((Path(rel) / "META.json").read_text()).get("estimate_meta_sha256") != h256(Path(est) / "META.json"):
+        return "release not bound to the current estimate"
+    return None
+
+
 def run():
-    if not (REL / "META.json").exists() or not (EST / "META.json").exists():
-        sys.exit("release or estimate missing: final figures come after the estimate, its recount and the export")
+    why = figure_problem()
+    if why:
+        sys.exit(f"final figures refused: {why}")
     print(make_all(REL, EST, OUT))
     return 0
 
@@ -173,12 +205,22 @@ def selftest():
             rel / "COMPARISONS/S3_HALE.csv", index=False)
         (rel / "META.json").write_text("{}")
         made = make_all(rel, est, td / "out")
+        p_missing = figure_problem(rel, td / "rc", est)
+        (td / "rc").mkdir()
+        (td / "rc/RECEIPT.json").write_text(json.dumps(dict(passed=1, total=1, partial=False, checks=[{"ok": True}],
+                                                            release_meta_sha256="old")))
+        p_unbound = figure_problem(rel, td / "rc", est)
+        fig_p1(pd.DataFrame(dict(d_p1=[])), td / "out")
+        p1_empty_ok = not (td / "out" / "fig_p1_empty.png").exists()
+    guard = p_missing is not None and p_unbound is not None and p1_empty_ok
+    print(f"[{'OK' if guard else 'FALLITO'}] guard refuses a missing or unbound release recount; empty P1 comparison drawn as nothing",
+          (p_missing, p_unbound))
     want = {"fig_beta3_summary.png", "fig_joy_by_cycle.png", "fig_wl_by_epoch.png", "fig_p1_comparison.png",
             "fig_hale_by_epoch.png", "META.json"}
     good = want == set(made)
     print(f"[{'OK' if good else 'FALLITO'}] five final figures from synthetic release and estimate", made)
-    print(f"selftest: {int(good)}/1 superati")
-    return good
+    print(f"selftest: {int(good) + int(guard)}/2 superati")
+    return good and guard
 
 
 if __name__ == "__main__":

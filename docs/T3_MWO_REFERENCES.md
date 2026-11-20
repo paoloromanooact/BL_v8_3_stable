@@ -9,16 +9,17 @@ Ogni voce dice per che cosa serve e che cosa è stato controllato sulla fonte (a
   - Ulrich, R. K., Evans, S., Boyden, J. E., Webster, L. (2002), ApJS 139, 259. Testo completo letto (PDF del workshop
     sui magnetogrammi). §2: sistema a 24 canali «Starting in 1996», nuovo reticolo; §3: correzione di saturazione; la
     correzione dello zero è applicata dal 1996. Usato per le epoche (A3, README) e per i limiti di calibrazione.
-  - Ulrich, R. K., Boyden, J. E., Tran, T. (2024), Solar Physics: calibrazione e rilascio di magnetogrammi e
-    Dopplergrammi della torre di 150 piedi, archivio 1967–2013. Volume e pagine **da verificare**. Codex l'ha usato
+  - Ulrich, R. K., Boyden, J. E., Tran, T. (2024), Solar Physics 299, «Calibration and Release of
+    Magnetograms/Dopplergrams Obtained at the Mt. Wilson 150-Foot Tower Telescope (MWO)»: archivio 1967–2013.
+    Volume verificato; numero d'articolo **da verificare**. Codex l'ha usato
     nell'audit: quel rilascio descrive file 256×256 alle 20 UT, diversi dai nostri file 512×512.
   - Howard, R. et al. (1983): sistema di osservazione precedente, citato da Ulrich et al. 2002. Riferimento completo **da
     verificare**.
 - **Debrecen Photoheliographic Data (DPD).**
   - Győri, L., Ludmány, A., Baranyi, T. (2017), MNRAS 465, 1259: confronto fra i cataloghi di Debrecen. Abstract e
     testo letti: DPD da Gyula e Debrecen con buchi riempiti da altri osservatori; aree DPD circa 5 % sotto HMIDD.
-  - Baranyi, T., Győri, L., Ludmány, A. (2016), Solar Physics: strumenti in linea e catalogo DPD dal 1974
-    (arXiv:1606.00669). Volume e pagine **da verificare**.
+  - Baranyi, T., Győri, L., Ludmány, A. (2016), Solar Physics 291, 3081–3102, «On-line Tools for Solar Data Compiled
+    at the Debrecen Observatory and Their Extensions with the Greenwich Sunspot Data» (arXiv:1606.00669). Verificato.
 - **SDO/HMI e SHARP (P1).**
   - Schou, J. et al. (2012), Solar Physics 275, 229–259: progetto e calibrazione di HMI.
   - Bobra, M. G. et al. (2014), Solar Physics 289, 3549–3578: SHARPs.
@@ -46,8 +47,9 @@ Ogni voce dice per che cosa serve e che cosa è stato controllato sulla fonte (a
   - Cause indicate: macchie della stessa polarità incluse nelle misure in luce bianca; plage, più inclinate delle macchie
     vicine, viste solo nel magnetico.
   - Le grandi incertezze non permettono di stabilire relazioni sistematiche fra tilt e ampiezza dei cicli 16–23.
-  - **Rilevante per S1:** uno scarto costante MWO–luce bianca è atteso e non indica un errore; S1 guarda solo le
-    variazioni fra epoche.
+  - **Rilevante per S1:** Wang et al. descrivono differenze di popolazione e di dipendenza dalla latitudine fra tilt
+    magnetici e in luce bianca. Non garantiscono che lo scarto sia costante nel tempo o con l'attività. S1 resta un
+    controllo relativo fra epoche e non certifica la calibrazione assoluta.
 
 ## Legge di Joy e quenching dei tilt
 
@@ -56,9 +58,9 @@ Ogni voce dice per che cosa serve e che cosa è stato controllato sulla fonte (a
   - Abstract: pendenze della legge di Joy 0,26 (MW) e 0,28 (KK) in gradi di tilt per grado di latitudine;
     anticorrelazione fra tilt medio normalizzato e forza del ciclo, r = −0,95 (MW) e −0,93 (KK) nella versione
     originale.
-  - **Corrigendum** (A&A 2013, aa14301e-10): i coefficienti corretti, r = −0,79 per MW secondo la verifica già fatta per
-    P2f, vanno ricontrollati sul testo, perché la pagina ha risposto 403 il 20 novembre. Citare sempre la versione
-    corretta.
+  - **Corrigendum** (A&A 556, C3, 2013), verificato il 20 novembre. La versione originale usava i tilt medi di ciclo
+    di Kodaikanal con le latitudini medie di Mount Wilson. Coefficienti corretti: r = −0,79 per MW e −0,93 per KK;
+    l'anticorrelazione è più debole della versione pubblicata. Citare sempre la versione corretta.
 - **McClintock, B. H., Norton, A. A. (2013)**, Solar Physics 287, 215–227, «Recovering Joy's law as a function of solar
   cycle, hemisphere, and longitude». Abstract: pendenza della legge di Joy più debole (0,13–0,26), senza imporre tilt
   nullo all'equatore; la componente stocastica domina e impedisce di determinare la pendenza su scala di 11 anni.
@@ -70,8 +72,13 @@ Ogni voce dice per che cosa serve e che cosa è stato controllato sulla fonte (a
   - La relazione T_lin = −0,00107·S_n + 0,61 (r = −0,85) usata nei protocolli HMI è riportata nel testo, non
     nell'abstract: già verificata per P2f, da ricontrollare prima di una citazione nuova.
   - **Attenzione:** è una dipendenza **fra cicli**, non dall'attività dentro il ciclo (T3).
-- **Jha et al.** (MDI/HMI, AutoTAB): pendenza di Joy contro il campo massimo, citata nel protocollo HMI per Q3.
-  Riferimento completo **da verificare**.
+- **Jha, B. K., Karak, B. B., Mandal, S., Banerjee, D.**, «Magnetic field dependence of bipolar magnetic region tilts on
+  the Sun: Indication of tilt quenching» (arXiv:1912.13223), su MDI 1996–2011 e HMI 2010–2018.
+  - Abstract letto: la distribuzione di B_max è bimodale; la dispersione dei tilt attorno alla legge di Joy cala con
+    B_max; la pendenza γ₀ cresce lentamente con B_max e cala per B_max ≥ 2 kG.
+  - Seguito con il catalogo tracciato AutoTAB: arXiv:2401.04255.
+  - Rivista e volume **da verificare**. Riguarda il campo massimo della singola regione, non il flusso (Q3) né
+    l'attività globale (T3).
 
 ## Attribuzioni per il rilascio (testo da concordare con i fornitori)
 

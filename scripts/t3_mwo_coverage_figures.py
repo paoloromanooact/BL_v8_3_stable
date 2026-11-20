@@ -56,7 +56,8 @@ def figures(design, tabs, out):
     fig, ax = plt.subplots(figsize=(10, 4))
     for e, a, b in EPOCH_SPANS:
         ax.axvspan(pd.Timestamp(a), pd.Timestamp(b), alpha=0.08 if EPOCHS.index(e) % 2 else 0.0, color="k")
-    ax.scatter(iso.t, iso.lat_bar, s=2, c=np.log10(iso.phi_mwo), cmap="viridis")
+    sc = ax.scatter(iso.t, iso.lat_bar, s=2, c=np.log10(iso.phi_mwo), cmap="viridis")
+    fig.colorbar(sc, ax=ax, label="log10 window flux (Mx)")
     ax.set_ylabel("flux-weighted latitude (deg)")
     ax.set_title(f"MWO tilt catalogue R4, isolated records (n = {len(iso)}); shading = instrumental epochs")
     fig.tight_layout()
@@ -95,6 +96,7 @@ def figures(design, tabs, out):
     data = [np.log10(iso.phi_mwo[iso.epoch == e]) for e in EPOCHS if (iso.epoch == e).any()]
     ax.boxplot(data, labels=[e for e in EPOCHS if (iso.epoch == e).any()], showfliers=False)
     ax.set_ylabel("log10 window flux (Mx)")
+    ax.set_title("boxes without outliers (outliers kept in the data, not excluded)", fontsize=8)
     fig.tight_layout()
     fig.savefig(out / "fig_flux_by_epoch.png", dpi=150)
     plt.close(fig)

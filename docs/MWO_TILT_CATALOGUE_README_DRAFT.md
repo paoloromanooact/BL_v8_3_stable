@@ -73,8 +73,9 @@ Consequences:
 - **Polarity:** `leading_polarity_sign` is the sign of the leading part; `hale_expected_sign` is the sign expected from
   Hale's law for the cycle (by date) and the hemisphere. Their agreement is reported by epoch in the comparisons.
 - **Flux (`flux_window_mx`):** Σ|B_r|·(R☉/R0)²/μ over the above-threshold pixels, R☉ = 6.96·10¹⁰ cm. It is the flux
-  seen at MWO resolution above 50 G, not the total flux of the region; in the 2010–2012 overlap it is a median 16 % of
-  the SDO/HMI SHARP flux.
+  seen at MWO resolution above 50 G, not the total flux of the region. In the pilot comparison with SDO/HMI SHARP
+  (211 regions, 2010-05 to 2013-01) it was a median 16 % of the SHARP flux; this ratio is a pilot result, not a
+  property of the whole catalogue.
 - **Latitude (`lat_flux_weighted_deg`):** flux-weighted mean latitude of the above-threshold pixels; the hemisphere
   follows its sign.
 - **Cycle:** by date, with minima 1976-03, 1986-09, 1996-08 and 2008-12; no latitude-based separation in the overlaps.
@@ -127,13 +128,17 @@ The column dictionary is in `COLUMNS.csv` of the release (name, source column, d
 - Saturation alone is not a criterion: 1999-09-23 has 8.5 % saturated central pixels with a normal median and is never
   selected.
 
-All excluded files are listed, with SHA-256, in `EXCLUDED_MAGNETOGRAMS.csv`.
+`EXCLUDED_MAGNETOGRAMS.csv` lists, with SHA-256, the 26 instrumental exclusions of A2 and A3 only. The two unreadable
+files, the scans failing the ephemeris checks and every failed measurement attempt are recorded in the catalogue
+products MAGNETOGRAMS, ATTEMPTS and LOSSES, not in that list.
 
 ## 7. Comparisons with other instruments [after the estimate]
 
-- SDO/HMI SHARP (P1), 2010–2012, same NOAA region and UTC day:
-  - pilot, 211 regions: leading polarity agrees in 95.7 %, median d_γ −0.69°, median |d_ax| 4.40°;
-  - catalogue-level comparison S2-P1: [after the estimate].
+- SDO/HMI SHARP (P1), same NOAA region and UTC day:
+  - **pilot** (separate frozen protocol; P1 candidates 2010-05 to 2013-12, evaluable records 2010-05-04 to 2013-01-14,
+    211 regions): leading polarity agrees in 95.7 %, median d_γ −0.69°, median |d_ax| 4.40°;
+  - **catalogue-level comparison S2-P1** (isolated records of this catalogue, 2010-05-01 to 2012-12-31): [after the
+    estimate].
 - DPD white-light tilts (same group and day), by epoch and hemisphere (S1) and against activity (S2): [after the
   estimate].
 - Hale agreement by epoch and hemisphere (S3): [after the estimate].
@@ -143,7 +148,9 @@ All excluded files are listed, with SHA-256, in `EXCLUDED_MAGNETOGRAMS.csv`.
 
 k in γ = k·sin|λ̄| per cycle and hemisphere, least squares through the origin, flux-weighted and unweighted; percentile
 bootstrap over blocks of 6 Carrington rotations (2000 replicates, seed 69 500 001). Descriptive only: no test.
-Published values for comparison are to be checked on the primary sources.
+**k (degrees, in γ = k sin|λ|) is not numerically the same quantity as a tilt-latitude slope in degrees per degree**
+(e.g. 0.26 in Dasi-Espuig et al. 2010): any comparison with published values must state the functional form,
+population, weights and tilt convention of each, and stays descriptive.
 
 ## 9. Known limits
 
