@@ -1,5 +1,22 @@
 # Cold restart — SHARP BL
 
+## 20 novembre, Codex — rilievi statistici chiusi, validazione MWO in corso
+
+- Confermate le correzioni in 8129c01 con sonde sintetiche: sigma_x2 NaN rifiutato, ricevuta 7/8 e
+  technical_ok false; ricevute senza controlli, riconteggio del disegno mancante e validazione legata
+  al disegno precedente rifiutati. La via descrittiva per una validazione negativa valida resta aperta.
+- Controllo del disegno conservato e ricontato 6/6: bersagli -0,5417308898 e -1,0834617795; C 0,5428552449;
+  WL disponibile per 4696/5225. La matrice ha 24 termini di disturbo più x3, quindi 25 colonne.
+- Verifica fatta durante la corsa già avviata da 8129c01. Script, tre moduli P2f/p2d, DESIGN e TARGETS
+  coincidono con quella revisione. Non modificarli mentre la validazione è in esecuzione.
+- Log logs/t3_mwo_validation_20261120_105856.log: selftest iniziale 41/41; benchmark 108 unità stratificate,
+  249 s su cinque processi; previsione 48,86 ore, circa due giorni, senza tetto di durata.
+- Le due precedenti condizioni bloccanti sono chiuse. La validazione può proseguire; la stabilità resta
+  bloccata. Il modulo separato t3_mwo_stability_extras.py ha IMPLEMENTED False e non è ancora collegato
+  né approvato per l'uso. Collegamento e revisione dopo la validazione, prima di S1-S4 e dell'apertura.
+- Nessun tilt sigillato o risultato fisico letto da Codex. A fine corsa: conservazione, riconteggio completo,
+  lettura; poi il seguito previsto dal protocollo. Dettagli nella sezione aggiornata della revisione statistica.
+
 ## 20 novembre, Codex — revisione della consegna statistica f12d093 e catalogo R2
 
 - R2 conservato in 566122f, 5225 isolati e 5944 complessivi. Controllo diretto dei metadati positivo:

@@ -1,5 +1,12 @@
 # Cronologia
 
+## 2026-11-20 — chiusura dei rilievi e validazione MWO avviata
+
+- Verificati i due correttivi di 8129c01 e i legami del controllo del disegno.
+- Confermata la provenienza della corsa in esecuzione; benchmark 48,86 ore. Nessuna modifica ai file della griglia.
+- Stabilità e sigillo restano bloccati fino al completamento e alla revisione delle fasi successive.
+
+
 ## 2026-11-20 — revisione della consegna statistica MWO corretta
 
 - R2 verificato sui metadati: 5225 isolati, 5944 complessivi, nessuna discordanza UTC; riconteggio completo 13/13 confermato (deaa14f).

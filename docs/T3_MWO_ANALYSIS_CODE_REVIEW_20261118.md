@@ -1,5 +1,45 @@
 # Revisione della consegna statistica T3 MWO — 18 novembre 2026
 
+## Chiusura dei rilievi su 8129c01 — 20 novembre 2026
+
+Verifica di Codex eseguita durante la validazione già avviata, senza modificare codice o ingressi della corsa.
+Script di analisi SHA-256 `cb5ecccb88d66b813dbede6382a2502f4bc32059b086d5cb02de2752589f9490`;
+riconteggio `17def5bfc2d7357000e0f4fd44e2ee623414f7ce0faaff9fb71d2707df3b911d`.
+
+**I due rilievi bloccanti della revisione precedente sono chiusi. La validazione sintetica può proseguire.**
+La sonda della varianza sul codice corrente rifiuta la seconda riga con sigma_x2 NaN: una riga invalida
+nel denominatore, accettazione falsa, riconteggio 7/8 con technical_ok false. Non viene più emessa una
+ricevuta positiva. Il codice richiede parametri finiti e nel dominio REML; ogni scarto SE viene verificato
+esplicitamente come finito. Una ricostruzione su un sottoinsieme marca partial true.
+
+Con fixture sintetiche dotate di ricevute complete ho verificato separatamente che la catena:
+- ammette una validazione negativa ma tecnicamente valida per la via descrittiva;
+- rifiuta ricevute senza conteggi, 0/0 o senza i controlli richiesti;
+- richiede il riconteggio del disegno legato al META;
+- rifiuta la vecchia validazione dopo un cambiamento del controllo del disegno.
+
+Sul repository reale chain_problem('validate') non segnala impedimenti; la stabilità rifiuta perché
+la validazione non è ancora conservata. In aggiunta, il codice richiede IMPLEMENTED True nel modulo
+separato delle uscite descrittive, prima della lettura del sigillo. Il modulo è attualmente False e
+non viene usato dalla validazione: scriverlo separatamente non cambia i file eseguiti dalla griglia.
+Questo controllo non ne approva ancora il collegamento o il contenuto per S1-S4.
+
+Controllati gli hash dichiarati dei prodotti non sigillati di R2 e del controllo del disegno, e il
+legame della ricevuta indipendente 6/6 al META. Confermati i bersagli −0,5417308898 e −1,0834617795,
+C = 0,5428552449 e disponibilità WL 4696/5225. Precisazione di conteggio: le 24 colonne elencate in
+kept sono i termini diversi da x3; la matrice completa comprende anche x3, quindi 25 colonne.
+
+I sei file registrati da provenance() (script, tre moduli, DESIGN e TARGETS) coincidono con il contenuto
+del commit di avvio 8129c01. Nessuno è modificato da questa revisione. Il log della corsa riporta
+selftest iniziale 41/41 e benchmark di 108 unità su tutte le 18 configurazioni: 249 secondi con cinque
+processi, previsione 48,86 ore per 76 000 unità, senza tetto di durata. È una previsione sotto il carico
+misurato, da confrontare con l'avanzamento reale.
+
+Restano per la fine della corsa conservazione, riconteggio completo e lettura della validazione.
+Il collegamento e la revisione delle uscite descrittive precederanno S1-S4 e l'apertura del sigillo.
+Nessun nuovo tilt reale, stima HMI o risultato fisico è stato letto o prodotto per questa verifica.
+
+
 ## Revisione di f12d093 — 20 novembre 2026
 
 Questa sezione aggiorna la revisione di 678ff2f conservata sotto. Fonte esaminata:
