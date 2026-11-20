@@ -1,0 +1,19 @@
+[OK] product hashes 
+[OK] multiplicity: one attempt per (day, group), one design and one sealed row per (set, group), same keys 
+[OK] mandatory numeric design and sealed fields are finite 
+[OK] same UTC day: MWO instant and DPD day coincide for every record and every attempt with a magnetogram 0 records, 0 attempts differ
+[OK] A2 amendment and exclusion-list hashes bound to the frozen text and catalogue META 
+[OK] A3 amendment and exclusion-list hashes bound to the frozen text and catalogue META 
+[OK] A2 and A3 lists disjoint, 18 and 8 members for the real lists 
+[OK] amendment A2: every listed file found with its SHA-256, excluded before the choice, marked in MAGNETOGRAMS 18 found, 18 marked of 18
+[OK] amendment A3: every listed file found with its SHA-256, excluded before the choice, marked in MAGNETOGRAMS 8 found, 8 marked of 8
+[OK] candidate days and status of every attempt 91967 mine, 91967 runner, 0 differ (0 on ephemeris-borderline days)
+[OK] chosen magnetogram of every candidate day 0 differ (0 borderline)
+[OK] record sets (isolated, all): same groups runner 11165, mine 11165
+[OK] design: day, member, epoch, class, hemisphere, rank, candidates, isolation, neighbours, DPD area 0 rows differ of 11165
+[OK] design: Carrington rotation of the full instant, cycle, observation time, BLANK count CR 0 (+0 within 0.1 deg of a rotation start), cycle 0, time 0, BLANK 0
+[OK] design: lat_bar, sin|lat|, flux, DPD position and LCM max |dlat| 7.1e-15, |dsin| 9.8e-17, rel flux 2.2e-16, pos 0.0e+00
+[OK] design: main activity and the three sensitivity activities max |dA| 8.9e-16, missing-value mismatches 0
+[OK] sealed tilt, gamma and leading sign (compared automatically, values not shown) max |dtilt| 1.1e-10, max |dgamma| 1.1e-10, leading mismatches 0
+[OK] no unresolved difference on ephemeris-borderline days or at rotation starts 0 (if not zero, this receipt is a PARTIAL check)
+exit 0
