@@ -1,5 +1,25 @@
 # Preparazione autonoma Codex — T3 MWO, 20 novembre 2026
 
+
+## Controllo leggero successivo, 20 novembre circa 17:20
+
+Controllati in sola lettura i processi sul sistema host: padre presente, cinque worker attivi a circa
+100 % CPU ciascuno. Dal sandbox i processi host non erano visibili: la verifica è stata ripetuta fuori dal
+sandbox. Nessun segnale o cambiamento alla corsa; log ancora al benchmark, previsto prima del primo blocco.
+
+Esaminate le modifiche IN LAVORAZIONE di Claude, senza sovrascriverle o includerle in questo commit:
+README distingue ora pilota 2010–2013 e confronto del catalogo 2010–2012, limita il rapporto 16 % al pilota,
+distingue il CSV dei 26 esclusi dai registri delle perdite e chiarisce le unità dei coefficienti di Joy;
+le fonti non garantiscono più uno scarto magnetico/fotografico costante. La figura di beta3 etichetta i
+bersagli come riferimenti della sola analisi principale e le sensibilità come nominali; la figura vuota
+P1 viene omessa. Aggiunte barra colore del flusso e didascalia sui punti esterni della boxplot.
+
+Nuova guardia delle figure provata separatamente su metadati sintetici: caso valido accettato, prodotto
+cambiato e stima obsoleta rifiutati. Selftest aggiornato 2/2 positivo. Queste prove non leggono risultati
+reali. Le modifiche appartengono ancora alla working tree di Claude al momento della verifica; la presente
+nota non è una revisione delle nuove voci bibliografiche che Claude sta completando.
+
+
 Ambito: strumenti di verifica e preparazione del rilascio durante la validazione R4. Nessun tilt del catalogo
 lungo è stato letto, nessuna patch applicata alla produzione, nessun dato o modulo della griglia modificato.
 L'handoff operativo resta gestito da Claude; questa nota raccoglie il lavoro e i rilievi di Codex.
