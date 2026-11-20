@@ -1,5 +1,38 @@
 # Cold restart — SHARP BL
 
+## 20 novembre sera — stato operativo (Claude): validazione R4 in corsa, preparazione del rilascio
+
+- **Corsa in atto:** validazione T3 MWO su R4, lanciata alle 16:35 da `89f525f` (staccata, 5 processi). Log
+  `logs/t3_mwo_validation_R4_20261120_163501.log`, codice d'uscita nel `.exit` omonimo. Benchmark: 108 unità
+  stratificate in 269 s, previsione 58,7 h, cioè fine attesa verso il 23 novembre alle 3 circa. **Non modificare
+  `scripts/t3_mwo_analysis.py` finché non termina**: la corsa ne verifica l'hash all'inizio e alla fine.
+- **Catena alla fine della corsa, nell'ordine** (ogni passo conservato in Git, ricontato e rivisto da Codex prima del
+  successivo):
+  1. conservare `results/T3_MWO_VALIDATION_R4`;
+  2. `t3_mwo_analysis_recount.py --check-validation`;
+  3. `t3_mwo_analysis.py --record-reading`;
+  4. applicare `patches/T3_MWO_STABILITY_WIRING.patch`;
+  5. `--stability` (apre il sigillo);
+  6. `t3_mwo_stability_recount.py --check`;
+  7. `--estimate` (una sola volta);
+  8. `t3_mwo_estimate_recount.py --check`;
+  9. `t3_mwo_catalogue_release.py --export`;
+  10. `t3_mwo_final_figures.py --run`.
+
+  SHA dei testi congelati: protocollo `4408a0ee…`, A1 `bc88452b…`, A2 `0d50aa16…`, A3 `27df9bb7…`.
+- **Preparazione del rilascio fatta stasera (Claude), nessun tilt aperto:**
+  - copertura di R4 dai soli metadati: `results/T3_MWO_COVERAGE_R4` (tabelle e 5 figure; la quota di gruppi con record
+    isolato passa dal 24 % al 32 % fra il terzile di attività più basso e il più alto);
+  - README del catalogo: `docs/MWO_TILT_CATALOGUE_README_DRAFT.md` (popolazione, convenzioni, epoche, colonne,
+    esclusioni, limiti, provenienza);
+  - figure finali: `scripts/t3_mwo_final_figures.py`, provato solo su dati sintetici;
+  - riferimenti verificati: `docs/T3_MWO_REFERENCES.md`. **Li & Ulrich (2012, ApJ 758, 115) hanno già misurato i
+    tilt magnetici MWO 1974–2012**: il nostro catalogo va presentato come nuovo per metodo, controlli e rilascio
+    riproducibile, non come il primo. Anche Wang et al. (2014, ApJ 796, 1) confrontano i tilt MWO con quelli DPD in
+    luce bianca, cioè l'analogo del nostro S1.
+- **Push:** il remote di questo repository usa ora un token nuovo, fornito dall'utente il 20 novembre; il vecchio era
+  scaduto. `git push` funziona.
+
 ## 20 novembre — d50f895 rivisto: sei rilievi finali chiusi, validazione R4 invariata
 
 - Rieseguiti i selftest: riconteggio della stima 15/15, esportatore 7/7; git apply --check della patch positivo.

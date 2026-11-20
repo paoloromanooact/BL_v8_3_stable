@@ -17,6 +17,15 @@ The catalogue was built to test whether the Joy's-law coefficient depends on hem
 (test T3 of the SHARP BL project; protocol `docs/PROTOCOL_T3_MWO.md`, amendments A1–A3, all frozen before measurement).
 It is released as a data product with the same rules.
 
+**Prior work.** Li & Ulrich (2012, ApJ 758, 115) measured magnetic tilt angles of about 30 600 sunspots on the MWO
+daily averaged magnetograms 1974–2012 and on MDI 1996–2010; Wang et al. (2014, ApJ 796, 1) compared MWO magnetic and
+DPD white-light tilts in cycles 21–23. This catalogue is not the first MWO magnetic tilt catalogue. It differs in:
+- positions from the DPD groups, with one record per group under a frozen rule;
+- the isolation condition;
+- documented quality control: BLANK pixels, the 18 GV = 0.03 scans, 8 anomalous field distributions, UTC-day grouping;
+- an independent recount of every record;
+- a reproducible release with code and SHA-256 of every input.
+
 Two tables:
 
 | Table | Regions | Rule for the day of each group |
