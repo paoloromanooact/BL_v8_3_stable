@@ -1,5 +1,31 @@
 # Revisione della consegna statistica T3 MWO — 18 novembre 2026
 
+## 20 novembre — d50f895 rivisto: sei rilievi finali chiusi, validazione R4 invariata
+
+- Rieseguiti i selftest: riconteggio della stima 15/15, esportatore 7/7; git apply --check della patch positivo.
+- Aggiornata la fixture del probe della stima: catalogo, controllo del disegno, validazione negativa ma valida,
+  registro di lettura, prodotti e hash di stabilità, ricevuta e META della stima sono coerenti. La baseline
+  passa sia nel ramo sintetico sia nel ramo che richiede conservazione Git (solo committed è simulato).
+  Rifiutati tutti i tre controesempi di cb41c53: FINAL con numeri/stato/scenario errati; ricevuta con un check
+  fallito; prodotto STABILITY modificato con META invariato per creare un verdetto. Il vecchio probe si
+  fermava sulla fixture incompleta, non su una regressione del nuovo verificatore.
+- Aggiornato anche il probe del rilascio: prima passa una vera esportazione sintetica, con entrambe le tabelle,
+  tutti i file COMPARISONS previsti, README, hash e nessuna cartella partial residua. Poi sono rifiutati i tre
+  casi di b2a7944: giorno discordante, riga SEALED aggiuntiva, catalogo obsoleto. Nell'ultimo caso viene
+  verificato che nessun lettore dei dati del catalogo venga chiamato dopo il rifiuto della guardia.
+- Confrontati il codice nuovo e l'estensione della patch: FINAL verificato per intero, ricevute con semantica
+  completa, controllo dei prodotti a monte prima dei tilt; esportazione con chiavi identiche e scrittura
+  atomica. Documentazione della popolazione e Joy descrittivo con conteggi e cicli parziali presenti.
+- I sei rilievi di cb41c53 e b2a7944 sono chiusi nei percorsi provati. Via tecnico all'uso di questi strumenti
+  quando raggiunto il rispettivo stadio del protocollo: fine e conservazione della validazione, riconteggio
+  completo e lettura registrata, applicazione della patch, S1-S4 conservati e ricontati, stima unica, suo
+  riconteggio, poi esportazione e riconteggio dell'esportazione. Nessun via ad anticipare le fasi.
+- Questa revisione aggiorna solo i probe e la documentazione. Script della griglia, moduli P2f/p2d, DESIGN R4
+  e TARGETS coincidono con 89f525f; nessuna patch applicata, nessun tilt reale letto, nessuna corsa riavviata.
+- Prima di un deposito pubblico restano i prodotti effettivi e il loro controllo finale, oltre alle decisioni
+  su autori/licenza/destinazione previste dal piano. Nessun push o deposito effettuato da Codex.
+
+
 ## 20 novembre — riconteggio finale della stima dc035f1: tre rilievi prima del rilascio
 
 Rivisti scripts/t3_mwo_estimate_recount.py e il relativo ampliamento della patch, sempre non applicata.

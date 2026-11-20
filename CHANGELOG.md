@@ -1,5 +1,10 @@
 # Cronologia
 
+## 2026-11-20 — chiusura dei sei rilievi sugli strumenti finali MWO
+
+- Confermato d50f895: selftest 15/15 e 7/7; fixture indipendenti aggiornate con baseline positiva e tutte le sei manomissioni rifiutate.
+- Via agli strumenti finali solo nell’ordine del protocollo; validazione in corso, patch e tilt reali intatti.
+
 ## 2026-11-20 — revisione del riconteggio finale MWO
 
 - Selftest 7/7 confermato; tre controesempi richiedono confronto completo di FINAL, ricevute con checks positivi e verifica dei prodotti a monte.
