@@ -1,0 +1,39 @@
+{
+  "protocol_sha256": "4408a0ee78d48f65275a1a4936ce687fe324a35598dd5bb18a8f3e53a01df8ff",
+  "amendment_a1_sha256": "bc88452b382d739866ff801a14aecf596968e092904906d7d7298355a0e063c5",
+  "amendment_a2_sha256": "0d50aa1692f2972a0c676f448ea9a0c0db7205fb53efc44c371e9215c531349d",
+  "a2_list_sha256": "8b7ddba53c54c9771d32da2bb98e2b086f47972765769c823cd8f70349c4758f",
+  "git_commit": "92d4ab1fe7b6866cd3aa03b80529aa2eff396740",
+  "script_sha256": "e4ada5ecb36361e294e0415de3ceaacf276c2ba275eb3e9919e244162453102c",
+  "pilot_script_sha256": "75b534ecd6d39b7c85926af37faac4ff58aebecb0d59def1546c48c362401c9b",
+  "mwo_pipeline_sha256": "7babd2a6031e0425dd6108431ae80f2966eb3edb95cafc2b9e652247410f4789",
+  "dpd_sha256sums": "d34b160555dbb7eee159129c5b5d01ac040d63146dbfd1481d161dd5179efce2",
+  "silso_tot_sha256": "e83932c7a47a12c4826e3ed5ca48da0a49ef6da98aebb9580e2b83ff272d87a7",
+  "silso_hem_sha256": "32690e4372ab6355d05f54d9ccd96158564029892a62128db42eb3fa8b79292f",
+  "n_attempts": 91967,
+  "n_records": {
+    "all": 5943,
+    "isolated": 5224
+  },
+  "coverage": {
+    "n_isolated_records": 5224,
+    "per_cycle_hemisphere": {
+      "21N": 595,
+      "21S": 657,
+      "22N": 779,
+      "22S": 901,
+      "23N": 839,
+      "23S": 934
+    },
+    "outcome": "informativo"
+  },
+  "products_sha256": {
+    "ATTEMPTS.csv.gz": "f562fc8a8c61b520ee3bef6ac659bef29ad2f6b7c33b6d238e11c2d387140c0b",
+    "COVERAGE.json": "1b8c84eea9a9a4bf991b366530c77028c9c8721b3b903e501c1fcaa4b42e493d",
+    "DESIGN.csv": "c7821bd023c025b8d6ae50fab78b473d5dfe1b51daa6ef835d18de8c89a4a6ad",
+    "LOSSES.csv": "91aa73023da194df8c10bce3726d4c7910e95ac0cfaf2ad182e8cb3207075216",
+    "MAGNETOGRAMS.csv.gz": "0722253c566acb29c876c4b163840222a9dffa27dda9f10428b331b309722221",
+    "SEALED.csv.gz": "d09935f63d45eeee59455e060ea6910f80f383c67b701cd1d86ac4493268a48d"
+  },
+  "sealed_note": "SEALED.csv.gz is not to be read before the validation is preserved, recounted and read"
+}
