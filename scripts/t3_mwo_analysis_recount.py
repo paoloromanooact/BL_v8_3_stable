@@ -222,8 +222,10 @@ def check_validation(cat=CAT, check=CHECK, val=VAL, out=OUT_VAL, write=True, se_
     okr = raw.verdict != "errore"
     t = raw.effect.map(lambda e: 0.0 if e == 0 else truth[e])
     num = raw[["beta", "se", "lo", "hi", "truth"]].astype(float)
+    par = raw[["var_a", "var_b", "phi", "kappa", "sigma_x2"]].astype(float)
     valid = raw.verdict.isin(["supportato", "opposto", "non deciso", "errore"])
-    good = (np.isfinite(num).all(axis=1) & (num.se > 0) & (num.lo < num.hi)
+    good = (np.isfinite(num).all(axis=1) & np.isfinite(par).all(axis=1) & (par.phi >= 0) & (par.phi <= 0.98)
+            & (par.kappa.abs() <= 0.98) & (par.sigma_x2 > 0) & (num.se > 0) & (num.lo < num.hi)
             & (np.abs(num.lo - num.beta + Z * num.se) <= 1e-9 * num.se) & (np.abs(num.hi - num.beta - Z * num.se) <= 1e-9 * num.se)
             & (np.abs(num.truth - t) <= 1e-12 * np.maximum(1, np.abs(t)))
             & (raw.verdict == np.where(num.hi < 0, "supportato", np.where(num.lo > 0, "opposto", "non deciso")))
@@ -243,11 +245,21 @@ def check_validation(cat=CAT, check=CHECK, val=VAL, out=OUT_VAL, write=True, se_
     hh = np.array([h for _, h in uniq])
     lp = np.log(w)
     lp_c = lp - lp.mean()
-    rows = raw[okr]
-    if se_rows is not None:
+    rows = raw[okr & ~bad]                     # invalid rows are already failed above; they stay in the denominators
+    partial = se_rows is not None              # a test run on a subset of rows can never give a complete receipt
+    if partial:
         rows = rows.iloc[:se_rows]
-    worst = max((abs(se_from_saved(r, d, g, codes, cr, hh, lp_c) / r.se - 1) for r in rows.itertuples()), default=0.0)
-    ok("SE recomputed from the saved parameters of M", worst < 1e-6, f"{len(rows)} rows, max rel {worst:.1e}")
+    dev = []
+    for r in rows.itertuples():
+        try:
+            dev.append(abs(se_from_saved(r, d, g, codes, cr, hh, lp_c) / r.se - 1))
+        except (ValueError, OverflowError, ZeroDivisionError):
+            dev.append(np.nan)
+    dev = np.array(dev, float)
+    ok("SE recomputed from the saved parameters of M (every reconstruction finite)",
+       len(dev) == int((okr & ~bad).sum()) - (0 if not partial else int((okr & ~bad).sum()) - len(dev))
+       and np.isfinite(dev).all() and (dev < 1e-6).all(),
+       f"{len(dev)} rows, non-finite {int((~np.isfinite(dev)).sum())}, max rel {np.nanmax(dev) if len(dev) else 0:.1e}")
     acc, worst_f = True, 0.0
     summ = pd.read_csv(Path(val) / "SUMMARY.csv")
     for i, (s, sd, e, n) in enumerate(grid()):
@@ -271,7 +283,8 @@ def check_validation(cat=CAT, check=CHECK, val=VAL, out=OUT_VAL, write=True, se_
     if write:
         Path(out).mkdir(parents=True, exist_ok=False)
         (Path(out) / "RECEIPT.json").write_text(json.dumps(dict(
-            checks=res, passed=sum(r["ok"] for r in res), total=len(res), recounted_acceptance=acc, technical_ok=technical,
+            checks=res, passed=sum(r["ok"] for r in res), total=len(res), partial=partial, recounted_acceptance=acc,
+            technical_ok=technical,
             validation_meta_sha256=h256(Path(val) / "META.json")), indent=2) + "\n")
     return all(r["ok"] for r in res)
 
@@ -342,6 +355,14 @@ h = {{f.name: hashlib.sha256(f.read_bytes()).hexdigest() for f in (td / 'val').i
             (td / "val/META.json").write_text(json.dumps(m))
             ok("check_validation fails on a tampered SE", not check_validation(td / "cat", td / "chk", td / "val", td / "o3",
                                                                               write=False))
+            raw.loc[i, "se"] = raw.loc[i, "se"] / 1.01
+            j = raw.index[raw.verdict != "errore"][1]
+            raw.loc[j, "sigma_x2"] = np.nan
+            raw.to_csv(td / "val/RAW.csv.gz", index=False)
+            m["products_sha256"]["RAW.csv.gz"] = h256(td / "val/RAW.csv.gz")
+            (td / "val/META.json").write_text(json.dumps(m))
+            ok("check_validation fails on a NaN variance parameter of M (second row)",
+               not check_validation(td / "cat", td / "chk", td / "val", td / "o4", write=False))
         finally:
             grid = g0
     print(f"selftest: {sum(res)}/{len(res)} superati")

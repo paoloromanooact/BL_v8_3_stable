@@ -46,6 +46,7 @@ OUT_STAB = ROOT / "results/T3_MWO_STABILITY"
 OUT_EST = ROOT / "results/T3_MWO_ESTIMATE"
 CAT_RECOUNT = ROOT / "results/T3_MWO_CATALOGUE_R2_RECOUNT"
 VAL_RECOUNT = ROOT / "results/T3_MWO_VALIDATION_RECOUNT"
+CHECK_RECOUNT = ROOT / "results/T3_MWO_DESIGN_CHECK_RECOUNT"
 VAL_READ = ROOT / "results/T3_MWO_VALIDATION_READING"
 BENCH_SEED_BASE = 59_000_000                           # benchmark only, outside the grid and every registered range
 PROVENANCE_FILES = ("scripts/t3_mwo_analysis.py", "python/sharpbl/p2f_validation.py", "python/sharpbl/p2f_pilot.py",
@@ -370,7 +371,10 @@ def row_problems(raw, truths):
     bad = ~raw.verdict.isin(VERDICTS)
     ok_ = raw.verdict != "errore"
     num = raw.loc[ok_, ["beta", "se", "lo", "hi", "truth"]].astype(float)
-    fin = np.isfinite(num).all(axis=1)
+    par = raw.loc[ok_, ["var_a", "var_b", "phi", "kappa", "sigma_x2"]].astype(float) if ok_.any() else \
+        pd.DataFrame(columns=["var_a", "var_b", "phi", "kappa", "sigma_x2"], dtype=float)
+    fin = np.isfinite(num).all(axis=1) & np.isfinite(par).all(axis=1)
+    fin &= (par.phi >= 0) & (par.phi <= 0.98) & (par.kappa.abs() <= 0.98) & (par.sigma_x2 > 0)   # REML bounds of M (P2f)
     z = V.Z
     exp_truth = raw.loc[ok_, "effect"].map(lambda e: 0.0 if e == 0 else truths[e])
     good = (fin & (num.se > 0) & (num.lo < num.hi)
@@ -553,15 +557,24 @@ def sha(p):
     return hashlib.sha256(Path(p).read_bytes()).hexdigest()
 
 
-def receipt_ok(path, meta_key=None, meta_path=None):
-    """A committed recount receipt with every check passed, not partial, bound to the hash of the META it recounted."""
+def receipt_ok(path, meta_key, meta_path):
+    """A committed recount receipt that really checked something (Codex's second review, point 2): positive integer
+    counts, passed == total, a list of exactly `total` checks all passed, not partial, bound to the SHA-256 of the
+    META it recounted (the link is always required)."""
+    name = Path(path).parent.name
     if not committed(Path(path).parent):
-        return False, f"{Path(path).parent.name} not preserved in Git"
+        return False, f"{name} not preserved in Git"
     r = json.loads(Path(path).read_text())
-    if r.get("passed") != r.get("total") or r.get("partial", False):
-        return False, f"{Path(path).parent.name}: receipt not complete ({r.get('passed')}/{r.get('total')})"
-    if meta_key and r.get(meta_key) != sha(meta_path):
-        return False, f"{Path(path).parent.name}: receipt not bound to the current {Path(meta_path).parent.name}/META.json"
+    p_, t_, checks = r.get("passed"), r.get("total"), r.get("checks")
+    if not (isinstance(p_, int) and isinstance(t_, int) and not isinstance(p_, bool) and t_ > 0 and p_ == t_):
+        return False, f"{name}: receipt counts missing or not complete ({p_}/{t_})"
+    if not (isinstance(checks, list) and len(checks) == t_ and all(isinstance(c, dict) and c.get("ok") is True
+                                                                   for c in checks)):
+        return False, f"{name}: receipt without {t_} passed checks"
+    if r.get("partial", False) is not False:
+        return False, f"{name}: partial receipt"
+    if not r.get(meta_key) or r.get(meta_key) != sha(meta_path):
+        return False, f"{name}: receipt not bound to the current {Path(meta_path).parent.name}/META.json"
     return True, ""
 
 
@@ -579,6 +592,7 @@ def _chain_problem(stage, rp=None):
     rp = rp or {}
     cat, crc = rp.get("cat", CAT), rp.get("cat_recount", CAT_RECOUNT)
     chk, val = rp.get("check", OUT_CHECK), rp.get("val", OUT_VAL)
+    chk_rc = rp.get("check_recount", CHECK_RECOUNT)
     vrc, vrd, stb = rp.get("val_recount", VAL_RECOUNT), rp.get("val_read", VAL_READ), rp.get("stab", OUT_STAB)
     order = ["design-check", "validate", "record-reading", "stability", "estimate"]
     i = order.index(stage)
@@ -598,9 +612,14 @@ def _chain_problem(stage, rp=None):
             return "design check not bound to the current catalogue"
         if not json.loads((Path(chk) / "IDENTIFIABILITY.json").read_text())["joy"]["identifiable"]:
             return "beta3 not identifiable: outcome 'non concludente' (no validation)"
+        good, why = receipt_ok(Path(chk_rc) / "RECEIPT.json", "design_check_meta_sha256", Path(chk) / "META.json")
+        if not good:
+            return why
     if i >= 2:
         if not committed(val):
             return "validation not preserved in Git"
+        if json.loads((Path(val) / "META.json").read_text()).get("design_check_meta_sha256") != sha(Path(chk) / "META.json"):
+            return "validation not bound to the current design check"
         good, why = receipt_ok(Path(vrc) / "RECEIPT.json", "validation_meta_sha256", Path(val) / "META.json")
         if not good:
             return why
@@ -817,6 +836,12 @@ def stability(protocol_sha, amendment_sha):
         sys.exit(why)
     if OUT_STAB.exists():
         sys.exit("stability output exists")
+    import importlib.util as _ilu
+    _sp = _ilu.spec_from_file_location("t3_mwo_stability_extras", ROOT / "scripts/t3_mwo_stability_extras.py")
+    EX = _ilu.module_from_spec(_sp)
+    _sp.loader.exec_module(EX)
+    if not EX.IMPLEMENTED:                      # Codex's second review, point 3: no S1-S4 without these outputs
+        sys.exit("descriptive outputs of §6 not implemented (scripts/t3_mwo_stability_extras.py): stability refused")
     sealed = read_sealed()
     d = load_design()
     sx = sealed[sealed.record_set == "isolated"].set_index("noaa")
@@ -1031,7 +1056,8 @@ def selftest():
         return dict(cfg=c["cfg"], k=k, seed=seed(c["cfg"], k), role=c["role"], scenario=c["scenario"], sd_e=c["sd_e"],
                     effect=c["effect"], truth=t, beta=beta, se=1.0, lo=lo, hi=hi,
                     verdict="supportato" if hi < 0 else ("opposto" if lo > 0 else "non deciso"),
-                    covered=int(lo <= t <= hi), lo_above=int(lo > t), hi_below=int(hi < t))
+                    covered=int(lo <= t <= hi), lo_above=int(lo > t), hi_below=int(hi < t),
+                    var_a=0.1, var_b=0.0, phi=0.5, kappa=0.0, sigma_x2=1.0)
     raw = pd.DataFrame([row(c, k) for c in configs() for k in range(c["n"])])
     tab, acc, pr = summarise(raw, truths)
     ok("summary: complete clean grid accepted", acc and not pr)
@@ -1129,35 +1155,61 @@ def selftest():
         ok("constant activity: beta3 not identifiable", False)
     with tempfile.TemporaryDirectory() as td:
         td = Path(td)
-        dirs = {k: td / k for k in ("cat", "cat_recount", "check", "val", "val_recount", "val_read", "stab")}
+        dirs = {k: td / k for k in ("cat", "cat_recount", "check", "check_recount", "val", "val_recount", "val_read", "stab")}
         for p_ in dirs.values():
             p_.mkdir()
-        (dirs["cat"] / "META.json").write_text("{}")
-        (dirs["cat"] / "COVERAGE.json").write_text(json.dumps(dict(outcome="informativo")))
-        (dirs["check"] / "META.json").write_text(json.dumps(dict(catalogue_meta_sha256=sha(dirs["cat"] / "META.json"))))
-        (dirs["check"] / "IDENTIFIABILITY.json").write_text(json.dumps(dict(joy=dict(identifiable=True))))
-        (dirs["val"] / "META.json").write_text("{}")
-        (dirs["val"] / "ACCEPTANCE.json").write_text(json.dumps(dict(accepted_15deg=False, problems=[])))
-        rec = lambda key, meta: json.dumps({"passed": 5, "total": 5, key: sha(meta)})   # noqa: E731
+        put = lambda k, f, x: (dirs[k] / f).write_text(json.dumps(x))                    # noqa: E731
+        full = lambda key, meta, n=5: {"passed": n, "total": n, "partial": False, key: sha(meta),   # noqa: E731
+                                       "checks": [dict(name=f"c{i}", ok=True) for i in range(n)]}
+        put("cat", "META.json", {"rev": 1})
+        put("cat", "COVERAGE.json", dict(outcome="informativo"))
+        put("check", "META.json", dict(catalogue_meta_sha256=sha(dirs["cat"] / "META.json"), rev=1))
+        put("check", "IDENTIFIABILITY.json", dict(joy=dict(identifiable=True)))
+        put("val", "META.json", dict(design_check_meta_sha256=sha(dirs["check"] / "META.json")))
+        put("val", "ACCEPTANCE.json", dict(accepted_15deg=False, problems=[]))
         with patch(f"{__name__}.committed", return_value=True):
-            c0 = chain_problem("stability", dirs)
-            (dirs["cat_recount"] / "RECEIPT.json").write_text(json.dumps(dict(passed=11, total=12, partial=False)))
-            c1 = chain_problem("design-check", dirs)
-            (dirs["cat_recount"] / "RECEIPT.json").write_text(rec("catalogue_meta_sha256", dirs["cat"] / "META.json"))
+            c0 = chain_problem("stability", dirs)                                         # no receipts at all
+            put("cat_recount", "RECEIPT.json", dict(passed=11, total=12, partial=False))
+            c1 = chain_problem("design-check", dirs)                                      # incomplete
+            put("cat_recount", "RECEIPT.json", {"catalogue_meta_sha256": sha(dirs["cat"] / "META.json")})
+            c1b = chain_problem("design-check", dirs)                                     # no counts (Codex)
+            put("cat_recount", "RECEIPT.json", dict(passed=0, total=0, partial=False, checks=[],
+                                                    catalogue_meta_sha256=sha(dirs["cat"] / "META.json")))
+            c1c = chain_problem("design-check", dirs)                                     # 0/0
+            put("cat_recount", "RECEIPT.json", full("catalogue_meta_sha256", dirs["cat"] / "META.json"))
             c2 = chain_problem("design-check", dirs)
-            (dirs["val_recount"] / "RECEIPT.json").write_text(rec("validation_meta_sha256", dirs["val"] / "META.json"))
-            c3 = chain_problem("stability", dirs)
-            (dirs["val_read"] / "READ.json").write_text(json.dumps(dict(
-                acceptance_sha256=sha(dirs["val"] / "ACCEPTANCE.json"),
-                recount_receipt_sha256=sha(dirs["val_recount"] / "RECEIPT.json"))))
-            c4 = chain_problem("stability", dirs)
-            (dirs["val"] / "ACCEPTANCE.json").write_text(json.dumps(dict(accepted_15deg=False, problems=["x"])))
+            c2b = chain_problem("validate", dirs)                                         # no design recount (Codex)
+            put("check_recount", "RECEIPT.json", full("design_check_meta_sha256", dirs["check"] / "META.json"))
+            c2c = chain_problem("validate", dirs)
+            put("val_recount", "RECEIPT.json", full("validation_meta_sha256", dirs["val"] / "META.json"))
+            c3 = chain_problem("stability", dirs)                                         # no reading record
+            put("val_read", "READ.json", dict(acceptance_sha256=sha(dirs["val"] / "ACCEPTANCE.json"),
+                                              recount_receipt_sha256=sha(dirs["val_recount"] / "RECEIPT.json")))
+            c4 = chain_problem("stability", dirs)                                         # complete, negative validation
+            put("check", "META.json", dict(catalogue_meta_sha256=sha(dirs["cat"] / "META.json"), rev=2))
+            put("check_recount", "RECEIPT.json", full("design_check_meta_sha256", dirs["check"] / "META.json"))
+            c4b = chain_problem("stability", dirs)                                        # old validation (Codex)
+            put("val", "META.json", dict(design_check_meta_sha256=sha(dirs["check"] / "META.json")))
+            put("val", "ACCEPTANCE.json", dict(accepted_15deg=False, problems=["x"]))
+            put("val_recount", "RECEIPT.json", full("validation_meta_sha256", dirs["val"] / "META.json"))
             c5 = chain_problem("record-reading", dirs)
-    ok("chain: missing or incomplete catalogue receipt refused; bound receipt accepted",
-       c0 is not None and c1 is not None and c2 is None, (c0, c1, c2))
-    ok("chain: stability needs the recorded reading; a negative but valid validation opens the descriptive path; "
-       "a technically invalid validation is refused", c3 is not None and c4 is None and c5 is not None and "technically" in c5,
-       (c3, c4, c5))
+    ok("chain: missing, incomplete, count-less and 0/0 catalogue receipts refused; complete bound receipt accepted",
+       c0 is not None and c1 is not None and c1b is not None and c1c is not None and c2 is None, (c1b, c1c))
+    ok("chain: validation needs the bound design-check recount", c2b is not None and c2c is None, (c2b, c2c))
+    ok("chain: stability needs the recorded reading; a negative but valid validation opens the descriptive path",
+       c3 is not None and c4 is None, (c3, c4))
+    ok("chain: a validation bound to a previous design check is refused at the seal", c4b is not None
+       and "design check" in c4b, c4b)
+    ok("chain: a technically invalid validation is refused", c5 is not None and "technically" in c5, c5)
+    raw4 = raw.copy()
+    for col, v in (("var_a", 0.1), ("var_b", 0.0), ("phi", 0.5), ("kappa", 0.0), ("sigma_x2", 1.0)):
+        raw4[col] = v
+    raw5 = raw4.copy()
+    raw5.loc[1, "sigma_x2"] = np.nan
+    raw6 = raw4.copy()
+    raw6.loc[2, "phi"] = 0.99
+    ok("summary: NaN or out-of-domain variance parameter of M blocks the acceptance (Codex's second review)",
+       summarise(raw4, truths)[1] and not summarise(raw5, truths)[1] and not summarise(raw6, truths)[1])
     with tempfile.TemporaryDirectory() as td:
         try:
             read_sealed(cat=td, val=Path(td) / "no_validation")
