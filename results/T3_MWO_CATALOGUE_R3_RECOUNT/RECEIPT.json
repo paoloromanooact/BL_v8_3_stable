@@ -1,0 +1,85 @@
+{
+  "checks": [
+    {
+      "name": "product hashes",
+      "ok": true,
+      "value": ""
+    },
+    {
+      "name": "multiplicity: one attempt per (day, group), one design and one sealed row per (set, group), same keys",
+      "ok": true,
+      "value": ""
+    },
+    {
+      "name": "mandatory numeric design and sealed fields are finite",
+      "ok": true,
+      "value": ""
+    },
+    {
+      "name": "same UTC day: MWO instant and DPD day coincide for every record and every attempt with a magnetogram",
+      "ok": true,
+      "value": "0 records, 0 attempts differ"
+    },
+    {
+      "name": "A2 amendment and exclusion-list hashes bound to the frozen text and catalogue META",
+      "ok": true,
+      "value": ""
+    },
+    {
+      "name": "amendment A2: every listed file found with its SHA-256, excluded before the choice, marked in MAGNETOGRAMS",
+      "ok": true,
+      "value": "18 found, 18 marked of 18"
+    },
+    {
+      "name": "candidate days and status of every attempt",
+      "ok": true,
+      "value": "91967 mine, 91967 runner, 0 differ (0 on ephemeris-borderline days)"
+    },
+    {
+      "name": "chosen magnetogram of every candidate day",
+      "ok": true,
+      "value": "0 differ (0 borderline)"
+    },
+    {
+      "name": "record sets (isolated, all): same groups",
+      "ok": true,
+      "value": "runner 11167, mine 11167"
+    },
+    {
+      "name": "design: day, member, epoch, class, hemisphere, rank, candidates, isolation, neighbours, DPD area",
+      "ok": true,
+      "value": "0 rows differ of 11167"
+    },
+    {
+      "name": "design: Carrington rotation of the full instant, cycle, observation time, BLANK count",
+      "ok": true,
+      "value": "CR 0 (+0 within 0.1 deg of a rotation start), cycle 0, time 0, BLANK 0"
+    },
+    {
+      "name": "design: lat_bar, sin|lat|, flux, DPD position and LCM",
+      "ok": true,
+      "value": "max |dlat| 7.1e-15, |dsin| 9.8e-17, rel flux 2.2e-16, pos 0.0e+00"
+    },
+    {
+      "name": "design: main activity and the three sensitivity activities",
+      "ok": true,
+      "value": "max |dA| 8.9e-16, missing-value mismatches 0"
+    },
+    {
+      "name": "sealed tilt, gamma and leading sign (compared automatically, values not shown)",
+      "ok": true,
+      "value": "max |dtilt| 1.1e-10, max |dgamma| 1.1e-10, leading mismatches 0"
+    },
+    {
+      "name": "no unresolved difference on ephemeris-borderline days or at rotation starts",
+      "ok": true,
+      "value": "0 (if not zero, this receipt is a PARTIAL check)"
+    }
+  ],
+  "passed": 15,
+  "total": 15,
+  "partial": false,
+  "catalogue_meta_sha256": "56ff84ff3be899a85c997d3c3c7ac33705384638ddce9f3c858e9430a5dfc547",
+  "n_borderline_days": 0,
+  "n_unresolved_borderline": 0
+}
