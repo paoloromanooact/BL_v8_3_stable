@@ -1,0 +1,50 @@
+{
+  "amendment": "docs/PROTOCOL_T3_MWO_AMENDMENT_A3.md",
+  "sha256": "27df9bb794e41f24b7b521fb23da3f70f4b1bc733264384c036f10a0836437de",
+  "exclusion_list": "docs/PROTOCOL_T3_MWO_AMENDMENT_A3_EXCLUDED_FITS.csv",
+  "exclusion_list_sha256": "21beaef50e9beca38bc2150996adbf031e1d55192dea60682e4608a802541275",
+  "n_excluded_members": 8,
+  "freeze_commit": "27294cea11e33cc7c09bb36ad069875e64cb459d",
+  "frozen_utc": "2026-11-20T14:34:24.512394+00:00",
+  "approved_by": "Codex after independent reconstruction from saved audit summaries; runtime implementation still to review",
+  "interpretation": "Seven UTC calendar dates, day-3 through day+3 inclusive; not +/-72 hours",
+  "independent_check_script": "scripts/mwo_a3_rule_check.py",
+  "independent_check_script_sha256": "2a7da6a7aa56b46c271b290412bce22eb8566919117c3ac2285c62fa9879602d",
+  "check": {
+    "rule": "m > 3 * median(other finite medians on seven UTC dates day-3 through day+3); A2 excluded",
+    "audit_n": 30952,
+    "a2_n": 18,
+    "zero_central_pixels": 33,
+    "read_errors": 2,
+    "comparable_n": 30899,
+    "no_reference": 37,
+    "finite_ratios": 30862,
+    "ratio_quantile_999": 1.6156121244121446,
+    "ratio_gap_2_5_to_3": 0,
+    "excluded_members": [
+      "1974/MP00_5250MWO_00_0740716_1802.fits",
+      "1975/MP00_5250MWO_00_0750929_1763.fits",
+      "1986/MP00_5250078_00_0860514_1851.fits",
+      "1986/MP00_5250078_00_0860601_1969.fits",
+      "1986/MP00_5250078_00_0860602_2072.fits",
+      "1986/MP00_5250078_00_0860707_2343.fits",
+      "1989/MP00_5250078_00_0890910_2378.fits",
+      "2000/m000806_1660_0fe1.fits"
+    ],
+    "attempts_with_magnetogram": 56317,
+    "attempts_fewer_than_3_refs": 2373,
+    "attempts_without_central_statistic": 55,
+    "empty_central_attempt_statuses": {
+      "window_blank": 16,
+      "window_outside_mu_domain": 39
+    },
+    "selected_records_with_empty_central_mask": 0,
+    "inputs_sha256": {
+      "results/MWO_PIXEL_AUDIT/META.json": "cff6698e2defa0fb1325d7ea26261aaab7922ab479684e7ea3828a27e06bee12",
+      "results/MWO_PIXEL_AUDIT/PIXELS.csv.gz": "bfef7fbadc6cbf69bd50913551613ecb706a60c8ee1df562744757dd0f0340fe",
+      "results/T3_MWO_CATALOGUE_R3/META.json": "56ff84ff3be899a85c997d3c3c7ac33705384638ddce9f3c858e9430a5dfc547",
+      "docs/PROTOCOL_T3_MWO_AMENDMENT_A3_EXCLUDED_FITS.csv": "21beaef50e9beca38bc2150996adbf031e1d55192dea60682e4608a802541275"
+    }
+  },
+  "next_step": "Implement and review A3 exclusion and independent recount before R4. Flux weights unchanged."
+}

@@ -1,5 +1,8 @@
 # Cold restart — SHARP BL
 
+A3 congelato nel commit 27294ce, SHA-256 27df9bb794e41f24b7b521fb23da3f70f4b1bc733264384c036f10a0836437de; ricevuta in `docs/PROTOCOL_T3_MWO_AMENDMENT_A3_FREEZE.json`. Prima di R4 resta la revisione dell’implementazione.
+
+
 ## 20 novembre — revisione metodologica di A3, otto esclusioni confermate
 
 - R3: verificata la ricevuta 15/15 completa, legata al META corrente; non ripetuta la misura lunga e nessun
