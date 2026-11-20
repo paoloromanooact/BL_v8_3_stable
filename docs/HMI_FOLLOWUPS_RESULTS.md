@@ -26,31 +26,45 @@ Campione S di P1: 2485 regioni, 2010-05 → 2026-09.
 | Q3 quintile 4 − 1 | 2485 | +1,71° | 5,75 | [−11,18; +14,60] |
 | Q3 quintile 5 − 1 | 2485 | +12,31° | 5,58 | [−0,20; +24,82] |
 
-## Lettura (descrittiva, nessun verdetto)
+## Lettura descrittiva e limiti
 
-- **Q1.** Il coefficiente di Joy del ciclo 25 è stimato 3,3° più alto di quello del ciclo 24, come la stima descrittiva di
-  T2 in P2. L'intervallo di M è più largo del bootstrap di P2 ([−4,1; 10,1]). La riduzione attesa dalla relazione di
-  Jiao et al. (circa −2,3°) cade dentro l'intervallo, come lo zero e valori positivi: HMI non distingue fra i due cicli.
-- **Q2.** Con la fase emisferica la stima è −0,68°, praticamente uguale a quella con la fase convenzionale (−0,63°).
-  **Lo sfasamento fra emisferi non spiega il segno negativo di T4**: l'ipotesi registrata nel protocollo non trova
-  appoggio in questi dati. Con l'intervallo di M lo zero è compreso, mentre il bootstrap di P2 lo escludeva. Una
-  crescita della latitudine con l'attività oltre circa +0,2° per unità, il verso del quenching di latitudine, è fuori
-  dall'intervallo nominale. Questa lettura non è validata: Q2 ha fallito di poco nello scenario a gradini.
-- **Q3.** Il coefficiente di Joy tende a **crescere** con il flusso della regione, non a calare:
-  - +9,5° per decade di Φ;
-  - le regioni del quintile più alto hanno un coefficiente circa 12° più grande di quelle del quintile più basso,
-    circa la metà di γ₀;
-  - il segno è opposto a un quenching locale; l'andamento per quintili non è monotono (quintile 2 −1,1°, quintile 4
-    +1,7°).
+- **Q1.** La stima centrale del coefficiente di Joy del ciclo 25 è 3,3° sopra quella del ciclo 24.
+  L'intervallo nominale include la riduzione di circa −2,3° usata come riferimento nel protocollo,
+  lo zero e valori positivi. Questa analisi non individua una differenza di segno determinato.
+  L'intervallo di M è più largo di quello di P2, ma anche i livelli nominali differiscono:
+  97,5 % qui e 95 % nel bootstrap precedente. La differenza di ampiezza non va attribuita interamente al metodo.
+- **Q2.** Sostituire la fase convenzionale con quella emisferica in questo modello non rimuove
+  la stima centrale negativa: −0,68° contro −0,63°. Non trova quindi appoggio l'ipotesi specifica
+  che questa sostituzione basti a spiegare il segno di T4. Il confronto non identifica la causa
+  del segno e non esclude ogni possibile ruolo dello sfasamento emisferico.
+  L'intervallo nominale [−1,56°; +0,20°] include zero. Poiché la procedura non ha superato la
+  validazione di Q2, +0,20° non è un limite superiore fisico validato: non si può concludere
+  che il quenching di latitudine abbia poco spazio o escluderne quantitativamente ampiezze.
+- **Q3.** Le stime centrali sono positive: +9,53° per decade di flusso e +12,31° per il contrasto
+  quintile 5 meno quintile 1. L'andamento dei quintili non è monotono. Tutti gli intervalli
+  nominali riportati, compresi quello della pendenza e quello del contrasto estremo, includono zero.
+  Non sono quindi una dimostrazione di crescita del coefficiente di Joy né un'esclusione di
+  un quenching locale. Flusso, latitudine, fase, attività e complessità delle regioni possono
+  contribuire all'associazione osservata; il termine di attività incluso non risolve da solo
+  ogni problema di interpretazione causale.
 
-  È coerente con la crescita della pendenza di Joy con il campo riportata da Jha et al. Nel campione S non si vede la
-  diminuzione oltre 2–2,5 kG che descrivono, ma qui la variabile è il flusso, non il campo massimo, quindi il confronto
-  è solo qualitativo. Φ è correlato con latitudine, fase e attività, e le regioni grandi complesse hanno tilt di HARP
-  meno netti (limiti del §3 del protocollo): l'associazione è descrittiva.
+Il confronto con il lavoro di Jha et al. citato nel protocollo rimane soltanto qualitativo:
+quell'analisi usa il campo massimo, questa il flusso. Qui non si misura una soglia in kG e non
+si verifica la diminuzione del coefficiente oltre una soglia di campo massimo.
 
-## Che cosa cambia
+## Che cosa si aggiunge
 
-Nessuna delle tre analisi dà un verdetto sul quenching. Si aggiungono tre informazioni:
-1. lo sfasamento emisferico non spiega T4;
-2. sulla latitudine il verso del quenching ha poco spazio nell'intervallo nominale;
-3. su HMI non compare un quenching locale del tilt con il flusso della regione; semmai il contrario.
+1. La stima negativa di Q2 persiste con entrambe le definizioni della fase nel modello studiato.
+2. Gli intervalli nominali attuali includono zero per Q1, Q2 e tutti i contrasti Q3 riportati.
+3. Le stime centrali Q3 vanno nel verso di un coefficiente di Joy maggiore nelle regioni con più
+   flusso, con andamento non monotono e ampia incertezza nominale.
+
+Nessuna delle tre analisi dà un verdetto sulla presenza o sull'assenza del quenching. Questi
+risultati restano descrittivi e non sostituiscono la validazione o i controlli strumentali di MWO.
+
+## Revisione di Codex del 20 novembre
+
+Confermati gli hash dei prodotti e il legame alla validazione. Ricostruite nuovamente le dieci stime
+con le righe QR del riconteggio indipendente e i dieci SE dai parametri salvati: scarti entro 7e-13
+relativi. Corretta la formulazione delle conclusioni senza cambiare numeri, intervalli o soglie.
+Il riconteggio 19/19 di a72ce2d resta conservato e invariato.

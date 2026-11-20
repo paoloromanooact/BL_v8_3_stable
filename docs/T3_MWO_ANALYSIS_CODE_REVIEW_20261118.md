@@ -1,5 +1,43 @@
 # Revisione della consegna statistica T3 MWO — 18 novembre 2026
 
+## Rapporto HMI e collegamento delle uscite descrittive — 20 novembre 2026
+
+Verificati i prodotti HMI conservati in 9dc41ad e la ricevuta 19/19 di a72ce2d. Dieci stime e dieci SE
+ricostruiti nuovamente, con scarti relativi massimi 6,7e-13 e 2,9e-13. Intervalli e stato descrittivo coerenti;
+verificati hash di ESTIMATES e legame al META della validazione. Nessuna nuova simulazione o stima di MWO.
+
+Il rapporto HMI è aggiornato senza cambiare i numeri: la fase emisferica non rimuove la stima centrale
+negativa di Q2 in questo modello; non identifica la causa né esclude ogni ruolo dello sfasamento.
+L'estremo nominale +0,20 non è un vincolo fisico validato. Per Q3 le stime centrali sono positive,
+ma tutti gli intervalli nominali includono zero: non dimostrano una crescita né escludono un quenching
+locale. Il confronto con uno studio sul campo massimo non è un test della stessa relazione sul flusso.
+
+**Patch 6fadf10 approvata per l'applicazione dopo la fine, la conservazione e il riconteggio della
+validazione, e dopo la sua lettura registrata.** Non applicata al codice attivo in questa revisione.
+
+`git apply --check` passa. Ho applicato la patch soltanto a copie temporanee di analisi ed extras e
+provato l'intero percorso stability() su ingressi sintetici. Il probe riproducibile è
+`scripts/t3_mwo_stability_wiring_probe.py`: replica i quattro test del modulo e verifica che il
+collegamento produca i cinque file aggiuntivi, registri extras_sha256 e blocchi la lettura del sigillo
+quando IMPLEMENTED è False. I metodi statistici sono sostituiti con risposte sintetiche durante questa
+prova di collegamento; non è una validazione scientifica e non apre file sigillati reali.
+
+La modifica aggiunge soltanto uscite descrittive e la provenienza del modulo: non cambia matrice,
+procedura M o regola finale. Dopo l'applicazione andranno conservati il nuovo commit e gli hash della
+fase di stabilità, distinti da quelli della validazione già eseguita. Conservare la corsa con il suo
+codice originale e non modificare script o ingressi mentre la griglia è in esecuzione.
+
+Per interpretare S4, dichiarare i denominatori: S4_ISOLATION riguarda i gruppi misurabili dell'insieme
+«tutti», classificati secondo la presenza di un record nel campione isolato; S4_DWL_ALL distingue
+invece l'isolamento del record effettivamente scelto. I terzili nel codice hanno riferimenti diversi
+(insieme tutti e suo sottoinsieme con WL valido); riportarli come tali, senza trattare le etichette
+1–3 come intervalli identici. I controlli descrivono la selezione, non la correggono.
+
+Il controllo dei soli identificativi P1 trova duplicati NOAA/giorno fuori dalla finestra 2010–2012,
+ma nessuno dentro quella del confronto. Nessun tilt MWO sigillato letto. Hash dei due file attivi
+verificati prima e dopo le prove: invariati.
+
+
 ## Chiusura dei rilievi su 8129c01 — 20 novembre 2026
 
 Verifica di Codex eseguita durante la validazione già avviata, senza modificare codice o ingressi della corsa.

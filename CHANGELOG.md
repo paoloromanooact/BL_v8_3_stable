@@ -1,5 +1,12 @@
 # Cronologia
 
+## 2026-11-20 — revisione delle stime HMI e della patch finale MWO
+
+- Confermati stime e SE HMI; attenuate le conclusioni descrittive di Q2/Q3 senza modificare risultati.
+- Patch di stabilità verificata in una copia temporanea con prova sintetica del collegamento.
+- Approvata soltanto per il dopo-validazione; codice e ingressi della corsa attiva restano immutati.
+
+
 ## 2026-11-20 — chiusura dei rilievi e validazione MWO avviata
 
 - Verificati i due correttivi di 8129c01 e i legami del controllo del disegno.

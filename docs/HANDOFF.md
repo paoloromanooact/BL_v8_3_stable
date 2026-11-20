@@ -1,5 +1,19 @@
 # Cold restart — SHARP BL
 
+## 20 novembre, Codex — stime HMI descrittive e patch finale MWO riviste
+
+- Confermati i dieci risultati HMI di 9dc41ad, ricevuta 19/19 in a72ce2d: stime e SE nuovamente ricostruiti
+  entro 7e-13 relativi. Rapporto HMI_FOLLOWUPS_RESULTS.md corretto direttamente, senza cambiare numeri:
+  la fase emisferica non rimuove la stima negativa nel modello; +0,20 non è un limite fisico validato;
+  Q3 ha stime centrali positive ma tutti gli intervalli nominali includono zero. Nessun verdetto di quenching.
+- Patch patches/T3_MWO_STABILITY_WIRING.patch (6fadf10) verificata con apply --check e in una copia temporanea.
+  Prova sintetica del collegamento: cinque file aggiuntivi, hash del modulo, blocco con IMPLEMENTED False.
+  Probe riproducibile scripts/t3_mwo_stability_wiring_probe.py; nessun tilt MWO sigillato letto.
+- Via alla patch soltanto dopo fine, conservazione, riconteggio e lettura registrata della validazione.
+  Non applicata ora; script attivo e modulo extras invariati. La validazione continua con la propria provenienza.
+- La futura lettura di S4 deve distinguere gruppi da record e i riferimenti dei terzili, come indicato nella
+  revisione. Nessuna nuova soglia o correzione statistica introdotta.
+
 ## 20 novembre, Codex — rilievi statistici chiusi, validazione MWO in corso
 
 - Confermate le correzioni in 8129c01 con sonde sintetiche: sigma_x2 NaN rifiutato, ricevuta 7/8 e
