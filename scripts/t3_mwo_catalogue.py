@@ -51,7 +51,7 @@ DPD_DIR = ROOT / "data/sharp/external_DPD_20261118"
 SILSO_TOT = ROOT / "ancillary/SILSO_TOT/SN_m_tot_V2.0.txt"
 SILSO_HEM = ROOT / "ancillary/SILSO_HEMI/SN_m_hem_V2.0.csv"
 MWO_DATA = P.MWO_DATA
-OUT = ROOT / "results/T3_MWO_CATALOGUE"
+OUT = ROOT / "results/T3_MWO_CATALOGUE_R2"   # R1 (f718114) grouped scans by the filename day, not the UTC day
 
 START, END = pd.Timestamp("1974-01-01"), pd.Timestamp("2013-01-01")      # DPD dates, UT
 ARCHIVE_YEARS = range(1974, 2014)                                          # 2013 archive may hold 2012-12-31 files

@@ -26,8 +26,8 @@ import numpy as np
 import pandas as pd
 
 ROOT = Path(__file__).resolve().parents[1]
-CAT = ROOT / "results/T3_MWO_CATALOGUE"
-OUT = ROOT / "results/T3_MWO_CATALOGUE_RECOUNT"
+CAT = ROOT / "results/T3_MWO_CATALOGUE_R2"            # corrected UTC-day grouping (Codex, 19530d6)
+OUT = ROOT / "results/T3_MWO_CATALOGUE_R2_RECOUNT"
 DPD = ROOT / "data/sharp/external_DPD_20261118"
 MWO_DATA = Path("/storage/shared/gianluca/MWO_project/Desktop/MWO/data MWO")
 WIN_LAT, WIN_LON, THR, BMAX, MU_MIN, RSUN = 6.0, 8.0, 50.0, 4000.0, 0.8, 6.96e10
@@ -368,6 +368,11 @@ def check(cat=CAT, out=OUT, dpd=DPD, archive=MWO_DATA, years=range(1974, 2014), 
                 checks=res, passed=sum(r["ok"] for r in res), total=len(res), partial=True,
                 reason="non-finite mandatory measurement"), indent=2) + "\n")
         return False
+    same_day = (pd.to_datetime(design.obs_time, format="ISO8601").dt.strftime("%Y-%m-%d") == design.day)
+    am = attempts[attempts.member.notna()]
+    same_day_att = (pd.to_datetime(am.obs_time, format="ISO8601").dt.strftime("%Y-%m-%d") == am.day)
+    ok("same UTC day: MWO instant and DPD day coincide for every record and every attempt with a magnetogram",
+       same_day.all() and same_day_att.all(), f"{int((~same_day).sum())} records, {int((~same_day_att).sum())} attempts differ")
     att, recs = rebuild(dpd, archive, years)
     border = {k for k, a in att.items() if a["border"]}
     mine = {k: ("no_magnetogram" if a["mag"] is None else a["m"]["status"]) for k, a in att.items()}

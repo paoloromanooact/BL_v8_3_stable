@@ -37,7 +37,7 @@ from sharpbl import p2d, p2f_pilot as P, p2f_validation as V  # noqa: E402
 
 PROTOCOL = ROOT / "docs/PROTOCOL_T3_MWO.md"
 AMENDMENT = ROOT / "docs/PROTOCOL_T3_MWO_AMENDMENT_A1.md"
-CAT = ROOT / "results/T3_MWO_CATALOGUE"
+CAT = ROOT / "results/T3_MWO_CATALOGUE_R2"
 SDPD = ROOT / "data/sharp/external_sDPD_20261118"
 GDPD = ROOT / "data/sharp/external_DPD_20261118"
 OUT_CHECK = ROOT / "results/T3_MWO_DESIGN_CHECK"
