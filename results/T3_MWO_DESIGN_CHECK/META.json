@@ -1,0 +1,25 @@
+{
+  "protocol_sha256": "4408a0ee78d48f65275a1a4936ce687fe324a35598dd5bb18a8f3e53a01df8ff",
+  "amendment_a1_sha256": "bc88452b382d739866ff801a14aecf596968e092904906d7d7298355a0e063c5",
+  "coverage": {
+    "n_isolated_records": 5225,
+    "per_cycle_hemisphere": {
+      "21N": 595,
+      "21S": 657,
+      "22N": 780,
+      "22S": 901,
+      "23N": 839,
+      "23S": 934
+    },
+    "outcome": "informativo"
+  },
+  "catalogue_meta_sha256": "4582f6a140ee4c0225452f4a724272fc5ffee540b4e7713f42d117578e8ee21a",
+  "products_sha256": {
+    "IDENTIFIABILITY.json": "5c21b3340e4f82ea74b3b7be6066586d8ed3bd26cecf6ef1fe35fb4d05d4bfef",
+    "TARGETS.json": "e0799d91d84bb6750c20d8ffe454cd90fdbf479074417d64fd3fb7320955413e",
+    "WL_AVAILABILITY.csv": "aa9185c746b49b7c9f55ddc3c366c8296aad060ff88497041331ab1a2aa1ff0c",
+    "WL_COVERAGE.json": "7d342f446d44de4680a2a28be731d4f48e6a161f678298d01749e8751e63d991"
+  },
+  "git_commit": "c6243dea9f660ccfe85a272081313e91caa8fc5b",
+  "script_sha256": "f0a6acca30df8b1bafebfdc81ee45d82bc47e2bf69b1854dd616b77d30056259"
+}
