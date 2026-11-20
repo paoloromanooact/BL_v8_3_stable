@@ -44,6 +44,12 @@ OUT_CHECK = ROOT / "results/T3_MWO_DESIGN_CHECK"
 OUT_VAL = ROOT / "results/T3_MWO_VALIDATION"
 OUT_STAB = ROOT / "results/T3_MWO_STABILITY"
 OUT_EST = ROOT / "results/T3_MWO_ESTIMATE"
+CAT_RECOUNT = ROOT / "results/T3_MWO_CATALOGUE_R2_RECOUNT"
+VAL_RECOUNT = ROOT / "results/T3_MWO_VALIDATION_RECOUNT"
+VAL_READ = ROOT / "results/T3_MWO_VALIDATION_READING"
+BENCH_SEED_BASE = 59_000_000                           # benchmark only, outside the grid and every registered range
+PROVENANCE_FILES = ("scripts/t3_mwo_analysis.py", "python/sharpbl/p2f_validation.py", "python/sharpbl/p2f_pilot.py",
+                    "python/sharpbl/p2d.py")
 
 GAMMA0, SD_E, SD_X = V.GAMMA0, V.SD_E, V.SD_X          # 24 deg, 15 deg, 7.5 deg (P2f)
 SD_E_SENS = 25.0
@@ -74,11 +80,12 @@ def load_design(set_name="isolated", cat=CAT):
 
 
 def reference_epochs(d):
-    """Per hemisphere, the epoch with the most records (ties: the earliest)."""
+    """Per hemisphere present in d, the epoch with the most records (ties: the earliest)."""
     ref = {}
     for h in ("N", "S"):
         cnt = d[d.hemisphere == h].epoch.value_counts()
-        ref[h] = min(cnt.index, key=lambda e: (-cnt[e], EPOCHS.index(e)))
+        if len(cnt):
+            ref[h] = min(cnt.index, key=lambda e: (-cnt[e], EPOCHS.index(e)))
     return ref
 
 
@@ -200,24 +207,35 @@ def spot_rows(wanted, sdpd=SDPD):
     return out
 
 
-def wl_tilt(spots):
-    """Bozza DPD §3: area weights (negative or zero corrected WS area -> weight 0), area-weighted centroid, head = spots
-    west of the centroid, alpha = atan2(lat_head - lat_tail, (L_head - L_tail) cos(lat_bar)), Joy variable
-    gamma = -sign(lat_bar) alpha. Returns (gamma, status)."""
+def wl_split(spots):
+    """Geometric availability of the white-light tilt (bozza DPD §3), without any angle: at least two spots, positive
+    corrected area, head (west of the area-weighted centroid) and tail both with positive area. Returns
+    (status, arrays) where arrays are used only by wl_tilt."""
     if spots is None or len(spots) < 2:
-        return np.nan, "wl_fewer_than_two_spots"
+        return "wl_fewer_than_two_spots", None
     lat = np.array([s[0] for s in spots])
     lon = np.array([s[1] for s in spots])
     w = np.array([max(s[2], 0) for s in spots], float)
     if w.sum() <= 0:
-        return np.nan, "wl_no_positive_area"
+        return "wl_no_positive_area", None
     ref = lon[np.argmax(w)]
     rel = (lon - ref + 180.0) % 360.0 - 180.0
-    lc, latc = ref + np.sum(w * rel) / w.sum(), np.sum(w * lat) / w.sum()
+    lc = ref + np.sum(w * rel) / w.sum()
     rel_c = (lon - lc + 180.0) % 360.0 - 180.0
     head, tail = (rel_c > 0) & (w > 0), (rel_c <= 0) & (w > 0)
     if not head.any() or not tail.any():
-        return np.nan, "wl_one_side_empty"
+        return "wl_one_side_empty", None
+    return "ok", (lat, rel_c, w, head, tail)
+
+
+def wl_tilt(spots):
+    """alpha = atan2(lat_head - lat_tail, (L_head - L_tail) cos(lat_bar)), Joy variable gamma = -sign(lat_bar) alpha.
+    Returns (gamma, status). Called only after the seal (wl_for_records with tilt=True)."""
+    st, arr = wl_split(spots)
+    if st != "ok":
+        return np.nan, st
+    lat, rel_c, w, head, tail = arr
+    latc = np.sum(w * lat) / w.sum()
     lh, lt = np.sum(w[head] * lat[head]) / w[head].sum(), np.sum(w[tail] * lat[tail]) / w[tail].sum()
     Lh, Lt = np.sum(w[head] * rel_c[head]) / w[head].sum(), np.sum(w[tail] * rel_c[tail]) / w[tail].sum()
     alpha = math.degrees(math.atan2(lh - lt, (Lh - Lt) * math.cos(math.radians(latc))))
@@ -225,15 +243,23 @@ def wl_tilt(spots):
 
 
 def wl_for_records(d, gdpd=GDPD, sdpd=SDPD, tilt=True):
-    """Per design record: white-light availability (always) and gamma_WL (only if tilt=True, i.e. after the seal)."""
+    """Per design record: availability (always, by wl_split only) and gamma_WL (only with tilt=True, after the seal;
+    wl_tilt is never called otherwise)."""
     times = dpd_group_times(gdpd)
     keys = [(times.get((r.day, r.noaa)), r.noaa) for r in d.itertuples()]
     rows = spot_rows({k for k in keys if k[0]}, sdpd)
     gam, st = [], []
     for k in keys:
-        g, s_ = wl_tilt(rows.get(k)) if k[0] else (np.nan, "wl_no_group_row")
-        gam.append(g if tilt else np.nan)
-        st.append(s_)
+        if not k[0]:
+            gam.append(np.nan)
+            st.append("wl_no_group_row")
+        elif tilt:
+            g, s_ = wl_tilt(rows.get(k))
+            gam.append(g)
+            st.append(s_)
+        else:
+            gam.append(np.nan)
+            st.append(wl_split(rows.get(k))[0])
     return np.array(gam), np.array(st)
 
 
@@ -288,26 +314,38 @@ def m_unit(d, Xr, w, g, y, codes, uniq):
 def m_verdict(u, truth):
     try:
         r = V.procedure_m(u)
-    except V.CandidateError as exc:
-        return dict(verdict="errore", error=str(exc))
+    except (V.CandidateError, ValueError, np.linalg.LinAlgError) as exc:   # counted as 'errore', kept in the denominator
+        return dict(verdict="errore", error=f"{type(exc).__name__}: {exc}")
     return dict(beta=r["beta"], se=r["se"], lo=r["lo"], hi=r["hi"],
                 verdict="supportato" if r["hi"] < 0 else ("opposto" if r["lo"] > 0 else "non deciso"),
-                covered=int(r["lo"] <= truth <= r["hi"]), lo_above=int(r["lo"] > truth), hi_below=int(r["hi"] < truth))
+                covered=int(r["lo"] <= truth <= r["hi"]), lo_above=int(r["lo"] > truth), hi_below=int(r["hi"] < truth),
+                **{k: r[k] for k in ("var_a", "var_b", "phi", "kappa", "sigma_x2")})
 
 
 _W = {}
 
 
-def _init(cat=None):
+class NotIdentifiable(Exception):
+    """beta3 is not identifiable on the design: the outcome is 'non concludente', never a validation."""
+
+
+def design_state(cat=None):
+    """Design, reduced matrix and true values; raises NotIdentifiable instead of continuing (Codex's review, point 4)."""
     d = load_design(cat=cat or CAT)
     names, Z, x3 = columns(d)
     w = d.phi_mwo.to_numpy(float)
     info, Xr = reduce(names, Z, x3, w)
+    if not info["identifiable"]:
+        raise NotIdentifiable("beta3 not identifiable on the design")
     g = g_row(Xr, w)
     codes, uniq = cell_codes(d)
     deltas = {e: ramp(d, e)[0] for e in EFFECTS}
-    _W.update(d=d, Xr=Xr, w=w, g=g, codes=codes, uniq=uniq, deltas=deltas,
-              truth={e: float(g @ deltas[e]) for e in EFFECTS})
+    return dict(d=d, Xr=Xr, w=w, g=g, codes=codes, uniq=uniq, deltas=deltas,
+                truth={e: float(g @ deltas[e]) for e in EFFECTS}, kept=info["kept"])
+
+
+def _init(cat=None):
+    _W.update(design_state(cat))
 
 
 def unit(task):
@@ -322,13 +360,45 @@ def unit(task):
                 **out)
 
 
-def summarise(raw):
+VERDICTS = ("supportato", "opposto", "non deciso", "errore")
+
+
+def row_problems(raw, truths):
+    """Per-row validity of §7 (Codex's review, point 5): admitted state; for non-error rows finite beta, SE, bounds and
+    truth, SE > 0, lo < hi, bounds = beta -/+ z SE, verdict and indicators consistent with the bounds and with the true
+    value of the configuration (0 under null, the design projection under effect). Returns a boolean Series."""
+    bad = ~raw.verdict.isin(VERDICTS)
+    ok_ = raw.verdict != "errore"
+    num = raw.loc[ok_, ["beta", "se", "lo", "hi", "truth"]].astype(float)
+    fin = np.isfinite(num).all(axis=1)
+    z = V.Z
+    exp_truth = raw.loc[ok_, "effect"].map(lambda e: 0.0 if e == 0 else truths[e])
+    good = (fin & (num.se > 0) & (num.lo < num.hi)
+            & (np.abs(num.lo - (num.beta - z * num.se)) <= 1e-9 * np.maximum(num.se, 1e-300))
+            & (np.abs(num.hi - (num.beta + z * num.se)) <= 1e-9 * np.maximum(num.se, 1e-300))
+            & (np.abs(num.truth - exp_truth) <= 1e-12 * np.maximum(1.0, np.abs(exp_truth))))
+    v = raw.loc[ok_, "verdict"]
+    good &= v == np.where(num.hi < 0, "supportato", np.where(num.lo > 0, "opposto", "non deciso"))
+    for col, val in (("covered", (num.lo <= num.truth) & (num.truth <= num.hi)), ("lo_above", num.lo > num.truth),
+                     ("hi_below", num.hi < num.truth)):
+        good &= raw.loc[ok_, col].astype(float) == val.astype(float)
+    bad.loc[ok_] |= ~good.fillna(False)
+    return bad
+
+
+def summarise(raw, truths=None):
     rows, problems = [], []
+    if truths is None:                       # true values are required to check the rows: never accepted without them
+        problems.append("true values of the design not given")
+        truths = {e: np.nan for e in EFFECTS}
     expected = {c["cfg"]: c for c in configs()}
     if raw.duplicated(["cfg", "k"]).any() or raw.seed.duplicated().any():
         problems.append("duplicated rows or seeds")
     if set(raw.cfg) - set(expected):
         problems.append("unexpected configurations")
+    bad = row_problems(raw, truths)
+    if bad.any():
+        problems.append(f"{int(bad.sum())} invalid rows (kept in the denominators)")
     for cfg, c in expected.items():
         g = raw[raw.cfg == cfg]
         n = len(g)
@@ -339,18 +409,21 @@ def summarise(raw):
         err = int((g.verdict == "errore").sum())
         sup, opp = int((g.verdict == "supportato").sum()), int((g.verdict == "opposto").sum())
         good = g[g.verdict != "errore"]
-        r = dict(c, n_rows=n, complete=complete, errors=err, frac_errors=err / c["n"], supportato=sup / c["n"],
-                 opposto=opp / c["n"], false_total=(sup + opp) / c["n"] if c["effect"] == 0 else np.nan,
+        r = dict(c, n_rows=n, complete=complete, invalid_rows=int(bad[g.index].sum()), errors=err,
+                 frac_errors=err / c["n"], supportato=sup / c["n"], opposto=opp / c["n"],
+                 false_total=(sup + opp) / c["n"] if c["effect"] == 0 else np.nan,
                  coverage=float(good.covered.sum()) / c["n"], exclusion_tail=float(good.lo_above.sum()) / c["n"],
                  power=sup / c["n"] if c["effect"] else np.nan)
+        valid = complete and r["invalid_rows"] == 0
         if c["effect"] == 0:
-            r["criteria_ok"] = bool(complete and r["false_total"] <= LIM_FALSE and r["supportato"] <= LIM_SIDE
+            r["criteria_ok"] = bool(valid and r["false_total"] <= LIM_FALSE and r["supportato"] <= LIM_SIDE
                                     and r["opposto"] <= LIM_SIDE and r["frac_errors"] <= LIM_ERR)
         else:
-            r["criteria_ok"] = bool(complete and r["coverage"] >= LIM_COV and r["exclusion_tail"] <= LIM_TAIL)
+            r["criteria_ok"] = bool(valid and r["coverage"] >= LIM_COV and r["exclusion_tail"] <= LIM_TAIL)
         rows.append(r)
     tab = pd.DataFrame(rows)
-    accepted = bool(not problems and tab[tab.role == "main"].criteria_ok.all())
+    technical_ok = not problems
+    accepted = bool(technical_ok and tab[tab.role == "main"].criteria_ok.all())
     return tab, accepted, problems
 
 
@@ -476,28 +549,96 @@ def committed(path):
         not git("status", "--porcelain", str(p.relative_to(ROOT)))
 
 
-def gate_problem(protocol_sha, amendment_sha, stage, root_paths=None):
-    rp = root_paths or {}
-    for f, sha, name in ((rp.get("protocol", PROTOCOL), protocol_sha, "protocol"),
-                         (rp.get("amendment", AMENDMENT), amendment_sha, "amendment A1")):
-        if not Path(f).exists() or hashlib.sha256(Path(f).read_bytes()).hexdigest() != sha:
-            return f"frozen {name} missing or SHA-256 differs"
-    if git("status", "--porcelain", "--untracked-files=no"):
-        return "clean tree required"
-    need = {"design-check": [rp.get("cat", CAT)], "validate": [rp.get("cat", CAT), rp.get("check", OUT_CHECK)],
-            "stability": [rp.get("cat", CAT), rp.get("check", OUT_CHECK), rp.get("val", OUT_VAL)],
-            "estimate": [rp.get("cat", CAT), rp.get("check", OUT_CHECK), rp.get("val", OUT_VAL),
-                         rp.get("stab", OUT_STAB)]}[stage]
-    for p in need:
-        if not committed(p):
-            return f"{Path(p).name} not preserved in Git: stage '{stage}' refused (frozen order)"
+def sha(p):
+    return hashlib.sha256(Path(p).read_bytes()).hexdigest()
+
+
+def receipt_ok(path, meta_key=None, meta_path=None):
+    """A committed recount receipt with every check passed, not partial, bound to the hash of the META it recounted."""
+    if not committed(Path(path).parent):
+        return False, f"{Path(path).parent.name} not preserved in Git"
+    r = json.loads(Path(path).read_text())
+    if r.get("passed") != r.get("total") or r.get("partial", False):
+        return False, f"{Path(path).parent.name}: receipt not complete ({r.get('passed')}/{r.get('total')})"
+    if meta_key and r.get(meta_key) != sha(meta_path):
+        return False, f"{Path(path).parent.name}: receipt not bound to the current {Path(meta_path).parent.name}/META.json"
+    return True, ""
+
+
+def chain_problem(stage, rp=None):
+    """Frozen order check; a missing or unreadable product is a refusal with its reason, never an exception."""
+    try:
+        return _chain_problem(stage, rp)
+    except (OSError, ValueError, KeyError) as exc:
+        return f"chain product missing or unreadable ({type(exc).__name__}: {exc})"
+
+
+def _chain_problem(stage, rp=None):
+    """Frozen order with hash links (Codex's review, point 3). Distinguishes technical problems (refuse) from a
+    negative validation (allowed: the descriptive path of §7)."""
+    rp = rp or {}
+    cat, crc = rp.get("cat", CAT), rp.get("cat_recount", CAT_RECOUNT)
+    chk, val = rp.get("check", OUT_CHECK), rp.get("val", OUT_VAL)
+    vrc, vrd, stb = rp.get("val_recount", VAL_RECOUNT), rp.get("val_read", VAL_READ), rp.get("stab", OUT_STAB)
+    order = ["design-check", "validate", "record-reading", "stability", "estimate"]
+    i = order.index(stage)
+    if not committed(cat):
+        return "catalogue not preserved in Git"
+    good, why = receipt_ok(Path(crc) / "RECEIPT.json", "catalogue_meta_sha256", Path(cat) / "META.json")
+    if not good:
+        return why
+    cov = json.loads((Path(cat) / "COVERAGE.json").read_text())
+    if cov.get("outcome") != "informativo":
+        return "coverage of §2 not reached: outcome 'non concludente' (no further stage)"
+    if i >= 1:
+        if not committed(chk):
+            return "design check not preserved in Git"
+        m = json.loads((Path(chk) / "META.json").read_text())
+        if m.get("catalogue_meta_sha256") != sha(Path(cat) / "META.json"):
+            return "design check not bound to the current catalogue"
+        if not json.loads((Path(chk) / "IDENTIFIABILITY.json").read_text())["joy"]["identifiable"]:
+            return "beta3 not identifiable: outcome 'non concludente' (no validation)"
+    if i >= 2:
+        if not committed(val):
+            return "validation not preserved in Git"
+        good, why = receipt_ok(Path(vrc) / "RECEIPT.json", "validation_meta_sha256", Path(val) / "META.json")
+        if not good:
+            return why
+        if json.loads((Path(val) / "ACCEPTANCE.json").read_text()).get("problems"):
+            return "validation technically invalid (incomplete grid or invalid rows): not a negative result, refuse"
+    if i >= 3:
+        if not committed(vrd):
+            return "reading of the validation not recorded in Git"
+        rd = json.loads((Path(vrd) / "READ.json").read_text())
+        if rd.get("acceptance_sha256") != sha(Path(val) / "ACCEPTANCE.json") or \
+                rd.get("recount_receipt_sha256") != sha(Path(vrc) / "RECEIPT.json"):
+            return "reading record not bound to the current validation and its recount"
+    if i >= 4 and not committed(stb):
+        return "stability outputs not preserved in Git"
     return None
 
 
-def read_sealed(cat=CAT, val=OUT_VAL):
-    """The only reader of SEALED.csv.gz: refuses unless the validation is preserved in Git (§7 seal)."""
-    if not committed(val):
-        raise PermissionError("seal: the validation is not preserved in Git")
+def gate_problem(protocol_sha, amendment_sha, stage, root_paths=None):
+    rp = root_paths or {}
+    for f, sha_, name in ((rp.get("protocol", PROTOCOL), protocol_sha, "protocol"),
+                          (rp.get("amendment", AMENDMENT), amendment_sha, "amendment A1")):
+        if not Path(f).exists() or sha(f) != sha_:
+            return f"frozen {name} missing or SHA-256 differs"
+    if git("status", "--porcelain", "--untracked-files=no"):
+        return "clean tree required"
+    return chain_problem(stage, rp)
+
+
+def read_sealed(cat=CAT, val=OUT_VAL, rp=None):
+    """The only reader of SEALED.csv.gz: refuses unless the whole chain up to the recorded reading of the recounted
+    validation holds (§7 seal; Codex's review, point 3)."""
+    rp = dict(rp or {}, cat=cat, val=val)
+    try:
+        why = chain_problem("stability", rp)
+    except (OSError, ValueError, KeyError) as exc:
+        why = f"seal chain unreadable: {type(exc).__name__}"
+    if why:
+        raise PermissionError(f"seal: {why}")
     return pd.read_csv(Path(cat) / "SEALED.csv.gz", dtype={"noaa": str})
 
 
@@ -552,7 +693,8 @@ def design_check(protocol_sha, amendment_sha):
                  losses_by=wl_losses(d, st))
     write_out(OUT_CHECK, {"IDENTIFIABILITY.json": out, "TARGETS.json": dict(targets, C=C, subset_identifiable=info_s),
                           "WL_AVAILABILITY.csv": avail, "WL_COVERAGE.json": cover},
-              dict(protocol_sha256=protocol_sha, amendment_a1_sha256=amendment_sha, coverage=cov))
+              dict(protocol_sha256=protocol_sha, amendment_a1_sha256=amendment_sha, coverage=cov,
+                   catalogue_meta_sha256=sha(CAT / "META.json")))
     print(json.dumps(dict(identifiable=info["identifiable"], dropped=info["dropped"], targets=targets, C=C,
                           wl_share=cover["share"]), indent=2, default=str))
     return 0
@@ -566,19 +708,47 @@ def wl_losses(d, st):
             for dim in ("cycle", "epoch", "hemisphere", "A_tercile")}
 
 
-def benchmark(n=40):
-    _init()
+def bench_unit(task):
+    cfg, j = task
+    c = configs()[cfg]
+    rng = np.random.default_rng(BENCH_SEED_BASE + 100 * cfg + j)
+    delta = _W["deltas"][c["effect"]] if c["effect"] else 0.0
     t0 = time.time()
-    tk = [(c["cfg"], k) for c in configs()[:1] for k in range(n)]
-    with Pool(N_PROC, initializer=_init) as pool:
-        t1 = time.time()
-        list(pool.imap_unordered(unit, tk * N_PROC, chunksize=2))
-        dt = time.time() - t1
-    total = len(grid_seeds())
-    hours = total * dt / (n * N_PROC) / 3600
-    print(f"benchmark: start-up {t1 - t0:.0f} s; {n * N_PROC} units in {dt:.0f} s on {N_PROC} processes; "
-          f"predicted {hours:.2f} h for {total} units (no duration limit)", flush=True)
-    return hours
+    y = generate(_W["d"], c["scenario"], rng, c["sd_e"], delta)
+    m_verdict(m_unit(_W["d"], _W["Xr"], _W["w"], _W["g"], y, _W["codes"], _W["uniq"]), 0.0)
+    return cfg, time.time() - t0
+
+
+def benchmark(per_cfg=6):
+    """Stratified over all configurations, seeds outside the grid (59 000 000 + 100 cfg + j); start-up and work timed
+    separately (Codex's review, point 6). No duration limit."""
+    t0 = time.time()
+    pool = Pool(N_PROC, initializer=_init)
+    pool.map(_ready, range(N_PROC))
+    startup = time.time() - t0
+    t1 = time.time()
+    res = pool.map(bench_unit, [(c["cfg"], j) for c in configs() for j in range(per_cfg)], chunksize=1)
+    work = time.time() - t1
+    pool.close()
+    pool.join()
+    per = pd.DataFrame(res, columns=["cfg", "s"]).groupby("cfg").s.mean()
+    cpu = sum(per[c["cfg"]] * c["n"] for c in configs())
+    hours = cpu / N_PROC / 3600          # per-unit times measured inside the workers, under the load of N_PROC
+    out = dict(startup_s=startup, work_s=work, units=len(res), mean_unit_s_by_cfg=per.round(4).to_dict(),
+               predicted_hours=hours)
+    print(f"benchmark: start-up {startup:.0f} s; {len(res)} stratified units in {work:.0f} s on {N_PROC} processes; "
+          f"predicted {hours:.2f} h for {len(grid_seeds())} units (no duration limit)", flush=True)
+    return out
+
+
+def _ready(_):
+    return True
+
+
+def provenance():
+    files = list(PROVENANCE_FILES) + [str((CAT / "DESIGN.csv").relative_to(ROOT)),
+                                      str((OUT_CHECK / "TARGETS.json").relative_to(ROOT))]
+    return {f: sha(ROOT / f) for f in files}
 
 
 def validate(protocol_sha, amendment_sha):
@@ -589,8 +759,13 @@ def validate(protocol_sha, amendment_sha):
         sys.exit("validation output exists")
     if not (selftest() and seeds_ok()):
         return 1
-    start = git("rev-parse", "HEAD")
-    hours = benchmark()
+    start, prov0 = git("rev-parse", "HEAD"), provenance()
+    _init()
+    targets = json.loads((OUT_CHECK / "TARGETS.json").read_text())
+    for e in EFFECTS:
+        if abs(_W["truth"][e] - targets[f"delta_beta_{int(e * 100)}"]) > 1e-12 * max(1.0, abs(_W["truth"][e])):
+            sys.exit("true values differ from the preserved design check")
+    bench = benchmark()
     t0, rows = time.time(), []
     tk = [(c["cfg"], k) for c in configs() for k in range(c["n"])]
     with Pool(N_PROC, initializer=_init) as pool:
@@ -598,14 +773,41 @@ def validate(protocol_sha, amendment_sha):
             rows.append(r)
             if (i + 1) % 5000 == 0:
                 print(f"{i + 1}/{len(tk)} units, {(time.time() - t0) / 3600:.2f} h", flush=True)
-    raw = pd.DataFrame(rows).sort_values(["cfg", "k"])
-    tab, accepted, problems = summarise(raw)
+    raw = pd.DataFrame(rows).sort_values(["cfg", "k"]).reset_index(drop=True)
+    tab, accepted, problems = summarise(raw, _W["truth"])
+    prov1 = provenance()
+    if prov1 != prov0:
+        problems = problems + ["provenance changed during the run"]
+        accepted = False
     write_out(OUT_VAL, {"RAW.csv.gz": raw, "SUMMARY.csv": tab,
                         "ACCEPTANCE.json": dict(accepted_15deg=accepted, problems=problems)},
               dict(protocol_sha256=protocol_sha, amendment_a1_sha256=amendment_sha, start_commit=start,
-                   predicted_hours=hours, hours=(time.time() - t0) / 3600, truth=_W.get("truth")))
+                   provenance_start=prov0, provenance_end=prov1, benchmark=bench,
+                   hours=(time.time() - t0) / 3600, truth=_W["truth"],
+                   design_check_meta_sha256=sha(OUT_CHECK / "META.json")))
     print(tab.to_string(index=False))
     print("accepted (15 deg):", accepted, problems)
+    return 0
+
+
+def record_reading(protocol_sha, amendment_sha):
+    """§7: the validation is read only after its independent recount; this records the reading (to be committed)
+    and the path it opens: verdict possible (accepted) or descriptive (not accepted)."""
+    why = gate_problem(protocol_sha, amendment_sha, "record-reading")
+    if why:
+        sys.exit(why)
+    if VAL_READ.exists():
+        sys.exit("reading already recorded")
+    acc = json.loads((OUT_VAL / "ACCEPTANCE.json").read_text())
+    tab = pd.read_csv(OUT_VAL / "SUMMARY.csv")
+    print(tab.to_string(index=False))
+    VAL_READ.mkdir(parents=True)
+    rec = dict(read_utc=pd.Timestamp.now(tz="UTC").isoformat(), accepted_15deg=acc["accepted_15deg"],
+               path="verdetto possibile" if acc["accepted_15deg"] else "descrittivo (validazione a 15 gradi non superata)",
+               acceptance_sha256=sha(OUT_VAL / "ACCEPTANCE.json"), recount_receipt_sha256=sha(VAL_RECOUNT / "RECEIPT.json"),
+               git_commit=git("rev-parse", "HEAD"))
+    (VAL_READ / "READ.json").write_text(json.dumps(rec, indent=2) + "\n")
+    print(json.dumps(rec, indent=2))
     return 0
 
 
@@ -628,23 +830,14 @@ def stability(protocol_sha, amendment_sha):
     verif = epoch_verifiable(d)
     unver = float(np.mean([not verif[(e, h)] for e, h in zip(d.epoch, d.hemisphere)]))
     s1_res, s1_tab = s1(sub, verif)
-    names, Z, x3 = columns(sub)
-    w = sub.phi_mwo.to_numpy(float)
-    info, Xr = reduce(names, Z, x3, w)
     targets = json.loads((OUT_CHECK / "TARGETS.json").read_text())
-    C = targets["C"]
-    codes, uniq = cell_codes(sub)
-    r2 = m_verdict(m_unit(sub, Xr, w, g_row(Xr, w), sub.d_wl.to_numpy(), codes, uniq), 0.0)
-    s2_status, s2_nonzero = s2_outcome(r2["lo"], r2["hi"], C) if r2["verdict"] != "errore" else ("stabilità non determinata", False)
-    s2_hem = {}
-    for h in ("N", "S"):
-        sh = sub[sub.hemisphere == h].reset_index(drop=True)
-        n_, Z_, x_ = columns(sh)
-        i_, X_ = reduce(n_, Z_, x_, sh.phi_mwo.to_numpy(float))
-        if i_["identifiable"]:
-            c_, u_ = cell_codes(sh)
-            s2_hem[h] = m_verdict(m_unit(sh, X_, sh.phi_mwo.to_numpy(float), g_row(X_, sh.phi_mwo.to_numpy(float)),
-                                         sh.d_wl.to_numpy(), c_, u_), 0.0)
+    C = targets.get("C")
+    r2 = s2_fit(sub)
+    if C is None or r2.get("state") != "stimato":
+        s2_status, s2_nonzero = "stabilità non determinata", False       # explicit state, no exception (point 4)
+    else:
+        s2_status, s2_nonzero = s2_outcome(r2["lo"], r2["hi"], C)
+    s2_hem = {h: s2_fit(sub[sub.hemisphere == h].reset_index(drop=True)) for h in ("N", "S")}
     s3 = d.assign(agree=(d.lead == d.hale)).groupby(["epoch", "hemisphere"]).agree.agg(["size", "mean"]).reset_index()
     val = json.loads((OUT_VAL / "ACCEPTANCE.json").read_text())
     cov = json.loads((CAT / "COVERAGE.json").read_text())
@@ -659,6 +852,20 @@ def stability(protocol_sha, amendment_sha):
               dict(protocol_sha256=protocol_sha, amendment_a1_sha256=amendment_sha))
     print(json.dumps(dict(S1=s1_res["status"], S2=s2_status, rule=rule), indent=2))
     return 0
+
+
+def s2_fit(sub):
+    """Main model on d_WL with procedure M; explicit states for an empty subset, non-identifiability and M errors."""
+    if len(sub) == 0:
+        return dict(state="campione vuoto")
+    names, Z, x3 = columns(sub)
+    w = sub.phi_mwo.to_numpy(float)
+    info, Xr = reduce(names, Z, x3, w)
+    if not info["identifiable"]:
+        return dict(state="non identificabile")
+    codes, uniq = cell_codes(sub)
+    r = m_verdict(m_unit(sub, Xr, w, g_row(Xr, w), sub.d_wl.to_numpy(), codes, uniq), 0.0)
+    return dict(r, state="errore di M" if r["verdict"] == "errore" else "stimato", n=len(sub))
 
 
 def s4_table(d):
@@ -677,15 +884,22 @@ SENSITIVITIES = (("additive epoch terms", dict(form="additive")), ("no epoch ter
 
 
 def fit_beta3(d, form="joy", weights="phi_mwo", act="A_main"):
-    d = d[np.isfinite(d[act])].reset_index(drop=True)
+    """beta3 with procedure M; explicit states instead of exceptions: empty sample, beta3 not identifiable, M error."""
+    d = d[np.isfinite(d[act])].reset_index(drop=True) if len(d) else d
+    if len(d) == 0:
+        return dict(n=0, identifiable=False, state="campione vuoto", beta=np.nan, se=np.nan, lo=np.nan, hi=np.nan)
     w = d[weights].to_numpy(float)
     names, Z, x3 = columns(d, act=act, form=form)
     info, Xr = reduce(names, Z, x3, w)
     if not info["identifiable"]:
-        return dict(n=len(d), identifiable=False)
+        return dict(n=len(d), identifiable=False, state="beta3 non identificabile", beta=np.nan, se=np.nan, lo=np.nan,
+                    hi=np.nan)
     codes, uniq = cell_codes(d)
     r = m_verdict(m_unit(d, Xr, w, g_row(Xr, w), d.gamma_mwo.to_numpy(), codes, uniq), 0.0)
-    return dict(n=len(d), identifiable=True, **{k: r.get(k) for k in ("beta", "se", "lo", "hi", "verdict", "error")})
+    if r["verdict"] == "errore":
+        return dict(n=len(d), identifiable=True, state="errore di M", error=r.get("error"), beta=np.nan, se=np.nan,
+                    lo=np.nan, hi=np.nan)
+    return dict(n=len(d), identifiable=True, state="stimato", **{k: r[k] for k in ("beta", "se", "lo", "hi", "verdict")})
 
 
 def filtered(d, filt):
@@ -723,8 +937,10 @@ def estimate(protocol_sha, amendment_sha):
     stab = json.loads((OUT_STAB / "STABILITY.json").read_text())
     main = tab.iloc[0]
     outcome = stab["rule"]["outcome"]
+    if main.state != "stimato":
+        outcome = "non concludente"                           # main beta3 not available: no verdict, no interval
     final = dict(outcome=outcome, reasons=stab["rule"]["reasons"], beta3=main.beta, se=main.se, lo=main.lo, hi=main.hi,
-                 verdict=verdict_of(main.lo, main.hi) if outcome == "verdetto" else None,
+                 main_state=main.state, verdict=verdict_of(main.lo, main.hi) if outcome == "verdetto" else None,
                  targets=json.loads((OUT_CHECK / "TARGETS.json").read_text()))
     write_out(OUT_EST, {"ESTIMATE.csv": tab, "FINAL.json": final},
               dict(protocol_sha256=protocol_sha, amendment_a1_sha256=amendment_sha))
@@ -806,18 +1022,35 @@ def selftest():
        abs(mb - t20) < 4 * np.std([e["beta"] for e in est]) / math.sqrt(len(est)) + 0.05, (round(mb, 3), round(t20, 3)))
     u0 = unit((0, 0))
     ok("null unit: truth 0, a verdict or 'errore'", u0["truth"] == 0.0 and u0["verdict"] in ("supportato", "opposto", "non deciso", "errore"))
-    raw = pd.DataFrame([dict(cfg=c["cfg"], k=k, seed=seed(c["cfg"], k), role=c["role"], scenario=c["scenario"],
-                             sd_e=c["sd_e"], effect=c["effect"], verdict="non deciso", covered=1, lo_above=0, hi_below=0)
-                        for c in configs() for k in range(c["n"])])
-    tab, acc, pr = summarise(raw)
+    z = V.Z
+    truths = {0.1: -0.5, 0.2: -1.0}
+
+    def row(c, k, beta=0.0):
+        t = 0.0 if c["effect"] == 0 else truths[c["effect"]]
+        lo, hi = beta - z, beta + z
+        return dict(cfg=c["cfg"], k=k, seed=seed(c["cfg"], k), role=c["role"], scenario=c["scenario"], sd_e=c["sd_e"],
+                    effect=c["effect"], truth=t, beta=beta, se=1.0, lo=lo, hi=hi,
+                    verdict="supportato" if hi < 0 else ("opposto" if lo > 0 else "non deciso"),
+                    covered=int(lo <= t <= hi), lo_above=int(lo > t), hi_below=int(hi < t))
+    raw = pd.DataFrame([row(c, k) for c in configs() for k in range(c["n"])])
+    tab, acc, pr = summarise(raw, truths)
     ok("summary: complete clean grid accepted", acc and not pr)
     raw2 = raw.copy()
-    raw2.loc[raw2.cfg == 0, "verdict"] = np.where(np.arange((raw2.cfg == 0).sum()) < 200, "supportato", "non deciso")
-    ok("summary: one side at 2 % in a null scenario refused", not summarise(raw2)[1])
-    ok("summary: a missing catalogue refused", not summarise(raw.iloc[1:])[1])
+    i0 = raw2.index[raw2.cfg == 0][:200]
+    raw2.loc[i0] = pd.DataFrame([row(configs()[0], k, beta=-5.0) for k in raw2.loc[i0, "k"]], index=i0)
+    ok("summary: one side at 2 % in a null scenario refused (consistent rows)", not summarise(raw2, truths)[1]
+       and not summarise(raw2, truths)[2])
+    ok("summary: a missing catalogue refused", not summarise(raw.iloc[1:], truths)[1])
     raw3 = raw.copy()
-    raw3.loc[raw3.cfg == configs()[-1]["cfg"], "verdict"] = "supportato"
-    ok("summary: 25 deg sensitivity does not decide acceptance", summarise(raw3)[1])
+    i3 = raw3.index[raw3.cfg == configs()[-1]["cfg"]]
+    raw3.loc[i3] = pd.DataFrame([row(configs()[-1], k, beta=-5.0) for k in raw3.loc[i3, "k"]], index=i3)
+    ok("summary: 25 deg sensitivity does not decide acceptance", summarise(raw3, truths)[1])
+    for name, col, val in (("successful row with NaN SE", "se", np.nan), ("verdict outside the admitted states", "verdict", "unknown"),
+                           ("covered inconsistent with the bounds", "covered", 0), ("bounds not beta -/+ z SE", "lo", -9.0),
+                           ("true value different from the projection", "truth", 0.3)):
+        rb = raw.copy()
+        rb.loc[0 if col != "truth" else raw.index[raw.effect == 0.2][0], col] = val
+        ok(f"summary: {name} blocks the acceptance and is reported", not summarise(rb, truths)[1] and summarise(rb, truths)[2])
     # white-light tilt
     north = [(10.5, 100.0 + 3, 300), (11.5, 100.0 - 3, 200), (11.0, 100.0 - 2.5, -1)]
     gN, sN = wl_tilt(north)
@@ -862,6 +1095,69 @@ def selftest():
        and final_rule("stabile fra epoche", "scarto contenuto", 0.25, True, True, True)[0] == "descrittivo"
        and final_rule("stabile fra epoche", "scarto contenuto", 0.1, True, False, True)[0] == "non concludente"
        and final_rule("stabile fra epoche", "scarto contenuto", 0.1, True, True, False)[0] == "non concludente")
+    # Codex's review counterexamples (scripts/t3_mwo_analysis_review_probe.py) as regressions
+    from unittest.mock import patch
+    try:
+        columns(d[d.hemisphere == "N"].reset_index(drop=True))
+        nh = True
+    except Exception:                                        # noqa: BLE001
+        nh = False
+    ok("single-hemisphere subset: matrix built without exception", nh)
+    fe = fit_beta3(d.iloc[:0].assign(gamma_mwo=[]))
+    ok("empty sample: explicit state, no exception", fe["state"] == "campione vuoto")
+    with patch(f"{__name__}.wl_tilt", side_effect=RuntimeError("REAL_TILT_CALCULATION_ATTEMPTED")), \
+            patch(f"{__name__}.dpd_group_times", return_value={("1990-01-01", "123"): "1990 01 01 12 00 00"}), \
+            patch(f"{__name__}.spot_rows", return_value={("1990 01 01 12 00 00", "123"): [(12., 100., 5), (14., 102., 5)]}):
+        try:
+            _, st_av = wl_for_records(pd.DataFrame([dict(day="1990-01-01", noaa="123")]), tilt=False)
+            av = st_av[0] == "ok"
+        except RuntimeError:
+            av = False
+    ok("availability before the seal never calls wl_tilt", av)
+    with patch(f"{__name__}.committed", return_value=True), patch(f"{__name__}.pd.read_csv", return_value="opened"):
+        try:
+            read_sealed(cat=Path("/synthetic"), val=Path("/synthetic-val"))
+            sl = False
+        except PermissionError:
+            sl = True
+    ok("seal: committed directories alone do not open SEALED (receipts and reading record required)", sl)
+    dn = d.assign(A_main=1.0)
+    try:
+        nm, Zn, xn = columns(dn)
+        ok("constant activity: beta3 not identifiable", not reduce(nm, Zn, xn, dn.phi_mwo.to_numpy())[0]["identifiable"])
+    except Exception:                                        # noqa: BLE001
+        ok("constant activity: beta3 not identifiable", False)
+    with tempfile.TemporaryDirectory() as td:
+        td = Path(td)
+        dirs = {k: td / k for k in ("cat", "cat_recount", "check", "val", "val_recount", "val_read", "stab")}
+        for p_ in dirs.values():
+            p_.mkdir()
+        (dirs["cat"] / "META.json").write_text("{}")
+        (dirs["cat"] / "COVERAGE.json").write_text(json.dumps(dict(outcome="informativo")))
+        (dirs["check"] / "META.json").write_text(json.dumps(dict(catalogue_meta_sha256=sha(dirs["cat"] / "META.json"))))
+        (dirs["check"] / "IDENTIFIABILITY.json").write_text(json.dumps(dict(joy=dict(identifiable=True))))
+        (dirs["val"] / "META.json").write_text("{}")
+        (dirs["val"] / "ACCEPTANCE.json").write_text(json.dumps(dict(accepted_15deg=False, problems=[])))
+        rec = lambda key, meta: json.dumps({"passed": 5, "total": 5, key: sha(meta)})   # noqa: E731
+        with patch(f"{__name__}.committed", return_value=True):
+            c0 = chain_problem("stability", dirs)
+            (dirs["cat_recount"] / "RECEIPT.json").write_text(json.dumps(dict(passed=11, total=12, partial=False)))
+            c1 = chain_problem("design-check", dirs)
+            (dirs["cat_recount"] / "RECEIPT.json").write_text(rec("catalogue_meta_sha256", dirs["cat"] / "META.json"))
+            c2 = chain_problem("design-check", dirs)
+            (dirs["val_recount"] / "RECEIPT.json").write_text(rec("validation_meta_sha256", dirs["val"] / "META.json"))
+            c3 = chain_problem("stability", dirs)
+            (dirs["val_read"] / "READ.json").write_text(json.dumps(dict(
+                acceptance_sha256=sha(dirs["val"] / "ACCEPTANCE.json"),
+                recount_receipt_sha256=sha(dirs["val_recount"] / "RECEIPT.json"))))
+            c4 = chain_problem("stability", dirs)
+            (dirs["val"] / "ACCEPTANCE.json").write_text(json.dumps(dict(accepted_15deg=False, problems=["x"])))
+            c5 = chain_problem("record-reading", dirs)
+    ok("chain: missing or incomplete catalogue receipt refused; bound receipt accepted",
+       c0 is not None and c1 is not None and c2 is None, (c0, c1, c2))
+    ok("chain: stability needs the recorded reading; a negative but valid validation opens the descriptive path; "
+       "a technically invalid validation is refused", c3 is not None and c4 is None and c5 is not None and "technically" in c5,
+       (c3, c4, c5))
     with tempfile.TemporaryDirectory() as td:
         try:
             read_sealed(cat=td, val=Path(td) / "no_validation")
@@ -879,14 +1175,15 @@ def selftest():
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
-    for f in ("selftest", "design-check", "validate", "stability", "estimate"):
+    for f in ("selftest", "design-check", "validate", "record-reading", "stability", "estimate"):
         ap.add_argument(f"--{f}", action="store_true")
     ap.add_argument("--protocol-sha")
     ap.add_argument("--amendment-sha")
     a = ap.parse_args()
     if a.selftest:
         return 0 if selftest() else 1
-    for flag, fn in (("design_check", design_check), ("validate", validate), ("stability", stability),
+    for flag, fn in (("design_check", design_check), ("validate", validate), ("record_reading", record_reading),
+                     ("stability", stability),
                      ("estimate", estimate)):
         if getattr(a, flag):
             if not (a.protocol_sha and a.amendment_sha):

@@ -961,6 +961,7 @@ scripts/review_morphology.py
 scripts/run_pipeline.sh
 scripts/t3_dpd_feasibility.py
 scripts/t3_mwo_analysis.py
+scripts/t3_mwo_analysis_recount.py
 scripts/t3_mwo_analysis_review_probe.py
 scripts/t3_mwo_catalogue.py
 scripts/t3_mwo_catalogue_recount.py
