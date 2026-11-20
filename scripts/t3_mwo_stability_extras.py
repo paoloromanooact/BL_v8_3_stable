@@ -93,7 +93,8 @@ def s2_p1(d_iso_with_gamma, s2_fit, axial, p1=None):
     m["d_wl"] = axial(m.gamma_mwo - m.gamma)            # s2_fit reads the response from the column d_wl
     fit = s2_fit(m.reset_index(drop=True)) if len(m) else dict(state="campione vuoto")
     summ = dict(n_matched=len(m), median_d=float(np.median(m.d_wl)) if len(m) else None,
-                fit={k: v for k, v in fit.items() if k in ("state", "beta", "se", "lo", "hi", "n", "error")})
+                fit={k: v for k, v in fit.items() if k in ("state", "beta", "se", "lo", "hi", "n", "error", "var_a", "var_b",
+                                                           "phi", "kappa", "sigma_x2")})
     return summ, m[["noaa", "day", "epoch", "hemisphere", "d_wl"]].rename(columns={"d_wl": "d_p1"})
 
 

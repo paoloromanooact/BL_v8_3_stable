@@ -1,5 +1,5 @@
 --- a/scripts/t3_mwo_analysis.py	2026-11-20 11:46:31.725237077 +0100
-+++ b/scripts/t3_mwo_analysis.py	2026-11-20 12:53:00.175667662 +0100
++++ b/scripts/t3_mwo_analysis.py	2026-11-20 14:18:30.323651449 +0100
 @@ -47,6 +47,7 @@
  CAT_RECOUNT = ROOT / "results/T3_MWO_CATALOGUE_R2_RECOUNT"
  VAL_RECOUNT = ROOT / "results/T3_MWO_VALIDATION_RECOUNT"
@@ -24,7 +24,7 @@
      return None
  
  
-@@ -869,12 +875,15 @@
+@@ -869,12 +875,17 @@
      idf = json.loads((OUT_CHECK / "IDENTIFIABILITY.json").read_text())["joy"]["identifiable"]
      rule = final_rule(s1_res["status"], s2_status, unver, val["accepted_15deg"], idf, cov["outcome"] == "informativo")
      s4 = s4_table(d)
@@ -38,12 +38,14 @@
 -              dict(protocol_sha256=protocol_sha, amendment_a1_sha256=amendment_sha))
 +                         "WL_TILTS.csv": d[["noaa", "day", "epoch", "hemisphere", "wl_status", "gamma_wl", "d_wl"]], **ex},
 +              dict(protocol_sha256=protocol_sha, amendment_a1_sha256=amendment_sha,
-+                   extras_sha256=sha(ROOT / "scripts/t3_mwo_stability_extras.py")))
++                   extras_sha256=sha(ROOT / "scripts/t3_mwo_stability_extras.py"),
++                   catalogue_meta_sha256=sha(CAT / "META.json"), design_check_meta_sha256=sha(OUT_CHECK / "META.json"),
++                   validation_meta_sha256=sha(OUT_VAL / "META.json"), reading_sha256=sha(VAL_READ / "READ.json")))
      print(json.dumps(dict(S1=s1_res["status"], S2=s2_status, rule=rule), indent=2))
      return 0
  
---- a/scripts/t3_mwo_stability_extras.py	2026-11-20 11:46:31.725237077 +0100
-+++ b/scripts/t3_mwo_stability_extras.py	2026-11-20 11:46:31.739236988 +0100
+--- a/scripts/t3_mwo_stability_extras.py	2026-11-20 14:18:30.313651442 +0100
++++ b/scripts/t3_mwo_stability_extras.py	2026-11-20 14:18:30.323651449 +0100
 @@ -12,8 +12,7 @@
    s4_dwl_all         d_WL of the 'all records' sensitivity, isolated against non-isolated records, overall and by
                       activity tercile (descriptive)
