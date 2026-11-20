@@ -1,0 +1,37 @@
+{
+  "checks": [
+    {
+      "name": "design-check product hashes",
+      "ok": true,
+      "value": ""
+    },
+    {
+      "name": "design check bound to the catalogue META",
+      "ok": true,
+      "value": ""
+    },
+    {
+      "name": "identifiability and kept columns",
+      "ok": true,
+      "value": "(np.True_, 24)"
+    },
+    {
+      "name": "true values of the ramp (10 %, 20 %)",
+      "ok": true,
+      "value": "(-0.5309294861450373, -1.0618589722900746)"
+    },
+    {
+      "name": "white-light availability of every record",
+      "ok": true,
+      "value": "4694 available of 5223"
+    },
+    {
+      "name": "margin C on the subset",
+      "ok": true,
+      "value": "0.5303421951126371"
+    }
+  ],
+  "passed": 6,
+  "total": 6,
+  "design_check_meta_sha256": "a0af13369c768ccc1bf0a468571522361f5f3cfb45863e52d0bd8eeeb200476c"
+}
