@@ -1,0 +1,12 @@
+{
+  "n_isolated_records": 5225,
+  "per_cycle_hemisphere": {
+    "21N": 595,
+    "21S": 657,
+    "22N": 780,
+    "22S": 901,
+    "23N": 839,
+    "23S": 934
+  },
+  "outcome": "informativo"
+}
