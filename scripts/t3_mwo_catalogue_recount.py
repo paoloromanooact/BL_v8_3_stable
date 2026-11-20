@@ -459,6 +459,7 @@ def check(cat=CAT, out=OUT, dpd=DPD, archive=MWO_DATA, years=range(1974, 2014), 
         Path(out).mkdir(parents=True, exist_ok=False)
         (Path(out) / "RECEIPT.json").write_text(json.dumps(dict(
             checks=res, passed=sum(r["ok"] for r in res), total=len(res), partial=partial,
+            catalogue_meta_sha256=hashlib.sha256((Path(cat) / "META.json").read_bytes()).hexdigest(),
             n_borderline_days=len(border), n_unresolved_borderline=unresolved), indent=2) + "\n")
     return all(r["ok"] for r in res)
 
