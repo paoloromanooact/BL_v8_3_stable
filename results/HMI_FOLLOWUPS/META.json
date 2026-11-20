@@ -1,0 +1,14 @@
+{
+  "protocol_sha256": "316fa968e610559362174513b411395912d87a34585f9022d910f5385b7951c8",
+  "validation": {
+    "q1": false,
+    "q2_hem": false
+  },
+  "q2_main": "hemispheric",
+  "validation_meta_sha256": "a08d0ad3a1a58e046e0145aa1ef0ea1fd9e00ba39a0e5a3ed664b06060da4121",
+  "products_sha256": {
+    "ESTIMATES.csv": "ac00be325c7feef3ec684a6c182b371e44016730a7461e8beb71d25ee0a1272b"
+  },
+  "git_commit": "46e3a91115271d54d3fea4b6107b7f5d73395546",
+  "script_sha256": "75a10e3ed4062915d96e6a323c2fffeb23e8e0fdffd2e43fcf3c40d1774294e7"
+}

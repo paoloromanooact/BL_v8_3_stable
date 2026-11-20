@@ -1,0 +1,11 @@
+                             analysis    n      beta       se         lo        hi    verdict  lo_above  hi_below    var_a     var_b      phi     kappa  sigma_x2 verdict_reported
+                  Q1 main (T2 window) 2238  3.270166 4.314139  -6.399557 12.939889 non deciso         0         0 6.415098 -0.363590 0.662660 -0.562606  2.900790      descrittivo
+                  Q1 symmetric window 2187  3.177000 6.681394 -11.798694 18.152694 non deciso         0         0 6.415558 -0.364396 0.945206  0.980000  3.265689      descrittivo
+               Q1 hemisphere-averaged 2238  3.243331 4.445675  -6.721217 13.207879 non deciso         0         0 6.413742 -0.362601 0.725280 -0.534239  4.394416      descrittivo
+                 Q2 hemispheric phase 2485 -0.676571 0.391865  -1.554897  0.201755 non deciso         0         0 3.651078 -0.271211 0.933998 -0.027502  1.578379      descrittivo
+Q2 conventional phase (historical T4) 2485 -0.629555 0.383708  -1.489598  0.230489 non deciso         0         0 3.651169 -0.271215 0.941714  0.012658  1.715215      descrittivo
+                     Q3 b (log10 Phi) 2485  9.527256 4.859115  -1.363978 20.418490 non deciso         0         0 6.414542 -0.346145 0.799779 -0.214352  5.089439      descrittivo
+                    Q3 quintile 2 - 1 2485 -1.051490 6.127406 -14.785474 12.682493 non deciso         0         0 6.414606 -0.346402 0.933053  0.980000  3.008808      descrittivo
+                    Q3 quintile 3 - 1 2485  5.952354 5.862867  -7.188693 19.093401 non deciso         0         0 6.414606 -0.346402 0.933053  0.980000  3.008808      descrittivo
+                    Q3 quintile 4 - 1 2485  1.709165 5.750453 -11.179915 14.598245 non deciso         0         0 6.414606 -0.346402 0.933053  0.980000  3.008808      descrittivo
+                    Q3 quintile 5 - 1 2485 12.308748 5.581513  -0.201671 24.819167 non deciso         0         0 6.414606 -0.346402 0.933053  0.980000  3.008808      descrittivo
