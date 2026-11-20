@@ -1,5 +1,26 @@
 # Cold restart — SHARP BL
 
+## 20 novembre — A2 rivisto e congelato prima di R3
+
+- Rivisti emendamento e implementazione di 8534f48. Elenco di 18 nomi unici coincidente con le esclusioni
+  STRICT_QC del progetto del flusso polare; nessuna regola generale su GV e nessuna riscalatura.
+- Aggiunta una prova end-to-end con un membro effettivamente escluso. Senza A2 quel membro vince il
+  tie-break finale; con A2 runner e riconteggio scelgono la scansione sana dello stesso giorno UTC.
+  Provati il lettore indipendente della lista, lo SHA errato e la marcatura excluded_A2 mancante
+  anche dopo l'aggiornamento dell'hash del prodotto. Il riconteggio completo della fixture passa.
+- Fissato nel testo di A2 lo SHA-256 del CSV esclusioni; il runner lo verifica prima di leggere gli
+  archivi. Il comando reale di riconteggio confronta testo, CSV e due hash del META del catalogo.
+  Verificato anche il rifiuto di una lista modificata. Il runner pretende 18 membri distinti.
+- Selftest runner 20/20, riconteggio 22/22. check_repo: 142/146 nel sandbox; i quattro test del server
+  locale erano bloccati dai permessi socket e passano 4/4 fuori dal sandbox. Totale 146/146; due
+  avvisi già noti sulle correlazioni costanti. git diff --check e git apply --check della patch positivi.
+- A2 congelato in docs/PROTOCOL_T3_MWO_AMENDMENT_A2.md; registro separato con hash e commit.
+  Specificata la cecità rispetto al catalogo lungo: i risultati del pilota erano già noti.
+- Via alla misura R3 e al suo riconteggio, poi al controllo del disegno e alla precisione prospettica.
+  I pesi restano a flusso. La nuova validazione attende questi controlli e la decisione sui pesi.
+  Nessuna misura R3 eseguita da questa revisione; R2 conservato; patch finale ancora non applicata.
+
+
 ## 20 novembre — riconteggio di stabilità 7fd1121: miglioramenti confermati, due rilievi residui
 
 Rivisto il nuovo riconteggio e la patch non applicata. Selftest 16/16 positivo: la nuova fixture

@@ -1,5 +1,11 @@
 # Cronologia
 
+## 2026-11-20 — congelamento A2 prima del catalogo MWO R3
+
+- Esclusione dei 18 FITS anomali prima della selezione, elenco legato al testo congelato con SHA-256.
+- Aggiunta la prova indipendente completa con esclusione reale, recupero dello stesso giorno e rifiuto di SHA/marcatura errati.
+- Runner 20/20, riconteggio 22/22, suite 146/146. Via a R3, poi riconteggio e controllo del disegno; pesi invariati.
+
 ## 2026-11-20 — seconda verifica del riconteggio di stabilità
 
 - Confermati i 16 selftest di 7fd1121; due ulteriori controesempi richiedono dominio S2 e catena completa prima del sigillo.

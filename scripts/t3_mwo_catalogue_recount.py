@@ -388,6 +388,15 @@ def check(cat=CAT, out=OUT, dpd=DPD, archive=MWO_DATA, years=range(1974, 2014), 
     same_day_att = (pd.to_datetime(am.obs_time, format="ISO8601").dt.strftime("%Y-%m-%d") == am.day)
     ok("same UTC day: MWO instant and DPD day coincide for every record and every attempt with a magnetogram",
        same_day.all() and same_day_att.all(), f"{int((~same_day).sum())} records, {int((~same_day_att).sum())} attempts differ")
+    if a2 is None:
+        frozen_a2 = ROOT / "docs/PROTOCOL_T3_MWO_AMENDMENT_A2.md"
+        text_a2 = frozen_a2.read_text()
+        frozen_list_sha = re.search(r"Identità del CSV congelato \(SHA-256\):\*\* `([0-9a-f]{64})`", text_a2)
+        list_sha = hashlib.sha256(A2_LIST.read_bytes()).hexdigest()
+        ok("A2 amendment and exclusion-list hashes bound to the frozen text and catalogue META",
+           frozen_list_sha is not None and list_sha == frozen_list_sha.group(1)
+           and meta.get("a2_list_sha256") == list_sha
+           and meta.get("amendment_a2_sha256") == hashlib.sha256(frozen_a2.read_bytes()).hexdigest())
     excl = a2_excluded() if a2 is None else a2
     att, recs = rebuild(dpd, archive, years, excl)
     seen = getattr(magnetograms, "seen_excluded", {})
@@ -534,6 +543,9 @@ def selftest():
             buf = io.BytesIO()
             hdu.writeto(buf)
             files.append((f"1990/MP00_5250078_00_09005{d.day:02d}_1800.fits", buf.getvalue()))
+            if d.day == 2:
+                # Same instant and pixels, earlier filename: would win the final tie-break without A2.
+                files.append(("1990/MP00_5250078_00_0900502_0000.fits", buf.getvalue()))
             for noaa, dlat, dlon in (("6000", 0.0, 0.0), ("6001", 3.0, 4.0)):
                 if noaa == "6001" and d.day != 2:
                     continue
@@ -616,6 +628,43 @@ h = {{f.name: hashlib.sha256(f.read_bytes()).hexdigest() for f in out.iterdir()}
                     receipt = json.loads((td / "nonfinite_receipt/RECEIPT.json").read_text())
                     ok("non-finite measurements produce a failed partial receipt",
                        failed and receipt["partial"] and receipt["passed"] < receipt["total"])
+            # Real exclusion through the full runner -> independent recount path.
+            excluded_name, excluded_blob = next((n, b) for n, b in files if n.endswith("0900502_0000.fits"))
+            excluded = {excluded_name: hashlib.sha256(excluded_blob).hexdigest()}
+            with tempfile.TemporaryDirectory() as ld:
+                list_path = Path(ld) / "excluded.csv"
+                list_path.write_text("member,sha256\n" + excluded_name + "," + excluded[excluded_name] + "\n")
+                ok("A2 own list reader preserves the nonempty exclusion", a2_excluded(list_path) == excluded)
+            code_a2 = code.replace("out = td / 'cat';", "out = td / 'cat_a2';").replace(
+                "C.magnetogram_table(td, years=[1990])",
+                "C.magnetogram_table(td, years=[1990], excluded=" + repr(excluded) + ")")
+            rr = subprocess.run([sys.executable, "-c", code_a2], capture_output=True, text=True, cwd=ROOT)
+            ok("A2 runner executed with an actual excluded member", rr.returncode == 0,
+               rr.stderr[-300:] if rr.returncode else "")
+            if rr.returncode == 0:
+                cat_a2 = td / "cat_a2"
+                a2_kw = dict(silso_tot=td / "tot.txt", silso_hem=td / "hem.csv", a2=excluded)
+                ok("A2 full independent recount passes with a nonempty exclusion",
+                   check(cat_a2, td / "a2_receipt", dpd=td, archive=td, years=[1990], write=True, **a2_kw))
+                chosen = pd.read_csv(cat_a2 / "DESIGN.csv", dtype={"noaa": str})
+                attempted = pd.read_csv(cat_a2 / "ATTEMPTS.csv.gz", dtype={"noaa": str})
+                fallback = chosen[(chosen.record_set == "all") & (chosen.noaa == "6001")]
+                prior = pd.read_csv(td / "cat/ATTEMPTS.csv.gz", dtype={"noaa": str})
+                ok("A2 replaces the would-be winner by the healthy scan of the same UTC day",
+                   excluded_name in set(prior.member.dropna()) and len(fallback) == 1
+                   and fallback.iloc[0].day == "1990-05-02" and fallback.iloc[0].member.endswith("0900502_1800.fits")
+                   and excluded_name not in set(attempted.member.dropna()))
+                wrong_kw = dict(a2_kw, a2={excluded_name: "0" * 64})
+                ok("A2 independent recount refuses an incorrect excluded-member SHA",
+                   not check(cat_a2, td / "a2_wrong_sha", dpd=td, archive=td, years=[1990], write=False, **wrong_kw))
+                mt = pd.read_csv(cat_a2 / "MAGNETOGRAMS.csv.gz")
+                mt.loc[mt.member == excluded_name, "status"] = "ok"
+                mt.to_csv(cat_a2 / "MAGNETOGRAMS.csv.gz", index=False)
+                ma = json.loads((cat_a2 / "META.json").read_text())
+                ma["products_sha256"]["MAGNETOGRAMS.csv.gz"] = hashlib.sha256((cat_a2 / "MAGNETOGRAMS.csv.gz").read_bytes()).hexdigest()
+                (cat_a2 / "META.json").write_text(json.dumps(ma))
+                ok("A2 independent recount refuses a missing excluded_A2 marking even with updated product hash",
+                   not check(cat_a2, td / "a2_wrong_mark", dpd=td, archive=td, years=[1990], write=False, **a2_kw))
     print(f"selftest: {sum(res)}/{len(res)} superati")
     return all(res)
 

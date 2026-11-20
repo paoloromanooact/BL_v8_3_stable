@@ -2,7 +2,8 @@
 
 **BOZZA NON CONGELATA, 20 novembre 2026 (Claude), su proposta di Codex. Da rivedere e congelare prima della misura R3.**
 Protocollo di riferimento: `docs/PROTOCOL_T3_MWO.md` (SHA-256 `4408a0ee…`), §2 «Magnetogrammi»; emendamento A1
-(`bc88452b…`) invariato. **Cieco:** nessun tilt MWO è stato letto; la decisione usa solo header e valori dei pixel.
+(`bc88452b…`) invariato. **Cieco rispetto ai tilt del catalogo lungo:** restano sigillati; la decisione usa solo header e valori dei pixel.
+I risultati del pilota recente MWO e dei confronti HMI/MDI erano già noti.
 
 ## Problema
 
@@ -30,6 +31,8 @@ MWO-HMI-MDI, SHA-256 `0594aa66…`, motivazione «pathological field distributio
    `docs/PROTOCOL_T3_MWO_AMENDMENT_A2_EXCLUDED_FITS.csv` (nome, data, TAVG-UT, GV, dimensione, SHA-256 del contenuto
    del membro dell'archivio). Una regola «GV ≠ 3» toglierebbe anche i magnetogrammi Na I con GV = 1,33, che sono un
    caso diverso e comunque esclusi da T3 come righe Na.
+   **Identità del CSV congelato (SHA-256):** `8b7ddba53c54c9771d32da2bb98e2b086f47972765769c823cd8f70349c4758f`. Runner e riconteggio devono verificarla.
+   Il numero di membri deve essere 18, senza duplicati; un elenco diverso richiede un nuovo emendamento.
 2. **Prima della scelta del magnetogramma.** I file dell'elenco non sono candidati per nessun giorno: la regola
    congelata (classe di risoluzione, poi vicinanza all'ora DPD, poi TAVG minimo) sceglie fra le scansioni restanti
    dello stesso giorno UTC, e la regola del primo giorno riuscito resta invariata. Le regioni coinvolte possono

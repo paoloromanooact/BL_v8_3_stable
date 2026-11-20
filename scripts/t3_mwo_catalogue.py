@@ -156,9 +156,17 @@ def eligible(g):
 
 # ---------------------------------------------------------------- magnetograms
 
-def a2_list(path=A2_LIST):
+def a2_list(path=A2_LIST, amendment=None):
     """{member: SHA-256 of the member content} of the files excluded by amendment A2."""
+    if amendment is not None:
+        import re
+        text = Path(amendment).read_text()
+        identity = re.search(r"Identità del CSV congelato \(SHA-256\):\*\* `([0-9a-f]{64})`", text)
+        if identity is None or hashlib.sha256(Path(path).read_bytes()).hexdigest() != identity.group(1):
+            raise SystemExit("amendment A2: exclusion-list SHA-256 differs from the frozen text")
     t = pd.read_csv(path)
+    if len(t) != 18 or t.member.duplicated().any():
+        raise SystemExit("amendment A2: exactly 18 distinct excluded members required")
     return dict(zip(t.member, t.sha256))
 
 
@@ -492,7 +500,7 @@ def run(protocol_sha, amendment_sha, amendment2_sha):
         sys.exit("catalogue output exists")
     commit = git("rev-parse", "HEAD")
     groups_all = dpd_groups()
-    excl = a2_list()
+    excl = a2_list(amendment=AMENDMENT2)
     mags = magnetogram_table(excluded=excl)
     if int((mags.status == "excluded_A2").sum()) != len(excl):
         sys.exit("amendment A2: not every listed file was found in the archives")
