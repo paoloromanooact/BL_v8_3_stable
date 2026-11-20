@@ -61,8 +61,10 @@ def fig_joy(joy, out):
     off = {("N", True): -0.15, ("S", True): -0.05, ("N", False): 0.05, ("S", False): 0.15}
     for (h, w), g in joy.groupby(["hemisphere", "weighted"]):
         x = g.cycle.to_numpy() + off[(h, bool(w))]
-        ax.errorbar(x, g.k_deg, yerr=[g.k_deg - g.lo, g.hi - g.k_deg], fmt="o" if w else "s", capsize=2,
-                    label=f"{h}, {'flux-weighted' if w else 'unweighted'}", mfc="none" if not w else None)
+        # percentile intervals need not contain the estimate: draw them as segments between the two bounds
+        line = ax.plot(x, g.k_deg, "o" if w else "s", label=f"{h}, {'flux-weighted' if w else 'unweighted'}",
+                       mfc="none" if not w else None)[0]
+        ax.vlines(x, g.lo, g.hi, color=line.get_color())
         for xi, pc in zip(x, g.partial_cycle):
             if pc:
                 ax.annotate("partial", (xi, ax.get_ylim()[0]), fontsize=6, ha="center")
@@ -80,7 +82,8 @@ def fig_wl(s1, out):
     for h, mk, dx in (("N", "o", -0.1), ("S", "s", 0.1)):
         g = s1[s1.hemisphere == h]
         x = np.array([EPOCHS.index(e) for e in g.epoch]) + dx
-        ax.errorbar(x, g["diff"], yerr=[g["diff"] - g.lo, g.hi - g["diff"]], fmt=mk, capsize=2, label=h)
+        line = ax.plot(x, g["diff"], mk, label=h)[0]
+        ax.vlines(x, g.lo, g.hi, color=line.get_color())
     ax.axhspan(-2.4, 2.4, color="grey", alpha=0.15, label="+-2.4 deg (10 % of gamma0)")
     ax.set_xticks(range(len(EPOCHS)))
     ax.set_xticklabels(EPOCHS)
