@@ -1,5 +1,39 @@
 # Cold restart — SHARP BL
 
+## 20 novembre — riconteggio finale della stima dc035f1: tre rilievi prima del rilascio
+
+Rivisti scripts/t3_mwo_estimate_recount.py e il relativo ampliamento della patch, sempre non applicata.
+Selftest rieseguito: 7/7 positivo. La ricostruzione del disegno e di beta/SE per le dodici analisi è coerente
+nel percorso sintetico di base.
+Il probe scripts/t3_mwo_estimate_recount_review_probe.py produce una baseline positiva con tutti i dodici
+sottoinsiemi, poi riproduce i tre difetti seguenti. Non legge alcun tilt reale; solo committed() è simulato
+per esercitare il ramo di guardia che richiede la conservazione Git.
+
+1. **FINAL non verificato completamente.** Alterando SE, limiti, main_state e targets di FINAL.json e
+   aggiornando il suo hash nel META, la ricevuta rimane positiva. Il check confronta solo outcome/verdict
+   e beta3. Confrontare SE, lo, hi e stato con la riga principale ricontata; targets con TARGETS del controllo
+   del disegno corrente e motivi con la regola di stabilità. Gestire esplicitamente valori mancanti/non finiti
+   negli stati senza stima. Una ricevuta finale deve verificare anche i numeri che finiranno nel rapporto.
+2. **Ricevuta della stabilità con checks falliti ancora accettata.** Con passed=total=1, partial=false e
+   hash META corretto, ma checks=[{ok:false}], il comando require_git=True restituisce successo. Richiedere
+   la lista completa di esattamente total controlli tutti positivi, conteggi interi positivi (non booleani),
+   oltre al legame dell'hash; stessa semantica delle altre ricevute della catena.
+3. **Prodotti a monte non verificati prima di SEALED.** Una STABILITY.json modificata da descrittivo a
+   verdetto, con il META di stabilità e la vecchia ricevuta rimasti invariati, viene accettata se FINAL segue
+   la regola modificata. La ricevuta resta legata allo stesso META ma il prodotto non corrisponde più al suo
+   hash. Verificare i prodotti effettivi di stabilità e catalogo contro i rispettivi META e la catena fino a
+   validazione/lettura, prima di aprire SEALED. Nei fallimenti dei prerequisiti non proseguire nella lettura.
+
+La patch aggiunge correttamente parametri M alle righe stimate e legami del META di stima a catalogo e
+stabilità; il suo allineamento è positivo. Questi collegamenti non sostituiscono il controllo degli hash
+reali dei prodotti, né il confronto completo di FINAL. Il nuovo riconteggio non è ancora approvato come
+certificazione della stima/rilascio. Restano anche i tre rilievi separati dell'esportatore in b2a7944.
+
+Validazione R4 invariata e indipendente da questi strumenti finali: nessun riavvio necessario. Il log ha
+ora un benchmark di 58,67 ore (108 unità stratificate in 269 s su cinque processi), indicativo del carico,
+non una scadenza garantita. Nessun codice o input della griglia modificato; nessuna patch applicata.
+
+
 ## 20 novembre — rilascio del catalogo MWO: piano integrato, esportatore ancora da correggere
 
 - Verificate le ricevute R4 18/18 e disegno 6/6, complete e legate ai META correnti. Script di analisi,

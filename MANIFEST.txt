@@ -1027,6 +1027,7 @@ scripts/t3_mwo_catalogue_recount.py
 scripts/t3_mwo_catalogue_release.py
 scripts/t3_mwo_chain_review_probe.py
 scripts/t3_mwo_estimate_recount.py
+scripts/t3_mwo_estimate_recount_review_probe.py
 scripts/t3_mwo_fetch_sdpd.py
 scripts/t3_mwo_metadata_audit.py
 scripts/t3_mwo_release_review_probe.py

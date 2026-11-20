@@ -1,5 +1,10 @@
 # Cronologia
 
+## 2026-11-20 — revisione del riconteggio finale MWO
+
+- Selftest 7/7 confermato; tre controesempi richiedono confronto completo di FINAL, ricevute con checks positivi e verifica dei prodotti a monte.
+- Registrata una sonda sintetica riproducibile. Nessuna modifica o ripartenza della validazione R4.
+
 ## 2026-11-20 — revisione del piano di rilascio MWO
 
 - Integrati requisiti di catena, riconteggio della stima e controllo descrittivo della legge di Joy.
