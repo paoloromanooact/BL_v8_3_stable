@@ -35,6 +35,9 @@ STAB = ROOT / "results/T3_MWO_STABILITY_R4"
 STAB_RC = ROOT / "results/T3_MWO_STABILITY_R4_RECOUNT"
 EST = ROOT / "results/T3_MWO_ESTIMATE_R4"
 OUT = ROOT / "results/T3_MWO_ESTIMATE_R4_RECOUNT"
+CHECK = ROOT / "results/T3_MWO_DESIGN_CHECK_R4"
+VAL = ROOT / "results/T3_MWO_VALIDATION_R4"
+VAL_READ = ROOT / "results/T3_MWO_VALIDATION_R4_READING"
 ORDER = RC.ORDER
 MINIMA = ("1976-03-01", "1986-09-01", "1996-08-01", "2008-12-01")
 ANALYSES = {  # own definition of protocol §3 (main and sensitivities)
@@ -142,22 +145,61 @@ def recount_row(d, saved):
     return good, "stimato"
 
 
-def check(cat=CAT, stab=STAB, stab_rc=STAB_RC, est=EST, out=OUT, write=True, require_git=True):
+def receipt_complete(path, key, meta_path):
+    """Same semantics as the other receipts of the chain: positive integer counts (not booleans), passed == total,
+    exactly `total` checks all passed, not partial, bound to the SHA-256 of the META it recounted."""
+    r = json.loads(Path(path).read_text())
+    p_, t_, c = r.get("passed"), r.get("total"), r.get("checks")
+    is_int = lambda x: isinstance(x, int) and not isinstance(x, bool)     # noqa: E731
+    return (is_int(p_) and is_int(t_) and t_ > 0 and p_ == t_ and isinstance(c, list) and len(c) == t_
+            and all(isinstance(x, dict) and x.get("ok") is True for x in c) and r.get("partial") is False
+            and r.get(key) == h256(meta_path))
+
+
+def products_match(directory):
+    """Every product listed in META exists and has its declared SHA-256, and no product is unlisted."""
+    m = json.loads((Path(directory) / "META.json").read_text())
+    listed = m.get("products_sha256", {})
+    present = {f.name for f in Path(directory).iterdir() if f.is_file() and f.name not in ("META.json", "RUN.log")}
+    return bool(listed) and set(listed) == present and all(h256(Path(directory) / n) == h for n, h in listed.items())
+
+
+def upstream_problems(cat, check_dir, val, val_read, stab, stab_rc, est):
+    """Before SEALED is read (Codex, cb41c53): actual products of catalogue, design check, validation, stability and
+    estimate match their META; stability links to the current catalogue, design check, validation and reading; the
+    stability recount receipt has the full semantics."""
+    out = [f"{Path(d).name}: products do not match META" for d in (cat, check_dir, val, stab, est) if not products_match(d)]
+    sm = json.loads((Path(stab) / "META.json").read_text())
+    for key, meta in (("catalogue_meta_sha256", Path(cat) / "META.json"),
+                      ("design_check_meta_sha256", Path(check_dir) / "META.json"),
+                      ("validation_meta_sha256", Path(val) / "META.json"), ("reading_sha256", Path(val_read) / "READ.json")):
+        if sm.get(key) != h256(meta):
+            out.append(f"stability META not bound to the current {key}")
+    if not receipt_complete(Path(stab_rc) / "RECEIPT.json", "stability_meta_sha256", Path(stab) / "META.json"):
+        out.append("stability recount receipt not complete or not bound")
+    return out
+
+
+def check(cat=CAT, stab=STAB, stab_rc=STAB_RC, est=EST, out=OUT, write=True, require_git=True, check_dir=CHECK,
+          val=VAL, val_read=VAL_READ):
     res = []
 
     def ok(n, c, v=""):
         res.append(dict(name=n, ok=bool(c), value=str(v)))
         print(f"[{'OK' if c else 'FALLITO'}] {n} {v}")
     if require_git:
-        for p in (cat, stab, stab_rc, est):
+        for p in (cat, check_dir, val, val_read, stab, stab_rc, est):
             if not committed(p):
                 sys.exit(f"{Path(p).name} not preserved in Git")
-        r = json.loads((Path(stab_rc) / "RECEIPT.json").read_text())
-        good = (isinstance(r.get("total"), int) and r["total"] > 0 and r.get("passed") == r["total"]
-                and r.get("partial") is False and r.get("stability_meta_sha256") == h256(Path(stab) / "META.json"))
-        ok("stability recount receipt complete and bound", good)
-        if not good:
-            sys.exit("stability recount not complete: no estimate recount")
+    up = upstream_problems(cat, check_dir, val, val_read, stab, stab_rc, est) if require_git else \
+        [f"{Path(d).name}: products do not match META" for d in (stab, est) if not products_match(d)]
+    ok("upstream chain before SEALED: products match META, stability bound, stability receipt complete", not up, up)
+    if up:
+        if write:
+            Path(out).mkdir(parents=True, exist_ok=False)
+            (Path(out) / "RECEIPT.json").write_text(json.dumps(dict(checks=res, passed=0, total=len(res), partial=True,
+                                                                    reason=up), indent=2) + "\n")
+        return False                              # never proceed to SEALED when a prerequisite fails
     meta = json.loads((Path(est) / "META.json").read_text())
     ok("estimate product hashes; estimate bound to the stability and catalogue META",
        all(h256(Path(est) / n) == h for n, h in meta["products_sha256"].items())
@@ -184,12 +226,23 @@ def check(cat=CAT, stab=STAB, stab_rc=STAB_RC, est=EST, out=OUT, write=True, req
     main = tab[tab.analysis == "main"].iloc[0]
     outcome = stab_rule if states.get("main") == "stimato" else "non concludente"
     fin = json.loads((Path(est) / "FINAL.json").read_text())
+    stab_reasons = json.loads((Path(stab) / "STABILITY.json").read_text())["rule"]["reasons"]
     verdict = None
     if outcome == "verdetto":
         verdict = "supportato" if main.hi < 0 else ("opposto" if main.lo > 0 else "non deciso")
-    ok("FINAL: outcome from the recounted stability rule and the main state; verdict only for 'verdetto'",
-       fin.get("outcome") == outcome and fin.get("verdict") == verdict
-       and (states.get("main") != "stimato" or abs(fin.get("beta3") - main.beta) < 1e-12), (outcome, verdict))
+
+    def same(a, b):
+        if a is None or b is None or (isinstance(a, float) and not math.isfinite(a)):
+            return (a is None or (isinstance(a, float) and not math.isfinite(a))) and \
+                (b is None or (isinstance(b, float) and not math.isfinite(b)))
+        return abs(float(a) - float(b)) <= 1e-12 * max(1.0, abs(float(b)))
+    nums = all(same(fin.get(k), (getattr(main, c) if states.get("main") == "stimato" else None))
+               for k, c in (("beta3", "beta"), ("se", "se"), ("lo", "lo"), ("hi", "hi")))
+    targets_cur = json.loads((Path(check_dir) / "TARGETS.json").read_text()) if (Path(check_dir) / "TARGETS.json").exists() else None
+    ok("FINAL: outcome, verdict, reasons, main state, beta3/SE/bounds and targets equal to the recounted values",
+       fin.get("outcome") == outcome and fin.get("verdict") == verdict and nums
+       and fin.get("main_state") == main.state and fin.get("targets") == targets_cur
+       and fin.get("reasons") == stab_reasons, (outcome, verdict))
     if write:
         Path(out).mkdir(parents=True, exist_ok=False)
         (Path(out) / "RECEIPT.json").write_text(json.dumps(dict(
@@ -228,8 +281,9 @@ al = d.assign(record_set='all'); dd = pd.concat([d, al], ignore_index=True)
 (td / 'cat').mkdir(); dd.to_csv(td / 'cat/DESIGN.csv', index=False); (td / 'cat/META.json').write_text('{{}}')
 sealed = pd.DataFrame(dict(record_set=dd.record_set, noaa=dd.noaa, gamma_deg=np.concatenate([g, g])))
 sealed.to_csv(td / 'cat/SEALED.csv.gz', index=False)
-(td / 'stab').mkdir(); (td / 'stab/STABILITY.json').write_text(json.dumps(dict(rule=dict(outcome='descrittivo'))))
-(td / 'stab/META.json').write_text('{{}}')
+(td / 'stab').mkdir(); (td / 'stab/STABILITY.json').write_text(json.dumps(dict(rule=dict(outcome='descrittivo', reasons='S2 x'))))
+(td / 'stab/META.json').write_text(json.dumps(dict(products_sha256={{'STABILITY.json': hashlib.sha256((td / 'stab/STABILITY.json').read_bytes()).hexdigest()}})))
+(td / 'chk').mkdir(); (td / 'chk/TARGETS.json').write_text(json.dumps(dict(delta_beta_20=-1.0, C=0.5)))
 rows = []
 for name, opt in (('main', {{}}),) + A.SENSITIVITIES:
     x = dd[dd.record_set == opt.get('set_name', 'isolated')].reset_index(drop=True)
@@ -239,7 +293,8 @@ for name, opt in (('main', {{}}),) + A.SENSITIVITIES:
     rows.append(dict(analysis=name, **r))
 tab = pd.DataFrame(rows); main = tab.iloc[0]
 (td / 'est').mkdir(); tab.to_csv(td / 'est/ESTIMATE.csv', index=False)
-(td / 'est/FINAL.json').write_text(json.dumps(dict(outcome='descrittivo', verdict=None, beta3=float(main.beta))))
+(td / 'est/FINAL.json').write_text(json.dumps(dict(outcome='descrittivo', reasons='S2 x', beta3=float(main.beta), se=float(main.se),
+    lo=float(main.lo), hi=float(main.hi), main_state=main.state, verdict=None, targets=dict(delta_beta_20=-1.0, C=0.5))))
 h = {{f.name: hashlib.sha256(f.read_bytes()).hexdigest() for f in (td / 'est').iterdir()}}
 (td / 'est/META.json').write_text(json.dumps(dict(products_sha256=h,
     stability_meta_sha256=hashlib.sha256((td / 'stab/META.json').read_bytes()).hexdigest(),
@@ -257,7 +312,7 @@ h = {{f.name: hashlib.sha256(f.read_bytes()).hexdigest() for f in (td / 'est').i
         ok("patched analysis module produced the synthetic estimate (subprocess)", pr.returncode == 0 and r.returncode == 0,
            (pr.stderr + r.stderr)[-300:])
         if r.returncode == 0:
-            kw = dict(cat=td / "cat", stab=td / "stab", est=td / "est", write=False, require_git=False)
+            kw = dict(cat=td / "cat", stab=td / "stab", est=td / "est", write=False, require_git=False, check_dir=td / "chk")
             ok("recount passes on the synthetic estimate", check(**kw))
             tab = pd.read_csv(td / "est/ESTIMATE.csv")
             meta = json.loads((td / "est/META.json").read_text())
@@ -282,6 +337,34 @@ h = {{f.name: hashlib.sha256(f.read_bytes()).hexdigest() for f in (td / 'est').i
             meta["products_sha256"]["FINAL.json"] = h256(td / "est/FINAL.json")
             (td / "est/META.json").write_text(json.dumps(meta))
             ok("refused: FINAL turned into a verdict against the stability rule", not check(**kw))
+            for k, v in (("se", fin["se"] * 2), ("lo", fin["lo"] - 1), ("hi", fin["hi"] + 1), ("main_state", "errore di M"),
+                         ("targets", dict(delta_beta_20=-9.0, C=0.5)), ("reasons", "altro")):
+                (td / "est/FINAL.json").write_text(json.dumps(dict(fin, **{k: v})))
+                meta["products_sha256"]["FINAL.json"] = h256(td / "est/FINAL.json")
+                (td / "est/META.json").write_text(json.dumps(meta))
+                ok(f"refused: FINAL {k} altered (hash updated)", not check(**kw))
+            (td / "est/FINAL.json").write_text(json.dumps(fin))
+            meta["products_sha256"]["FINAL.json"] = h256(td / "est/FINAL.json")
+            (td / "est/META.json").write_text(json.dumps(meta))
+            st = json.loads((td / "stab/STABILITY.json").read_text())
+            (td / "stab/STABILITY.json").write_text(json.dumps(dict(rule=dict(outcome="verdetto", reasons=""))))
+            (td / "est/FINAL.json").write_text(json.dumps(dict(fin, outcome="verdetto", reasons="", verdict="non deciso")))
+            meta["products_sha256"]["FINAL.json"] = h256(td / "est/FINAL.json")
+            (td / "est/META.json").write_text(json.dumps(meta))
+            ok("refused: stability product changed with its META unchanged (FINAL following the change)", not check(**kw))
+            (td / "stab/STABILITY.json").write_text(json.dumps(st))
+    with tempfile.TemporaryDirectory() as td:
+        td = Path(td)
+        (td / "m.json").write_text("{}")
+        base = dict(passed=1, total=1, partial=False, stability_meta_sha256=h256(td / "m.json"))
+        cases = [dict(base, checks=[{"ok": False}]), dict(base, checks=[]), dict(base, passed=True, total=True,
+                 checks=[{"ok": True}]), dict(base, checks=[{"ok": True}], partial=True), dict(base, checks=[{"ok": True}])]
+        out = []
+        for c in cases:
+            (td / "r.json").write_text(json.dumps(c))
+            out.append(receipt_complete(td / "r.json", "stability_meta_sha256", td / "m.json"))
+    ok("stability receipt: failed check, missing checks, boolean counts, partial refused; complete accepted",
+       out == [False, False, False, False, True], out)
     print(f"selftest: {sum(res)}/{len(res)} superati")
     return all(res)
 
