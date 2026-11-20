@@ -1,0 +1,41 @@
+{
+  "protocol_sha256": "4408a0ee78d48f65275a1a4936ce687fe324a35598dd5bb18a8f3e53a01df8ff",
+  "amendment_a1_sha256": "bc88452b382d739866ff801a14aecf596968e092904906d7d7298355a0e063c5",
+  "amendment_a2_sha256": "0d50aa1692f2972a0c676f448ea9a0c0db7205fb53efc44c371e9215c531349d",
+  "a2_list_sha256": "8b7ddba53c54c9771d32da2bb98e2b086f47972765769c823cd8f70349c4758f",
+  "amendment_a3_sha256": "27df9bb794e41f24b7b521fb23da3f70f4b1bc733264384c036f10a0836437de",
+  "a3_list_sha256": "21beaef50e9beca38bc2150996adbf031e1d55192dea60682e4608a802541275",
+  "git_commit": "fb1e1eb4d354be79e02857801e8ac591254d0d63",
+  "script_sha256": "b0a21bdb8ab2df8f0a0c4718a2d018c02548da7974a4b2dc0431fe23ee0048c7",
+  "pilot_script_sha256": "75b534ecd6d39b7c85926af37faac4ff58aebecb0d59def1546c48c362401c9b",
+  "mwo_pipeline_sha256": "7babd2a6031e0425dd6108431ae80f2966eb3edb95cafc2b9e652247410f4789",
+  "dpd_sha256sums": "d34b160555dbb7eee159129c5b5d01ac040d63146dbfd1481d161dd5179efce2",
+  "silso_tot_sha256": "e83932c7a47a12c4826e3ed5ca48da0a49ef6da98aebb9580e2b83ff272d87a7",
+  "silso_hem_sha256": "32690e4372ab6355d05f54d9ccd96158564029892a62128db42eb3fa8b79292f",
+  "n_attempts": 91967,
+  "n_records": {
+    "all": 5942,
+    "isolated": 5223
+  },
+  "coverage": {
+    "n_isolated_records": 5223,
+    "per_cycle_hemisphere": {
+      "21N": 595,
+      "21S": 657,
+      "22N": 779,
+      "22S": 901,
+      "23N": 839,
+      "23S": 934
+    },
+    "outcome": "informativo"
+  },
+  "products_sha256": {
+    "ATTEMPTS.csv.gz": "b0465973909a931a019a7104a1c8fef7558973b49e6778f32d6219f57cf85828",
+    "COVERAGE.json": "0207cccc7ddce3ba5cf52e7fc5ea4aab7123763388fa62af6ad6e927f3717d1f",
+    "DESIGN.csv": "ceb09f2080d04e05a3e354f41ffbb8ec48c5b0ba860015443a90315f7f1742e4",
+    "LOSSES.csv": "169b60168283fb12f15d17d0f20bc2afc06955acdb0643075e1a2b6044a27b63",
+    "MAGNETOGRAMS.csv.gz": "f73ef26c9588a7695ad1cf5b920eafdc8765fa1547905c2c034d7d34deffa353",
+    "SEALED.csv.gz": "a3cf9fa39bdff1f3fc81d0915969144c51b413e4131e63539c2bb602ad766603"
+  },
+  "sealed_note": "SEALED.csv.gz is not to be read before the validation is preserved, recounted and read"
+}
