@@ -1043,6 +1043,7 @@ scripts/t3_mwo_coverage_figures.py
 scripts/t3_mwo_estimate_recount.py
 scripts/t3_mwo_estimate_recount_review_probe.py
 scripts/t3_mwo_fetch_sdpd.py
+scripts/t3_mwo_final_figures.py
 scripts/t3_mwo_metadata_audit.py
 scripts/t3_mwo_release_review_probe.py
 scripts/t3_mwo_stability_extras.py
