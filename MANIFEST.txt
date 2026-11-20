@@ -986,6 +986,7 @@ scripts/t3_mwo_fetch_sdpd.py
 scripts/t3_mwo_metadata_audit.py
 scripts/t3_mwo_stability_extras.py
 scripts/t3_mwo_stability_recount.py
+scripts/t3_mwo_stability_recount_residual_probe.py
 scripts/t3_mwo_stability_recount_review_probe.py
 scripts/t3_mwo_stability_wiring_probe.py
 scripts/t3_mwo_variance_review_probe.py

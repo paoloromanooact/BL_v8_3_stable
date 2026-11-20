@@ -1,5 +1,33 @@
 # Revisione della consegna statistica T3 MWO — 18 novembre 2026
 
+## 20 novembre — riconteggio di stabilità 7fd1121: miglioramenti confermati, due rilievi residui
+
+Rivisto il nuovo riconteggio e la patch non applicata. Selftest 16/16 positivo: la nuova fixture
+end-to-end copre C, S1, S2 per emisfero, P1 e tabelle descrittive; le tredici mutazioni previste
+sono rifiutate. Il vecchio probe f72 non è direttamente riutilizzabile: alla nuova firma va passato
+il riferimento P1 sintetico, altrimenti fallisce la baseline per una fixture non aggiornata.
+
+Due controesempi ulteriori, riproducibili con
+`OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 .venv/bin/python scripts/t3_mwo_stability_recount_residual_probe.py`:
+
+1. **Dominio dei parametri S2.** Sul campione sintetico integro, impostando phi=-0,1 e ricalcolando
+   SE e limiti coerentemente, il controllo completo rimane positivo. La covarianza è calcolabile,
+   ma phi non appartiene al dominio M congelato [0; 0,98]. `s2_recompute` deve controllare finitezza,
+   dominio REML dei cinque parametri, SE finito e positivo e limiti finiti, prima di qualsiasi confronto.
+   Applicare alle stime complessive, emisferiche e P1. Provare anche sigma_x2 <= 0 e kappa fuori dominio.
+2. **Catena prima di SEALED.** `chain_problems` controlla le ricevute e i legami dello STABILITY META,
+   ma non i legami check META → catalogo e validation META → check, né ACCEPTANCE.problems.
+   Con una validazione legata a un disegno obsoleto e `problems=['incomplete grid']` restituisce comunque
+   lista vuota, anche se il ramo principale di analisi la rifiuterebbe. Verificare questi legami e
+   distinguere validazione negativa valida (via descrittiva) da validazione tecnicamente invalida
+   (nessuna apertura). Nel probe solo `committed` è simulato, per isolare la guardia dai file Git reali.
+
+Il probe restituisce 1 finché uno dei due casi viene accettato. Nessuna risposta reale sigillata letta.
+Le correzioni possono restare nel riconteggio separato; nessuna modifica o ripartenza della validazione
+attiva è richiesta da questi due rilievi. La patch resta non applicata; manca ancora il via al nuovo
+riconteggio come requisito affidabile della stima finale.
+
+
 ## Revisione di S1–S4 e della patch estesa f72c25c — 20 novembre 2026
 
 La prova completa di check() è stata eseguita su dati interamente sintetici, senza aprire i tilt MWO

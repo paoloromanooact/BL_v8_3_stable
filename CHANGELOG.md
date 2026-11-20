@@ -1,5 +1,10 @@
 # Cronologia
 
+## 2026-11-20 — seconda verifica del riconteggio di stabilità
+
+- Confermati i 16 selftest di 7fd1121; due ulteriori controesempi richiedono dominio S2 e catena completa prima del sigillo.
+- Registrato un probe sintetico riproducibile; script e ingressi della validazione restano invariati.
+
 ## 2026-11-20 — diagnosi dei pesi MWO sui metadati
 
 - Ricontate le precisioni normali per tre pesature, senza leggere risposte reali.
