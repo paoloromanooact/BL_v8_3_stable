@@ -49,11 +49,13 @@ PROTOCOL = ROOT / "docs/PROTOCOL_T3_MWO.md"
 AMENDMENT = ROOT / "docs/PROTOCOL_T3_MWO_AMENDMENT_A1.md"
 AMENDMENT2 = ROOT / "docs/PROTOCOL_T3_MWO_AMENDMENT_A2.md"
 A2_LIST = ROOT / "docs/PROTOCOL_T3_MWO_AMENDMENT_A2_EXCLUDED_FITS.csv"   # 18 files with field x100, saturated
+AMENDMENT3 = ROOT / "docs/PROTOCOL_T3_MWO_AMENDMENT_A3.md"
+A3_LIST = ROOT / "docs/PROTOCOL_T3_MWO_AMENDMENT_A3_EXCLUDED_FITS.csv"   # 8 files with anomalous field distribution
 DPD_DIR = ROOT / "data/sharp/external_DPD_20261118"
 SILSO_TOT = ROOT / "ancillary/SILSO_TOT/SN_m_tot_V2.0.txt"
 SILSO_HEM = ROOT / "ancillary/SILSO_HEMI/SN_m_hem_V2.0.csv"
 MWO_DATA = P.MWO_DATA
-OUT = ROOT / "results/T3_MWO_CATALOGUE_R3"   # R1 (f718114): filename day; R2 (566122f): before amendment A2
+OUT = ROOT / "results/T3_MWO_CATALOGUE_R4"   # R1 f718114: filename day; R2 566122f: before A2; R3 ed27106: before A3
 
 START, END = pd.Timestamp("1974-01-01"), pd.Timestamp("2013-01-01")      # DPD dates, UT
 ARCHIVE_YEARS = range(1974, 2014)                                          # 2013 archive may hold 2012-12-31 files
@@ -170,7 +172,20 @@ def a2_list(path=A2_LIST, amendment=None):
     return dict(zip(t.member, t.sha256))
 
 
-def magnetogram_table(archive_dir=MWO_DATA, years=ARCHIVE_YEARS, excluded=None):
+def a3_list(path=A3_LIST, amendment=None):
+    """{member: SHA-256} of the 8 files excluded by amendment A3; the CSV identity is bound to the frozen text."""
+    if amendment is not None:
+        import re
+        identity = re.search(r"SHA-256 del CSV\s*`([0-9a-f]{64})`", Path(amendment).read_text())
+        if identity is None or hashlib.sha256(Path(path).read_bytes()).hexdigest() != identity.group(1):
+            raise SystemExit("amendment A3: exclusion-list SHA-256 differs from the frozen text")
+    t = pd.read_csv(path)
+    if len(t) != 8 or t.member.duplicated().any():
+        raise SystemExit("amendment A3: exactly 8 distinct excluded members required")
+    return dict(zip(t.member, t.sha256))
+
+
+def magnetogram_table(archive_dir=MWO_DATA, years=ARCHIVE_YEARS, excluded=None, excluded3=None):
     """Header table of every Fe I magnetogram. day is the UTC date of obs_time.
 
     TAVG-UT can exceed 24 hours: filename_day is the observing-session date and
@@ -199,6 +214,11 @@ def magnetogram_table(archive_dir=MWO_DATA, years=ARCHIVE_YEARS, excluded=None):
                     if got != excluded[m.name]:
                         raise SystemExit(f"amendment A2: SHA-256 of {m.name} differs from the frozen list")
                     rows.append(dict(archive_year=y, member=m.name, day=day.strftime("%Y-%m-%d"), status="excluded_A2"))
+                    continue
+                if excluded3 and m.name in excluded3:   # amendment A3: same treatment as A2, own status
+                    if hashlib.sha256(blob).hexdigest() != excluded3[m.name]:
+                        raise SystemExit(f"amendment A3: SHA-256 of {m.name} differs from the frozen list")
+                    rows.append(dict(archive_year=y, member=m.name, day=day.strftime("%Y-%m-%d"), status="excluded_A3"))
                     continue
                 try:
                     h, _ = MP.parse_fits_bytes(blob)
@@ -475,10 +495,13 @@ def git(*a):
     return subprocess.run(["git", *a], cwd=ROOT, capture_output=True, text=True).stdout.strip()
 
 
-def gate_problem(protocol_sha, amendment_sha, protocol=None, amendment=None, amendment2_sha=None, amendment2=None):
+def gate_problem(protocol_sha, amendment_sha, protocol=None, amendment=None, amendment2_sha=None, amendment2=None,
+                 amendment3_sha=None, amendment3=None):
     files = ((Path(protocol or PROTOCOL), protocol_sha, "protocol"), (Path(amendment or AMENDMENT), amendment_sha, "amendment A1"))
     if amendment2_sha is not None or amendment2 is not None:
         files += ((Path(amendment2 or AMENDMENT2), amendment2_sha, "amendment A2"),)
+    if amendment3_sha is not None or amendment3 is not None:
+        files += ((Path(amendment3 or AMENDMENT3), amendment3_sha, "amendment A3"),)
     for f, sha, name in files:
         if not f.exists():
             return f"frozen {name} missing"
@@ -492,8 +515,8 @@ def gate_problem(protocol_sha, amendment_sha, protocol=None, amendment=None, ame
     return None
 
 
-def run(protocol_sha, amendment_sha, amendment2_sha):
-    why = gate_problem(protocol_sha, amendment_sha, amendment2_sha=amendment2_sha)
+def run(protocol_sha, amendment_sha, amendment2_sha, amendment3_sha):
+    why = gate_problem(protocol_sha, amendment_sha, amendment2_sha=amendment2_sha, amendment3_sha=amendment3_sha)
     if why:
         sys.exit(why)
     if OUT.exists():
@@ -501,9 +524,14 @@ def run(protocol_sha, amendment_sha, amendment2_sha):
     commit = git("rev-parse", "HEAD")
     groups_all = dpd_groups()
     excl = a2_list(amendment=AMENDMENT2)
-    mags = magnetogram_table(excluded=excl)
+    excl3 = a3_list(amendment=AMENDMENT3)
+    if set(excl) & set(excl3):
+        sys.exit("amendments A2 and A3 overlap")
+    mags = magnetogram_table(excluded=excl, excluded3=excl3)
     if int((mags.status == "excluded_A2").sum()) != len(excl):
         sys.exit("amendment A2: not every listed file was found in the archives")
+    if int((mags.status == "excluded_A3").sum()) != len(excl3):
+        sys.exit("amendment A3: not every listed file was found in the archives")
     print(f"magnetograms: {len(mags)} Fe I headers", flush=True)
     att, design, sealed, loss, cov = build(groups_all, mags)
     tmp = OUT.with_name(OUT.name + f".partial_{os.getpid()}")
@@ -517,7 +545,8 @@ def run(protocol_sha, amendment_sha, amendment2_sha):
     hashes = {f.name: hashlib.sha256(f.read_bytes()).hexdigest() for f in sorted(tmp.iterdir())}
     os.rename(tmp, OUT)
     meta = dict(protocol_sha256=protocol_sha, amendment_a1_sha256=amendment_sha, amendment_a2_sha256=amendment2_sha,
-                a2_list_sha256=hashlib.sha256(A2_LIST.read_bytes()).hexdigest(), git_commit=commit,
+                a2_list_sha256=hashlib.sha256(A2_LIST.read_bytes()).hexdigest(), amendment_a3_sha256=amendment3_sha,
+                a3_list_sha256=hashlib.sha256(A3_LIST.read_bytes()).hexdigest(), git_commit=commit,
                 script_sha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
                 pilot_script_sha256=hashlib.sha256((ROOT / "scripts/mwo_pilot_tilt.py").read_bytes()).hexdigest(),
                 mwo_pipeline_sha256=hashlib.sha256(P.MWO_PIPELINE.read_bytes()).hexdigest(),
@@ -660,6 +689,12 @@ def selftest():
             m3 = next(x for x in tf_.getmembers() if "0900503" in x.name)
             sha3 = hashlib.sha256(tf_.extractfile(m3).read()).hexdigest()
         mg_x = magnetogram_table(td, years=[1990], excluded={m3.name: sha3})
+        mg_x3 = magnetogram_table(td, years=[1990], excluded3={m3.name: sha3})
+        try:
+            magnetogram_table(td, years=[1990], excluded3={m3.name: "0" * 64})
+            bad_sha3_refused = False
+        except SystemExit:
+            bad_sha3_refused = True
         try:
             magnetogram_table(td, years=[1990], excluded={m3.name: "0" * 64})
             bad_sha_refused = False
@@ -684,6 +719,16 @@ def selftest():
        (mg_x.set_index("member").loc[m3.name, "status"] == "excluded_A2") and choose(
            mg_x[(mg_x.status == "ok") & (mg_x.day == "1990-05-03")].to_dict("records"), datetime(1990, 5, 3, 9)) is None
        and bad_sha_refused)
+    ok("amendment A3: listed member marked excluded_A3 and never a candidate; wrong SHA-256 refused",
+       (mg_x3.set_index("member").loc[m3.name, "status"] == "excluded_A3") and choose(
+           mg_x3[(mg_x3.status == "ok") & (mg_x3.day == "1990-05-03")].to_dict("records"), datetime(1990, 5, 3, 9)) is None
+       and bad_sha3_refused)
+    try:
+        real = (len(a2_list(amendment=AMENDMENT2)) == 18 and len(a3_list(amendment=AMENDMENT3)) == 8
+                and not set(a2_list()) & set(a3_list()))
+    except SystemExit:
+        real = False
+    ok("frozen A2 and A3 lists: identity bound to the frozen texts, 18 and 8 distinct members, no overlap", real)
     ok("end to end: attempts table has no tilt and keeps every candidate day with its status",
        len(att) == 4 and "tilt_deg" not in att.columns and set(att.status) == {"ok", "no_two_polarities"})
     with tempfile.TemporaryDirectory() as td:
@@ -708,13 +753,14 @@ def main():
     ap.add_argument("--protocol-sha")
     ap.add_argument("--amendment-sha")
     ap.add_argument("--amendment2-sha")
+    ap.add_argument("--amendment3-sha")
     a = ap.parse_args()
     if a.selftest:
         return 0 if selftest() else 1
-    if a.run and a.protocol_sha and a.amendment_sha and a.amendment2_sha:
+    if a.run and a.protocol_sha and a.amendment_sha and a.amendment2_sha and a.amendment3_sha:
         if not selftest():
             return 1
-        return run(a.protocol_sha, a.amendment_sha, a.amendment2_sha)
+        return run(a.protocol_sha, a.amendment_sha, a.amendment2_sha, a.amendment3_sha)
     ap.print_help()
     return 1
 

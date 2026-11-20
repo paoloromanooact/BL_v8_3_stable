@@ -26,9 +26,10 @@ import numpy as np
 import pandas as pd
 
 ROOT = Path(__file__).resolve().parents[1]
-CAT = ROOT / "results/T3_MWO_CATALOGUE_R3"            # UTC-day grouping (19530d6) and amendment A2
-OUT = ROOT / "results/T3_MWO_CATALOGUE_R3_RECOUNT"
+CAT = ROOT / "results/T3_MWO_CATALOGUE_R4"            # UTC-day grouping (19530d6), amendments A2 and A3
+OUT = ROOT / "results/T3_MWO_CATALOGUE_R4_RECOUNT"
 A2_LIST = ROOT / "docs/PROTOCOL_T3_MWO_AMENDMENT_A2_EXCLUDED_FITS.csv"
+A3_LIST = ROOT / "docs/PROTOCOL_T3_MWO_AMENDMENT_A3_EXCLUDED_FITS.csv"
 DPD = ROOT / "data/sharp/external_DPD_20261118"
 MWO_DATA = Path("/storage/shared/gianluca/MWO_project/Desktop/MWO/data MWO")
 WIN_LAT, WIN_LON, THR, BMAX, MU_MIN, RSUN = 6.0, 8.0, 50.0, 4000.0, 0.8, 6.96e10
@@ -160,9 +161,9 @@ def a2_excluded(path=A2_LIST):
     return {ln.split(",")[i_m]: ln.split(",")[i_s] for ln in lines[1:] if ln.strip()}
 
 
-def magnetograms(archive=MWO_DATA, years=range(1974, 2014), excluded=None):
+def magnetograms(archive=MWO_DATA, years=range(1974, 2014), excluded=None, excluded3=None):
     rows = []
-    seen_excluded = {}
+    seen_excluded, seen_excluded3 = {}, {}
     for y in years:
         p = Path(archive) / f"MWO_{y}.tar.gz"
         try:
@@ -180,6 +181,9 @@ def magnetograms(archive=MWO_DATA, years=range(1974, 2014), excluded=None):
                 if excluded and m.name in excluded:
                     seen_excluded[m.name] = hashlib.sha256(blob).hexdigest()
                     continue
+                if excluded3 and m.name in excluded3:
+                    seen_excluded3[m.name] = hashlib.sha256(blob).hexdigest()
+                    continue
                 try:
                     h, _, _ = header_and_data(blob)
                 except Exception:                                  # noqa: BLE001
@@ -195,6 +199,7 @@ def magnetograms(archive=MWO_DATA, years=range(1974, 2014), excluded=None):
                                  border=abs(abs(dcen) - CENLON_TOL) < BORDER_CEN or abs(abs(db0) - B0_TOL) < BORDER_B0,
                                  cls=res_class(h.get("DXB_OBS"), h.get("DYB_OBS")), epoch=epoch(m.name, h, ot)))
     magnetograms.seen_excluded = seen_excluded
+    magnetograms.seen_excluded3 = seen_excluded3
     return rows
 
 
@@ -264,10 +269,10 @@ def carrington_number(t):
 
 # ---------------------------------------------------------------- rebuild
 
-def rebuild(dpd=DPD, archive=MWO_DATA, years=range(1974, 2014), excluded=None):
+def rebuild(dpd=DPD, archive=MWO_DATA, years=range(1974, 2014), excluded=None, excluded3=None):
     gr = groups(dpd)
     nbr = isolation(gr)
-    mags = magnetograms(archive, years, excluded)
+    mags = magnetograms(archive, years, excluded, excluded3)
     by_day = {}
     for m in mags:
         by_day.setdefault(m["day"], []).append(m)
@@ -353,7 +358,7 @@ def activities(dpd=DPD, silso_tot=ROOT / "ancillary/SILSO_TOT/SN_m_tot_V2.0.txt"
 
 # ---------------------------------------------------------------- comparison with the runner products
 
-def check(cat=CAT, out=OUT, dpd=DPD, archive=MWO_DATA, years=range(1974, 2014), write=True, a2=None, **act_kw):
+def check(cat=CAT, out=OUT, dpd=DPD, archive=MWO_DATA, years=range(1974, 2014), write=True, a2=None, a3=None, **act_kw):
     design = pd.read_csv(Path(cat) / "DESIGN.csv", dtype={"noaa": str})
     attempts = pd.read_csv(Path(cat) / "ATTEMPTS.csv.gz", dtype={"noaa": str})
     sealed = pd.read_csv(Path(cat) / "SEALED.csv.gz", dtype={"noaa": str})
@@ -397,14 +402,29 @@ def check(cat=CAT, out=OUT, dpd=DPD, archive=MWO_DATA, years=range(1974, 2014), 
            frozen_list_sha is not None and list_sha == frozen_list_sha.group(1)
            and meta.get("a2_list_sha256") == list_sha
            and meta.get("amendment_a2_sha256") == hashlib.sha256(frozen_a2.read_bytes()).hexdigest())
+    if a3 is None:
+        frozen_a3 = ROOT / "docs/PROTOCOL_T3_MWO_AMENDMENT_A3.md"
+        id3 = re.search(r"SHA-256 del CSV\s*`([0-9a-f]{64})`", frozen_a3.read_text())
+        list3_sha = hashlib.sha256(A3_LIST.read_bytes()).hexdigest()
+        ok("A3 amendment and exclusion-list hashes bound to the frozen text and catalogue META",
+           id3 is not None and list3_sha == id3.group(1) and meta.get("a3_list_sha256") == list3_sha
+           and meta.get("amendment_a3_sha256") == hashlib.sha256(frozen_a3.read_bytes()).hexdigest())
     excl = a2_excluded() if a2 is None else a2
-    att, recs = rebuild(dpd, archive, years, excl)
+    excl3 = a2_excluded(A3_LIST) if a3 is None else a3      # same own CSV reader, other list
+    ok("A2 and A3 lists disjoint, 18 and 8 members for the real lists", not (set(excl) & set(excl3))
+       and (a2 is not None or len(excl) == 18) and (a3 is not None or len(excl3) == 8))
+    att, recs = rebuild(dpd, archive, years, excl, excl3)
+    seen3 = getattr(magnetograms, "seen_excluded3", {})
     seen = getattr(magnetograms, "seen_excluded", {})
     mt = pd.read_csv(Path(cat) / "MAGNETOGRAMS.csv.gz", low_memory=False)
     marked = set(mt.member[mt.status == "excluded_A2"])
     ok("amendment A2: every listed file found with its SHA-256, excluded before the choice, marked in MAGNETOGRAMS",
        seen == excl and marked == set(excl) and not (set(excl) & set(attempts.member.dropna())),
        f"{len(seen)} found, {len(marked)} marked of {len(excl)}")
+    marked3 = set(mt.member[mt.status == "excluded_A3"])
+    ok("amendment A3: every listed file found with its SHA-256, excluded before the choice, marked in MAGNETOGRAMS",
+       seen3 == excl3 and marked3 == set(excl3) and not (set(excl3) & set(attempts.member.dropna())),
+       f"{len(seen3)} found, {len(marked3)} marked of {len(excl3)}")
     border = {k for k, a in att.items() if a["border"]}
     mine = {k: ("no_magnetogram" if a["mag"] is None else a["m"]["status"]) for k, a in att.items()}
     theirs = {(r.day, r.noaa): r.status for r in attempts.itertuples()}
@@ -581,7 +601,7 @@ h = {{f.name: hashlib.sha256(f.read_bytes()).hexdigest() for f in out.iterdir()}
         r = subprocess.run([sys.executable, "-c", code], capture_output=True, text=True, cwd=ROOT)
         ok("runner executed on the synthetic archive", r.returncode == 0, r.stderr[-300:] if r.returncode else "")
         if r.returncode == 0:
-            kw = dict(silso_tot=td / "tot.txt", silso_hem=td / "hem.csv", a2={})
+            kw = dict(silso_tot=td / "tot.txt", silso_hem=td / "hem.csv", a2={}, a3={})
             good = check(td / "cat", td / "r1", dpd=td, archive=td, years=[1990], write=False, **kw)
             ok("check() passes on the runner outputs", good)
             s = pd.read_csv(td / "cat/SEALED.csv.gz", dtype={"noaa": str})
@@ -643,7 +663,7 @@ h = {{f.name: hashlib.sha256(f.read_bytes()).hexdigest() for f in out.iterdir()}
                rr.stderr[-300:] if rr.returncode else "")
             if rr.returncode == 0:
                 cat_a2 = td / "cat_a2"
-                a2_kw = dict(silso_tot=td / "tot.txt", silso_hem=td / "hem.csv", a2=excluded)
+                a2_kw = dict(silso_tot=td / "tot.txt", silso_hem=td / "hem.csv", a2=excluded, a3={})
                 ok("A2 full independent recount passes with a nonempty exclusion",
                    check(cat_a2, td / "a2_receipt", dpd=td, archive=td, years=[1990], write=True, **a2_kw))
                 chosen = pd.read_csv(cat_a2 / "DESIGN.csv", dtype={"noaa": str})
@@ -665,6 +685,36 @@ h = {{f.name: hashlib.sha256(f.read_bytes()).hexdigest() for f in out.iterdir()}
                 (cat_a2 / "META.json").write_text(json.dumps(ma))
                 ok("A2 independent recount refuses a missing excluded_A2 marking even with updated product hash",
                    not check(cat_a2, td / "a2_wrong_mark", dpd=td, archive=td, years=[1990], write=False, **a2_kw))
+            code_a3 = code.replace("out = td / 'cat';", "out = td / 'cat_a3';").replace(
+                "C.magnetogram_table(td, years=[1990])",
+                "C.magnetogram_table(td, years=[1990], excluded3=" + repr(excluded) + ")")
+            r3 = subprocess.run([sys.executable, "-c", code_a3], capture_output=True, text=True, cwd=ROOT)
+            ok("A3 runner executed with an actual excluded member", r3.returncode == 0, r3.stderr[-300:] if r3.returncode else "")
+            if r3.returncode == 0:
+                cat_a3 = td / "cat_a3"
+                a3_kw = dict(silso_tot=td / "tot.txt", silso_hem=td / "hem.csv", a2={}, a3=excluded)
+                ok("A3 full independent recount passes with a nonempty exclusion",
+                   check(cat_a3, td / "a3_receipt", dpd=td, archive=td, years=[1990], write=True, **a3_kw))
+                chosen3 = pd.read_csv(cat_a3 / "DESIGN.csv", dtype={"noaa": str})
+                att3 = pd.read_csv(cat_a3 / "ATTEMPTS.csv.gz", dtype={"noaa": str})
+                fb3 = chosen3[(chosen3.record_set == "all") & (chosen3.noaa == "6001")]
+                ok("A3 replaces the would-be winner by the healthy scan of the same UTC day",
+                   len(fb3) == 1 and fb3.iloc[0].day == "1990-05-02" and fb3.iloc[0].member.endswith("0900502_1800.fits")
+                   and excluded_name not in set(att3.member.dropna()))
+                ok("A3 independent recount refuses an incorrect excluded-member SHA",
+                   not check(cat_a3, td / "a3_wrong_sha", dpd=td, archive=td, years=[1990], write=False,
+                             **dict(a3_kw, a3={excluded_name: "0" * 64})))
+                ok("A3 recount refuses the same member declared under A2 instead of A3 (separate statuses)",
+                   not check(cat_a3, td / "a3_as_a2", dpd=td, archive=td, years=[1990], write=False,
+                             **dict(a3_kw, a2=excluded, a3={})))
+                mt3 = pd.read_csv(cat_a3 / "MAGNETOGRAMS.csv.gz")
+                mt3.loc[mt3.member == excluded_name, "status"] = "ok"
+                mt3.to_csv(cat_a3 / "MAGNETOGRAMS.csv.gz", index=False)
+                m3 = json.loads((cat_a3 / "META.json").read_text())
+                m3["products_sha256"]["MAGNETOGRAMS.csv.gz"] = hashlib.sha256((cat_a3 / "MAGNETOGRAMS.csv.gz").read_bytes()).hexdigest()
+                (cat_a3 / "META.json").write_text(json.dumps(m3))
+                ok("A3 independent recount refuses a missing excluded_A3 marking even with updated product hash",
+                   not check(cat_a3, td / "a3_wrong_mark", dpd=td, archive=td, years=[1990], write=False, **a3_kw))
     print(f"selftest: {sum(res)}/{len(res)} superati")
     return all(res)
 

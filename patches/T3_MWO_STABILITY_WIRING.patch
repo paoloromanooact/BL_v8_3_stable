@@ -1,11 +1,11 @@
---- a/scripts/t3_mwo_analysis.py	2026-11-20 14:43:06.161014726 +0100
-+++ b/scripts/t3_mwo_analysis.py	2026-11-20 14:43:17.935959299 +0100
+--- a/scripts/t3_mwo_analysis.py	2026-11-20 15:41:26.783829681 +0100
++++ b/scripts/t3_mwo_analysis.py	2026-11-20 15:41:37.823750343 +0100
 @@ -47,6 +47,7 @@
- CAT_RECOUNT = ROOT / "results/T3_MWO_CATALOGUE_R3_RECOUNT"
- VAL_RECOUNT = ROOT / "results/T3_MWO_VALIDATION_R3_RECOUNT"
- CHECK_RECOUNT = ROOT / "results/T3_MWO_DESIGN_CHECK_R3_RECOUNT"
-+STAB_RECOUNT = ROOT / "results/T3_MWO_STABILITY_R3_RECOUNT"      # S1-S4 verified before beta3 (user and Codex, 20 Nov)
- VAL_READ = ROOT / "results/T3_MWO_VALIDATION_R3_READING"
+ CAT_RECOUNT = ROOT / "results/T3_MWO_CATALOGUE_R4_RECOUNT"
+ VAL_RECOUNT = ROOT / "results/T3_MWO_VALIDATION_R4_RECOUNT"
+ CHECK_RECOUNT = ROOT / "results/T3_MWO_DESIGN_CHECK_R4_RECOUNT"
++STAB_RECOUNT = ROOT / "results/T3_MWO_STABILITY_R4_RECOUNT"      # S1-S4 verified before beta3 (user and Codex, 20 Nov)
+ VAL_READ = ROOT / "results/T3_MWO_VALIDATION_R4_READING"
  BENCH_SEED_BASE = 59_000_000                           # benchmark only, outside the grid and every registered range
  PROVENANCE_FILES = ("scripts/t3_mwo_analysis.py", "python/sharpbl/p2f_validation.py", "python/sharpbl/p2f_pilot.py",
 @@ -632,8 +633,13 @@
@@ -44,8 +44,8 @@
      print(json.dumps(dict(S1=s1_res["status"], S2=s2_status, rule=rule), indent=2))
      return 0
  
---- a/scripts/t3_mwo_stability_extras.py	2026-11-20 14:43:06.161014726 +0100
-+++ b/scripts/t3_mwo_stability_extras.py	2026-11-20 14:43:06.164014712 +0100
+--- a/scripts/t3_mwo_stability_extras.py	2026-11-20 15:41:26.783829681 +0100
++++ b/scripts/t3_mwo_stability_extras.py	2026-11-20 15:41:26.786829659 +0100
 @@ -12,8 +12,7 @@
    s4_dwl_all         d_WL of the 'all records' sensitivity, isolated against non-isolated records, overall and by
                       activity tercile (descriptive)
