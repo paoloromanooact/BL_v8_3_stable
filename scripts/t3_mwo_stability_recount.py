@@ -207,6 +207,12 @@ def chain_problems(stab, ch=None):
                            ("val_recount", "validation_meta_sha256", Path(ch["val"]) / "META.json")):
         if not receipt_complete(Path(ch[rec]) / "RECEIPT.json", key, meta):
             out.append(f"{rec} receipt not complete or not bound")
+    if json.loads((Path(ch["check"]) / "META.json").read_text()).get("catalogue_meta_sha256") != h256(Path(ch["cat"]) / "META.json"):
+        out.append("design check not bound to the current catalogue")
+    if json.loads((Path(ch["val"]) / "META.json").read_text()).get("design_check_meta_sha256") != h256(Path(ch["check"]) / "META.json"):
+        out.append("validation not bound to the current design check")
+    if json.loads((Path(ch["val"]) / "ACCEPTANCE.json").read_text()).get("problems"):
+        out.append("validation technically invalid: no opening (a negative but valid validation is allowed)")
     rd = json.loads((Path(ch["val_read"]) / "READ.json").read_text())
     if rd.get("acceptance_sha256") != h256(Path(ch["val"]) / "ACCEPTANCE.json") or \
             rd.get("recount_receipt_sha256") != h256(Path(ch["val_recount"]) / "RECEIPT.json"):
@@ -255,6 +261,13 @@ def s2_recompute(sub, saved, C=None):
         return True, dict(state="errore di M")            # an M failure cannot be recomputed without M: explicit state
     if saved.get("state") != "stimato":
         return False, dict(state="?")
+    try:                                        # frozen REML domain of M (P2f) and finite saved quantities (Codex)
+        par_v = {k: float(saved[k]) for k in ("var_a", "var_b", "phi", "kappa", "sigma_x2", "se", "lo", "hi", "beta")}
+    except (KeyError, TypeError, ValueError):
+        return False, dict(state="parametri mancanti")
+    if not (all(math.isfinite(v) for v in par_v.values()) and 0.0 <= par_v["phi"] <= 0.98
+            and abs(par_v["kappa"]) <= 0.98 and par_v["sigma_x2"] > 0 and par_v["se"] > 0):
+        return False, dict(state="parametri fuori dominio o non finiti")
     g = RC.projection(X, w)
     beta = float(g @ sub.d_wl.to_numpy())
     key = pd.MultiIndex.from_arrays([sub.CR.astype(int).to_numpy(), sub.hemisphere.to_numpy()])
@@ -264,6 +277,8 @@ def s2_recompute(sub, saved, C=None):
     lp = np.log(w)
     par = SimpleNamespace(**{k: float(saved[k]) for k in ("var_a", "var_b", "phi", "kappa", "sigma_x2")})
     se = RC.se_from_saved(par, sub, g, codes, cr - cr.min(), hh, lp - lp.mean())
+    if not (math.isfinite(se) and se > 0):
+        return False, dict(state="SE ricostruito non finito")
     lo, hi = beta - RC.Z * se, beta + RC.Z * se
     out = dict(state="stimato", n=len(sub), beta=beta, se=se, lo=lo, hi=hi)
     good = (int(saved.get("n", -1)) == len(sub) and all(abs(out[k] - float(saved[k])) <= 1e-9 * max(1.0, abs(out[k]))
@@ -604,11 +619,50 @@ def selftest():
         dm = mm.d_p1.copy()
         mut("P1 matched differences", lambda: mm.__setitem__("d_p1", dm + 1), lambda: mm.__setitem__("d_p1", dm))
         mut("rule outcome alone", lambda: st["rule"].update(outcome="verdetto"), restore)
+        for k, v in (("phi", -0.1), ("phi", 0.99), ("kappa", 0.99), ("sigma_x2", 0.0), ("var_b", float("nan"))):
+            mut(f"S2 variance parameter {k}={v} outside the frozen domain (SE and bounds left coherent)",
+                lambda k=k, v=v: st["S2"].update({k: v}), restore)
+        mut("S2 hemisphere parameter phi=-0.1", lambda: st["S2"]["by_hemisphere"]["S"].update(phi=-0.1), restore)
         (Path(td) / "stab/S2_P1_MATCHED.csv").unlink()
         meta = json.loads((Path(td) / "stab/META.json").read_text())
         meta["products_sha256"].pop("S2_P1_MATCHED.csv")
         (Path(td) / "stab/META.json").write_text(json.dumps(meta))
         ok("mutation refused: S2_P1_MATCHED.csv missing", not check(**kw, s1_cache=cache))
+    from unittest.mock import patch
+    with tempfile.TemporaryDirectory() as td:
+        td = Path(td)
+        ch = {k: td / k for k in ("cat", "cat_recount", "check", "check_recount", "val", "val_recount", "val_read")}
+        stb = td / "stab"
+        for q in list(ch.values()) + [stb]:
+            q.mkdir()
+        put = lambda k, f, x: (ch[k] / f).write_text(json.dumps(x))                       # noqa: E731
+        full = lambda key, meta: {"passed": 2, "total": 2, "partial": False, key: h256(meta),  # noqa: E731
+                                  "checks": [{"ok": True}, {"ok": True}]}
+
+        def build(val_bound=True, problems=()):
+            put("cat", "META.json", {"r": 1})
+            put("check", "META.json", {"catalogue_meta_sha256": h256(ch["cat"] / "META.json")})
+            put("val", "META.json", {"design_check_meta_sha256": h256(ch["check"] / "META.json") if val_bound else "old"})
+            put("val", "ACCEPTANCE.json", {"accepted_15deg": False, "problems": list(problems)})
+            put("cat_recount", "RECEIPT.json", full("catalogue_meta_sha256", ch["cat"] / "META.json"))
+            put("check_recount", "RECEIPT.json", full("design_check_meta_sha256", ch["check"] / "META.json"))
+            put("val_recount", "RECEIPT.json", full("validation_meta_sha256", ch["val"] / "META.json"))
+            put("val_read", "READ.json", {"acceptance_sha256": h256(ch["val"] / "ACCEPTANCE.json"),
+                                          "recount_receipt_sha256": h256(ch["val_recount"] / "RECEIPT.json")})
+            (stb / "META.json").write_text(json.dumps({k: h256(m) for k, m in (
+                ("catalogue_meta_sha256", ch["cat"] / "META.json"), ("design_check_meta_sha256", ch["check"] / "META.json"),
+                ("validation_meta_sha256", ch["val"] / "META.json"), ("reading_sha256", ch["val_read"] / "READ.json"))}))
+        with patch(f"{__name__}.committed", return_value=True):
+            build()
+            c_ok = chain_problems(stb, ch)
+            build(val_bound=False, problems=["incomplete grid"])
+            c_bad = chain_problems(stb, ch)
+            build(problems=["incomplete grid"])
+            c_tech = chain_problems(stb, ch)
+    ok("seal chain: negative but valid validation accepted (descriptive path)", c_ok == [], c_ok)
+    ok("seal chain: validation bound to an old design check and technically incomplete refused",
+       any("old" in x or "design check" in x for x in c_bad) and any("technically" in x for x in c_bad), c_bad)
+    ok("seal chain: technically invalid validation refused even when bound", any("technically" in x for x in c_tech), c_tech)
     ok("axial difference in (-90, 90]", np.allclose(axial([100.0, -100.0, 30.0]), [-80.0, 80.0, 30.0]))
     print(f"selftest: {sum(res)}/{len(res)} superati")
     return all(res)
