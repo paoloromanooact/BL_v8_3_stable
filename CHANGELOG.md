@@ -1,5 +1,12 @@
 # Cronologia
 
+## 2026-11-20 — revisione completa del riconteggio di stabilità
+
+- Provato il percorso completo S1-S4 su dati sintetici; registrati sette casi di output errati ancora accettati.
+- Ricostruzione di C e controlli completi di P1/tabelle richiesti prima di usare la ricevuta per beta3.
+- Verificata la guardia aggiunta dalla patch in copia temporanea. Validazione attiva e tilt reali intatti.
+
+
 ## 2026-11-20 — revisione delle stime HMI e della patch finale MWO
 
 - Confermati stime e SE HMI; attenuate le conclusioni descrittive di Q2/Q3 senza modificare risultati.

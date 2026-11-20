@@ -1,5 +1,74 @@
 # Revisione della consegna statistica T3 MWO — 18 novembre 2026
 
+## Revisione di S1–S4 e della patch estesa f72c25c — 20 novembre 2026
+
+La prova completa di check() è stata eseguita su dati interamente sintetici, senza aprire i tilt MWO
+reali e senza cambiare i file della validazione in corso. Il nuovo probe riproducibile è
+`scripts/t3_mwo_stability_recount_review_probe.py`. Genera 120 record isolati più quattro non isolati,
+i file gDPD/sDPD di prova e tutti gli output previsti; S1 usa le 2000 repliche e il seme congelati.
+La risposta di controllo è costruita con un coefficiente noto; gli SE usano parametri di varianza
+noti, senza riottimizzare M. La baseline completa passa. Nelle prove di modifica si riusa soltanto
+S1, perché disegno e risposte sono identici; vengono ricostruiti gli altri controlli.
+
+**Esito: il nuovo riconteggio non è ancora approvato come condizione per stimare β₃.**
+Il confronto di S1 da solo è corretto, ma il percorso completo può certificare output sbagliati.
+La validazione sintetica già in esecuzione non è coinvolta e può proseguire.
+
+### 1. C è letto dall'output che dovrebbe essere verificato
+
+In check(), C viene da STABILITY.json e non dalla ricostruzione sul sottoinsieme WL. Nella baseline
+sintetica C = 1,30909 e β dello scarto = 2,61818: S2 è dipendente dall'attività e la regola dà
+«descrittivo». Gonfiando soltanto C a 130,909 e aggiornando gli esiti dichiarati in STABILITY.json,
+lo stesso riconteggio restituisce True e una ricevuta completa per «verdetto».
+
+Gli hash dei prodotti sintetici vengono aggiornati a ogni modifica per isolare la verifica scientifica.
+Il problema non riguarda un hash ignorato: è un valore derivato non ricalcolato indipendentemente.
+
+Prima di emettere una ricevuta valida occorre ricostruire C con la propria matrice e la propria riga
+QR sul sottoinsieme WL, confrontarlo con TARGETS e STABILITY e derivare S2 e la regola finale da quel
+valore. Vanno confrontati anche i limiti salvati, distinguibile da zero, stato, numerosità e S2 per
+emisfero. Gli intervalli ricostruiti attualmente sono usati per il solo stato, senza confrontare i
+limiti scritti nel file. La prova con limiti S2 cambiati lascia passare il controllo.
+
+### 2. Alcune uscite sono soltanto presenti, non ricontate
+
+Le altre prove con output modificati vengono accettate:
+- conteggio e mediana di S2_P1.json portati a 999;
+- mediane di S4_DWL_ALL.csv cambiate, comprese quelle per terzile;
+- epoche in S3_HALE.csv rinominate, lasciando invariati conteggi e frazioni;
+- flag di S1_TABLE.csv invertiti, lasciando invariati coefficienti e stato generale;
+- β di un risultato S2 emisferico cambiato senza conseguenze.
+
+Il controllo deve verificare le chiavi e tutte le quantità dichiarate, non solo alcuni array:
+S1 per epoca/emisfero, limiti e flag; S3 con le etichette; S4 principale e aggiuntivi con numerosità,
+frazioni, posizione del giorno, |LCM|, mediane, medie ed errori descrittivi; quote delle fonti DPD.
+Per P1 servono confronto degli abbinamenti, differenze, conteggi, mediana e fit descrittivo, con un
+lettore indipendente. S2_P1_MATCHED.csv attualmente non è nemmeno obbligatorio nel controllo di presenza.
+I casi vuoti, non identificabili e di errore devono restare stati espliciti e verificabili.
+
+### 3. Provenienza e sigillo del riconteggio
+
+Prima di aprire SEALED il nuovo script controlla soltanto che la cartella di stabilità sia conservata
+in Git. La catena del lettore principale è più forte: un file di stabilità esistente non sostituisce
+le ricevute e la lettura registrata della validazione. Il riconteggio deve verificarne i prerequisiti
+e i legami agli ingressi correnti, e verificare il META del catalogo, del controllo del disegno e della
+validazione usati dalla stabilità. Il writer di stabilità deve registrare quei legami; la patch attuale
+aggiunge solo l'hash di extras. Non occorre importare il modulo di analisi per controllare questi metadati.
+Il percorso sintetico può disabilitare Git esplicitamente, ma il comando reale deve custodire il sigillo.
+
+### Patch e seguito
+
+La parte della patch che impone la ricevuta di stabilità prima di --estimate è corretta. Ho esteso
+`scripts/t3_mwo_stability_wiring_probe.py`: in una copia temporanea la stima rifiuta ricevuta assente,
+parziale o legata a un META diverso, e accetta quella completa e correttamente legata. Questo verifica
+il collegamento, non rende affidabile una ricevuta positiva generata dal riconteggio ancora incompleto.
+
+La patch resta non applicata. La precedente approvazione del collegamento delle uscite descrittive
+non costituisce approvazione del nuovo riconteggio. Prima della stima occorrono correzioni e una prova
+completa: baseline positiva e rifiuto di ciascuna modifica, con ricevuta negativa o parziale coerente.
+Nessuna soglia, parametro scientifico o risultato reale è cambiato in questa revisione.
+
+
 ## Rapporto HMI e collegamento delle uscite descrittive — 20 novembre 2026
 
 Verificati i prodotti HMI conservati in 9dc41ad e la ricevuta 19/19 di a72ce2d. Dieci stime e dieci SE

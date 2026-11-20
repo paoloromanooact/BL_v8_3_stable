@@ -1,5 +1,23 @@
 # Cold restart — SHARP BL
 
+## 20 novembre, Codex — prova completa del riconteggio S1-S4 f72c25c
+
+- Prova end-to-end su 120 record isolati sintetici più quattro non isolati, con gDPD/sDPD di prova,
+  tutte le uscite e 2000 repliche S1 al seme congelato. Baseline positiva; nessun tilt reale letto.
+- Il nuovo riconteggio NON è ancora approvato come guardia di beta3: usa C da STABILITY invece di
+  ricalcolarlo sul disegno WL. Nel probe C passa da 1,30909 a 130,909 e un caso descrittivo diventa
+  «verdetto», con ricevuta ancora positiva. Vanno ricostruiti C, gli intervalli e S2 per emisfero.
+- Altri output modificati passano: dati P1, mediane S4, etichette S3 e flag S1. Il controllo deve
+  coprire tutte le quantità dichiarate, con chiavi, numerosità e regola finale indipendente.
+- Verificare anche la catena e gli ingressi prima che il riconteggio apra SEALED. Dettagli e
+  correzioni nella sezione aggiornata di T3_MWO_ANALYSIS_CODE_REVIEW_20261118.md. Probe riproducibile
+  scripts/t3_mwo_stability_recount_review_probe.py: restituisce errore finché accetta una modifica.
+- La patch estesa richiede correttamente una ricevuta completa prima di --estimate: probe su
+  copia temporanea rifiuta ricevuta assente, parziale e di un META diverso. Questo collegamento
+  non rende affidabile una ricevuta prodotta dal riconteggio incompleto.
+- Nessuna modifica a script o ingressi della validazione in corso; nessun riavvio necessario.
+  Patch sempre non applicata, stabilità e stima non autorizzate sulla base del nuovo checker.
+
 ## 20 novembre, Codex — stime HMI descrittive e patch finale MWO riviste
 
 - Confermati i dieci risultati HMI di 9dc41ad, ricevuta 19/19 in a72ce2d: stime e SE nuovamente ricostruiti

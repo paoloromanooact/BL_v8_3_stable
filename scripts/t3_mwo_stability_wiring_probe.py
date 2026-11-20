@@ -63,4 +63,31 @@ with tempfile.TemporaryDirectory() as td:
 print('No real MWO sealed input or real P1 tilt read; active files unchanged')
 
 assert before=={n:hashlib.sha256((root/n).read_bytes()).hexdigest() for n in names}
+# The extended patch must gate beta3 on a complete, bound stability receipt.
+with tempfile.TemporaryDirectory() as td:
+ ds={k:Path(td)/k for k in ('cat','cat_recount','check','check_recount','val','val_recount','val_read','stab','stab_recount')}
+ for p in ds.values():p.mkdir()
+ def put(k,n,obj):(ds[k]/n).write_text(json.dumps(obj))
+ def receipt(k,key,meta):put(k,'RECEIPT.json',{'passed':1,'total':1,'partial':False,'checks':[{'ok':True}],key:A.sha(meta)})
+ put('cat','META.json',{});put('cat','COVERAGE.json',{'outcome':'informativo'})
+ receipt('cat_recount','catalogue_meta_sha256',ds['cat']/'META.json')
+ put('check','META.json',{'catalogue_meta_sha256':A.sha(ds['cat']/'META.json')})
+ put('check','IDENTIFIABILITY.json',{'joy':{'identifiable':True}})
+ receipt('check_recount','design_check_meta_sha256',ds['check']/'META.json')
+ put('val','META.json',{'design_check_meta_sha256':A.sha(ds['check']/'META.json')})
+ put('val','ACCEPTANCE.json',{'accepted_15deg':False,'problems':[]})
+ receipt('val_recount','validation_meta_sha256',ds['val']/'META.json')
+ put('val_read','READ.json',{'acceptance_sha256':A.sha(ds['val']/'ACCEPTANCE.json'),'recount_receipt_sha256':A.sha(ds['val_recount']/'RECEIPT.json')})
+ put('stab','META.json',{})
+ with patch.object(A,'committed',return_value=True):
+  assert A.chain_problem('estimate',ds) is not None
+  receipt('stab_recount','stability_meta_sha256',ds['stab']/'META.json')
+  assert A.chain_problem('estimate',ds) is None
+  rec=json.loads((ds['stab_recount']/'RECEIPT.json').read_text())
+  rec['partial']=True;put('stab_recount','RECEIPT.json',rec)
+  assert A.chain_problem('estimate',ds) is not None
+  rec['partial']=False;rec['stability_meta_sha256']='0'*64;put('stab_recount','RECEIPT.json',rec)
+  assert A.chain_problem('estimate',ds) is not None
+ print('PASS: estimate requires a complete stability receipt bound to the current META')
+
 _scratch.cleanup()
