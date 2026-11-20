@@ -22,6 +22,7 @@ import pandas as pd
 ROOT = Path(__file__).resolve().parents[1]
 CAT = ROOT / "results/T3_MWO_CATALOGUE_R4"
 EST = ROOT / "results/T3_MWO_ESTIMATE_R4"
+EST_RC = ROOT / "results/T3_MWO_ESTIMATE_R4_RECOUNT"
 OUT = ROOT / "results/MWO_TILT_CATALOGUE_RELEASE"
 A2_LIST = ROOT / "docs/PROTOCOL_T3_MWO_AMENDMENT_A2_EXCLUDED_FITS.csv"
 A3_LIST = ROOT / "docs/PROTOCOL_T3_MWO_AMENDMENT_A3_EXCLUDED_FITS.csv"
@@ -102,9 +103,26 @@ def joy(t, weights=True, reps=JOY_REPS, seed=JOY_SEED):
     return pd.DataFrame(rows)
 
 
+def release_problem(est=EST, est_rc=EST_RC, is_committed=None):
+    """Codex (20 Nov): the export needs the estimate preserved AND its independent recount complete and bound."""
+    is_committed = is_committed or committed
+    if not is_committed(est):
+        return "the beta3 estimate is not preserved in Git: tilts stay sealed, no release"
+    if not is_committed(est_rc):
+        return "the independent recount of the estimate is not preserved in Git"
+    r = json.loads((Path(est_rc) / "RECEIPT.json").read_text())
+    if not (isinstance(r.get("total"), int) and r["total"] > 0 and r.get("passed") == r["total"]
+            and r.get("partial") is False and isinstance(r.get("checks"), list) and len(r["checks"]) == r["total"]
+            and all(c.get("ok") is True for c in r["checks"])
+            and r.get("estimate_meta_sha256") == hashlib.sha256((Path(est) / "META.json").read_bytes()).hexdigest()):
+        return "estimate recount receipt not complete or not bound to the estimate META"
+    return None
+
+
 def export():
-    if not committed(EST):
-        sys.exit("the beta3 estimate is not preserved in Git: tilts stay sealed, no release")
+    why = release_problem()
+    if why:
+        sys.exit(why)
     if OUT.exists():
         sys.exit("release exists")
     design = pd.read_csv(CAT / "DESIGN.csv", dtype={"noaa": str})
@@ -157,8 +175,23 @@ def selftest():
         ok("mismatch between design and sealed refused", False)
     except ValueError:
         ok("mismatch between design and sealed refused", True)
+    ok("seal: no export before the estimate is preserved (estimate directory not in Git)", release_problem() is not None)
     with tempfile.TemporaryDirectory() as td:
-        ok("seal: no export before the estimate is preserved (estimate directory not in Git)", not committed(EST))
+        e, rc = Path(td) / "est", Path(td) / "rc"
+        e.mkdir()
+        rc.mkdir()
+        (e / "META.json").write_text("{}")
+        good = dict(passed=2, total=2, partial=False, checks=[{"ok": True}, {"ok": True}],
+                    estimate_meta_sha256=hashlib.sha256(b"{}").hexdigest())
+        (rc / "RECEIPT.json").write_text(json.dumps(dict(good, passed=1)))
+        p1 = release_problem(e, rc, lambda p: True)
+        (rc / "RECEIPT.json").write_text(json.dumps(dict(good, estimate_meta_sha256="old")))
+        p2 = release_problem(e, rc, lambda p: True)
+        (rc / "RECEIPT.json").write_text(json.dumps(good))
+        p3 = release_problem(e, rc, lambda p: True)
+        p4 = release_problem(e, rc, lambda p: p != rc)
+    ok("export needs the complete estimate recount bound to the estimate META",
+       p1 is not None and p2 is not None and p3 is None and p4 is not None, (p1, p2, p3, p4))
     print(f"selftest: {sum(res)}/{len(res)} superati")
     return all(res)
 

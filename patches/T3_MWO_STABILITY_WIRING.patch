@@ -1,5 +1,5 @@
---- a/scripts/t3_mwo_analysis.py	2026-11-20 15:41:26.783829681 +0100
-+++ b/scripts/t3_mwo_analysis.py	2026-11-20 15:41:37.823750343 +0100
+--- a/scripts/t3_mwo_analysis.py	2026-11-20 16:35:41.151611923 +0100
++++ b/scripts/t3_mwo_analysis.py	2026-11-20 16:35:41.163611837 +0100
 @@ -47,6 +47,7 @@
  CAT_RECOUNT = ROOT / "results/T3_MWO_CATALOGUE_R4_RECOUNT"
  VAL_RECOUNT = ROOT / "results/T3_MWO_VALIDATION_R4_RECOUNT"
@@ -44,8 +44,28 @@
      print(json.dumps(dict(S1=s1_res["status"], S2=s2_status, rule=rule), indent=2))
      return 0
  
---- a/scripts/t3_mwo_stability_extras.py	2026-11-20 15:41:26.783829681 +0100
-+++ b/scripts/t3_mwo_stability_extras.py	2026-11-20 15:41:26.786829659 +0100
+@@ -924,7 +935,8 @@
+     if r["verdict"] == "errore":
+         return dict(n=len(d), identifiable=True, state="errore di M", error=r.get("error"), beta=np.nan, se=np.nan,
+                     lo=np.nan, hi=np.nan)
+-    return dict(n=len(d), identifiable=True, state="stimato", **{k: r[k] for k in ("beta", "se", "lo", "hi", "verdict")})
++    return dict(n=len(d), identifiable=True, state="stimato",       # M parameters saved for the independent recount
++                **{k: r[k] for k in ("beta", "se", "lo", "hi", "verdict", "var_a", "var_b", "phi", "kappa", "sigma_x2")})
+ 
+ 
+ def filtered(d, filt):
+@@ -968,7 +980,8 @@
+                  main_state=main.state, verdict=verdict_of(main.lo, main.hi) if outcome == "verdetto" else None,
+                  targets=json.loads((OUT_CHECK / "TARGETS.json").read_text()))
+     write_out(OUT_EST, {"ESTIMATE.csv": tab, "FINAL.json": final},
+-              dict(protocol_sha256=protocol_sha, amendment_a1_sha256=amendment_sha))
++              dict(protocol_sha256=protocol_sha, amendment_a1_sha256=amendment_sha,
++                   stability_meta_sha256=sha(OUT_STAB / "META.json"), catalogue_meta_sha256=sha(CAT / "META.json")))
+     print(tab.to_string(index=False))
+     print(json.dumps(final, indent=2, default=str))
+     return 0
+--- a/scripts/t3_mwo_stability_extras.py	2026-11-20 16:35:41.151611923 +0100
++++ b/scripts/t3_mwo_stability_extras.py	2026-11-20 16:35:41.154611902 +0100
 @@ -12,8 +12,7 @@
    s4_dwl_all         d_WL of the 'all records' sensitivity, isolated against non-isolated records, overall and by
                       activity tercile (descriptive)

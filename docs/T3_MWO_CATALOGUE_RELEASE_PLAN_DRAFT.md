@@ -44,9 +44,36 @@ Rendere il catalogo costruito per T3 un prodotto di dati riusabile e pubblicabil
    flusso e senza pesi, con intervallo bootstrap a blocchi di CR, confrontato in modo solo descrittivo con i valori
    pubblicati. I valori della letteratura vanno verificati sulle fonti primarie prima di citarli.
 
+## Condizioni aggiunte dopo la revisione di Codex (20 novembre)
+
+1. **Prerequisito dell'esportazione definitiva.** Non basta che la stima di β₃ sia in Git: serve anche la ricevuta
+   completa e non parziale del suo riconteggio indipendente (`scripts/t3_mwo_estimate_recount.py`), legata allo
+   SHA-256 del META della stima. L'esportatore lo verifica (`release_problem`). Per il riconteggio, lo stadio di stima
+   salva anche i parametri di varianza di M e i legami a stabilità e catalogo: modifica inclusa nella patch non
+   ancora applicata.
+2. **Popolazione descritta con precisione** nel README: regioni DPD (area ≥ 1, |λ| ≤ 45°) isolate e misurabili, cioè con
+   finestra ±6°/±8° nel dominio μ ≥ 0,8 e due polarità oltre 50 G entro 4000 G, all'istante della scansione scelta. Per
+   l'insieme principale il giorno è quello isolato con |LCM| minimo e misura riuscita. Vanno documentati:
+   - esclusioni (A1 BLANK, A2 18 file, A3 8 file, 2 illeggibili, effemeridi);
+   - perdite per ciclo, emisfero, epoca e terzile di attività (LOSSES.csv);
+   - epoche e classi di risoluzione, con la loro composizione;
+   - il legame fra selezione e attività: le regioni grandi sono misurabili più spesso.
+3. **Legge di Joy per ciclo, definita ora e solo descrittiva:**
+   - k in γ = k·sin|λ̄| per ciclo × emisfero, regressione per l'origine;
+   - due versioni: pesi Φ_MWO e pesi uguali;
+   - intervallo bootstrap percentile al 95 % a blocchi di 6 CR consecutive dentro il gruppo, 2000 repliche, seme
+     69 500 001;
+   - presentazione: tabella e figura dei k con intervalli, accanto ai valori pubblicati verificati sulle fonti
+     primarie, senza test né verdetti. Un confronto inferenziale richiederebbe un piano distinto.
+4. **Confronti nella prima versione:** HMI (P1) e DPD in luce bianca. MDI è un'estensione successiva.
+
+**Aspettativa corretta.** Una validazione superata con esito «non deciso» non garantisce un limite stringente:
+l'intervallo ottenuto va tradotto nello scenario prescritto (rampa di attività), e β₃ non diventa automaticamente una
+percentuale massima di quenching. La forma editoriale si valuterà sui risultati effettivi.
+
 ## Ordine
 
-1. Stima di β₃ conservata e ricontata.
+1. Stima di β₃ conservata e ricontata (ricevuta completa e legata).
 2. Esportazione (`scripts/t3_mwo_catalogue_release.py --export`).
 3. Riconteggio indipendente dell'esportazione: ogni colonna contro DESIGN e SEALED.
 4. Legge di Joy per ciclo.
