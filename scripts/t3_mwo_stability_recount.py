@@ -7,7 +7,7 @@ white-light tilts and d_WL; S1 (fit, differences, block bootstrap with the froze
 flags, status); S2 (beta from the own projection, SE from the saved parameters of M, interval, precedence with C);
 S2 by hemisphere when estimated; S3 (Hale agreement); S4 (selection table, non-isolation fraction, d_WL of the 'all'
 set); the DPD sources by epoch; S2 against P1 (count and median); the final rule. Receipt bound to the SHA-256 of the
-stability META: results/T3_MWO_STABILITY_RECOUNT/RECEIPT.json.
+stability META: results/T3_MWO_STABILITY_R3_RECOUNT/RECEIPT.json.
 
     .venv/bin/python scripts/t3_mwo_stability_recount.py --selftest
     .venv/bin/python scripts/t3_mwo_stability_recount.py --check
@@ -29,11 +29,11 @@ _s = importlib.util.spec_from_file_location("t3_rc", ROOT / "scripts/t3_mwo_anal
 RC = importlib.util.module_from_spec(_s)
 _s.loader.exec_module(RC)
 
-CAT = ROOT / "results/T3_MWO_CATALOGUE_R2"
-CHECK = ROOT / "results/T3_MWO_DESIGN_CHECK"
-VAL = ROOT / "results/T3_MWO_VALIDATION"
-STAB = ROOT / "results/T3_MWO_STABILITY"
-OUT = ROOT / "results/T3_MWO_STABILITY_RECOUNT"
+CAT = ROOT / "results/T3_MWO_CATALOGUE_R3"
+CHECK = ROOT / "results/T3_MWO_DESIGN_CHECK_R3"
+VAL = ROOT / "results/T3_MWO_VALIDATION_R3"
+STAB = ROOT / "results/T3_MWO_STABILITY_R3"
+OUT = ROOT / "results/T3_MWO_STABILITY_R3_RECOUNT"
 GDPD, SDPD = RC.GDPD, RC.SDPD
 DAILY = GDPD / "dailyDPD1974_2016.txt"
 ORDER = RC.ORDER
@@ -180,9 +180,9 @@ def s1_own(sub, verif, reps=REPS):
 
 # ---------------------------------------------------------------- chain of the seal (own reader of the metadata)
 
-CHAIN = dict(cat=CAT, cat_recount=ROOT / "results/T3_MWO_CATALOGUE_R2_RECOUNT", check=CHECK,
-             check_recount=ROOT / "results/T3_MWO_DESIGN_CHECK_RECOUNT", val=VAL,
-             val_recount=ROOT / "results/T3_MWO_VALIDATION_RECOUNT", val_read=ROOT / "results/T3_MWO_VALIDATION_READING")
+CHAIN = dict(cat=CAT, cat_recount=ROOT / "results/T3_MWO_CATALOGUE_R3_RECOUNT", check=CHECK,
+             check_recount=ROOT / "results/T3_MWO_DESIGN_CHECK_R3_RECOUNT", val=VAL,
+             val_recount=ROOT / "results/T3_MWO_VALIDATION_R3_RECOUNT", val_read=ROOT / "results/T3_MWO_VALIDATION_R3_READING")
 
 
 def receipt_complete(path, key, meta):

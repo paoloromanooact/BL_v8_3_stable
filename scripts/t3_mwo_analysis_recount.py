@@ -3,11 +3,11 @@ scripts/t3_mwo_analysis.py nor any function that produced the decisions.
 
   --check-design      rebuilds from DESIGN.csv the columns, the identifiability of beta3, the reduced matrix, the true
                       values of the ramp (10 %, 20 %) and, from the DPD spot rows with own parser, the white-light
-                      availability and C; compares with results/T3_MWO_DESIGN_CHECK.
+                      availability and C; compares with results/T3_MWO_DESIGN_CHECK_R3.
   --check-validation  from RAW.csv.gz: own grid, validity of every row, SE of every successful row recomputed from its
                       saved parameters of M, frequencies, the 15-deg acceptance; compares with SUMMARY and ACCEPTANCE.
 
-Receipts: results/T3_MWO_DESIGN_CHECK_RECOUNT/RECEIPT.json, results/T3_MWO_VALIDATION_RECOUNT/RECEIPT.json, each bound
+Receipts: results/T3_MWO_DESIGN_CHECK_R3_RECOUNT/RECEIPT.json, results/T3_MWO_VALIDATION_R3_RECOUNT/RECEIPT.json, each bound
 to the SHA-256 of the META it recounts.
 
     .venv/bin/python scripts/t3_mwo_analysis_recount.py --selftest
@@ -24,11 +24,11 @@ import pandas as pd
 from scipy.stats import norm
 
 ROOT = Path(__file__).resolve().parents[1]
-CAT = ROOT / "results/T3_MWO_CATALOGUE_R2"
-CHECK = ROOT / "results/T3_MWO_DESIGN_CHECK"
-VAL = ROOT / "results/T3_MWO_VALIDATION"
-OUT_CHECK = ROOT / "results/T3_MWO_DESIGN_CHECK_RECOUNT"
-OUT_VAL = ROOT / "results/T3_MWO_VALIDATION_RECOUNT"
+CAT = ROOT / "results/T3_MWO_CATALOGUE_R3"
+CHECK = ROOT / "results/T3_MWO_DESIGN_CHECK_R3"
+VAL = ROOT / "results/T3_MWO_VALIDATION_R3"
+OUT_CHECK = ROOT / "results/T3_MWO_DESIGN_CHECK_R3_RECOUNT"
+OUT_VAL = ROOT / "results/T3_MWO_VALIDATION_R3_RECOUNT"
 SDPD = ROOT / "data/sharp/external_sDPD_20261118"
 GDPD = ROOT / "data/sharp/external_DPD_20261118"
 Z = float(norm.ppf(1 - 0.0125))

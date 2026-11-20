@@ -37,17 +37,17 @@ from sharpbl import p2d, p2f_pilot as P, p2f_validation as V  # noqa: E402
 
 PROTOCOL = ROOT / "docs/PROTOCOL_T3_MWO.md"
 AMENDMENT = ROOT / "docs/PROTOCOL_T3_MWO_AMENDMENT_A1.md"
-CAT = ROOT / "results/T3_MWO_CATALOGUE_R2"
+CAT = ROOT / "results/T3_MWO_CATALOGUE_R3"
 SDPD = ROOT / "data/sharp/external_sDPD_20261118"
 GDPD = ROOT / "data/sharp/external_DPD_20261118"
-OUT_CHECK = ROOT / "results/T3_MWO_DESIGN_CHECK"
-OUT_VAL = ROOT / "results/T3_MWO_VALIDATION"
-OUT_STAB = ROOT / "results/T3_MWO_STABILITY"
-OUT_EST = ROOT / "results/T3_MWO_ESTIMATE"
-CAT_RECOUNT = ROOT / "results/T3_MWO_CATALOGUE_R2_RECOUNT"
-VAL_RECOUNT = ROOT / "results/T3_MWO_VALIDATION_RECOUNT"
-CHECK_RECOUNT = ROOT / "results/T3_MWO_DESIGN_CHECK_RECOUNT"
-VAL_READ = ROOT / "results/T3_MWO_VALIDATION_READING"
+OUT_CHECK = ROOT / "results/T3_MWO_DESIGN_CHECK_R3"
+OUT_VAL = ROOT / "results/T3_MWO_VALIDATION_R3"
+OUT_STAB = ROOT / "results/T3_MWO_STABILITY_R3"
+OUT_EST = ROOT / "results/T3_MWO_ESTIMATE_R3"
+CAT_RECOUNT = ROOT / "results/T3_MWO_CATALOGUE_R3_RECOUNT"
+VAL_RECOUNT = ROOT / "results/T3_MWO_VALIDATION_R3_RECOUNT"
+CHECK_RECOUNT = ROOT / "results/T3_MWO_DESIGN_CHECK_R3_RECOUNT"
+VAL_READ = ROOT / "results/T3_MWO_VALIDATION_R3_READING"
 BENCH_SEED_BASE = 59_000_000                           # benchmark only, outside the grid and every registered range
 PROVENANCE_FILES = ("scripts/t3_mwo_analysis.py", "python/sharpbl/p2f_validation.py", "python/sharpbl/p2f_pilot.py",
                     "python/sharpbl/p2d.py")

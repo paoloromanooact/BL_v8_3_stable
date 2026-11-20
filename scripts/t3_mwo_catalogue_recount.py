@@ -26,8 +26,9 @@ import numpy as np
 import pandas as pd
 
 ROOT = Path(__file__).resolve().parents[1]
-CAT = ROOT / "results/T3_MWO_CATALOGUE_R2"            # corrected UTC-day grouping (Codex, 19530d6)
-OUT = ROOT / "results/T3_MWO_CATALOGUE_R2_RECOUNT"
+CAT = ROOT / "results/T3_MWO_CATALOGUE_R3"            # UTC-day grouping (19530d6) and amendment A2
+OUT = ROOT / "results/T3_MWO_CATALOGUE_R3_RECOUNT"
+A2_LIST = ROOT / "docs/PROTOCOL_T3_MWO_AMENDMENT_A2_EXCLUDED_FITS.csv"
 DPD = ROOT / "data/sharp/external_DPD_20261118"
 MWO_DATA = Path("/storage/shared/gianluca/MWO_project/Desktop/MWO/data MWO")
 WIN_LAT, WIN_LON, THR, BMAX, MU_MIN, RSUN = 6.0, 8.0, 50.0, 4000.0, 0.8, 6.96e10
@@ -151,8 +152,17 @@ def epoch(name, h, day):
     return "E7" if day < datetime(1996, 4, 10) else "E8"
 
 
-def magnetograms(archive=MWO_DATA, years=range(1974, 2014)):
+def a2_excluded(path=A2_LIST):
+    """Own reader of the frozen list of amendment A2: {member: SHA-256}."""
+    lines = Path(path).read_text().splitlines()
+    head = lines[0].split(",")
+    i_m, i_s = head.index("member"), head.index("sha256")
+    return {ln.split(",")[i_m]: ln.split(",")[i_s] for ln in lines[1:] if ln.strip()}
+
+
+def magnetograms(archive=MWO_DATA, years=range(1974, 2014), excluded=None):
     rows = []
+    seen_excluded = {}
     for y in years:
         p = Path(archive) / f"MWO_{y}.tar.gz"
         try:
@@ -166,8 +176,12 @@ def magnetograms(archive=MWO_DATA, years=range(1974, 2014)):
                 d = name_day(m.name, y)
                 if d is None:
                     continue
+                blob = tf.extractfile(m).read()
+                if excluded and m.name in excluded:
+                    seen_excluded[m.name] = hashlib.sha256(blob).hexdigest()
+                    continue
                 try:
-                    h, _, _ = header_and_data(tf.extractfile(m).read())
+                    h, _, _ = header_and_data(blob)
                 except Exception:                                  # noqa: BLE001
                     continue
                 if not isinstance(h.get("TAVG-UT"), float):
@@ -180,6 +194,7 @@ def magnetograms(archive=MWO_DATA, years=range(1974, 2014)):
                                  dcen=dcen, db0=db0, eph=abs(dcen) <= CENLON_TOL and abs(db0) <= B0_TOL,
                                  border=abs(abs(dcen) - CENLON_TOL) < BORDER_CEN or abs(abs(db0) - B0_TOL) < BORDER_B0,
                                  cls=res_class(h.get("DXB_OBS"), h.get("DYB_OBS")), epoch=epoch(m.name, h, ot)))
+    magnetograms.seen_excluded = seen_excluded
     return rows
 
 
@@ -249,10 +264,10 @@ def carrington_number(t):
 
 # ---------------------------------------------------------------- rebuild
 
-def rebuild(dpd=DPD, archive=MWO_DATA, years=range(1974, 2014)):
+def rebuild(dpd=DPD, archive=MWO_DATA, years=range(1974, 2014), excluded=None):
     gr = groups(dpd)
     nbr = isolation(gr)
-    mags = magnetograms(archive, years)
+    mags = magnetograms(archive, years, excluded)
     by_day = {}
     for m in mags:
         by_day.setdefault(m["day"], []).append(m)
@@ -338,7 +353,7 @@ def activities(dpd=DPD, silso_tot=ROOT / "ancillary/SILSO_TOT/SN_m_tot_V2.0.txt"
 
 # ---------------------------------------------------------------- comparison with the runner products
 
-def check(cat=CAT, out=OUT, dpd=DPD, archive=MWO_DATA, years=range(1974, 2014), write=True, **act_kw):
+def check(cat=CAT, out=OUT, dpd=DPD, archive=MWO_DATA, years=range(1974, 2014), write=True, a2=None, **act_kw):
     design = pd.read_csv(Path(cat) / "DESIGN.csv", dtype={"noaa": str})
     attempts = pd.read_csv(Path(cat) / "ATTEMPTS.csv.gz", dtype={"noaa": str})
     sealed = pd.read_csv(Path(cat) / "SEALED.csv.gz", dtype={"noaa": str})
@@ -373,7 +388,14 @@ def check(cat=CAT, out=OUT, dpd=DPD, archive=MWO_DATA, years=range(1974, 2014), 
     same_day_att = (pd.to_datetime(am.obs_time, format="ISO8601").dt.strftime("%Y-%m-%d") == am.day)
     ok("same UTC day: MWO instant and DPD day coincide for every record and every attempt with a magnetogram",
        same_day.all() and same_day_att.all(), f"{int((~same_day).sum())} records, {int((~same_day_att).sum())} attempts differ")
-    att, recs = rebuild(dpd, archive, years)
+    excl = a2_excluded() if a2 is None else a2
+    att, recs = rebuild(dpd, archive, years, excl)
+    seen = getattr(magnetograms, "seen_excluded", {})
+    mt = pd.read_csv(Path(cat) / "MAGNETOGRAMS.csv.gz", low_memory=False)
+    marked = set(mt.member[mt.status == "excluded_A2"])
+    ok("amendment A2: every listed file found with its SHA-256, excluded before the choice, marked in MAGNETOGRAMS",
+       seen == excl and marked == set(excl) and not (set(excl) & set(attempts.member.dropna())),
+       f"{len(seen)} found, {len(marked)} marked of {len(excl)}")
     border = {k for k, a in att.items() if a["border"]}
     mine = {k: ("no_magnetogram" if a["mag"] is None else a["m"]["status"]) for k, a in att.items()}
     theirs = {(r.day, r.noaa): r.status for r in attempts.itertuples()}
@@ -540,14 +562,14 @@ td = Path({str(td)!r}); out = td / 'cat'; out.mkdir()
 ga = C.dpd_groups(td); mg = C.magnetogram_table(td, years=[1990])
 att, design, sealed, loss, cov = C.build(ga, mg, archive_dir=td, dpd_dir=td, silso_tot=td / 'tot.txt', silso_hem=td / 'hem.csv')
 design.to_csv(out / 'DESIGN.csv', index=False); sealed.to_csv(out / 'SEALED.csv.gz', index=False)
-att.to_csv(out / 'ATTEMPTS.csv.gz', index=False)
+att.to_csv(out / 'ATTEMPTS.csv.gz', index=False); mg.to_csv(out / 'MAGNETOGRAMS.csv.gz', index=False)
 h = {{f.name: hashlib.sha256(f.read_bytes()).hexdigest() for f in out.iterdir()}}
 (out / 'META.json').write_text(json.dumps(dict(products_sha256=h)))
 """
         r = subprocess.run([sys.executable, "-c", code], capture_output=True, text=True, cwd=ROOT)
         ok("runner executed on the synthetic archive", r.returncode == 0, r.stderr[-300:] if r.returncode else "")
         if r.returncode == 0:
-            kw = dict(silso_tot=td / "tot.txt", silso_hem=td / "hem.csv")
+            kw = dict(silso_tot=td / "tot.txt", silso_hem=td / "hem.csv", a2={})
             good = check(td / "cat", td / "r1", dpd=td, archive=td, years=[1990], write=False, **kw)
             ok("check() passes on the runner outputs", good)
             s = pd.read_csv(td / "cat/SEALED.csv.gz", dtype={"noaa": str})
