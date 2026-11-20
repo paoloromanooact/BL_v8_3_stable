@@ -1,0 +1,17 @@
+record_set,epoch,N,S
+all,E1,8,43
+all,E2,449,351
+all,E3,261,427
+all,E4,208,208
+all,E5,629,756
+all,E6,66,77
+all,E7,28,18
+all,E8,1205,1208
+isolated,E1,6,32
+isolated,E2,381,312
+isolated,E3,226,340
+isolated,E4,182,189
+isolated,E5,541,667
+isolated,E6,61,74
+isolated,E7,27,18
+isolated,E8,1071,1096

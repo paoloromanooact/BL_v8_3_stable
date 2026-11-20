@@ -899,6 +899,18 @@ results/T3_MWO_CATALOGUE_R4_RECOUNT/RECEIPT.json
 results/T3_MWO_CATALOGUE_R4_RECOUNT/RUN.log
 results/T3_MWO_CATALOGUE_RECOUNT/RECEIPT.json
 results/T3_MWO_CATALOGUE_RECOUNT/RUN.log
+results/T3_MWO_COVERAGE_R4/ATTEMPT_STATUS_BY_EPOCH.csv
+results/T3_MWO_COVERAGE_R4/MAGNETOGRAM_STATUS.csv
+results/T3_MWO_COVERAGE_R4/META.json
+results/T3_MWO_COVERAGE_R4/RECORDS_BY_CYCLE_HEMISPHERE.csv
+results/T3_MWO_COVERAGE_R4/RECORDS_BY_EPOCH_HEMISPHERE.csv
+results/T3_MWO_COVERAGE_R4/RESOLUTION_BY_EPOCH.csv
+results/T3_MWO_COVERAGE_R4/SELECTION_BY_ACTIVITY.csv
+results/T3_MWO_COVERAGE_R4/fig_flux_by_epoch.png
+results/T3_MWO_COVERAGE_R4/fig_records_in_time.png
+results/T3_MWO_COVERAGE_R4/fig_records_per_year_epoch.png
+results/T3_MWO_COVERAGE_R4/fig_resolution_by_epoch.png
+results/T3_MWO_COVERAGE_R4/fig_selection_vs_activity.png
 results/T3_MWO_DESIGN_CHECK/IDENTIFIABILITY.json
 results/T3_MWO_DESIGN_CHECK/META.json
 results/T3_MWO_DESIGN_CHECK/RUN.log
@@ -1026,6 +1038,7 @@ scripts/t3_mwo_catalogue.py
 scripts/t3_mwo_catalogue_recount.py
 scripts/t3_mwo_catalogue_release.py
 scripts/t3_mwo_chain_review_probe.py
+scripts/t3_mwo_coverage_figures.py
 scripts/t3_mwo_estimate_recount.py
 scripts/t3_mwo_estimate_recount_review_probe.py
 scripts/t3_mwo_fetch_sdpd.py

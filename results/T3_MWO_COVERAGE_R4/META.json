@@ -1,0 +1,19 @@
+{
+  "catalogue_meta_sha256": "77db727e40b061cd1b7251e7e81387c22cb36a2cb5853ed4341911b175cbb3e4",
+  "script_sha256": "80386f1a6cfd9435ba8054b33c7d4c9bd7c15e09b478f2d19378e8c7eacb9c34",
+  "sealed_opened": false,
+  "git_commit": "473669992eec556027b5494acb86e82b121b8e01",
+  "products_sha256": {
+    "ATTEMPT_STATUS_BY_EPOCH.csv": "e6a626ebb5df56e57deccf10e8d87c0a17d7fa78157320f405acd123049b59eb",
+    "MAGNETOGRAM_STATUS.csv": "bfd2e0a74d01a0ea2e34b4e54dad2acddbb0947ba8984722ec8db0d035a0b395",
+    "RECORDS_BY_CYCLE_HEMISPHERE.csv": "c4df2e0c88a4f72da66fd7fd44ca56b3110ab0fa7ecb7f9a9a46076e087c7af9",
+    "RECORDS_BY_EPOCH_HEMISPHERE.csv": "ae906c9cfbc393fda380ddc25ecf612bd8701b62444869daddd4e4df911d1640",
+    "RESOLUTION_BY_EPOCH.csv": "a15d3aaacd9baeea245fa3089840c083563954b05510d24580c37a6e22b808b8",
+    "SELECTION_BY_ACTIVITY.csv": "91dacf7aad7a28582e394fafc4b04149a23a4ec6afb602b5a1a58c82727c891e",
+    "fig_flux_by_epoch.png": "76128084888e76e4d32147e57d79d3422a5a5440e622006ed47a97e4aba92b9c",
+    "fig_records_in_time.png": "560dabf75918bf933e89641298521e809b776c644697ed33a9c591f5cace88c1",
+    "fig_records_per_year_epoch.png": "5b681044f0339b92f23792ec221c723a4993b4ffa433dc16088e91579c53d16e",
+    "fig_resolution_by_epoch.png": "3f9448729f0fe199635b3e858a7d85d8906d37a56e9526c21054749ee078f4f0",
+    "fig_selection_vs_activity.png": "9613cc34288d0b426d7b2685fc51c901c6bafb0cae572d579b01750f221066a1"
+  }
+}

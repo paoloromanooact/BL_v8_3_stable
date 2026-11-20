@@ -1,0 +1,7 @@
+record_set,dimension,value,all_attempts_failed,no_candidate_day,record,groups,fraction_with_record
+isolated,A_tercile,1,2806,1733,1456,5995,0.24286905754795662
+isolated,A_tercile,2,2421,1802,1804,6027,0.29931972789115646
+isolated,A_tercile,3,2116,1971,1963,6050,0.3244628099173554
+all,A_tercile,1,2818,1562,1615,5995,0.2693911592994162
+all,A_tercile,2,2414,1562,2051,6027,0.3403019744483159
+all,A_tercile,3,2075,1699,2276,6050,0.376198347107438
