@@ -967,8 +967,10 @@ scripts/t3_mwo_analysis_recount.py
 scripts/t3_mwo_analysis_review_probe.py
 scripts/t3_mwo_catalogue.py
 scripts/t3_mwo_catalogue_recount.py
+scripts/t3_mwo_chain_review_probe.py
 scripts/t3_mwo_fetch_sdpd.py
 scripts/t3_mwo_metadata_audit.py
+scripts/t3_mwo_variance_review_probe.py
 scripts/t5_oracle_se_recompute.py
 scripts/t5_postcheck_external_probe.py
 scripts/t5_power_check.py

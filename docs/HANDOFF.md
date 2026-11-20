@@ -1,5 +1,24 @@
 # Cold restart — SHARP BL
 
+## 20 novembre, Codex — revisione della consegna statistica f12d093 e catalogo R2
+
+- R2 conservato in 566122f, 5225 isolati e 5944 complessivi. Controllo diretto dei metadati positivo:
+  hash dichiarati dei cinque prodotti non sigillati e stesso giorno UTC in tutti i record e tentativi
+  con magnetogramma. Nessun valore del file sigillato letto. Riconteggio completo arrivato durante
+  la revisione: 13/13, partial false, legato al META corrente e conservato in deaa14f.
+- Correzioni ai sei punti presenti in f12d093, selftest ripetuti 37/37 e 4/4. Due difetti residui
+  riprodotti su dati sintetici, prima della validazione lunga:
+  1. sigma_x2 NaN nella seconda riga è accettato dal runner e dal riconteggio, con ricevuta 8/8.
+     I parametri salvati non entrano nella finitezza e max può ignorare scarti NaN.
+  2. La catena accetta una validazione relativa a un controllo del disegno precedente, non richiede
+     il riconteggio del disegno e accetta ricevute senza conteggi o con zero controlli.
+- Rilievi e correzioni richieste nella sezione aggiornata di
+  [T3_MWO_ANALYSIS_CODE_REVIEW_20261118.md](T3_MWO_ANALYSIS_CODE_REVIEW_20261118.md), con due nuovi probe
+  sintetici riproducibili. Codice di analisi e riconteggio di Claude non modificato.
+- Dopo ricevuta completa positiva di R2: via al solo controllo del disegno senza tilt e al suo
+  riconteggio. La validazione lunga attende la chiusura dei due rilievi. Nessun via all'apertura
+  del sigillo: prima di S1-S4 vanno completati anche gli output descrittivi elencati nella revisione.
+
 ## 20 novembre, Codex — audit autonomo ripreso e rilievo sul catalogo già misurato
 
 - Audit delle fonti e dei metadati in [T3_MWO_METADATA_AND_CALIBRATION_REVIEW.md](T3_MWO_METADATA_AND_CALIBRATION_REVIEW.md).

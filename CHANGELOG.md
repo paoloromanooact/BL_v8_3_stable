@@ -1,5 +1,13 @@
 # Cronologia
 
+## 2026-11-20 — revisione della consegna statistica MWO corretta
+
+- R2 verificato sui metadati: 5225 isolati, 5944 complessivi, nessuna discordanza UTC; riconteggio completo 13/13 confermato (deaa14f).
+- Ripetuti i selftest 37/37 e 4/4. Registrati due controesempi residui su parametri di varianza NaN
+  e catena delle ricevute; validazione lunga non autorizzata finché non sono chiusi.
+- Aggiunti probe sintetici e aggiornato l'handoff; nessuna misura reale, apertura del sigillo o modifica del protocollo.
+
+
 ## 2026-11-20 — audit di Codex su MWO e validazione HMI
 
 - Corretto il giorno UTC dei magnetogrammi con TAVG-UT oltre mezzanotte, nel runner T3 MWO e nel suo
