@@ -1,5 +1,11 @@
 # Cronologia
 
+## 2026-11-20 — revisione del piano di rilascio MWO
+
+- Integrati requisiti di catena, riconteggio della stima e controllo descrittivo della legge di Joy.
+- Tre controesempi sintetici mostrano guardia e join incompleti nell’esportatore; correzione richiesta prima del rilascio reale.
+- Ricevute R4 18/18 e disegno 6/6 confermate; validazione e patch in lavorazione lasciate intatte.
+
 ## 2026-11-20 — revisione positiva del codice A3
 
 - Rivisto fd3fe95, runner 22/22 e riconteggio 28/28 nuovamente eseguiti. Esclusioni A2/A3 e hash verificati.

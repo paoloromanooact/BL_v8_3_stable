@@ -1,5 +1,31 @@
 # Cold restart — SHARP BL
 
+## 20 novembre — rilascio del catalogo MWO: piano integrato, esportatore ancora da correggere
+
+- Verificate le ricevute R4 18/18 e disegno 6/6, complete e legate ai META correnti. Script di analisi,
+  tre moduli P2f/p2d, DESIGN R4 e TARGETS coincidono con 89f525f, revisione del lancio della validazione.
+  Il log riporta selftest 41/41; nessun benchmark finale era ancora presente alla lettura del log.
+- Piano di rilascio condiviso come attività preparatoria leggera, con due tabelle separate per isolati e
+  tutti e definizioni di selezione/provenienza. Integrati i requisiti della catena completa e del riconteggio
+  della stima prima di esportare; definito il controllo di Joy come descrittivo con intervalli nominali.
+  Il piano resta bozza, deposito/licenza/autori da concordare; nessuna pubblicazione o nuovo dato reale letto.
+- Esportatore aggiornato dc035f1: selftest 5/5 positivo; è stato aggiunto il requisito di una ricevuta completa
+  e legata al META della stima. Rimangono tre controesempi sintetici riproducibili nel probe: giorno SEALED
+  discordante; riga SEALED aggiuntiva; stima e ricevuta legate a un catalogo obsoleto che consentono comunque
+  di raggiungere il lettore SEALED del catalogo corrente. Il probe simula soltanto la conservazione Git e
+  intercetta la lettura prima di aprire dati reali. Nessun valore sigillato reale viene letto.
+- dc035f1 aggiunge anche scripts/t3_mwo_estimate_recount.py e amplia la patch della stima: questi nuovi pezzi
+  richiedono una revisione dedicata prima dell'uso. La loro presenza non certifica automaticamente il rilascio.
+- Correzioni: guardia completa prima della lettura, join con uguaglianza delle chiavi (insieme, gruppo, giorno),
+  controllo dei prodotti e scrittura transazionale; selftest temporanei indipendenti dallo stato reale di EST.
+  Il pacchetto attuale non scrive README né riassunto dei confronti; --joy è menzionato ma non esiste nella CLI
+  (Joy viene già calcolato da --export). Allineare interfaccia e descrizione alla versione finale del piano.
+- Il coefficiente di Joy descrittivo va accompagnato da numerosità di regioni/CR/blocchi, repliche non valide e
+  copertura parziale dei cicli 20 e 24. Nessun verdetto o garanzia di pubblicabilità derivato dal solo intervallo.
+- Validazione R4 può proseguire: nessuna modifica a codice o input in esecuzione e nessun riavvio richiesto.
+  La patch di stabilità dell'altra sessione è stata lasciata intatta e non applicata da questa revisione. Rilascio reale bloccato fino alla correzione e alla revisione della guardia.
+
+
 ## 20 novembre — revisione del codice A3 fd3fe95: via alla misura R4
 
 - Rivisto il diff completo del runner e del riconteggio: A3 escluso prima della selezione, con verifica

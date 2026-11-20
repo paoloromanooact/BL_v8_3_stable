@@ -1,8 +1,11 @@
 # Rilascio del catalogo di tilt magnetici MWO 1974–2012 — piano (bozza)
 
 **BOZZA, 20 novembre 2026 (Claude), su richiesta dell'utente («dobbiamo cercare di concludere il lavoro»). Da rivedere
-con Codex.** È il passo 12 dello schema T3 su MWO e viene **dopo** la stima di β₃: i tilt restano sigillati fino a
-quel momento. Lo script di esportazione rifiuta di partire finché la stima non è conservata in Git.
+con Codex.** È il passo 12 dello schema T3 su MWO e viene **dopo** la stima di β₃ conservata e ricontata.
+L'apertura dei tilt per i soli controlli S1–S4 segue prima l'ordine del protocollo T3; l'esportazione finale
+richiede invece la catena completa, inclusi stabilità e stima conservate e verificate. La sola presenza della
+cartella della stima in Git non autorizza l'esportazione. Il codice attuale è un prototipo, non ancora approvato
+per l'esportazione reale (revisione Codex del 20 novembre).
 
 ## Scopo
 
@@ -62,7 +65,9 @@ Rendere il catalogo costruito per T3 un prodotto di dati riusabile e pubblicabil
    - k in γ = k·sin|λ̄| per ciclo × emisfero, regressione per l'origine;
    - due versioni: pesi Φ_MWO e pesi uguali;
    - intervallo bootstrap percentile al 95 % a blocchi di 6 CR consecutive dentro il gruppo, 2000 repliche, seme
-     69 500 001;
+     69 500 001; sul campione isolato, blocchi ancorati alla prima CR del sottoinsieme ciclo × emisfero.
+     Intervalli nominali, senza trasferire la validazione di β₃. Riportare regioni, CR e blocchi, repliche
+     singolari/non finite e tratti parziali dei cicli 20 e 24;
    - presentazione: tabella e figura dei k con intervalli, accanto ai valori pubblicati verificati sulle fonti
      primarie, senza test né verdetti. Un confronto inferenziale richiederebbe un piano distinto.
 4. **Confronti nella prima versione:** HMI (P1) e DPD in luce bianca. MDI è un'estensione successiva.
@@ -70,6 +75,28 @@ Rendere il catalogo costruito per T3 un prodotto di dati riusabile e pubblicabil
 **Aspettativa corretta.** Una validazione superata con esito «non deciso» non garantisce un limite stringente:
 l'intervallo ottenuto va tradotto nello scenario prescritto (rampa di attività), e β₃ non diventa automaticamente una
 percentuale massima di quenching. La forma editoriale si valuterà sui risultati effettivi.
+
+## Requisiti prima dell'esportazione reale
+
+- Ricevute complete, non parziali, con conteggi positivi e tutti i controlli superati, conservate in Git e
+  legate agli hash degli output; includere catalogo R4, controllo del disegno, validazione e lettura registrata,
+  S1–S4, stima di β₃ e suo riconteggio. Una validazione negativa ma tecnicamente valida può condurre a un
+  rilascio descrittivo; non si richiede un risultato significativo né un verdetto positivo.
+- Prima di leggere SEALED, verificare la catena e gli hash dei prodotti di catalogo e stima, i legami della
+  stima a catalogo/stabilità e quelli del riconteggio alla stima. Questi legami vanno scritti dal produttore
+  della stima dopo la validazione: non modificare lo script della corsa in esecuzione.
+- DESIGN e SEALED devono avere le stesse chiavi e molteplicità per (insieme, gruppo DPD, giorno UTC), senza
+  righe aggiuntive, mancanti o giorni discordanti. La corrispondenza non si verifica eliminando il giorno e
+  facendo una join interna solo sul numero NOAA.
+- Selftest con file temporanei, inclusa l'intera esportazione sintetica dopo una catena valida, e rifiuti per
+  ricevuta assente/parziale/non legata, hash cambiato, giorno discordante e righe aggiuntive/mancanti. Il test
+  del blocco non deve dipendere dall'assenza futura della cartella reale della stima.
+- Scrittura in una destinazione temporanea nuova, controlli di righe/colonne e hash prima della destinazione
+  finale; nessuna sovrascrittura. Il pacchetto deve contenere README e risultati dei confronti dichiarati,
+  oppure indicarli esplicitamente come prodotti ancora da preparare, non come presenti.
+- Nel README documentare che la popolazione comprende gruppi isolati e misurabili all'istante selezionato,
+  non un campione completo delle regioni emergenti. Distinguere flag di selezione, audit strumentale e stato
+  statistico di T3. Non attribuire incertezze individuali ai tilt se non sono state stimate e verificate.
 
 ## Ordine
 
