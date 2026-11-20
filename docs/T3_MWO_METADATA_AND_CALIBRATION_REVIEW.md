@@ -1,5 +1,57 @@
 # Audit MWO — 18 novembre, ripreso il 20 novembre 2026
 
+## Pesi, precisione prospettica e anomalia GV — 20 novembre 2026
+
+Diagnosi successiva al congelamento e precedente alla lettura dei tilt reali. Riconteggio analitico sui
+soli metadati di R2, senza cambiare la selezione o i pesi della corsa. Riproduzione con
+`scripts/t3_mwo_weight_design_audit.py --out /tmp/mwo_weight_audit.json`.
+
+Con rumore individuale omoschedastico 15°, componente AR(1) temporale 7,5°, phi = 0,5 e kappa = 0,
+la normale di riferimento a varianza nota dà:
+
+| Pesi | Indice di concentrazione di Kish | Bersaglio proiettato al 20% | SE | Semiampiezza nominale | Riconoscimento normale |
+|---|---:|---:|---:|---:|---:|
+| Flusso MWO | 192,51 | −1,08346° | 3,76218° | 8,43257° | 2,54% |
+| Area DPD | 1105,92 | −1,07003° | 2,41811° | 5,41995° | 3,60% |
+| Uguali | 5225 | −1,11625° | 1,66090° | 3,72274° | 5,83% |
+
+L'indice (Σw)²/Σw² descrive la concentrazione dei pesi: non è il numero di osservazioni indipendenti
+della regressione, che dipende anche da matrice, latitudini, attività e covarianza temporale. Tutti i
+5225 record restano nella stima. Le frequenze sono approssimazioni sotto le ipotesi indicate, non
+risultati della validazione M in corso né probabilità di un esito sul Sole. La dispersione reale e la
+sua eventuale dipendenza dal flusso non sono determinate da questo calcolo.
+
+**Quattro record dominano l'indice e richiedono una verifica di provenienza.**
+Rappresentano il 12,99% della somma dei pesi e il 91,97% della somma dei pesi al quadrato. Tutti e quattro
+provengono dai due magnetogrammi sotto e hanno GV = 0,03. Gli altri 5221 record selezionati hanno GV = 3.
+Il commento dell'header documenta GV come fattore di Landé; l'audit precedente ne segnalava già 18
+occorrenze anomale nell'inventario completo, senza assegnare una correzione ai campi.
+
+| NOAA | Giorno | Φ_MWO | Area DPD |
+|---|---|---:|---:|
+| 5671 | 1989-09-05 | 6,93562e23 Mx | 1503 |
+| 5669 | 1989-09-04 | 4,95175e23 Mx | 1940 |
+| 5668 | 1989-09-04 | 3,06337e23 Mx | 14 |
+| 5678 | 1989-09-04 | 2,96034e23 Mx | 18 |
+
+File: `1989/MP00_5250078_00_0890904_1726.fits` e
+`1989/MP00_5250078_00_0890905_1764.fits`. Due gruppi hanno area DPD molto piccola: non è giustificato
+attribuire la concentrazione soltanto a regioni fisicamente grandissime. La coincidenza fra flussi
+estremi e header insoliti richiede diagnosi, ma non dimostra che i campi siano errati, né identifica
+una riscalatura. Nessuna divisione automatica per 100 e nessuna esclusione sono autorizzate da questo
+audit. Non sono stati letti pixel, immagini, centroidi delle singole polarità o il file dei tilt sigillati
+per arrivare a questa segnalazione; le covariate già presenti in DESIGN restano quelle congelate.
+
+Prima di proporre un cambio dell'analisi principale, verificare il significato di questi header e la
+provenienza della calibrazione dei due prodotti. La scelta fra pesi è anche scientifica: nello scenario
+nonlineare della rampa cambia la pendenza proiettata, come mostra la tabella; non cambia soltanto l'SE.
+Il protocollo prevede già l'area DPD come sensibilità descrittiva. Rendere un altro peso principale o
+attribuirgli un verdetto richiederebbe un emendamento esplicito e una validazione pertinente.
+
+La corsa attuale resta invariata e valida la procedura sul disegno corrente. Se una diagnosi confermasse
+errori e portasse a cambiare campione o misure, quella validazione non si trasferirebbe automaticamente
+al disegno corretto. Questa segnalazione non ferma né riavvia il processo e non anticipa l'esito di T3.
+
 Revisione di Codex, senza misura del catalogo lungo e senza nuovi tilt reali. Le verifiche usano l'inventario
 salvato degli header, i gDPD e i prodotti già conservati del pilota. Non cambiano il protocollo congelato,
 le soglie o la scala dei campi. Il progetto del flusso polare e SINDy resta separato.

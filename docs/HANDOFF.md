@@ -1,5 +1,25 @@
 # Cold restart — SHARP BL
 
+## 20 novembre, Codex — diagnosi dei pesi prima di decidere un emendamento
+
+- Ricontate le precisioni normali di riferimento sui soli metadati: indice Kish 192,51 con flusso,
+  1105,92 con area e 5225 con pesi uguali; riconoscimento della rampa 20% circa 2,54%, 3,60%, 5,83%
+  sotto rumore individuale 15 gradi e temporale AR(1) phi .5, scala 7,5. Sono ipotesi analitiche,
+  non l'esito di M né una previsione certa sui tilt reali. Nessun tilt sigillato letto.
+- **Prima di cambiare pesi, diagnosticare due magnetogrammi.** I quattro pesi maggiori producono il
+  91,97% della somma dei quadrati e il 12,99% del flusso totale: NOAA 5671 (1989-09-05), 5669, 5668 e
+  5678 (1989-09-04). Tutti hanno GV 0,03, contro 3 negli altri 5221 record. Le ultime due aree DPD sono
+  solo 14 e 18: non basta parlare di regioni grandissime. L'anomalia GV era già segnalata nell'audit.
+- File 1989/MP00_5250078_00_0890904_1726.fits e 1989/MP00_5250078_00_0890905_1764.fits.
+  La coincidenza non prova un errore del campo o una riscalatura: nessuna divisione per 100 né
+  esclusione automatica. Verificare provenienza e significato degli header prima di decidere.
+- Nota e comando riproducibile in T3_MWO_METADATA_AND_CALIBRATION_REVIEW.md. L'indice Kish misura
+  concentrazione, non il numero di dati indipendenti di T3. Cambiando pesi cambia anche il bersaglio
+  proiettato della rampa. Area DPD è già una sensibilità descrittiva del protocollo.
+- La corsa attiva è invariata e resta riferita al disegno corrente. Un eventuale catalogo corretto
+  o una nuova analisi principale richiederebbero emendamento e verifica/validazione pertinenti;
+  i risultati della corsa non si trasferiscono automaticamente a un disegno diverso.
+
 ## 20 novembre, Codex — prova completa del riconteggio S1-S4 f72c25c
 
 - Prova end-to-end su 120 record isolati sintetici più quattro non isolati, con gDPD/sDPD di prova,

@@ -1,5 +1,12 @@
 # Cronologia
 
+## 2026-11-20 — diagnosi dei pesi MWO sui metadati
+
+- Ricontate le precisioni normali per tre pesature, senza leggere risposte reali.
+- Individuati quattro record dominanti da due magnetogrammi con GV 0,03, da verificare prima di cambiare pesi.
+- Nessuna correzione, esclusione o modifica della validazione attiva; nota e script diagnostico riproducibile.
+
+
 ## 2026-11-20 — revisione completa del riconteggio di stabilità
 
 - Provato il percorso completo S1-S4 su dati sintetici; registrati sette casi di output errati ancora accettati.
