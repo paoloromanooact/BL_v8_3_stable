@@ -30,8 +30,11 @@ EX.daily_sources=lambda path:dict(zip(d.day,['GYUL']*4))
 EX.p1_records=lambda:pd.DataFrame(dict(noaa=['1','3'],day=['2011-01-01','2011-01-03'],gamma=[1.,1.]))
 with tempfile.TemporaryDirectory() as td:
  td=Path(td)
- for k in ('cat','check','val'):(td/k).mkdir()
+ for k in ('cat','check','val','reading'):(td/k).mkdir()
  A.CAT=td/'cat';A.OUT_CHECK=td/'check';A.OUT_VAL=td/'val';A.OUT_STAB=td/'stability'
+ A.VAL_READ=td/'reading'
+ for folder in (A.CAT,A.OUT_CHECK,A.OUT_VAL):(folder/'META.json').write_text('{}')
+ (A.VAL_READ/'READ.json').write_text('{}')
  (A.CAT/'COVERAGE.json').write_text(json.dumps({'outcome':'informativo'}))
  (A.OUT_CHECK/'TARGETS.json').write_text(json.dumps({'C':.5}))
  (A.OUT_CHECK/'IDENTIFIABILITY.json').write_text(json.dumps({'joy':{'identifiable':True}}))

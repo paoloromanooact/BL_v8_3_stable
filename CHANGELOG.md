@@ -1,5 +1,11 @@
 # Cronologia
 
+## 2026-11-20 — preparazione autonoma Codex durante la validazione R4
+
+- Nuovo riconteggio indipendente del rilascio e replay descrittivo di Joy, provato su esportazione sintetica e manomissioni.
+- Prova isolata degli strumenti finali, runbook dei passaggi e ricostruzione indipendente delle sei tabelle di copertura.
+- Revisione di README, figure e precedenti bibliografici in documento separato; dati e codice della griglia invariati.
+
 ## 2026-11-20 — chiusura dei sei rilievi sugli strumenti finali MWO
 
 - Confermato d50f895: selftest 15/15 e 7/7; fixture indipendenti aggiornate con baseline positiva e tutte le sei manomissioni rifiutate.
