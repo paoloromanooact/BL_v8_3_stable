@@ -1,5 +1,8 @@
 # Cold restart — SHARP BL
 
+A2 congelato nel commit 22caa4d, SHA-256 0d50aa1692f2972a0c676f448ea9a0c0db7205fb53efc44c371e9215c531349d; ricevuta in `docs/PROTOCOL_T3_MWO_AMENDMENT_A2_FREEZE.json`.
+
+
 ## 20 novembre — A2 rivisto e congelato prima di R3
 
 - Rivisti emendamento e implementazione di 8534f48. Elenco di 18 nomi unici coincidente con le esclusioni

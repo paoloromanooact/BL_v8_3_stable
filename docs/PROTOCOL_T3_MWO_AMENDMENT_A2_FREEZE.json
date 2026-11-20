@@ -1,0 +1,20 @@
+{
+  "amendment": "docs/PROTOCOL_T3_MWO_AMENDMENT_A2.md",
+  "sha256": "0d50aa1692f2972a0c676f448ea9a0c0db7205fb53efc44c371e9215c531349d",
+  "exclusion_list": "docs/PROTOCOL_T3_MWO_AMENDMENT_A2_EXCLUDED_FITS.csv",
+  "exclusion_list_sha256": "8b7ddba53c54c9771d32da2bb98e2b086f47972765769c823cd8f70349c4758f",
+  "n_excluded_members": 18,
+  "freeze_commit": "22caa4d64e823091bd61057b1dfb58d1f0e6856c",
+  "frozen_utc": "2026-11-20T13:58:53.662745+00:00",
+  "protocol_sha256": "4408a0ee78d48f65275a1a4936ce687fe324a35598dd5bb18a8f3e53a01df8ff",
+  "amendment_a1_sha256": "bc88452b382d739866ff801a14aecf596968e092904906d7d7298355a0e063c5",
+  "approved_by": "Codex after code review, same-day fallback end-to-end test and independent recount",
+  "checks": {
+    "runner_selftest": "20/20",
+    "catalogue_recount_selftest": "22/22",
+    "repository_pytest": "146/146",
+    "list_identity": "18 members exactly equal to the pre-existing polar-flux STRICT_QC exclusion list",
+    "wiring_patch": "git apply --check passes; not applied"
+  },
+  "next_step": "R3 measurement and recount, then design check and prospective precision; weights unchanged; validation not started"
+}
