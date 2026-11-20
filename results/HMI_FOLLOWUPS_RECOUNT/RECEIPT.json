@@ -1,0 +1,101 @@
+{
+  "checks": [
+    {
+      "name": "every analysis of the run is known to the recount",
+      "ok": true,
+      "value": "[]"
+    },
+    {
+      "name": "Q1 main (T2 window): interval = beta -/+ z SE",
+      "ok": true,
+      "value": ""
+    },
+    {
+      "name": "Q1 symmetric window: interval = beta -/+ z SE",
+      "ok": true,
+      "value": ""
+    },
+    {
+      "name": "Q1 hemisphere-averaged: interval = beta -/+ z SE",
+      "ok": true,
+      "value": ""
+    },
+    {
+      "name": "Q2 hemispheric phase: interval = beta -/+ z SE",
+      "ok": true,
+      "value": ""
+    },
+    {
+      "name": "Q2 conventional phase (historical T4): interval = beta -/+ z SE",
+      "ok": true,
+      "value": ""
+    },
+    {
+      "name": "Q3 b (log10 Phi): interval = beta -/+ z SE",
+      "ok": true,
+      "value": ""
+    },
+    {
+      "name": "Q3 quintile 2 - 1: interval = beta -/+ z SE",
+      "ok": true,
+      "value": ""
+    },
+    {
+      "name": "Q3 quintile 3 - 1: interval = beta -/+ z SE",
+      "ok": true,
+      "value": ""
+    },
+    {
+      "name": "Q3 quintile 4 - 1: interval = beta -/+ z SE",
+      "ok": true,
+      "value": ""
+    },
+    {
+      "name": "Q3 quintile 5 - 1: interval = beta -/+ z SE",
+      "ok": true,
+      "value": ""
+    },
+    {
+      "name": "estimates recomputed independently",
+      "ok": true,
+      "value": "max rel 6.7e-13"
+    },
+    {
+      "name": "SE recomputed from saved M parameters",
+      "ok": true,
+      "value": "max rel 2.9e-13"
+    },
+    {
+      "name": "validation product hashes equal to META",
+      "ok": true,
+      "value": ""
+    },
+    {
+      "name": "run used this validation (META hash)",
+      "ok": true,
+      "value": ""
+    },
+    {
+      "name": "SE recomputed on every successful validation row",
+      "ok": true,
+      "value": "149928 rows, max rel 4.0e-13"
+    },
+    {
+      "name": "summary frequencies recomputed from RAW (both sides, errors, coverage, exclusion tail)",
+      "ok": true,
+      "value": "max abs 0.0e+00"
+    },
+    {
+      "name": "acceptance recounted with the P2f criteria on an independently written grid",
+      "ok": true,
+      "value": "{'q1': False, 'q2_hem': False}"
+    },
+    {
+      "name": "summary rows = grid configurations",
+      "ok": true,
+      "value": "(35, 35)"
+    }
+  ],
+  "passed": 19,
+  "total": 19
+}

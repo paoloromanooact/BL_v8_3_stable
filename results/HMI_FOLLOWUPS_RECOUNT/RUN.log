@@ -1,0 +1,19 @@
+[OK] every analysis of the run is known to the recount []
+[OK] Q1 main (T2 window): interval = beta -/+ z SE 
+[OK] Q1 symmetric window: interval = beta -/+ z SE 
+[OK] Q1 hemisphere-averaged: interval = beta -/+ z SE 
+[OK] Q2 hemispheric phase: interval = beta -/+ z SE 
+[OK] Q2 conventional phase (historical T4): interval = beta -/+ z SE 
+[OK] Q3 b (log10 Phi): interval = beta -/+ z SE 
+[OK] Q3 quintile 2 - 1: interval = beta -/+ z SE 
+[OK] Q3 quintile 3 - 1: interval = beta -/+ z SE 
+[OK] Q3 quintile 4 - 1: interval = beta -/+ z SE 
+[OK] Q3 quintile 5 - 1: interval = beta -/+ z SE 
+[OK] estimates recomputed independently max rel 6.7e-13
+[OK] SE recomputed from saved M parameters max rel 2.9e-13
+[OK] validation product hashes equal to META 
+[OK] run used this validation (META hash) 
+[OK] SE recomputed on every successful validation row 149928 rows, max rel 4.0e-13
+[OK] summary frequencies recomputed from RAW (both sides, errors, coverage, exclusion tail) max abs 0.0e+00
+[OK] acceptance recounted with the P2f criteria on an independently written grid {'q1': False, 'q2_hem': False}
+[OK] summary rows = grid configurations (35, 35)
