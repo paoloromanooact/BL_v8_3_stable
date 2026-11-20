@@ -1,5 +1,11 @@
 # Cronologia
 
+## 2026-11-20 — revisione e congelamento metodologico A3
+
+- Ricostruiti indipendentemente gli otto file dai riepiloghi salvati; chiarite le sette date UTC e i confronti indeterminati.
+- Registrati 33 casi senza pixel centrali, zero record selezionati, e i limiti del controllo relativo.
+- A3 congelato prima dell’implementazione R4; pesi invariati. Runner e riconteggio A3 restano da implementare e rivedere.
+
 ## 2026-11-20 — congelamento A2 prima del catalogo MWO R3
 
 - Esclusione dei 18 FITS anomali prima della selezione, elenco legato al testo congelato con SHA-256.

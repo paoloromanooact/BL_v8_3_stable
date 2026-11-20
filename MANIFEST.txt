@@ -119,6 +119,7 @@ docs/PROTOCOL_T3_MWO_AMENDMENT_A2.md
 docs/PROTOCOL_T3_MWO_AMENDMENT_A2_DRAFT.md
 docs/PROTOCOL_T3_MWO_AMENDMENT_A2_EXCLUDED_FITS.csv
 docs/PROTOCOL_T3_MWO_AMENDMENT_A2_FREEZE.json
+docs/PROTOCOL_T3_MWO_AMENDMENT_A3.md
 docs/PROTOCOL_T3_MWO_AMENDMENT_A3_DRAFT.md
 docs/PROTOCOL_T3_MWO_AMENDMENT_A3_EXCLUDED_FITS.csv
 docs/PROTOCOL_T3_MWO_DRAFT.md
@@ -984,9 +985,11 @@ scripts/mdi_overlap_kernels.py
 scripts/mdi_overlap_metadata_review.py
 scripts/mdi_smarp_inventory.py
 scripts/mdi_smarp_overlap_analysis.py
+scripts/mwo_a3_rule_check.py
 scripts/mwo_header_inventory.py
 scripts/mwo_pilot_recount.py
 scripts/mwo_pilot_tilt.py
+scripts/mwo_pixel_audit.py
 scripts/process_test_20240508_idl_commands.pro
 scripts/prospective_phase_a.py
 scripts/prospective_phase_a_check.py

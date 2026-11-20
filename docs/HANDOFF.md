@@ -1,5 +1,29 @@
 # Cold restart — SHARP BL
 
+## 20 novembre — revisione metodologica di A3, otto esclusioni confermate
+
+- R3: verificata la ricevuta 15/15 completa, legata al META corrente; non ripetuta la misura lunga e nessun
+  valore sigillato letto. I risultati di precisione restano condizionali al rumore analitico, non potenza di M.
+- Ricostruiti con codice proprio dai riepiloghi PIXELS e MAGNETOGRAMS tutti i riferimenti e gli otto file.
+  Nomi, numerosità, mediana di riferimento e rapporto coincidono con il CSV A3 entro 1e-12.
+- Corretto un dettaglio necessario prima del congelamento: il calcolo salvato usa sette date UTC
+  giorno-3…giorno+3, non 72 ore prima/dopo l'istante. Quest'ultima variante dà gli stessi otto nomi ma
+  numeri di riferimento diversi (54,56,56,97 invece di 63,63,62,102 per i casi del 1986).
+- Specificati esclusione del membro stesso, riferimenti finiti, estremi inclusi, assenza di ricorsione A3,
+  confronto indeterminato senza riferimento valido e debolezza con uno o due confronti. Nessun nuovo file
+  aggiunto all'elenco e nessuna nuova esclusione implicita nei casi indeterminati.
+- 30 952 file: 18 A2, due illeggibili e 33 con zero pixel centrali utilizzabili; 30 899 confrontabili,
+  37 senza riferimenti e 30 862 rapporti finiti. I 33 generano 55 tentativi falliti (16 BLANK, 39 dominio mu)
+  e zero record R3. Confermati 2373/56317 tentativi con meno di tre riferimenti. Il vuoto (2,5;3] è confermato.
+- Dichiarate la variante stesso-giorno scartata dopo l'audit e la portata operativa del controllo:
+  nessuna certificazione globale dell'archivio, nessun tasso di falsi allarmi validato.
+- Script riproducibile scripts/mwo_a3_rule_check.py (--selftest, --check), senza importare il codice della
+  misura. Legge soltanto riepiloghi e metadati; verifica hash dei prodotti e cecità rispetto ai tilt.
+- Via al congelamento metodologico e all'implementazione di A3, con pesi a flusso invariati.
+  Prima di R4 occorre la revisione del codice e la prova completa A2+A3, ripiego sul file sano e hash/marker
+  errati. Non lanciati R4 né validazione; patch di stabilità non applicata.
+
+
 A2 congelato nel commit 22caa4d, SHA-256 0d50aa1692f2972a0c676f448ea9a0c0db7205fb53efc44c371e9215c531349d; ricevuta in `docs/PROTOCOL_T3_MWO_AMENDMENT_A2_FREEZE.json`.
 
 

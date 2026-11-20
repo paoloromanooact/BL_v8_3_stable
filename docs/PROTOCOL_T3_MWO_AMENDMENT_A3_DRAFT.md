@@ -17,23 +17,32 @@ viene da `2000/m000806_1660_0fe1.fits`. Il file ha GV = 3 ma:
 - 99° percentile 1562 G e massimo 1638,3 G = 32767·0,05.
 
 L'audit di tutti i 30 952 magnetogrammi Fe I mostra altri casi con una distribuzione dell'intero campo
-incompatibile con le scansioni vicine, oltre ai 18 di A2.
+molto diversa da quella delle scansioni vicine, oltre ai 18 di A2.
 
 ## Regola
 
 Per ogni magnetogramma Fe I non escluso da A2:
 - **m** = mediana di |B| sul disco centrale (μ ≥ 0,8, pixel BLANK esclusi, lettore congelato);
-- **m_ref** = mediana delle m di tutte le altre scansioni Fe I (escluse quelle di A2) con istante UTC entro ±3 giorni;
-- il magnetogramma è **anomalo** se m > 3·m_ref.
+- **m_ref** = mediana delle m finite di tutte le altre scansioni Fe I, escluse quelle di A2, nelle **sette date
+  UTC da giorno−3 a giorno+3, estremi inclusi**. Il giorno deriva dall'istante di osservazione completo
+  (data della sessione + TAVG-UT), non dalla sola data del nome del file. Non è un intervallo di ±72 ore.
+  Ogni scansione pesa una volta; si esclude solo il membro stesso, anche in presenza di altri membri allo
+  stesso istante. Il riferimento non viene ricalcolato rimuovendo ricorsivamente gli otto file di A3;
+- il magnetogramma è **anomalo** se m > 3·m_ref (disuguaglianza stretta). Senza m finita, senza altri riferimenti
+  o con m_ref non finita/non positiva, il confronto è **indeterminato**, non un controllo superato.
+  I casi con uno o due riferimenti sono segnalati come poco informativi; non si introducono altre esclusioni.
 
-Proprietà osservate nell'audit, non scelte per ottenere un risultato:
-- il rapporto m/m_ref è sotto 1,62 nel 99,9 % delle scansioni;
+La variante «stesso giorno» è stata esaminata e scartata dopo l'audit: produceva cinque segnalazioni aggiuntive
+con un solo riferimento a mediana bassa (0,2–0,6 G). Anche questa scelta è successiva all'ispezione dei pixel.
+
+Proprietà osservate nell'audit (non costituiscono una calibrazione del tasso di falsi allarmi):
+- il rapporto m/m_ref è sotto 1,62 nel 99,9 % dei rapporti finiti;
 - nessuna scansione ha rapporto fra 2,5 e 3, quindi la soglia cade in un vuoto della distribuzione;
 - tutti i casi oltre la soglia hanno almeno 5 scansioni di riferimento.
 
 **Elenco risultante, 8 file** (`docs/PROTOCOL_T3_MWO_AMENDMENT_A3_EXCLUDED_FITS.csv`, con m, numero e mediana del
 riferimento, rapporto, p99, massimo, frazione saturata e SHA-256 del contenuto del membro; SHA-256 del CSV
-`21beaef5…`):
+`21beaef50e9beca38bc2150996adbf031e1d55192dea60682e4608a802541275`):
 
 | File | Rapporto m/m_ref | Riferimento | Uso in R3 |
 |---|---|---|---|
@@ -48,12 +57,22 @@ riferimento, rapporto, p99, massimo, frazione saturata e SHA-256 del contenuto d
   valore massimo ma una mediana normale (rapporto 1,1); resta incluso, e comunque non è mai scelto in R3. Lo si
   riporta come limite.
 - **Non si correggono i campi.** I file anomali si escludono e basta.
-- **Riferimenti scarsi.** 2373 tentativi su 56 317 usano magnetogrammi con meno di 3 scansioni di riferimento nei
-  ±3 giorni: per questi la regola è poco informativa e lo si dichiara.
+- **Riferimenti scarsi.** 2373 tentativi su 56 317 usano magnetogrammi con meno di 3 scansioni di riferimento
+  nelle sette date UTC: per questi la regola è poco informativa e lo si dichiara. Nel bacino comparabile ci
+  sono 37 scansioni senza alcun riferimento e 30 862 rapporti finiti (quantile 99,9 % = 1,6156).
+- **Copertura dell'audit.** Oltre ai 18 A2, due file risultano illeggibili e 33 hanno zero pixel utilizzabili
+  nel dominio centrale; nessuno dei 33 produce un record selezionato in R3. Questi ultimi compaiono in 55
+  tentativi: 16 falliscono per window_blank e 39 per window_outside_mu_domain. Non sono certificati come sani.
+- **Limite del controllo.** A3 individua anomalie relative alle scansioni vicine; non dimostra l'omogeneità
+  dell'intero archivio né esclude derive, errori comuni a tutte le scansioni vicine o anomalie locali.
+  I pesi restano congelati e nessuna soglia viene scelta sui tilt o sulla stima di β₃.
 
 ## Applicazione
 
 Come A2: elenco preciso con SHA-256, esclusione **prima** della scelta del magnetogramma, regola del primo giorno
 riuscito invariata, stato `excluded_A3` in MAGNETOGRAMS, verifica nel riconteggio indipendente. Nuova misura **R4**
 in una destinazione nuova, poi riconteggio, controllo del disegno, precisione attesa e, una sola volta, la
-validazione. Pesi invariati (Φ_MWO).
+validazione. Pesi invariati (Φ_MWO). L'elenco CSV e il suo hash fanno parte del congelamento; modificarli
+richiede un altro emendamento. Prima di avviare R4, l'implementazione deve essere rivista e provata su un
+archivio sintetico con un file A3 escluso, recupero di una scansione sana, marcatura e hash errati rifiutati.
+Il riconteggio deve verificare separatamente A2 e A3 e il legame degli hash al META.
