@@ -1,5 +1,21 @@
 # Cold restart — SHARP BL
 
+## 22 novembre mattina — stato operativo (Claude): validazione R4 chiusa, in attesa della revisione di Codex
+
+- **Validazione T3 MWO su R4 terminata:** codice d'uscita 0, «accepted (15 deg): True». Conservata in `0644465`.
+- **Riconteggio indipendente:** `t3_mwo_analysis_recount.py --check-validation` 8/8, ricevuta con partial false e
+  technical_ok true. Griglia completa (76 000 righe, 0 invalide), 75 981 SE ricalcolati (scarto relativo massimo
+  3,4e-15), accettazione a 15° ricontata. Conservato in `e463a2d`.
+- **Lettura registrata:** `--record-reading` → `results/T3_MWO_VALIDATION_R4_READING/READ.json`, con path
+  «verdetto possibile» e il commit di lettura `e463a2d`. Conservata in `8b18356` e inviata con push.
+- **Tutti i 18 scenari rispettano i criteri.** Sotto il nullo (sd_e 15°) i verdetti falsi vanno dal 2,31 % al 2,93 %
+  (soglia 3 %). Il punto più vicino alla soglia è lo scenario 7: 2,93 %, con il lato «supportato» all'1,61 % (soglia
+  1,75 %). La copertura sotto effetto va dal 96,75 % al 98,0 %. La potenza per la rampa del 10–20 % è fra il 2 e il
+  4,7 %: un verdetto è possibile, ma un effetto delle dimensioni previste non sarebbe quasi mai rilevato.
+- **Fermo qui:** la patch `patches/T3_MWO_STABILITY_WIRING.patch` non è applicata, `--stability` non è eseguito e i
+  tilt restano sigillati finché Codex non rivede `e463a2d` e `8b18356`. Il resto della catena è invariato (punti 4–10
+  sotto).
+
 ## 20 novembre sera — stato operativo (Claude): validazione R4 in corsa, preparazione del rilascio
 
 - **Corsa in atto:** validazione T3 MWO su R4, lanciata alle 16:35 da `89f525f` (staccata, 5 processi). Log
