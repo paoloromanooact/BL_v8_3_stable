@@ -1,0 +1,60 @@
+{
+  "protocol_sha256": "4408a0ee78d48f65275a1a4936ce687fe324a35598dd5bb18a8f3e53a01df8ff",
+  "amendment_a1_sha256": "bc88452b382d739866ff801a14aecf596968e092904906d7d7298355a0e063c5",
+  "start_commit": "89f525f4d043fc38303c3f32cd166e33238f3287",
+  "provenance_start": {
+    "scripts/t3_mwo_analysis.py": "4de7534f3f6a696ca12552a8dc8a0db2576297dda1003105433615a9aa84a46a",
+    "python/sharpbl/p2f_validation.py": "8adfc197e9ee9d66359ed893162d38b92cf9c98c634beb250bb34b9b8a4ae1f1",
+    "python/sharpbl/p2f_pilot.py": "17d1f728f3c7626ebbbca38620fb2711769dc3228d0090747990410631e28ec8",
+    "python/sharpbl/p2d.py": "5e6dad4f2450f244d969d90c8305f9c18f71dc6d3ab19212f464325d5d546aa1",
+    "results/T3_MWO_CATALOGUE_R4/DESIGN.csv": "ceb09f2080d04e05a3e354f41ffbb8ec48c5b0ba860015443a90315f7f1742e4",
+    "results/T3_MWO_DESIGN_CHECK_R4/TARGETS.json": "f1a458f1e6263695bc971eaf397ca225de23c2021c08edf9debd50e5227ee2f2"
+  },
+  "provenance_end": {
+    "scripts/t3_mwo_analysis.py": "4de7534f3f6a696ca12552a8dc8a0db2576297dda1003105433615a9aa84a46a",
+    "python/sharpbl/p2f_validation.py": "8adfc197e9ee9d66359ed893162d38b92cf9c98c634beb250bb34b9b8a4ae1f1",
+    "python/sharpbl/p2f_pilot.py": "17d1f728f3c7626ebbbca38620fb2711769dc3228d0090747990410631e28ec8",
+    "python/sharpbl/p2d.py": "5e6dad4f2450f244d969d90c8305f9c18f71dc6d3ab19212f464325d5d546aa1",
+    "results/T3_MWO_CATALOGUE_R4/DESIGN.csv": "ceb09f2080d04e05a3e354f41ffbb8ec48c5b0ba860015443a90315f7f1742e4",
+    "results/T3_MWO_DESIGN_CHECK_R4/TARGETS.json": "f1a458f1e6263695bc971eaf397ca225de23c2021c08edf9debd50e5227ee2f2"
+  },
+  "benchmark": {
+    "startup_s": 0.13496661186218262,
+    "work_s": 268.5170478820801,
+    "units": 108,
+    "mean_unit_s_by_cfg": {
+      "0": 26.3292,
+      "1": 10.3957,
+      "2": 13.8426,
+      "3": 13.1187,
+      "4": 12.8529,
+      "5": 7.8722,
+      "6": 7.4054,
+      "7": 11.1724,
+      "8": 12.1143,
+      "9": 14.678,
+      "10": 15.5189,
+      "11": 11.6021,
+      "12": 11.6281,
+      "13": 11.7464,
+      "14": 8.0782,
+      "15": 10.9431,
+      "16": 12.8128,
+      "17": 9.7351
+    },
+    "predicted_hours": 58.66687241307012
+  },
+  "hours": 39.60476321677367,
+  "truth": {
+    "0.1": -0.5309294861450381,
+    "0.2": -1.0618589722900762
+  },
+  "design_check_meta_sha256": "a0af13369c768ccc1bf0a468571522361f5f3cfb45863e52d0bd8eeeb200476c",
+  "products_sha256": {
+    "ACCEPTANCE.json": "2a8e74b059ee51d06cd40c052f333626f380944dd37c0919ae71c6c6c5ecbeda",
+    "RAW.csv.gz": "8198bb6f2473d42340458a5dd2cdbf3c72a32c569e8079f3a660040af2d78218",
+    "SUMMARY.csv": "94f1279863ec585a64c337b70cfb3d122d3aa93b3d3e3c534474aed871ce430f"
+  },
+  "git_commit": "49bacea48bb37a0462b30df06fc0f3726a66e09d",
+  "script_sha256": "4de7534f3f6a696ca12552a8dc8a0db2576297dda1003105433615a9aa84a46a"
+}
