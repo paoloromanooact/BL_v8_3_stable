@@ -1,0 +1,27 @@
+       role  scenario  sd_e  effect     n  cfg  n_rows  complete  invalid_rows  errors  frac_errors  supportato  opposto  false_total  coverage  exclusion_tail  power  criteria_ok
+       main         0  15.0     0.0 10000    0   10000      True             0       3       0.0003      0.0108   0.0123       0.0231    0.9766          0.0123    NaN         True
+       main         1  15.0     0.0 10000    1   10000      True             0       2       0.0002      0.0126   0.0135       0.0261    0.9737          0.0135    NaN         True
+       main         2  15.0     0.0 10000    2   10000      True             0       2       0.0002      0.0147   0.0130       0.0277    0.9721          0.0130    NaN         True
+       main         7  15.0     0.0 10000    3   10000      True             0       3       0.0003      0.0161   0.0132       0.0293    0.9704          0.0132    NaN         True
+       main         9  15.0     0.0 10000    4   10000      True             0       2       0.0002      0.0125   0.0152       0.0277    0.9721          0.0152    NaN         True
+       main         1  15.0     0.1  2000    5    2000      True             0       2       0.0010      0.0240   0.0105          NaN    0.9715          0.0175 0.0240         True
+       main         1  15.0     0.2  2000    6    2000      True             0       0       0.0000      0.0460   0.0000          NaN    0.9740          0.0090 0.0460         True
+       main         2  15.0     0.1  2000    7    2000      True             0       0       0.0000      0.0280   0.0080          NaN    0.9710          0.0145 0.0280         True
+       main         2  15.0     0.2  2000    8    2000      True             0       0       0.0000      0.0390   0.0020          NaN    0.9800          0.0075 0.0390         True
+       main         7  15.0     0.1  2000    9    2000      True             0       1       0.0005      0.0255   0.0085          NaN    0.9675          0.0155 0.0255         True
+       main         7  15.0     0.2  2000   10    2000      True             0       0       0.0000      0.0465   0.0045          NaN    0.9725          0.0120 0.0465         True
+       main         9  15.0     0.1  2000   11    2000      True             0       1       0.0005      0.0200   0.0095          NaN    0.9730          0.0130 0.0200         True
+       main         9  15.0     0.2  2000   12    2000      True             0       0       0.0000      0.0360   0.0030          NaN    0.9765          0.0105 0.0360         True
+sensitivity         0  25.0     0.0  2000   13    2000      True             0       0       0.0000      0.0100   0.0145       0.0245    0.9755          0.0145    NaN         True
+sensitivity         1  25.0     0.0  2000   14    2000      True             0       1       0.0005      0.0120   0.0140       0.0260    0.9735          0.0140    NaN         True
+sensitivity         2  25.0     0.0  2000   15    2000      True             0       0       0.0000      0.0120   0.0110       0.0230    0.9770          0.0110    NaN         True
+sensitivity         7  25.0     0.0  2000   16    2000      True             0       1       0.0005      0.0145   0.0110       0.0255    0.9740          0.0110    NaN         True
+sensitivity         9  25.0     0.0  2000   17    2000      True             0       1       0.0005      0.0110   0.0095       0.0205    0.9790          0.0095    NaN         True
+{
+  "read_utc": "2026-11-22T07:36:18.948094+00:00",
+  "accepted_15deg": true,
+  "path": "verdetto possibile",
+  "acceptance_sha256": "2a8e74b059ee51d06cd40c052f333626f380944dd37c0919ae71c6c6c5ecbeda",
+  "recount_receipt_sha256": "31d4e849d26405b7d283d5b11dafb552f419357e9fa65dde10d5a506dfa78d41",
+  "git_commit": "e463a2d5fe3f334d04533c930540102bc01ed969"
+}

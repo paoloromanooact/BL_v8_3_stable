@@ -1,0 +1,8 @@
+{
+  "read_utc": "2026-11-22T07:36:18.948094+00:00",
+  "accepted_15deg": true,
+  "path": "verdetto possibile",
+  "acceptance_sha256": "2a8e74b059ee51d06cd40c052f333626f380944dd37c0919ae71c6c6c5ecbeda",
+  "recount_receipt_sha256": "31d4e849d26405b7d283d5b11dafb552f419357e9fa65dde10d5a506dfa78d41",
+  "git_commit": "e463a2d5fe3f334d04533c930540102bc01ed969"
+}
