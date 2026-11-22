@@ -1,0 +1,50 @@
+{
+  "checks": [
+    {
+      "name": "validation product hashes",
+      "ok": true,
+      "value": ""
+    },
+    {
+      "name": "validation bound to the design check",
+      "ok": true,
+      "value": ""
+    },
+    {
+      "name": "provenance unchanged during the run",
+      "ok": true,
+      "value": ""
+    },
+    {
+      "name": "grid complete: configurations, replicas, seeds",
+      "ok": true,
+      "value": "76000 rows, 76000 expected"
+    },
+    {
+      "name": "every row valid (finite, SE > 0, bounds = beta -/+ z SE, verdict and indicators, true value)",
+      "ok": true,
+      "value": "0 invalid"
+    },
+    {
+      "name": "SE recomputed from the saved parameters of M (every reconstruction finite)",
+      "ok": true,
+      "value": "75981 rows, non-finite 0, max rel 3.4e-15"
+    },
+    {
+      "name": "frequencies of every configuration",
+      "ok": true,
+      "value": "max abs 0.0e+00"
+    },
+    {
+      "name": "15-deg acceptance recounted",
+      "ok": true,
+      "value": "{'recounted': True, 'saved': True}"
+    }
+  ],
+  "passed": 8,
+  "total": 8,
+  "partial": false,
+  "recounted_acceptance": true,
+  "technical_ok": true,
+  "validation_meta_sha256": "89735056a1058853f19e38092e4279db630531dc6e8636c85d71409d364223f2"
+}

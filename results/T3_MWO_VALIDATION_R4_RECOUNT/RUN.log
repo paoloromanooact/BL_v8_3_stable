@@ -1,0 +1,9 @@
+[OK] validation product hashes 
+[OK] validation bound to the design check 
+[OK] provenance unchanged during the run 
+[OK] grid complete: configurations, replicas, seeds 76000 rows, 76000 expected
+[OK] every row valid (finite, SE > 0, bounds = beta -/+ z SE, verdict and indicators, true value) 0 invalid
+[OK] SE recomputed from the saved parameters of M (every reconstruction finite) 75981 rows, non-finite 0, max rel 3.4e-15
+[OK] frequencies of every configuration max abs 0.0e+00
+[OK] 15-deg acceptance recounted {'recounted': True, 'saved': True}
+exit 0
