@@ -1,5 +1,10 @@
 # Cronologia
 
+## 2026-11-23 — revisione della stabilità MWO R4
+
+- Confermati ricevuta 16/16 e hash; esito descrittivo, via alla stima unica e riconteggio.
+- Precisata la lettura di S2; corretta la fixture del selftest del riconteggio (15/15).
+
 ## 2026-11-23 — validazione T3 MWO R4 rivista da Codex
 
 - Audit indipendente su tutte le 76000 righe e 75981 SE; accettazione, ricevuta e lettura registrata confermate.

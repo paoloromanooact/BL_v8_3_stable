@@ -305,8 +305,14 @@ h = {{f.name: hashlib.sha256(f.read_bytes()).hexdigest() for f in (td / 'est').i
         (td / "python").symlink_to(ROOT / "python")          # the copy finds sharpbl as from the repository
         tmp_src = td / "scripts/t3_mwo_analysis.py"
         tmp_src.write_text((ROOT / "scripts/t3_mwo_analysis.py").read_text())
-        pr = subprocess.run(["patch", "-s", str(tmp_src)], input=(ROOT / "patches/T3_MWO_STABILITY_WIRING.patch").read_text()
-                            .split("--- a/scripts/t3_mwo_stability_extras.py")[0], text=True, capture_output=True)
+        segment = (ROOT / "patches/T3_MWO_STABILITY_WIRING.patch").read_text().split(
+            "--- a/scripts/t3_mwo_stability_extras.py")[0]
+        # A real run uses the patched analysis. Detect that state without applying it again.
+        pr = subprocess.run(["patch", "--batch", "--reverse", "--dry-run", "-s", str(tmp_src)],
+                            input=segment, text=True, capture_output=True)
+        if pr.returncode != 0:
+            pr = subprocess.run(["patch", "--batch", "--forward", "-s", str(tmp_src)],
+                                input=segment, text=True, capture_output=True)
         code = code.replace(repr(str(ROOT / "scripts/t3_mwo_analysis.py")), repr(str(tmp_src)))
         r = subprocess.run([sys.executable, "-c", code], capture_output=True, text=True, cwd=ROOT)
         ok("patched analysis module produced the synthetic estimate (subprocess)", pr.returncode == 0 and r.returncode == 0,

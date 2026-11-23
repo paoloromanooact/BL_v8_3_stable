@@ -9,7 +9,8 @@ revisione di Codex `cf7cc61`), uscite conservate prima della lettura in `5a52d8a
 
 **β₃ sarà riportato come descrittivo, senza verdetto.** Cause registrate: «S1 non determinato; S2 stabilità non
 determinata». Ciascuna delle due basta da sola. La validazione accettata a 15° («verdetto possibile») era una
-condizione necessaria, non sufficiente: questa lettura la supera senza contraddirla.
+condizione necessaria, non sufficiente: i controlli sui dati reali bloccano il percorso inferenziale senza
+contraddire la validazione sui generatori sintetici.
 
 Il terzo criterio della regola è rispettato: le epoche non verificabili (E1, E7) contengono l'1,6 % dei record
 isolati, sotto la soglia del 20 %.
@@ -38,7 +39,8 @@ isolati, sotto la soglia del 20 %.
   - le altre undici includono zero, spesso con intervalli molto larghi (per esempio E6S [−155°, +167°]).
 
   Se S1 fosse stato determinato con queste repliche, E4N lo avrebbe reso «instabile». Questa è una lettura
-  condizionale, non un esito.
+  condizionale, non un esito. Gli intervalli condizionati alle repliche non singolari non anticipano
+  il risultato di un eventuale metodo di bootstrap modificato.
 - Unità: a_{e,h} è uno scarto di coefficiente di Joy (gradi per unità di sin|λ̄|), non un tilt; gli scarti grandi
   delle celle piccole riflettono anche la leva in latitudine limitata.
 
@@ -49,9 +51,12 @@ isolati, sotto la soglia del 20 %.
 - Margine di equivalenza C = 0,5·|Δβ₂₀| = **0,530**, ricalcolato dal riconteggio sul sottoinsieme.
 - L'intervallo contiene zero ma esce da [−C, +C], quindi lo stato è «stabilità non determinata». Non è
   «dipendente dall'attività» e non è «scarto contenuto».
-- **Limite di precisione, prevedibile dal controllo del disegno:** per lo stato «scarto contenuto» la semiampiezza
-  dovrebbe essere ≤ 0,53, cioè SE ≤ 0,24. Il SE osservato è circa dieci volte maggiore, in linea con il rapporto
-  SE/|Δβ₂₀| ≈ 1,9 del controllo del disegno R4. Con questa precisione S2 non poteva permettere un verdetto.
+- **Precisione dell'intervallo osservato:** per lo stato «scarto contenuto» è necessario che la semiampiezza
+  sia ≤ 0,53, cioè SE ≤ 0,24; è inoltre necessario che l'intervallo sia centrato abbastanza vicino a zero.
+  Il SE osservato è circa dieci volte maggiore: questo intervallo non dimostra l'equivalenza richiesta.
+  Il rapporto SE/|Δβ₂₀| del disegno principale non è una previsione della precisione di S2: qui la risposta è
+  una differenza MWO − luce bianca, con una covarianza che può essere diversa. Lo stato indeterminato non
+  dimostra né una dipendenza strumentale dall'attività né la sua assenza.
 - Per emisfero (descrittivo): N −1,70 [−9,89, +6,49] (n 2228); S −4,28 [−11,93, +3,37] (n 2466). Entrambi gli
   intervalli contengono zero.
 - φ stimato 0,97 sul campione completo (0,75 nord, 0,98 sud): persistenza temporale alta dello scarto.
@@ -88,9 +93,9 @@ isolati, sotto la soglia del 20 %.
 - La validazione ha 19 fit di M non riusciti, conservati nei denominatori; nessuna riga invalida.
 - La potenza della validazione per la rampa del 10–20 % è del 2,0–4,7 %. Anche con stabilità favorevole, un effetto
   di quella grandezza sarebbe stato quasi sempre «non deciso».
-- Il selftest di `t3_mwo_estimate_recount.py` dà 14/15 con la patch applicata: il test riapplica la patch al file
-  già patchato. È un difetto del test, non della stima sintetica né del riconteggio (entrambi superati); senza patch
-  dava 15/15. Il file non è stato modificato.
+- Il selftest del riconteggio della stima dava 14/15 perché riapplicava la patch al file già patchato.
+  Codex ha corretto solo la fixture: ora riconosce lo stato già applicato nella copia temporanea e passa
+  15/15. Analisi, dati reali, regola congelata e risultati di stabilità sono invariati.
 
 ## Prossimo passo
 
