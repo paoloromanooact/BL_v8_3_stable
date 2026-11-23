@@ -1,0 +1,89 @@
+{
+  "checks": [
+    {
+      "name": "seal chain: prerequisites committed, receipts complete and bound, stability bound to current inputs",
+      "ok": true,
+      "value": "[]"
+    },
+    {
+      "name": "stability product hashes",
+      "ok": true,
+      "value": ""
+    },
+    {
+      "name": "white-light tilts, status and d_WL of every record",
+      "ok": true,
+      "value": "4694 available"
+    },
+    {
+      "name": "verifiable epochs, unverifiable share, subset size",
+      "ok": true,
+      "value": "0.015891250239326058"
+    },
+    {
+      "name": "S1: every (epoch, hemisphere) with a, b, diff, bounds and flag; status; singular count; reps and seed",
+      "ok": true,
+      "value": "('non determinato', 573)"
+    },
+    {
+      "name": "C recomputed on the white-light subset, equal to TARGETS and to STABILITY",
+      "ok": true,
+      "value": "0.5303421951126371"
+    },
+    {
+      "name": "S2: state, n, beta, SE, bounds; status and 'distinguishable from zero' from the recomputed C",
+      "ok": true,
+      "value": "('stimato', 'stabilit\u00e0 non determinata')"
+    },
+    {
+      "name": "S2 by hemisphere: state, n, beta, SE, bounds",
+      "ok": true,
+      "value": "[True, True]"
+    },
+    {
+      "name": "S3: Hale agreement with its (epoch, hemisphere) labels",
+      "ok": true,
+      "value": ""
+    },
+    {
+      "name": "S4 selection table",
+      "ok": true,
+      "value": ""
+    },
+    {
+      "name": "descriptive outputs of \u00a76 present (all five)",
+      "ok": true,
+      "value": "['S1_DPD_SOURCES.csv', 'S2_P1.json', 'S2_P1_MATCHED.csv', 'S4_ISOLATION.csv', 'S4_DWL_ALL.csv']"
+    },
+    {
+      "name": "DPD sources by epoch: labels, counts and shares",
+      "ok": true,
+      "value": ""
+    },
+    {
+      "name": "S4: non-isolation fraction, rank and |LCM| by activity tercile",
+      "ok": true,
+      "value": ""
+    },
+    {
+      "name": "S4: d_WL of the 'all' set by isolation and tercile (n, median, mean, s/sqrt n)",
+      "ok": true,
+      "value": ""
+    },
+    {
+      "name": "S2 against P1: matched pairs (own P1 reader), differences, count, median and fit",
+      "ok": true,
+      "value": "(153, True, True, True)"
+    },
+    {
+      "name": "final rule from the recomputed S1, S2 and C",
+      "ok": true,
+      "value": "descrittivo"
+    }
+  ],
+  "passed": 16,
+  "total": 16,
+  "partial": false,
+  "stability_meta_sha256": "b6789830d48dced0d0f8e9d3a5a95e617ee5e53edaff4147ecd0d2aa4984d04e",
+  "recounted_outcome": "descrittivo"
+}
