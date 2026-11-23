@@ -1,0 +1,17 @@
+epoch,hemisphere,n,n_distinct_CR,blocks_in_epoch,verifiable
+E1,N,5,4,2,False
+E1,S,30,6,2,False
+E2,N,342,60,13,True
+E2,S,291,57,13,True
+E3,N,201,33,6,True
+E3,S,307,36,6,True
+E4,N,150,49,11,True
+E4,S,160,51,11,True
+E5,N,470,60,10,True
+E5,S,596,60,10,True
+E6,N,52,17,3,True
+E6,S,64,17,3,True
+E7,N,26,12,3,False
+E7,S,17,11,3,False
+E8,N,982,140,32,True
+E8,S,1001,155,32,True

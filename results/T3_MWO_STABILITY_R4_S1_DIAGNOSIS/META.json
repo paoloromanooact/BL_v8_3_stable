@@ -1,0 +1,10 @@
+{
+  "post_hoc": true,
+  "changes_outcome": false,
+  "singular_replayed": 573,
+  "singular_saved": 573,
+  "replay_matches": true,
+  "stability_meta_sha256": "b6789830d48dced0d0f8e9d3a5a95e617ee5e53edaff4147ecd0d2aa4984d04e",
+  "script_sha256": "0c28e4741f17a9e0c47b28505b33ba1c67bf8fdddfea41af1fe6cc634ca1e831",
+  "sealed_read": false
+}
