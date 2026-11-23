@@ -1,196 +1,280 @@
 # Pilota del catalogo di tilt magnetici MDI 1996–2010 — protocollo (BOZZA)
 
-**BOZZA rev. 1, 23 novembre 2026 (Claude). Da rivedere con Codex prima di qualsiasi misura.**
-- Nessun tilt MDI misurato e nessun magnetogramma scaricato.
+**BOZZA rev. 2, 23 novembre 2026 (Claude). Non congelata.**
+- Recepisce la revisione di Codex della rev. 1 (`4506cb4`), punti 1–6, semi, budget e ARISE.
+- Nessun tilt MDI misurato e nessuna acquisizione di magnetogrammi. Revisione di Codex prima del congelamento e della
+  misura.
 - Base:
   - inventario `docs/MDI_TILT_PILOT_INVENTORY.md`;
-  - audit delle mappe sinottiche `results/MDI_SYNOPTIC_AUDIT` (`511f2dc`);
-  - parere di Codex `0afc47c`.
+  - audit delle mappe sinottiche `results/MDI_SYNOPTIC_AUDIT` (`511f2dc`).
 
 ## 0. Scopo e limiti
 
-Il pilota è **descrittivo e preparatorio**. Risponde a quattro domande:
-- **Q1. Resa, copertura, rumore e correlazione temporale** delle misure MDI, per stratto. Servono a costruire il
-  disegno prospettico del catalogo completo. Non sono la precisione del catalogo completo.
-- **Q2. Effetto della composizione sinottica.** Si confrontano tilt da mappe sinottiche e da magnetogrammi istantanei
-  full-disk, sullo stesso gruppo. Lo scarto si misura, non si assume piccolo. **Q2 precede la scelta del metodo del
-  catalogo completo.**
-- **Q3. Scarto relativo MDI–MWO** sugli stessi gruppi, per attività, dimensione e geometria.
+Il pilota è **descrittivo e preparatorio**. Le domande:
+- **Q1. Resa, copertura e dispersione osservata**, per strato e disponibilità MWO, più un fit esplorativo della
+  covarianza temporale.
+  - Servono al disegno prospettico del catalogo completo; non ne sono la precisione.
+  - Il §5 elenca le componenti che il pilota non può stimare.
+- **Q2. Differenza fra prodotti:** tilt da mappe sinottiche contro tilt da magnetogrammi istantanei full-disk, sullo
+  stesso gruppo.
+  - La differenza comprende composizione temporale, rimappatura, risoluzione ed evoluzione reale. Non isola la sola
+    composizione sinottica.
+  - **Q2 precede la scelta del metodo del catalogo completo.**
+- **Q3. Scarto relativo MDI–MWO** sugli stessi gruppi, per attività, dimensione, geometria e distanza temporale.
   - Nessuno dei due strumenti è assunto corretto.
-  - Un accordo non dimostrerebbe che entrambi siano privi di distorsioni e non validerebbe T3.
-- **Q4. Precisione prospettica di un nuovo T3 su MDI da solo**, sul disegno ricavato da Q1. È una stima analitica,
-  non un verdetto e non una validazione. Un'analisi combinata MDI+MWO si valuta solo dopo.
+  - Un accordo non dimostrerebbe l'assenza di distorsioni né validerebbe T3.
+- **Q4. Precisione prospettica di un nuovo T3 su MDI da solo**, su un disegno prospettico esplicito (§6).
+  - È condizionata a ipotesi e scenari; non è una validazione né una stima di β₃.
+  - Sinottico e full-disk sono distinti.
 
-Il pilota **non stima β₃**, non produce verdetti sul quenching e non costruisce il catalogo completo.
+**Non fa:** non stima β₃, non produce verdetti, non costruisce il catalogo completo.
 
-**Precedenti da citare:**
-- BARD-MDI (Muñoz-Jaramillo et al. 2021), sul disco e non cieco: solo confronto descrittivo dichiarato;
-- Li & Ulrich (2012), tilt MDI 1996–2010;
-- ARISE, cataloghi di regioni da mappe sinottiche MDI/HMI (indicato da Codex; riferimento da verificare).
+**Precedenti da citare ed esaminare per metodo e disponibilità dei parametri,** senza assumere che popolazione e
+definizioni coincidano con quelle DPD:
+- **ARISE:** Wang, Jiang & Luo (2023), «Toward a Live Homogeneous Database of Solar Active Regions Based on SOHO/MDI and
+  SDO/HMI Synoptic Magnetograms. I. Automatic Detection and Calibration», ApJS 268, 55; e (2024) «II. Parameters for
+  Solar Cycle Variability», ApJ 971, 110. Database e codice degli autori. DOI da registrare dalla fonte.
+- **BARD-MDI** (Muñoz-Jaramillo et al. 2021): sul disco e non cieco; solo confronto descrittivo dichiarato.
+- **Li & Ulrich (2012):** tilt MDI 1996–2010.
 
 ## 1. Dati
 
 **Livello 1, sinottico (sul disco, senza rete)**
-- `mdi.synoptic_Mr_polfil_96m`, 193 mappe, CR 1909–2104. SHA-256 in `results/MDI_SYNOPTIC_AUDIT/FILES.csv`.
-- Licenza CC0 (header `LICENSE`).
-- Griglia: CEA 3600×1440, 0,1° in longitudine di Carrington, passo uniforme in sin λ. Campo **radiale** (Mx cm⁻² ≡ G).
-- Costruzione dichiarata negli header: `EQPOINTS` 20, `W_WEIGHT` 'Even', `HWNWIDTH` 20, `IMG_NUM` 10–447.
-  - Interpretazione da documentazione HMI: ogni longitudine è la media uniforme dei 20 magnetogrammi più vicini al suo
-    passaggio al meridiano centrale. Per MDI a 96 min sarebbero circa 32 h.
-  - **Da verificare per la serie MDI** prima del congelamento.
-- Mancano le CR 1938–1940. 17 mappe hanno pixel mancanti: 1996, 1998–1999, 2002-02, 2003–2004, 2007-01, 2009-07.
+- `mdi.synoptic_Mr_polfil_96m`, 193 mappe, CR 1909–2104; SHA-256 in `results/MDI_SYNOPTIC_AUDIT/FILES.csv`.
+- Licenza CC0. Griglia CEA 3600×1440, 0,1° in longitudine di Carrington, passo uniforme in sin λ. Campo radiale in
+  Mx cm⁻².
+- **Costruzione: cosa è verificabile e cosa no.**
+  - Negli header ci sono IMG_NUM (10–447), EQPOINTS 20, W_WEIGHT 'Even', HWNWIDTH 20, METHOD 'TEMP_SPAT',
+    T_START/T_STOP e una sola data di costruzione (2018-08-13).
+  - **IMG_NUM è il numero globale di immagini della mappa, non il numero di contributi per pixel.** Quest'ultimo non è
+    nei file.
+  - Nel codice pubblico JSOC `mdisynop.c`, secondo la verifica di Codex:
+    - EQPOINTS riguarda contributi equivalenti;
+    - la selezione distingue i modi di esposizione;
+    - HWNWIDTH è una semilarghezza angolare.
+  - **Non è dimostrato** che quella versione del codice sia quella che ha prodotto i nostri file.
+  - La pagina NASA sulle sinottiche descrive HMI a 720 s, non questa serie MDI.
+  - **La finestra temporale effettiva per pixel resta indeterminata.** Non si assume «20 immagini × 96 min».
+  - Si conservano nel pacchetto del pilota riferimento, URL e versione (o hash) delle fonti consultate.
+- **Lacune:** mancano le CR 1938–1940; 17 mappe hanno pixel mancanti.
+- **Polar filling:** gli header indicano LAT0 60°, LATFIL 75°, LATFIL1 62°. Una finestra con |λ| massima ≥ LAT0 della
+  sua mappa fallisce («banda polar-fill»). Con |λ_DPD| ≤ 45° e ±6° non dovrebbe accadere; lo si verifica per record.
 
-**Livello 2, full-disk (rete, solo dopo autorizzazione esplicita)**
-- `mdi.fd_M_96m_lev182`, magnetogrammi LOS istantanei.
-- Per ogni gruppo del sottoinsieme: **due magnetogrammi consecutivi** (96 min) vicini all'istante DPD del giorno scelto.
-  La coppia serve anche a stimare la ripetibilità della misura.
-- Metadati per record: T_REC, T_OBS, QUALITY, INTERVAL, MISSVALS, geometria.
-- Trasporto: quello dell'emendamento A1, con il redirect verificato verso jsoc1.
-- **Budget proposto: ≤ 220 file, ≤ 1,5 GB, ≤ 600 richieste.**
+**Livello 2, full-disk** (`mdi.fd_M_96m_lev182`, rete solo dopo autorizzazione esplicita): §3–4.
 
 **Posizioni e attività**
-- gDPD/sDPD come per MWO (stessi file e SHA).
-- Attività emisferica mensile A_main come nel DESIGN di MWO.
+- gDPD e sDPD come per MWO (stessi file e SHA, stessa lettura, comprese le correzioni dei secondi = 60).
+- Attività emisferica mensile A_main con lo stesso codice del DESIGN di MWO.
 
 **MWO**
-- Tabella isolata del rilascio verificato (`results/MWO_TILT_CATALOGUE_RELEASE`), solo per Q3.
-- I tilt MWO sono già aperti e pubblici nel pacchetto locale. Il confronto non è cieco rispetto a MWO e lo si dichiara.
+- Tabella isolata del rilascio verificato. È già aperta e nel pacchetto locale, quindi Q3 non è cieco rispetto a MWO e
+  lo si dichiara.
 
-## 2. Popolazione e giorno
+## 2. Popolazione, giorno, classi
 
-- Gruppi DPD 1996-05-01 → 2010-10-31, area corretta ≥ 1 milionesimo, |λ| ≤ 45°. Stessa lettura di MWO, comprese le
-  correzioni dei secondi = 60.
-- **Giorno del gruppo:** il giorno con |LCM| minimo fra quelli in cui il gruppo è isolato, con la stessa regola di
-  isolamento di MWO (nessun altro centro DPD nella finestra quel giorno).
-  - Per il livello 1 il giorno serve a individuare il passaggio al meridiano e il tempo di Carrington del gruppo.
-  - Per il livello 2 serve a scegliere i magnetogrammi.
-- Le chiavi sono (NOAA DPD, giorno UTC), come in MWO.
+**Popolazione eleggibile:** gruppi DPD 1996-05-01 → 2010-10-31, area corretta ≥ 1 milionesimo, |λ| ≤ 45°, con almeno
+un giorno isolato (regola di isolamento di MWO).
 
-## 3. Campione del pilota (selezione cieca ai tilt, dai soli metadati DPD)
+**Giorno scelto (univoco, senza riguardo al tilt).**
+- Fra i giorni isolati del gruppo, quello con |LCM| minimo. Spareggio: il giorno UTC più precoce.
+- Il giorno si sceglie dai soli dati DPD e **non cambia** se la misura in quel giorno fallisce: il fallimento conta
+  nella resa. Non c'è ricerca di un giorno alternativo.
+- L'istante DPD del giorno scelto è t_DPD (UTC).
 
-**Strati:** attività (terzili di A_main sull'epoca MDI, confini 1,20 e 2,22) × emisfero × area DPD (terzili sulla
-popolazione eleggibile, fissati prima della selezione). Sono 18 strati.
+**Classi fissate prima dell'estrazione,** sulla popolazione eleggibile, un valore per gruppo al giorno scelto:
+- attività: terzili di A_main;
+- area DPD: terzili.
 
-**Livello 1**
-- 30 gruppi per stratto, 540 in tutto, estratti con `numpy.random.default_rng(seme)`. Seme proposto **71 000 001**, da
-  verificare contro gli elenchi di semi già usati.
-- Metà per stratto con un record MWO isolato lo stesso giorno, se disponibili; l'altra metà dagli altri gruppi.
-- Uno stratto con meno gruppi disponibili prende tutti quelli disponibili; lo si dichiara.
-- Un gruppo in una CR mancante resta nel campione come «mappa mancante»: conta nella resa.
+Regole:
+- quantili lineari NumPy non pesati;
+- classe = `searchsorted(confini, x, side="right") + 1`;
+- confini registrati.
+- I confini 1,20 e 2,22 della rev. 1 venivano dal campione MWO e sono sostituiti da questi.
 
-**Livello 2**
-- Sottoinsieme di 90 gruppi del livello 1 con record MWO: 5 per ciascuno dei 18 strati.
-- Gli strati vuoti si dichiarano, senza rimpiazzare con altri strati.
-- Questo dà circa 180 magnetogrammi.
+**Disponibilità MWO,** tre stati distinti e registrati:
+- **M1:** record MWO isolato nello **stesso giorno scelto**;
+- **M2:** gruppo presente nel catalogo MWO isolato, ma in un altro giorno;
+- **M0:** gruppo assente dal catalogo MWO isolato.
 
-Le scelte di 30 e 5 per stratto sono operative: bilanciano il costo dello scaricamento con la stima di resa e di
-rumore. Codex valuterà se bastano per Q2 e Q4.
+## 3. Campione
+
+**Strati:** attività (3) × emisfero (2) × area (3), 18 in tutto. In ogni strato le unità sono ordinate canonicamente
+per (NOAA, giorno).
+
+**Estrazione**
+- Per strato e disponibilità: permutazione con `numpy.random.default_rng(71 000 001)` in un ordine fisso degli strati.
+  Codex ha verificato il seme: nessuna collisione con la griglia MWO, con USED, con S1, Joy e la diagnosi S2.
+- Si prendono i primi k **senza reinserimento**.
+- Disponibilità insufficiente: si prendono tutte le unità disponibili e il disavanzo si dichiara. **Nessun
+  trasferimento** fra strati o classi e **nessuna sostituzione** dopo la misura.
+
+**Livello 1: obiettivo 30 per strato** (540), esplorativo e senza garanzia di precisione.
+- 15 dalla classe M1, 15 da M0 ∪ M2.
+- Un gruppo in una CR mancante resta nel campione e fallisce come «mappa mancante».
+
+**Livello 2: obiettivo 5 per strato** (90).
+- Estratti dal campione del livello 1 dello stesso strato: 3 dalla classe M1 e 2 da M0 ∪ M2.
+- Così Q2 non dipende soltanto dagli anni con MWO (1999–2004).
+
+**Registrazioni per strato × disponibilità:**
+- popolazione N;
+- estratti n;
+- probabilità di selezione n/N, per livello;
+- denominatori;
+- cause di fallimento.
+
+**Proiezioni:**
+- Le stime di resa per la popolazione completa pesano ogni gruppo con N/n del suo strato e della sua disponibilità.
+  Questo corregge il sovracampionamento di M1.
+- Q3 usa solo M1 (stesso giorno); M2 dà un confronto secondario con la distanza temporale riportata.
 
 ## 4. Misura
 
-**Finestra e corpo della misura:** gli stessi di MWO.
-- finestra |λ − λ_DPD| ≤ 6°, |L − L_DPD| ≤ 8°;
-- centroidi delle due polarità pesati con |B_r| sulla sfera;
-- tilt nella convenzione di P1, γ = sign(λ̄)·asin(sin tilt);
-- separazione, flusso, polarità di testa e Hale atteso.
-- Lo stesso codice di `scripts/t3_mwo_catalogue.py`, estratto in un modulo condiviso senza cambiarne il risultato. Il
-  riconteggio verifica l'identità su MWO.
+**Corpo comune**
+- Finestra |λ − λ_DPD| ≤ 6°, |L − L_DPD| ≤ 8°.
+- Centroidi delle due polarità pesati con |B_r| sulla sfera.
+- Tilt nella convenzione di P1, in (−180°, 180°]; polarità leading; separazione; flusso; segno di Hale atteso.
+- È un **modulo nuovo e condiviso**. La catena MWO conservata non si modifica.
+- L'identità con il calcolo MWO si dimostra su dati già disponibili: si ricalcolano con il nuovo modulo i record del
+  pilota MWO e un sottoinsieme di R4 dai FITS MWO, e si confrontano con i valori conservati entro tolleranze dichiarate.
 
 **Adattatore sinottico (livello 1)**
 - **Coordinate.**
-  - Asse x = tempo di Carrington: CT = CRVAL1 + (i + 1 − CRPIX1)·CDELT1, con CARRTIME = 360·CR − 180. Longitudine
-    L = (360·CR − CT) mod 360, da verificare con LON_FRST/LON_LAST nel selftest.
-  - Asse y: sin λ = (j + 1 − CRPIX2)·CDELT2.
-- **Tempo di Carrington del gruppo:** CT_g = 360·N − L_DPD, con N intero scelto in modo che CT_g sia il più vicino al
-  tempo di Carrington dell'istante DPD del giorno scelto.
-- **Bordi fra rotazioni:** si cuciono le mappe CR e CR ± 1 lungo CT.
-  - Una finestra che tocca una CR mancante fallisce con stato «mappa mancante».
-- **Campo già radiale:** nessuna divisione per μ e nessuna soglia μ.
-- **Area dei pixel:** costante (griglia CEA a uguale area), Δ(lon in rad)·Δ(sin λ)·R☉².
-- **Pixel mancanti:** con più del 5 % della finestra mancante la misura fallisce («finestra incompleta»), come A1.
-- Si registrano IMG_NUM della mappa e MISSVALS nella finestra.
+  - CT = CRVAL1 + (i + 1 − CRPIX1)·CDELT1 (tempo di Carrington), L = (360·CR − CT) mod 360;
+  - sin λ = (j + 1 − CRPIX2)·CDELT2.
+  - Segni verificati nel selftest con LON_FRST/LON_LAST e con una mappa sintetica a dipolo noto.
+- **Tempo di Carrington del gruppo:** CT_g = 360·N − L_DPD, con N intero tale che CT_g sia il più vicino al tempo di
+  Carrington di t_DPD.
+- **Bordi:** la finestra si estrae in CT cucendo le mappe CR e CR ± 1. Se una parte cade in una CR mancante, la misura
+  fallisce («mappa mancante»).
+- **Campo già radiale:** nessuna divisione per μ, nessuna soglia μ.
+- **Area dei pixel:** costante, Δlon(rad)·Δ(sin λ)·R☉².
+- **Pixel mancanti:** oltre il 5 % della finestra la misura fallisce; altrimenti i pixel mancanti si escludono.
+- Si registrano la mappa o le mappe usate, IMG_NUM e T_START/T_STOP.
 
 **Adattatore full-disk (livello 2)**
 - Geometria da CRPIX1/2, CDELT1/2, RSUN_OBS, CRLT_OBS, CRLN_OBS, CROTA2.
 - B_r = B_LOS/μ, con μ ≥ 0,8 su tutta la finestra.
-- QUALITY = 0, oppure solo bit dichiarati innocui. MISSVALS nella finestra.
-- INTERVAL registrato. Il prodotto 1 min / 5 min non viene corretto: è riportato.
+- **QUALITY ammesso: solo 0.** Qualsiasi altro valore fallisce («qualità») e il valore si registra.
+- Pixel mancanti: la stessa regola del 5 %.
+- **Immagine di riferimento A** (per Q2 e Q3):
+  - il record con T_OBS (UTC) più vicino a t_DPD, entro ±6 h;
+  - spareggio: il più precoce;
+  - nessun record entro ±6 h: «nessun magnetogramma», senza ricerca in altri giorni.
+- **Immagine B** (ripetibilità):
+  - il primo record successivo ad A con QUALITY 0 e **lo stesso INTERVAL** (modo di esposizione) di A, entro 4 h;
+  - altrimenti il primo precedente con le stesse condizioni;
+  - altrimenti «nessuna coppia».
+  - Si riportano Δt effettivo da T_OBS e INTERVAL di entrambe.
+  - Due record consecutivi non garantiscono 96 minuti.
+- I modi di esposizione non si mescolano nella coppia. In Q2 la classe di INTERVAL di A è riportata.
 
-**Soglie (fissate ora)**
-- Principale: 50 ≤ |B_r| ≤ 4000 G, come MWO, per la confrontabilità di Q3. Sensibilità: 100 G.
-- Pixel minimi per polarità: **≥ 10** (livello 1) e **≥ 10** (livello 2). Sotto soglia la misura fallisce («una
-  polarità debole»); lo stato è registrato.
-- Il rumore si misura (Q1) e non si usa per cambiare le soglie dopo la lettura.
+**Soglie esplorative (fissate ora)**
+- **Campo:** 50 ≤ |B_r| ≤ 4000 G nella principale; 100 G come sensibilità.
+  - «Come MWO» non implica equivalenza di rumore o di selezione, e lo si dichiara.
+  - I pixel oltre 4000 G si escludono da centroidi e conteggi.
+- **Almeno 10 pixel per polarità.**
+  - È un filtro minimo di stabilità dei centroidi, non una validazione del tilt.
+  - Non rappresenta la stessa area né lo stesso numero di elementi indipendenti nelle due griglie: si registrano anche
+    l'area per polarità (in milionesimi di emisfero) e la separazione in unità di pixel di ciascuna griglia.
 
-**Scala del campo:** MDI, MWO e HMI hanno scale diverse (MDI ≈ 1,3–1,4 × HMI). I flussi si confrontano solo come
-rapporti descrittivi. Le soglie in G non sono equivalenti fra strumenti, e lo si dichiara.
+**Differenze angolari (Q2, Q3), definite ora**
+- Si conservano per ogni coppia:
+  - **differenza grezza** dei tilt t₁ − t₂ in (−180°, 180°];
+  - **differenza assiale** d_ax = axial(t₁ − t₂) in [−90°, 90°);
+  - **accordo della polarità leading.**
+- **Convenzione di Joy comune:** latitudine di riferimento λ_ref = λ_DPD per entrambe le misure.
+  - γᵢ = sign(λ_ref)·asin(sin tᵢ);
+  - d_γ = sign(λ_ref)·d_ax.
+  - Non si sottraggono γ calcolate con latitudini diverse.
+- **Selftest:** casi al taglio ±90°, coppie a cavallo del taglio, regioni con |λ_ref| < 2°.
 
 ## 5. Analisi descrittive
 
-**Q1 — resa, copertura, rumore, correlazione temporale**
-- **Resa per stratto:** gruppi con misura riuscita / gruppi del campione, con le cause dei fallimenti.
-- **Rumore del campo:** deviazione standard robusta di B_r in finestre di quiete a bassa latitudine.
-  - Livello 1: per mappa.
-  - Livello 2: per magnetogramma.
-- **Ripetibilità del tilt** (livello 2): differenza assiale fra i due magnetogrammi consecutivi dello stesso gruppo.
-- **Correlazione temporale:**
-  - procedura M (REML AR(1) per cella CR × emisfero) sui residui di γ dal modello di Joy per ciclo ed emisfero, sul
-    livello 1;
-  - parametri φ, κ, σ²ₓ e componente individuale, descrittivi e con l'avvertenza del bordo.
-  - Il campione del pilota è rado nel tempo: la stima di φ è debole e lo si dichiara.
+**Q1**
+- **Resa** per strato × disponibilità, con cause di fallimento, e resa proiettata con pesi N/n.
+- **Dispersione osservata del campo** in finestre di quiete a bassa latitudine.
+  - Comprende campo solare, rumore e processamento: non è identificata con il rumore strumentale.
+- **Ripetibilità** (livello 2): differenza assiale fra A e B, con Δt.
+  - Comprende evoluzione reale ed errori eventualmente correlati; il pilota non li separa.
+- **Fit esplorativo di M** (REML AR(1), cella CR × emisfero) sui residui di γ dal modello di Joy per ciclo ed
+  emisfero, livello 1.
+  - Si riportano copertura temporale, numero di celle, parametri e bordi del dominio.
+  - **Non è una misura affidabile della correlazione fra rotazioni,** e la sola stima puntuale di φ non si usa in Q4.
+- **Il pilota non può stimare:**
+  - la correlazione temporale con precisione;
+  - la separazione fra rumore ed evoluzione;
+  - la dispersione per pixel delle immagini istantanee a partire dai compositi.
 
-**Q2 — sinottica contro full-disk** (livello 2)
-- Per gruppo: d_γ = γ_syn − γ_fd e |d_ax|.
-- Mediana con intervallo bootstrap a blocchi di 6 CR, complessiva e per terzile di attività, area e separazione.
-- Rapporto di flusso e numero di pixel.
-- Anche la ripetibilità full-disk, per separare composizione e rumore.
+  Q4 tratta queste componenti con scenari.
 
-**Q3 — MDI contro MWO** (stessi gruppo e giorno)
-- Le stesse statistiche per (syn − MWO) sul livello 1 e (fd − MWO) sul livello 2.
-- Per terzile di attività, di area e di separazione, e per |LCM| del giorno MWO.
-- Accordo delle polarità di testa e di Hale.
+**Q2** (livello 2): d_ax, d_γ e polarità per A contro sinottica.
+- Mediana con intervallo bootstrap a blocchi di 6 CR, complessiva e per classe di attività, area, separazione e
+  disponibilità MWO.
+- Rapporti di flusso, pixel e aree.
 
-**Q4 — disegno prospettico**
-- Popolazione eleggibile 1996–2010 per stratto × resa di Q1 = numero atteso di record del catalogo completo.
-- Con la struttura di varianza di Q1: SE prospettico di β₃ e potenza per le rampe del 10 % e del 20 %, sul disegno
-  proiettato. Stesse formule del controllo del disegno MWO.
-- È una previsione condizionata alle assunzioni, non una validazione. Un T3 su MDI richiederebbe protocollo e
-  validazione propri.
+**Q3:** syn − MWO (livello 1, M1) e fd(A) − MWO (livello 2, M1).
+- Le stesse statistiche, più la distanza temporale reale fra le misure. Per MWO: T_AVG della sessione; per la
+  sinottica: T_ROT e il CT del gruppo, perché l'istante effettivo per pixel è indeterminato.
+- M2: secondario, per classi di distanza temporale.
 
-**BARD-MDI:** sulle regioni comuni, γ di BARD contro il nostro. Descrittivo e non cieco.
+**BARD-MDI:** sulle regioni comuni, descrittivo e non cieco.
 
-## 6. Dopo il pilota (nessuna regola automatica)
+**Bootstrap:** blocchi floor((CR − CR_min)/6) sul campione, 2000 repliche, seme **71 100 001** (da verificare come gli
+altri). Percentili solo con almeno 1900 repliche valide; gruppi con meno di 10 coppie solo con n e mediana.
 
-La scelta del metodo del catalogo completo (sinottico, full-disk o misto) e la decisione di proseguire si prendono
-**dopo** la revisione degli esiti di Q2 e Q1, con i numeri riportati per stratto. Non si estende il pilota fino al
-catalogo completo prima di quella revisione.
+## 6. Q4 — disegno prospettico
 
-## 7. Codice, prove, conservazione
+Per ciascun metodo (sinottico e full-disk, separati), si costruisce il disegno prospettico del catalogo completo sulla
+**popolazione eleggibile reale** del 1996–2010. Si conservano:
+- distribuzione per CR ed emisfero;
+- attività A, latitudine, area;
+- lacune: CR mancanti per il sinottico; per il full-disk la disponibilità non è nota senza metadati e si tratta come
+  scenario.
 
-- **Script:**
-  - `scripts/mdi_tilt_pilot_select.py` (selezione);
-  - `scripts/mdi_synoptic_adapter.py` (adattatore sinottico);
-  - `scripts/mdi_fd_adapter.py` (adattatore full-disk);
-  - `scripts/mdi_tilt_pilot_measure.py` (misura);
-  - `scripts/mdi_tilt_pilot_recount.py` (riconteggio indipendente).
-  - Modulo condiviso per il corpo della misura, con identità verificata su MWO.
-- **Prove sintetiche, prima di qualsiasi misura reale:**
-  - mappa sinottica sintetica con un dipolo di tilt noto;
-  - cucitura fra rotazioni;
-  - finestra incompleta, CR mancante;
-  - full-disk sintetico con geometria nota e μ;
-  - soglie;
-  - identità del corpo di misura sul pilota MWO.
-- La selezione si conserva in Git prima di misurare. Gli output si conservano prima della lettura; segue il
-  riconteggio indipendente con ricevuta.
-- Rete solo per il livello 2, dopo l'approvazione del protocollo e l'autorizzazione esplicita del budget.
+**Resa.** Ogni gruppo eleggibile riceve la probabilità di successo del suo strato × disponibilità stimata dal pilota.
+- Si generano **R = 1000 disegni** con estrazioni di Bernoulli (seme **71 200 001**).
+- Gli strati con meno di 5 tentativi usano la resa del livello di attività, con flag. La regola è fissata ora.
+
+**Pesi.** Per i record simulati, i pesi Φ si estraggono dalla distribuzione dei flussi misurati nel pilota per
+strato. Le alternative a pesi uguali e ad area DPD sono sensibilità.
+
+**Matrice.** La stessa del protocollo T3: cicli × emisferi, eventuali termini di epoca (nessuno per MDI salvo
+decisione contraria), riduzione a rango pieno.
+- I bersagli delle rampe del 10 % e del 20 % (Δβ = g·Δγ) si proiettano sulla matrice MDI prevista, non si copiano da
+  MWO.
+- Un disegno non identificabile si conta e si riporta.
+
+**Covarianza: scenari, non stime.**
+- Griglia: φ ∈ {0; 0,5; 0,9; 0,98}, σ²ₓ ∈ tre livelli, σ_e da Q1 (dispersione residua) ± 50 %.
+- I parametri del fit esplorativo di Q1 sono un punto della griglia, non il riferimento.
+
+**Uscita:** SE prospettico di β₃ e potenza nominale per le rampe, in distribuzione sui disegni e per scenario.
+- La precisione del catalogo sinottico non determina quella del full-disk.
+- Nessun β₃ osservato.
+
+## 7. Codice, prove, rete, conservazione
+
+**Script previsti:** selezione, adattatore sinottico, adattatore full-disk, modulo di misura condiviso, misura,
+riconteggio indipendente, Q4.
+- I selftest coprono i casi dei §2–6, l'identità con MWO e la verifica indipendente di coordinate, segni e
+  associazione temporale.
+- La selezione si conserva in Git prima di misurare; gli output prima della lettura; segue il riconteggio con
+  ricevuta stretta.
+
+**Rete (solo livello 2, solo dopo autorizzazione)**
+- Prima i metadati per record dei giorni candidati, poi i FITS.
+- Il budget preliminare (≤ 220 file, ≤ 1,5 GB, ≤ 600 richieste) conta:
+  - richieste di metadati, redirect, tentativi falliti, riprese;
+  - byte effettivamente ricevuti.
+- I full-disk condivisi da più gruppi si scaricano una volta sola.
+- **Questa bozza non autorizza alcuna acquisizione.**
 
 ## 8. Questioni per la revisione
 
-1. Interpretazione di `EQPOINTS`/`HWNWIDTH` per la serie MDI: va confermata sulla documentazione prima di congelare.
-2. Dimensioni del campione (30 e 5 per stratto) e se il livello 2 basta per Q2 per area e attività.
-3. Soglia principale di 50 G con sensibilità a 100 G, e minimo di 10 pixel per polarità.
-4. Uso di M sul pilota rado per la correlazione temporale (Q1), o una stima alternativa.
-5. Giorno del gruppo: |LCM| minimo fra i giorni isolati. Per il livello 1 conta il passaggio al meridiano; i gruppi non
-   isolati restano fuori dal pilota come in MWO.
-6. Seme 71 000 001 e budget di rete del livello 2.
+1. Le ripartizioni 15/15 e 3/2 fra M1 e le altre classi.
+2. La finestra ±6 h e i 4 h per la coppia full-disk.
+3. La griglia di scenari di Q4 e il numero di disegni R.
+4. I semi 71 100 001 e 71 200 001.
+5. Se il confronto di identità con MWO debba usare anche un sottoinsieme di R4 ricalcolato dai FITS: richiede la
+   lettura degli archivi MWO, già sul disco.
