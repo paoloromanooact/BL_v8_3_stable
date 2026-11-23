@@ -151,6 +151,7 @@ docs/T3_MWO_CATALOGUE_RESULTS.md
 docs/T3_MWO_CLAUDE_CROSS_REVIEW_20261120.md
 docs/T3_MWO_METADATA_AND_CALIBRATION_REVIEW.md
 docs/T3_MWO_R4_FINAL_RUNBOOK.md
+docs/T3_MWO_R4_VALIDATION_CODEX_REVIEW.md
 docs/T3_MWO_REFERENCES.md
 docs/T5_DIAGNOSTIC_INPUTS_SHA256.csv
 docs/T5_DIAGNOSTIC_RESULTS.md
@@ -1067,6 +1068,7 @@ scripts/t3_mwo_stability_recount.py
 scripts/t3_mwo_stability_recount_residual_probe.py
 scripts/t3_mwo_stability_recount_review_probe.py
 scripts/t3_mwo_stability_wiring_probe.py
+scripts/t3_mwo_validation_gate_audit.py
 scripts/t3_mwo_variance_review_probe.py
 scripts/t3_mwo_weight_design_audit.py
 scripts/t5_oracle_se_recompute.py

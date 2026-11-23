@@ -1,5 +1,10 @@
 # Cronologia
 
+## 2026-11-23 — validazione T3 MWO R4 rivista da Codex
+
+- Audit indipendente su tutte le 76000 righe e 75981 SE; accettazione, ricevuta e lettura registrata confermate.
+- Via a patch e S1–S4; riconteggio e revisione della stabilità prima della stima unica. Nessun tilt reale letto.
+
 ## 2026-11-20 — preparazione autonoma Codex durante la validazione R4
 
 - Nuovo riconteggio indipendente del rilascio e replay descrittivo di Joy, provato su esportazione sintetica e manomissioni.
