@@ -26,7 +26,10 @@ Each row is one DPD group and gives:
 | `EXCLUDED_MAGNETOGRAMS.csv` | 26 | magnetograms excluded by amendments A2 and A3, with reason and SHA-256 |
 | `JOY_BY_CYCLE.csv` | 20 | descriptive Joy coefficient per cycle and hemisphere (§8) |
 | `COMPARISONS/` | — | white-light DPD and SDO/HMI comparisons, Hale agreement (§7) |
-| `META.json` | — | SHA-256 of every product and of the upstream products |
+| `META.json` | — | package metadata: SHA-256 of every file, link to the verified release and its check |
+| `RELEASE_META.json` | — | metadata of the verified release (SHA-256 of its products and of the upstream products) |
+| `README_RELEASE_SHORT.md` | — | the short README generated with the release, kept unchanged |
+| `SHA256SUMS.txt` | — | SHA-256 of every file of the package (`sha256sum -c SHA256SUMS.txt`) |
 
 The same group can appear in both tables, on different days.
 

@@ -1103,6 +1103,7 @@ scripts/mdi_overlap_metadata_review.py
 scripts/mdi_smarp_inventory.py
 scripts/mdi_smarp_overlap_analysis.py
 scripts/mwo_a3_rule_check.py
+scripts/mwo_catalogue_deposit_package.py
 scripts/mwo_header_inventory.py
 scripts/mwo_pilot_recount.py
 scripts/mwo_pilot_tilt.py
