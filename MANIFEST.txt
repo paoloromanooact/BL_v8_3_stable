@@ -1207,6 +1207,7 @@ scripts/mdi_hmi_selection_check.py
 scripts/mdi_l2_ledger.py
 scripts/mdi_l2_network_review_probe.py
 scripts/mdi_l2_replan_a1.py
+scripts/mdi_l2_replan_a1_recount.py
 scripts/mdi_metadata_block_A_review_probe.py
 scripts/mdi_metadata_query_review_probe.py
 scripts/mdi_overlap_kernels.py
