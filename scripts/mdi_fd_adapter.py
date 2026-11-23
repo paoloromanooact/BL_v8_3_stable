@@ -4,8 +4,9 @@ mdi.fd_M_96m_lev182 FITS exported by JSOC carry only the data (BSCALE 0.01, BLAN
 keywords of the record (CRPIX1/2, CDELT1/2 in arcsec, CROTA2, RSUN_OBS in arcsec, CRLT_OBS = B0, CRLN_OBS = L0), saved
 by the metadata step. Orthographic projection (as for MWO), solar north up after the CROTA2 rotation, x towards the
 west limb; Carrington longitude L = L0 + central-meridian distance (west positive, LCM = L - L0 as in DPD).
-B_r = B_LOS / mu, window entirely at mu >= 0.8, area of a pixel on the sphere = (CDELT R_sun_cm / RSUN_OBS)^2 / mu.
-Metadata admissibility (QUALITY = 0 only) is decided by the metadata step; the adapter refuses other values.
+B_r = B_LOS / mu, window entirely at mu >= 0.8, area of a pixel on the sphere = |CDELT1 CDELT2| (R_sun_cm / RSUN_OBS)^2 / mu.
+QUALITY must be explicit and interpretable and belong to the admissible set (original {0}; level 2 uses the frozen
+A1 set {0, 0x200}); a missing QUALITY is never taken as zero.
 """
 from __future__ import annotations
 
@@ -52,14 +53,35 @@ def geometry(k, shape):
     return lat, lon, mu
 
 
+ORIGINAL_ADMISSIBLE = (0,)
+A1_ADMISSIBLE = (0, 0x200)                 # frozen amendment A1 (docs/PROTOCOL_MDI_TILT_PILOT_AMENDMENT_A1.md)
+
+
 def pixel_area_cm2(k, mu):
-    return (float(k["CDELT1"]) * RSUN_CM / float(k["RSUN_OBS"])) ** 2 / mu
+    """Area of a pixel on the sphere: |CDELT1 CDELT2| (arcsec^2) x (R_sun_cm / RSUN_OBS)^2 / mu."""
+    return abs(float(k["CDELT1"]) * float(k["CDELT2"])) * (RSUN_CM / float(k["RSUN_OBS"])) ** 2 / mu
 
 
-def measure(data, k, lat0, lon0, bmin, bmax=4000.0, min_pix=10, missing_max=0.05, geom=None):
-    """Window around (lat0, lon0): disc and mu checks, then the shared body. Returns the tilt_window dict."""
-    if int(k.get("QUALITY", 0)) != 0:
-        return dict(status="quality_not_zero")
+def parse_quality(q):
+    """(value or None, state): hex strings ('0x00000200') and integers accepted; a missing QUALITY is never zero."""
+    if q is None or (isinstance(q, float) and math.isnan(q)) or str(q).strip() in ("", "MISSING", "nan", "None"):
+        return None, "missing"
+    s = str(q).strip()
+    try:
+        return (int(s, 16) if s.lower().startswith("0x") else int(s)), "ok"
+    except ValueError:
+        return None, "unparsable"
+
+
+def measure(data, k, lat0, lon0, bmin, bmax=4000.0, min_pix=10, missing_max=0.05, geom=None, admissible=ORIGINAL_ADMISSIBLE):
+    """Window around (lat0, lon0): QUALITY (explicit and interpretable, in the admissible set), disc and mu checks,
+    then the shared body. Returns the tilt_window dict."""
+    q, state = parse_quality(k.get("QUALITY"))
+    if state != "ok":
+        return dict(status=f"quality_{state}")
+    if q not in admissible:                                  # status name kept from the original rule when that set is used
+        return dict(status="quality_not_zero" if tuple(admissible) == ORIGINAL_ADMISSIBLE else "quality_not_admissible",
+                    quality=f"0x{q:08x}")
     lat, lon, mu = geom if geom is not None else geometry(k, data.shape)
     win = tw.window_mask(lat, lon, lat0, lon0, valid=np.isfinite(mu))
     if not win.any():
