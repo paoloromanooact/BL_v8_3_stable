@@ -138,7 +138,7 @@ def choose(t, t_dpd, admissible=FROZEN_ADMISSIBLE):
     adm_q = [st == "ok" and int(v) in admissible for v, st in zip(t.quality_int, t.quality_state)]
     t["reason"] = np.where(t.t_obs_utc.isna(), "t_obs_unparsable",
                            np.where(t.quality_state != "ok", "quality_" + t.quality_state.astype(str),
-                                    np.where(~np.array(adm_q), "quality_not_admissible",
+                                    np.where(~np.array(adm_q, dtype=bool), "quality_not_admissible",
                                              np.where(t.path.isna() | ~t.path.astype(str).str.startswith("/SUM"), "no_data_segment", ""))))
     adm = t[t.reason == ""]
     out = dict(status="no_magnetogram", A=None, B=None, A_path=None, B_path=None, A_size=None, B_size=None, A_dt_h=np.nan,
@@ -261,12 +261,16 @@ def http_json(query, timeout=30):
         res = conn.getresponse()
         try:
             while len(body) < LG.METADATA_CAP_BYTES:
-                chunk = res.read1(65536)
+                chunk = res.read1(min(65536, LG.METADATA_CAP_BYTES - len(body)))
                 if not chunk:
                     break
                 body += chunk
         except Exception as exc:
-            raise TransportFailure("read", f"{type(exc).__name__}: {exc}", len(body)) from exc
+            partial = getattr(exc, "partial", b"")
+            received = len(body) + (len(partial) if isinstance(partial, (bytes, bytearray)) else 0)
+            raise TransportFailure("read", f"{type(exc).__name__}: {exc}", received) from exc
+        if len(body) >= LG.METADATA_CAP_BYTES:
+            raise TransportFailure("limit", "metadata body reached its reserved cap", len(body))
         if res.status != 200:
             raise TransportFailure("http", f"HTTP {res.status}", len(body))
         try:
@@ -316,8 +320,9 @@ def fetch(out=OUT, transport=http_json, ledger=None, sel=None, sel_rec=None, pro
                         LG.finish(i, "metadata", exc.requests, exc.nbytes, "failed", str(exc), exc.stage, path=ledger)
                         rec.update(request_status=f"failed_{exc.stage}", bytes=exc.nbytes, error=str(exc))
                     except Exception as exc:
-                        LG.finish(i, "metadata", 1, 0, "failed", f"{type(exc).__name__}: {exc}", "unknown", path=ledger)
-                        rec.update(request_status="failed_unknown", bytes=0, error=f"{type(exc).__name__}: {exc}")
+                        LG.finish(i, "metadata", LG.OPEN_REQUESTS, LG.METADATA_CAP_BYTES, "failed", f"{type(exc).__name__}: {exc}", "unknown", path=ledger)
+                        rec.update(request_status="failed_unknown", bytes=LG.METADATA_CAP_BYTES,
+                                   accounting="reserved worst case: actual counters unavailable", error=f"{type(exc).__name__}: {exc}")
                     fa.write(json.dumps(rec) + "\n")
                     fa.flush()
             prods = derive(tmp / "ANSWERS.jsonl", l2)
@@ -445,6 +450,44 @@ def selftest():
     edge = [rec("2000.06.01_04:00:00_TAI", "2000.06.01_04:00:32_TAI", path="/SUM2/a"), rec("2000.06.01_00:00:00_TAI", "2000.06.01_00:00:32_TAI", path="/SUM2/b")]
     c, _ = choose(records_from_answer(answer(edge)), t_dpd)
     ok("edges: A at -6 h and B 4 h before A accepted", c["A"] == "2000.06.01_04:00:00_TAI" and c["B"] == "2000.06.01_00:00:00_TAI")
+    empty = dict(status=0, count=0, keywords=[dict(name=n, values=[]) for n in ("T_REC", "T_OBS", "QUALITY", "INTERVAL")],
+                 segments=[dict(name="data", values=[])])
+    ok("valid empty response -> no_magnetogram, not a derivation failure",
+       choose(records_from_answer(empty), t_dpd)[0]["status"] == "no_magnetogram")
+    import io
+    class Response:
+        status = 200
+        def __init__(self, partial=False):
+            self.body, self.partial, self.calls = io.BytesIO(b"x" * (LG.METADATA_CAP_BYTES + 100000)), partial, 0
+        def read1(self, n):
+            self.calls += 1
+            if self.partial:
+                if self.calls == 1:
+                    return b"1234"
+                raise http.client.IncompleteRead(b"xx", 100)
+            return self.body.read(n)
+    response = Response()
+    class Connection:
+        def __init__(self, *a, **k): pass
+        def request(self, *a, **k): pass
+        def getresponse(self): return response
+        def close(self): pass
+    original_conn = http.client.HTTPConnection
+    http.client.HTTPConnection = Connection
+    try:
+        try:
+            http_json({})
+            ok("oversized body cannot consume more than its reservation", False)
+        except TransportFailure as exc:
+            ok("oversized body cannot consume more than its reservation", exc.stage == "limit" and exc.nbytes == LG.METADATA_CAP_BYTES)
+        response = Response(partial=True)
+        try:
+            http_json({})
+            ok("IncompleteRead.partial counted with previously returned bytes", False)
+        except TransportFailure as exc:
+            ok("IncompleteRead.partial counted with previously returned bytes", exc.stage == "read" and exc.nbytes == 6)
+    finally:
+        http.client.HTTPConnection = original_conn
     import tempfile as tf
     with tf.TemporaryDirectory() as td:
         fx = fixture(td)
@@ -493,6 +536,14 @@ def selftest():
             ok("SAMPLE changed after its META -> refused before any request", False)
         except SystemExit:
             ok("SAMPLE changed after its META -> refused before any request", called["n"] == 0)
+    with tf.TemporaryDirectory() as td:
+        fx = fixture(td, n=1)
+        def unknown_failure(*args, **kwargs):
+            raise ValueError("synthetic transport failure without counters")
+        led = Path(td) / "L.jsonl"
+        fetch(Path(td) / "out", unknown_failure, led, **fx)
+        ok("unknown transport failure keeps a conservative reservation instead of zero bytes",
+           LG.totals(led)["bytes"] == LG.METADATA_CAP_BYTES and LG.totals(led)["requests"] == LG.OPEN_REQUESTS)
     print(f"selftest: {sum(res)}/{len(res)} superati")
     return all(res)
 

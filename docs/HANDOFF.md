@@ -1,5 +1,14 @@
 # Cold restart — SHARP BL
 
+## MDI L2 — via tecnico ai soli metadati, riconteggio ancora da chiudere
+
+- 329be47 rivisto in `docs/MDI_L2_METADATA_ACQUISITION_CODEX_REVIEW.md`.
+- Corrette in revisione risposta vuota, limite reale del corpo, byte IncompleteRead e fallback prudente; metadati 16/16.
+- Via tecnico alla sola acquisizione dei metadati delle 90 unità L2, dopo autorizzazione esplicita dell'utente.
+- Riconteggio non ancora approvato per QUALITY: quattro mutazioni accettate, prodotti e provenienza incompleti.
+- Conservare risposte e registro; nessun emendamento QUALITY prima della chiusura del riconteggio.
+- Downloader/adattatore restano nei blocchi B/C aperti. Nessuna rete eseguita in questa revisione.
+
 ## Pilota MDI L2 — revisione offline della rete
 
 - Revisione di 0e32539 in `docs/MDI_PILOT_L2_NETWORK_CODEX_REVIEW.md`; nessun via alla rete.

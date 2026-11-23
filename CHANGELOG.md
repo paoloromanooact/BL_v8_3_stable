@@ -1,5 +1,10 @@
 # Cronologia
 
+## Revisione del blocco metadati MDI L2
+
+- Verificate prenotazioni e gate; corrette condizioni limite con prove offline, senza cambiare regole scientifiche.
+- Via tecnico alla sola acquisizione previa autorizzazione; riconteggio e blocchi FITS restano separati e aperti.
+
 ## Revisione offline del codice di rete MDI L2
 
 - Conservati controesempi di contabilità, provenienza, QUALITY/INTERVAL, ripresa FITS e adattatore.

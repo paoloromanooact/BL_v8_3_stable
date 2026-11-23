@@ -46,6 +46,7 @@ docs/MDI_HMI_PREPARATION_REVIEW.md
 docs/MDI_HMI_SECOND_SAMPLE_RESULTS.md
 docs/MDI_HMI_SMALL_COMPARISON_RESULTS.md
 docs/MDI_HMI_SMALL_COMPARISON_REV2.md
+docs/MDI_L2_METADATA_ACQUISITION_CODEX_REVIEW.md
 docs/MDI_PILOT_ANALYSIS_L1_CODEX_CLOSE.md
 docs/MDI_PILOT_ANALYSIS_L1_CODEX_REVIEW.md
 docs/MDI_PILOT_L1_RESULTS.md
@@ -1177,6 +1178,7 @@ scripts/mdi_hmi_second_sample_select.py
 scripts/mdi_hmi_selection_check.py
 scripts/mdi_l2_ledger.py
 scripts/mdi_l2_network_review_probe.py
+scripts/mdi_metadata_block_A_review_probe.py
 scripts/mdi_overlap_kernels.py
 scripts/mdi_overlap_metadata_review.py
 scripts/mdi_pilot_analysis_l1.py
