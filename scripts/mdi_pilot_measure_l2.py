@@ -34,8 +34,10 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "python"))
 from sharpbl import tilt_window as tw  # noqa: E402
 
-SEL = ROOT / "results/MDI_PILOT_SELECTION"
-MD = ROOT / "results/MDI_PILOT_L2_METADATA"
+SEL, SEL_REC = ROOT / "results/MDI_PILOT_SELECTION", ROOT / "results/MDI_PILOT_SELECTION_RECOUNT"
+MD, MD_REC = ROOT / "results/MDI_PILOT_L2_METADATA", ROOT / "results/MDI_PILOT_L2_METADATA_RECOUNT"
+PROTOCOL, FREEZE = ROOT / "docs/PROTOCOL_MDI_TILT_PILOT.md", ROOT / "docs/PROTOCOL_MDI_TILT_PILOT_FREEZE.json"
+DPD_YEARS = range(1995, 2012)
 PLAN, PLAN_REC = ROOT / "results/MDI_PILOT_L2_PLAN_A1", ROOT / "results/MDI_PILOT_L2_PLAN_A1_RECOUNT"
 A1, A1_FREEZE = ROOT / "docs/PROTOCOL_MDI_TILT_PILOT_AMENDMENT_A1.md", ROOT / "docs/PROTOCOL_MDI_TILT_PILOT_AMENDMENT_A1_FREEZE.json"
 STATE, DEST = ROOT / "results/MDI_PILOT_L2_FITS", ROOT / "data/sharp/mdi_pilot_l2"
@@ -158,28 +160,81 @@ def build(samp, choices, answers, checkpoint, dest, dpd):
     return pd.DataFrame(rows)
 
 
+def strict_receipt(path, key, meta):
+    """Complete receipt: integer counts, every check true, partial false, bound to the META it recounted."""
+    try:
+        r = json.loads(Path(path).read_text())
+    except (OSError, ValueError):
+        return False
+    ch = r.get("checks")
+    return (type(r.get("passed")) is int and type(r.get("total")) is int and r["total"] > 0 and r["passed"] == r["total"]
+            and isinstance(ch, list) and len(ch) == r["total"] and all(isinstance(c, dict) and c.get("ok") is True for c in ch)
+            and r.get("partial") is False and r.get(key) == sha(meta))
+
+
+def gate_l2():
+    """Every upstream link checked before any FITS is opened; paths read from the module globals at call time.
+    Returns (problems, fetch module)."""
+    probs = []
+
+    def need(name, cond):
+        try:
+            ok = bool(cond())
+        except (OSError, ValueError, KeyError, TypeError):
+            ok = False
+        if not ok:
+            probs.append(name)
+
+    fr = json.loads(FREEZE.read_text())
+    fz = json.loads(A1_FREEZE.read_text())
+    sm, mm, pm = (json.loads((d / "META.json").read_text()) for d in (SEL, MD, PLAN))
+    need("protocol text", lambda: sha(PROTOCOL) == fr["sha256"])
+    need("A1 text and parent", lambda: sha(A1) == fz["sha256"] and fz["parent_sha256"] == fr["sha256"])
+    need("selection products", lambda: set(sm["products_sha256"]) == {"POPULATION.csv", "SAMPLE.csv", "CELLS.csv"}
+         and all(sha(SEL / n) == h for n, h in sm["products_sha256"].items()) and sm["protocol_sha256"] == fr["sha256"])
+    need("selection recount receipt", lambda: strict_receipt(SEL_REC / "RECEIPT.json", "selection_meta_sha256", SEL / "META.json"))
+    need("metadata products", lambda: all(sha(MD / n) == h for n, h in mm["products_sha256"].items()) and "ANSWERS.jsonl" in mm["products_sha256"])
+    need("metadata recount receipt and A1 link", lambda: strict_receipt(MD_REC / "RECEIPT.json", "metadata_meta_sha256", MD / "META.json")
+         and fz["source_metadata_meta_sha256"] == sha(MD / "META.json") and fz["metadata_recount_receipt_sha256"] == sha(MD_REC / "RECEIPT.json"))
+    FE = _load("mdi_fd_fetch", "scripts/mdi_fd_fetch.py")
+    need("plan products, plan recount receipt, A1", lambda: not FE.gate(PLAN, PLAN_REC, A1, A1_FREEZE))
+    need("plan links", lambda: pm["a1_sha256"] == fz["sha256"] and pm["protocol_sha256"] == fr["sha256"]
+         and pm["metadata_meta_sha256"] == sha(MD / "META.json"))
+    plan = pd.read_csv(PLAN / "PLAN.csv", keep_default_na=False, na_values=[""])
+    trec = dict(zip(plan.path, plan.T_REC))
+    ck = FE.read_checkpoint(STATE / "CHECKPOINT.jsonl")
+    done = [e for e in ck if e.get("status") == "ok"]
+    need("checkpoint present and bound to the plan", lambda: ck and all(e.get("plan_meta_sha256") == sha(PLAN / "META.json") for e in ck))
+    need("checkpoint identity: path in the plan, same T_REC, file name from T_REC, one completed line per path",
+         lambda: all(e["path"] in trec and e["T_REC"] == trec[e["path"]] and e["file"] == FE.file_name(e["T_REC"]) for e in done)
+         and len({e["path"] for e in done}) == len(done))
+    return probs, FE
+
+
+def inputs_used(dpd_dir):
+    """SHA-256 of every input file read by the measurement (recorded in META, verified by the recount)."""
+    inputs = {"SAMPLE.csv": SEL / "SAMPLE.csv", "CHOICES_A1.csv": PLAN / "CHOICES_A1.csv", "CHOICES_ORIGINAL.csv": PLAN / "CHOICES_ORIGINAL.csv",
+              "PLAN.csv": PLAN / "PLAN.csv", "ANSWERS.jsonl": MD / "ANSWERS.jsonl", "CHECKPOINT.jsonl": STATE / "CHECKPOINT.jsonl",
+              **{f"gDPD{y}.txt": Path(dpd_dir) / f"gDPD{y}.txt" for y in DPD_YEARS}}
+    return {n: sha(f) for n, f in inputs.items()}
+
+
 def run(out=OUT):
     if Path(out).exists():
         sys.exit("refusing to overwrite")
     if subprocess.run(["git", "status", "--porcelain", "--untracked-files=no"], cwd=ROOT, capture_output=True, text=True).stdout.strip():
         sys.exit("tracked tree not clean")
-    FE = _load("mdi_fd_fetch", "scripts/mdi_fd_fetch.py")
-    probs = FE.gate()
+    probs, FE = gate_l2()
     if probs:
-        sys.exit("gate: " + "; ".join(probs))
-    md = json.loads((MD / "META.json").read_text())
-    if any(sha(MD / n) != h for n, h in md["products_sha256"].items()):
-        sys.exit("metadata products differ from their META")
-    plan_sha = sha(PLAN / "META.json")
+        sys.exit("gate: " + "; ".join(probs))                 # no FITS opened
+    CAT = _load("t3_mwo_catalogue", "scripts/t3_mwo_catalogue.py")
+    inputs = inputs_used(CAT.DPD_DIR)
     ck = FE.read_checkpoint(STATE / "CHECKPOINT.jsonl")
-    if not ck or any(e.get("plan_meta_sha256") != plan_sha for e in ck):
-        sys.exit("checkpoint missing or bound to another plan")
     samp = pd.read_csv(SEL / "SAMPLE.csv", dtype={"noaa": str}, float_precision="round_trip")
     rd = lambda n: pd.read_csv(PLAN / n, dtype={"noaa": str}, keep_default_na=False, na_values=[""], float_precision="round_trip")  # noqa: E731
     choices = {"A1": rd("CHOICES_A1.csv"), "original": rd("CHOICES_ORIGINAL.csv")}
     answers = [json.loads(x) for x in (MD / "ANSWERS.jsonl").read_text().splitlines() if x.strip()]
-    CAT = _load("t3_mwo_catalogue", "scripts/t3_mwo_catalogue.py")
-    dpd = CAT.dpd_groups(years=range(1995, 2012))
+    dpd = CAT.dpd_groups(years=DPD_YEARS)
     t = build(samp, choices, answers, ck, DEST, dpd)
     tmp = Path(tempfile.mkdtemp(prefix=f".{Path(out).name}.tmp-", dir=Path(out).parent))
     try:
@@ -187,8 +242,9 @@ def run(out=OUT):
         fz = json.loads(A1_FREEZE.read_text())
         meta = dict(a1_sha256=fz["sha256"], protocol_sha256=fz["parent_sha256"], script_sha256=sha(__file__),
                     adapter_sha256=sha(ROOT / "scripts/mdi_fd_adapter.py"), module_sha256=sha(ROOT / "python/sharpbl/tilt_window.py"),
-                    plan_meta_sha256=plan_sha, metadata_meta_sha256=sha(MD / "META.json"), checkpoint_sha256=sha(STATE / "CHECKPOINT.jsonl"),
-                    selection_meta_sha256=sha(SEL / "META.json"),
+                    plan_meta_sha256=sha(PLAN / "META.json"), metadata_meta_sha256=sha(MD / "META.json"),
+                    checkpoint_sha256=sha(STATE / "CHECKPOINT.jsonl"), selection_meta_sha256=sha(SEL / "META.json"),
+                    inputs_sha256=inputs, n_fits_read=int(t.file.notna().sum()) if "file" in t else 0,
                     git_commit=subprocess.run(["git", "rev-parse", "HEAD"], cwd=ROOT, capture_output=True, text=True).stdout.strip())
         meta["products_sha256"] = {"L2_RECORDS.csv": sha(tmp / "L2_RECORDS.csv")}
         (tmp / "META.json").write_text(json.dumps(meta, indent=2) + "\n")
@@ -288,8 +344,87 @@ def selftest():
         t3 = build(env["samp"], env["choices"], env["answers"], ck3, env["dest"], env["dpd"])
         ok("a file not completed in the checkpoint -> fits_missing, no substitution",
            t3[(t3.rule == "A1") & (t3.noaa == "9002") & (t3.image == "B")].status.iloc[0] == "fits_missing")
+        gate_tests(ok, Path(td) / "gate")
     print(f"selftest: {sum(res)}/{len(res)} superati")
     return all(res)
+
+
+def gate_tests(ok, td):
+    """Upstream gate on copies of the preserved products (no FITS, no network): the clean copy passes, each tampering
+    is reported, and run() stops before build."""
+    g = globals()
+    names = ("SEL", "SEL_REC", "MD", "MD_REC", "PLAN", "PLAN_REC", "STATE", "PROTOCOL", "FREEZE", "A1", "A1_FREEZE")
+    saved = {n: g[n] for n in names}
+    FE = _load("mdi_fd_fetch", "scripts/mdi_fd_fetch.py")
+
+    def fresh(tag):
+        d = Path(td) / tag
+        for n in names:
+            src = saved[n]
+            dst = d / src.relative_to(ROOT)
+            dst.parent.mkdir(parents=True, exist_ok=True)
+            if n == "STATE":
+                dst.mkdir(parents=True, exist_ok=True)
+                plan = pd.read_csv(saved["PLAN"] / "PLAN.csv", keep_default_na=False, na_values=[""]).head(3)
+                ck = [dict(path=r.path, T_REC=r.T_REC, attempt=1, status="ok", file=FE.file_name(r.T_REC), sha256="0" * 64,
+                           plan_meta_sha256=sha(saved["PLAN"] / "META.json")) for r in plan.itertuples()]
+                (dst / "CHECKPOINT.jsonl").write_text("".join(json.dumps(e) + "\n" for e in ck))
+            elif src.is_dir():
+                shutil.copytree(src, dst)
+            else:
+                shutil.copy2(src, dst)
+            g[n] = dst
+        return d
+
+    def gate_after(tag, mutate):
+        try:
+            fresh(tag)
+            mutate()
+            return gate_l2()[0]
+        finally:
+            g.update(saved)
+
+    ok("gate: clean copies of every upstream product pass", gate_after("clean", lambda: None) == [])
+
+    def edit_sample():
+        t = pd.read_csv(g["SEL"] / "SAMPLE.csv", dtype={"noaa": str}, float_precision="round_trip")
+        t.loc[0, "lat"] += 1
+        t.to_csv(g["SEL"] / "SAMPLE.csv", index=False)
+
+    def partial_receipt():
+        r = json.loads((g["PLAN_REC"] / "RECEIPT.json").read_text())
+        (g["PLAN_REC"] / "RECEIPT.json").write_text(json.dumps(dict(r, partial=True)))
+
+    def checkpoint_trec():
+        f = g["STATE"] / "CHECKPOINT.jsonl"
+        e = [json.loads(x) for x in f.read_text().splitlines()]
+        e[0]["T_REC"] = e[1]["T_REC"]
+        f.write_text("".join(json.dumps(x) + "\n" for x in e))
+
+    cases = [("selection SAMPLE changed under its META", edit_sample, "selection products"),
+             ("protocol text changed", lambda: g["PROTOCOL"].write_text(g["PROTOCOL"].read_text() + " "), "protocol text"),
+             ("plan recount receipt partial", partial_receipt, "plan products, plan recount receipt, A1"),
+             ("metadata recount receipt removed", lambda: (g["MD_REC"] / "RECEIPT.json").unlink(), "metadata recount receipt and A1 link"),
+             ("checkpoint T_REC discordant with the plan", checkpoint_trec,
+              "checkpoint identity: path in the plan, same T_REC, file name from T_REC, one completed line per path")]
+    for name, mut, expect in cases:
+        p = gate_after(name.replace(" ", "_"), mut)
+        ok(f"gate refuses: {name}", expect in p, p)
+    reached = []
+    real_build, real_sub = g["build"], subprocess.run
+    try:
+        fresh("run_stop")
+        edit_sample()
+        g["build"] = lambda *a, **k: reached.append(1)
+        subprocess.run = lambda args, **k: type("R", (), {"stdout": ""})() if args[:2] == ["git", "status"] else real_sub(args, **k)
+        try:
+            run(Path(td) / "not_written")
+        except SystemExit:
+            pass
+    finally:
+        g.update(saved)
+        g["build"], subprocess.run = real_build, real_sub
+    ok("run() with a refused gate stops before build (no FITS opened, nothing written)", not reached and not (Path(td) / "not_written").exists())
 
 
 if __name__ == "__main__":

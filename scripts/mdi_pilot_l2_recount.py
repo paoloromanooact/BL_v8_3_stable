@@ -173,21 +173,46 @@ def missing(v):
     return v is None or (isinstance(v, float) and math.isnan(v)) or str(v) in ("", "nan", "None")
 
 
+def own_interval(v):
+    """Seconds, or None when missing or not interpretable (never zero)."""
+    try:
+        x = float(str(v).strip())
+    except (TypeError, ValueError):
+        return None
+    return x if math.isfinite(x) else None
+
+
+def exact_int(theirs, mine):
+    try:
+        x = float(theirs)
+    except (TypeError, ValueError):
+        return False
+    return math.isfinite(x) and x.is_integer() and int(x) == int(mine)
+
+
 def value_ok(k, mine, theirs):
     if isinstance(mine, str):
         return str(theirs) == mine
     if missing(theirs):
         return isinstance(mine, float) and math.isnan(mine)
     if k.endswith(INT_KEYS):
-        return int(float(theirs)) == int(mine)
+        return exact_int(theirs, mine) and (not k.endswith("leading_sign") or int(mine) in (-1, 1))
+    try:
+        if not math.isfinite(float(theirs)):
+            return False
+    except (TypeError, ValueError):
+        return False
     if k.endswith(("_lon", "lon_pos", "lon_neg")):
         return abs(np.mod(float(mine) - float(theirs) + 180.0, 360.0) - 180.0) <= TOL_ANG
     rel = any(s in k for s in ("flux", "area", "mad_g", "finite_frac"))
     return R1.close(mine, theirs, TOL_REL if rel else TOL_ANG, rel=rel)
 
 
+BASE = ("rule", "noaa", "day", "image", "choice_status", "pair_status", "T_REC", "status", "file", "sha256", "quality", "interval_s", "dt_h")
+
+
 def expected_rows(samp, choices, kw, checkpoint, dest, dpd):
-    """Own list of (key, expected scalar fields, own measurement or None)."""
+    """Own list of (key, expected base fields, own measurement or None). Every base field is set on every row."""
     done = {e["path"]: e for e in checkpoint if e["status"] == "ok"}
     lv2 = samp[samp.level2.astype(str) == "True"]
     pos = {(r.noaa, r.day): (float(r.lat), float(r.lon)) for r in lv2.itertuples()}
@@ -201,7 +226,8 @@ def expected_rows(samp, choices, kw, checkpoint, dest, dpd):
             for img in ("A", "B"):
                 key = (rule, c["noaa"], c["day"], img)
                 trec = c.get(img)
-                exp = dict(choice_status=c["status"], T_REC=None if missing(trec) else trec)
+                exp = dict(choice_status=c["status"], pair_status=c.get("pair_status"), T_REC=None if missing(trec) else trec,
+                           file=None, sha256=None, quality=None, interval_s=None, dt_h=None)
                 if c["status"] != "ok":
                     rows.append((key, dict(exp, status=c["status"]), None))
                     continue
@@ -220,40 +246,85 @@ def expected_rows(samp, choices, kw, checkpoint, dest, dpd):
                 k = kw[trec]
                 m = own_image(fp, k, lat0, lon0, ADM[rule], dpd[dpd.day == c["day"]])
                 exp.update(file=e["file"], sha256=e["sha256"], quality=k.get("QUALITY"), status=m["main_status"],
-                           interval_s=float(kw[c["A"]]["INTERVAL"]), dt_h=c.get(f"{img}_dt_h"))   # INTERVAL of the pair (A)
+                           interval_s=own_interval(kw[c["A"]].get("INTERVAL")), dt_h=c.get(f"{img}_dt_h"))   # INTERVAL of the pair (A)
                 rows.append((key, exp, m))
     return rows, bad_sha
 
 
 def compare(t, rows, choices):
-    """Full comparison; returns the list of (row index, reason) that differ."""
-    bad = []
+    """Every exported column of every row; returns the list of (row index, reason) that differ."""
     keys = [(r["rule"], r["noaa"], r["day"], r["image"]) for r in t.to_dict("records")]
     if keys != [k for k, _, _ in rows]:
         return [(-1, "row set or order")]
+    produced = set(BASE).union(*[set(m) for _, _, m in rows if m is not None])
+    if set(t.columns) != produced:
+        return [(-1, f"columns: unexpected {sorted(set(t.columns) - produced)[:4]}, missing {sorted(produced - set(t.columns))[:4]}")]
     a_int = {(rule, c["noaa"], c["day"]): c.get("A_interval") for rule, ch in choices.items() for c in ch.to_dict("records")}
+    bad = []
     for i, (r, (key, exp, m)) in enumerate(zip(t.to_dict("records"), rows)):
-        for k, v in exp.items():
+        for k in BASE[4:]:
+            v, x = exp[k], r.get(k)
             if k == "interval_s":
-                if not (R1.close(v, r.get(k), 0.0) and R1.close(v, a_int[key[:3]], 0.0)):
-                    bad.append((i, k))
+                if m is not None and not R1.close(np.nan if v is None else v, a_int[key[:3]], 0.0):
+                    bad.append((i, "interval_s vs plan"))
+                good = missing(x) if v is None else R1.close(v, x, 0.0)
             elif k == "dt_h":
-                if not R1.close(v, r.get(k), 1e-12):
+                good = missing(x) if missing(v) else R1.close(v, x, 1e-12)
+            else:
+                good = missing(x) if missing(v) else str(x) == str(v)
+            if not good:
+                bad.append((i, k))
+        for k in t.columns:
+            if k in BASE:
+                continue
+            if m is not None and k in m:
+                if not value_ok(k, m[k], r.get(k)):
                     bad.append((i, k))
-            elif (missing(v) and not missing(r.get(k))) or (not missing(v) and str(r.get(k)) != str(v)):
-                bad.append((i, k))
-        if m is None:
-            filled = [c for c in t.columns if c.startswith(("main_", "sens100_", "qm_", "qp_", "quiet_")) and not missing(r.get(c))]
-            if filled:
-                bad.append((i, f"values on a row without measurement {filled[:3]}"))
-            continue
-        for k, v in m.items():
-            if not value_ok(k, v, r.get(k)):
-                bad.append((i, k))
-        extra = [c for c in t.columns if c.startswith(("main_", "sens100_", "qm_", "qp_")) and c not in m and not missing(r.get(c))]
-        if extra:
-            bad.append((i, f"values not produced by the recount {extra[:3]}"))
+            elif not missing(r.get(k)):
+                bad.append((i, f"value not produced by the recount: {k}"))
     return bad
+
+
+def own_upstream(meta, l2):
+    """Own upstream checks on the real path; [(name, ok, info)], evaluated before any FITS is opened."""
+    out = []
+
+    def add(name, f):
+        try:
+            out.append((name, bool(f()), ""))
+        except (OSError, ValueError, KeyError, TypeError) as exc:
+            out.append((name, False, type(exc).__name__))
+
+    fr = json.loads((ROOT / "docs/PROTOCOL_MDI_TILT_PILOT_FREEZE.json").read_text())
+    fz = json.loads(A1_FREEZE.read_text())
+    pm, mm, sm = (json.loads((d / "META.json").read_text()) for d in (PLAN, MD, SEL))
+    add("protocol and A1 texts equal to their freezes, linked to the run", lambda: sha(ROOT / "docs/PROTOCOL_MDI_TILT_PILOT.md") == fr["sha256"]
+        == fz["parent_sha256"] == meta["protocol_sha256"] and sha(A1) == fz["sha256"] == meta["a1_sha256"] == pm["a1_sha256"])
+    add("selection products and strict selection recount receipt", lambda: set(sm["products_sha256"]) == {"POPULATION.csv", "SAMPLE.csv", "CELLS.csv"}
+        and all(sha(SEL / n) == h for n, h in sm["products_sha256"].items()) and meta["selection_meta_sha256"] == sha(SEL / "META.json")
+        and RC.strict_receipt(ROOT / "results/MDI_PILOT_SELECTION_RECOUNT/RECEIPT.json", "selection_meta_sha256", SEL / "META.json"))
+    add("metadata products and strict metadata recount receipt, linked to A1 and the run",
+        lambda: all(sha(MD / n) == h for n, h in mm["products_sha256"].items()) and meta["metadata_meta_sha256"] == sha(MD / "META.json")
+        == fz["source_metadata_meta_sha256"] == pm["metadata_meta_sha256"]
+        and RC.strict_receipt(ROOT / "results/MDI_PILOT_L2_METADATA_RECOUNT/RECEIPT.json", "metadata_meta_sha256", MD / "META.json"))
+    add("plan products and strict plan recount receipt, linked to the run", lambda: all(sha(PLAN / n) == h for n, h in pm["products_sha256"].items())
+        and RC.strict_receipt(PLAN_REC / "RECEIPT.json", "plan_meta_sha256", PLAN / "META.json") and meta["plan_meta_sha256"] == sha(PLAN / "META.json"))
+    ck_path = STATE / "CHECKPOINT.jsonl"
+    ck = [json.loads(x) for x in ck_path.read_text().splitlines() if x.strip()]
+    plan = pd.read_csv(PLAN / "PLAN.csv", keep_default_na=False, na_values=[""])
+    trec = dict(zip(plan.path, plan.T_REC))
+    done = [e for e in ck if e.get("status") == "ok"]
+    add("checkpoint: linked to the run and the plan; completed lines with planned path, same T_REC, own file name, one per path",
+        lambda: meta["checkpoint_sha256"] == sha(ck_path) and all(e.get("plan_meta_sha256") == sha(PLAN / "META.json") for e in ck)
+        and all(e["path"] in trec and e["T_REC"] == trec[e["path"]]
+                and e["file"] == "mdi.fd_M_96m_lev182." + e["T_REC"].replace(":", "").replace(".", "") + ".data.fits" for e in done)
+        and len({e["path"] for e in done}) == len(done))
+    dpd_dir = ROOT / "data/sharp/external_DPD_20261118"
+    used = {"SAMPLE.csv": SEL / "SAMPLE.csv", "CHOICES_A1.csv": PLAN / "CHOICES_A1.csv", "CHOICES_ORIGINAL.csv": PLAN / "CHOICES_ORIGINAL.csv",
+            "PLAN.csv": PLAN / "PLAN.csv", "ANSWERS.jsonl": MD / "ANSWERS.jsonl", "CHECKPOINT.jsonl": ck_path,
+            **{f"gDPD{y}.txt": dpd_dir / f"gDPD{y}.txt" for y in range(1995, 2012)}}
+    add("inputs recorded by the run equal to the inputs read here", lambda: meta["inputs_sha256"] == {n: sha(f) for n, f in used.items()})
+    return out, ck
 
 
 def check(l2=L2, rec_dir=REC, write=True, env=None):
@@ -263,27 +334,31 @@ def check(l2=L2, rec_dir=REC, write=True, env=None):
         checks.append(dict(name=name, ok=bool(cond), info=str(info)[:300]))
         print(f"[{'OK' if cond else 'FALLITO'}] {name} {str(info)[:200]}")
 
+    def finish():
+        passed = sum(c["ok"] for c in checks)
+        receipt = dict(passed=passed, total=len(checks), partial=not real, checks=checks, l2_meta_sha256=sha(Path(l2) / "META.json"))
+        if write:
+            if not real:
+                sys.exit("a receipt is written only on the real path")
+            if Path(rec_dir).exists():
+                sys.exit("receipt exists")
+            Path(rec_dir).mkdir(parents=True)
+            (Path(rec_dir) / "RECEIPT.json").write_text(json.dumps(receipt, indent=2) + "\n")
+        print(f"recount: {passed}/{len(checks)} (partial {not real})")
+        return passed == len(checks)
+
+    real = env is None
     meta = json.loads((Path(l2) / "META.json").read_text())
     ps = meta.get("products_sha256", {})
     ok("L2 products: exact set and actual hashes before reading", set(ps) == {"L2_RECORDS.csv"} and all(sha(Path(l2) / n) == h for n, h in ps.items()))
-    real = env is None
     if real:
-        fz = json.loads(A1_FREEZE.read_text())
-        pm = json.loads((PLAN / "META.json").read_text())
-        mm = json.loads((MD / "META.json").read_text())
-        sm = json.loads((SEL / "META.json").read_text())
-        ok("A1 freeze, plan products and plan recount receipt, linked to the run",
-           sha(A1) == fz["sha256"] == meta.get("a1_sha256") == pm.get("a1_sha256")
-           and all(sha(PLAN / n) == h for n, h in pm["products_sha256"].items())
-           and RC.strict_receipt(PLAN_REC / "RECEIPT.json", "plan_meta_sha256", PLAN / "META.json")
-           and meta.get("plan_meta_sha256") == sha(PLAN / "META.json"))
-        ok("metadata and selection products unchanged and linked", all(sha(MD / n) == h for n, h in mm["products_sha256"].items())
-           and meta.get("metadata_meta_sha256") == sha(MD / "META.json") and meta.get("selection_meta_sha256") == sha(SEL / "META.json")
-           and all(sha(SEL / n) == h for n, h in sm["products_sha256"].items()))
-        ck_path = STATE / "CHECKPOINT.jsonl"
-        ck = [json.loads(x) for x in ck_path.read_text().splitlines() if x.strip()]
-        ok("checkpoint linked to the run and to the plan", meta.get("checkpoint_sha256") == sha(ck_path)
-           and all(e.get("plan_meta_sha256") == sha(PLAN / "META.json") for e in ck), len(ck))
+        up, ck = own_upstream(meta, l2)
+        for name, g, info in up:
+            ok(name, g, info)
+    if not all(c["ok"] for c in checks):
+        print("prerequisites not met: stop before any FITS")
+        return finish()
+    if real:
         samp = pd.read_csv(SEL / "SAMPLE.csv", dtype={"noaa": str}, float_precision="round_trip")
         rd = lambda n: pd.read_csv(PLAN / n, dtype={"noaa": str}, keep_default_na=False, na_values=[""], float_precision="round_trip")  # noqa: E731
         choices = {"A1": rd("CHOICES_A1.csv"), "original": rd("CHOICES_ORIGINAL.csv")}
@@ -299,21 +374,14 @@ def check(l2=L2, rec_dir=REC, write=True, env=None):
     rows, bad_sha = expected_rows(samp, choices, kw, ck, dest, dpd)
     ok("FITS read only with SHA-256 equal to the checkpoint", not bad_sha, bad_sha[:3])
     bad = compare(t, rows, choices)
-    ok("every row reproduced: keys and order, choice and status, files and SHA, QUALITY, INTERVAL, Delta t, counts, fluxes, "
-       "areas, centroids, tilts, separation, lat_bar, mu_min, quiet windows", not bad, f"{len(rows) - len({i for i, _ in bad})}/{len(rows)} first bad {bad[:4]}")
+    ok("every row and every exported column reproduced: keys and order, choice, pair and status, files and SHA, QUALITY, INTERVAL, "
+       "Delta t, exact integer counts, fluxes, areas, centroids, tilts, separation, lat_bar, mu_min, quiet windows",
+       not bad, f"{len(rows) - len({i for i, _ in bad})}/{len(rows)} first bad {bad[:4]}")
     n_meas = sum(m is not None for _, _, m in rows)
     ok("measured rows: at least one (an empty run is not a recount)", n_meas > 0, n_meas)
-    passed = sum(c["ok"] for c in checks)
-    receipt = dict(passed=passed, total=len(checks), partial=not real, checks=checks, l2_meta_sha256=sha(Path(l2) / "META.json"))
-    if write:
-        if not real:
-            sys.exit("a receipt is written only on the real path")
-        if Path(rec_dir).exists():
-            sys.exit("receipt exists")
-        Path(rec_dir).mkdir(parents=True)
-        (Path(rec_dir) / "RECEIPT.json").write_text(json.dumps(receipt, indent=2) + "\n")
-    print(f"recount: {passed}/{len(checks)} (partial {not real})")
-    return passed == len(checks)
+    if real:
+        ok("number of FITS read recorded by the run", meta.get("n_fits_read") == n_meas, (meta.get("n_fits_read"), n_meas))
+    return finish()
 
 
 # ---------------------------------------------------------------- selftest
@@ -370,6 +438,44 @@ def selftest():
         t3 = M.build(env["samp"], env["choices"], env["answers"], ck3, env["dest"], env["dpd"])
         run(t3, "run with a file not completed (fits_missing) against its checkpoint", True, ck=ck3)
         run(t3, "fits_missing although the checkpoint has the file", False)
+        run(t.assign(pair_status=t.pair_status.where(t.index != 0, "invented_pair")), "a pair_status invented", False)
+        run(t.assign(main_npos=t.main_npos.where(t.index != i_ok, t.main_npos + 0.4)), "a fractional pixel count (+0.4)", False)
+        run(t.assign(main_leading_sign=t.main_leading_sign.where(t.index != i_ok, t.main_leading_sign * 2)), "a leading sign outside +-1", False)
+        run(t.assign(extra_col=1.0), "an exported column the recount does not produce", False)
+        run(t.assign(sha256=t.sha256.where(t.index != i_m, "a" * 64)), "a SHA on a row without measurement", False)
+        # unknown INTERVAL: A valid, B absent, full path runner -> CSV -> recount
+        e5 = dict(env, choices={r: c.copy() for r, c in env["choices"].items()},
+                  answers=json.loads(json.dumps(env["answers"])))
+        for r in ("A1", "original"):
+            c = e5["choices"][r]
+            j = c.index[c.noaa == "9002"][0]
+            c.loc[j, ["A_interval", "B", "B_path", "B_dt_h"]] = [np.nan, None, None, np.nan]
+            c.loc[j, "pair_status"] = "no_pair"
+        kwd = {k["name"]: k for k in e5["answers"][0]["doc"]["keywords"]}
+        kwd["INTERVAL"]["values"][kwd["T_REC"]["values"].index(e5["choices"]["A1"].A.iloc[1])] = "MISSING"
+        t5 = M.build(e5["samp"], e5["choices"], e5["answers"], e5["checkpoint"], e5["dest"], e5["dpd"])
+        row = t5[(t5.rule == "A1") & (t5.noaa == "9002")]
+        ok("unknown INTERVAL: runner measures A, B is 'no_image', interval_s missing (never zero)",
+           list(row.status) == ["ok", "no_image"] and row.interval_s.isna().all(), list(row.status))
+        env, saved_env = e5, env
+        run(t5, "unknown INTERVAL with A valid and B absent", True)
+        j5 = t5.index[(t5.rule == "A1") & (t5.noaa == "9002") & (t5.image == "A")][0]
+        run(t5.assign(interval_s=t5.interval_s.where(t5.index != j5, 0.0)), "unknown INTERVAL written as zero", False)
+        env = saved_env
+        # invalid L2 product hash: stop before any FITS reconstruction
+        d = Path(td) / "bad_product"
+        d.mkdir()
+        t.to_csv(d / "L2_RECORDS.csv", index=False)
+        (d / "META.json").write_text(json.dumps(dict(products_sha256={"L2_RECORDS.csv": "0" * 64})))
+        g, called = globals(), []
+        real_er = g["expected_rows"]
+        g["expected_rows"] = lambda *a, **k: called.append(1)
+        try:
+            with contextlib.redirect_stdout(io.StringIO()):
+                refused = not check(d, write=False, env=env)
+        finally:
+            g["expected_rows"] = real_er
+        ok("invalid L2 product hash: refused and stopped before reading any FITS", refused and not called)
         ck4 = [dict(e) for e in env["checkpoint"]]
         ck4[0]["sha256"] = "f" * 64
         run(t, "FITS whose SHA differs from the checkpoint", False, ck=ck4)
