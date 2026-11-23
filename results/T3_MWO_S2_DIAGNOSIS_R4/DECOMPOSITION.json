@@ -1,0 +1,39 @@
+{
+  "identifiable": true,
+  "n": 4694,
+  "g_d": -3.1839855245778987,
+  "g_gamma_mwo": -4.760661088305336,
+  "g_gamma_wl": 1.4248327979661555,
+  "g_r": 3.0015083616935936,
+  "identity_residual": -4.440892098500626e-16,
+  "d_equals_saved_dwl_maxabs": 0.0,
+  "wraps_total": 180,
+  "wraps_r_minus180": 72,
+  "wraps_r_plus180": 108,
+  "g_r_from_minus180": -0.3220657332812656,
+  "g_r_from_plus180": 3.3235740949748593,
+  "wrap_tolerance": 1e-09,
+  "M_gamma_mwo": {
+    "beta": -4.760661088305336,
+    "se": 2.3778213278250573,
+    "lo": -10.090316298249636,
+    "hi": 0.5689941216389638,
+    "var_a": 6.809665526442444,
+    "var_b": -0.11093315055700807,
+    "phi": 0.98,
+    "kappa": 0.00113686839346389,
+    "sigma_x2": 0.00025892196555530174
+  },
+  "M_gamma_wl": {
+    "beta": 1.4248327979661555,
+    "se": 1.7335094464940342,
+    "lo": -2.4606600037345148,
+    "hi": 5.310325599666825,
+    "var_a": 6.404167765862934,
+    "var_b": -0.2247140421934686,
+    "phi": 0.98,
+    "kappa": -0.98,
+    "sigma_x2": 0.00021342669518943443
+  },
+  "note": "nominal intervals of the components are not validated for these responses; the SEs are not subtracted and the components are not independent; no verdict or T3 label for gamma_wl"
+}
