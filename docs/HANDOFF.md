@@ -1,5 +1,13 @@
 # Cold restart — SHARP BL
 
+## 23 novembre — revisione 2 del protocollo pilota MDI
+
+- Revisione di 8f8b188 in `docs/MDI_TILT_PILOT_REV2_CODEX_REVIEW.md`; nessuna misura/acquisizione.
+- Accettabili allocazioni 15/15 e 3/2, finestre ±6h/4h e confronto MWO su sottoinsieme deterministico.
+- Precisare pesi delle due fasi su M1 e M0∪M2, INTERVAL mancante, quiete, bootstrap e tagli angolari.
+- Consigliato congelare Q1–Q3 e rinviare Q4 a nota separata: la griglia e le regole del disegno non sono ancora complete.
+- Verificati i tre semi; DOI ARISE forniti. Serve il testo finale prima del congelamento, senza allargare il pilota.
+
 ## 23 novembre — risorsa MDI sinottica verificata e metodo precisato
 
 - Confermati 193 file locali, CR1909–2104 meno 1938–1940; letto un header, nessun array/tilt.

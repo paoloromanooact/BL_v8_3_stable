@@ -1,5 +1,10 @@
 # Cronologia
 
+## 2026-11-23 — revisione 2 del pilota MDI
+
+- Confermate scelte operative; precisati campionamento, confronti e convenzioni.
+- Raccomandata separazione di Q4 per mantenere il pilota circoscritto. Nessuna misura o acquisizione.
+
 ## 2026-11-23 — revisione del metodo MDI sinottico
 
 - Confermati file locali e geometria di un header; distinti prodotto sinottico e magnetogramma istantaneo.
