@@ -58,6 +58,7 @@ docs/MDI_TILT_PILOT_CODE_PLAN.md
 docs/MDI_TILT_PILOT_CONTRACT_CHECKS.md
 docs/MDI_TILT_PILOT_INVENTORY.md
 docs/MDI_TILT_PILOT_METHOD_CODEX_REVIEW.md
+docs/MDI_TILT_PILOT_PHASE123_CODEX_REVIEW.md
 docs/MDI_TILT_PILOT_REV2_CODEX_REVIEW.md
 docs/MDI_TILT_PILOT_REV3_CODEX_REVIEW.md
 docs/MDI_TILT_PILOT_SYNOPTIC_CODEX_REVIEW.md
@@ -1141,6 +1142,7 @@ scripts/mdi_overlap_metadata_review.py
 scripts/mdi_pilot_l1_recount.py
 scripts/mdi_pilot_measure_l1.py
 scripts/mdi_pilot_mwo_identity.py
+scripts/mdi_pilot_phase123_review_probe.py
 scripts/mdi_pilot_select.py
 scripts/mdi_pilot_select_recount.py
 scripts/mdi_smarp_inventory.py

@@ -1,5 +1,13 @@
 # Cold restart — SHARP BL
 
+## 23 novembre — revisione del codice MDI fasi 1–3
+
+- Revisione di b5913f6: `docs/MDI_TILT_PILOT_PHASE123_CODEX_REVIEW.md`; non ancora via alla misura L1.
+- Cinque mutazioni del SAMPLE e un N ambiguo inventato sono accettati dai riconteggi; quiete errata al taglio 0/360.
+- Da completare: confronto delle colonne, N/effemeridi/quiete, provenienza degli input e scala TAI degli header.
+- Tutti i selftest esistenti eseguiti passano (12, 11, 4, 15 e 5); sonda sintetica separata conservata.
+- Nessuna selezione o misura MDI reale, nessuna rete. Claude corregge il codice senza modificare regole/soglie.
+
 ## 23 novembre — controlli autonomi e revisione 3 MDI
 
 - Liste separate Codex/Claude: `docs/MDI_TILT_PILOT_WORK_SPLIT_20261123.md`.

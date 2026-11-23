@@ -1,5 +1,10 @@
 # Cronologia
 
+## 2026-11-23 — revisione del codice del pilota MDI
+
+- Conservati controesempi sintetici su selezione, N ambiguo e finestre di quiete al taglio di longitudine.
+- Documentati i controlli mancanti prima del via alla misura L1; nessuna modifica ai prodotti scientifici.
+
 ## 2026-11-23 — preparazione autonoma e revisione 3 del pilota MDI
 
 - Liste Codex/Claude e oracoli indipendenti di campionamento, griglia, bordi e tempi; nessun tilt MDI.
