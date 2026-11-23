@@ -1139,6 +1139,8 @@ scripts/mdi_hmi_selection_check.py
 scripts/mdi_overlap_kernels.py
 scripts/mdi_overlap_metadata_review.py
 scripts/mdi_pilot_mwo_identity.py
+scripts/mdi_pilot_select.py
+scripts/mdi_pilot_select_recount.py
 scripts/mdi_smarp_inventory.py
 scripts/mdi_smarp_overlap_analysis.py
 scripts/mdi_synoptic_audit.py
