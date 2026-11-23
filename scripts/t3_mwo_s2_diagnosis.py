@@ -197,26 +197,113 @@ def decomposition(sub):
 
 # ---------------------------------------------------------------- data and gates
 
+CAT = ROOT / "results/T3_MWO_CATALOGUE_R4"
+PRODUCTS = {
+    "STAB": {"S1_DPD_SOURCES.csv", "S1_TABLE.csv", "S2_P1.json", "S2_P1_MATCHED.csv", "S3_HALE.csv", "S4.csv",
+             "S4_DWL_ALL.csv", "S4_ISOLATION.csv", "STABILITY.json", "WL_TILTS.csv"},
+    "EST": {"ESTIMATE.csv", "FINAL.json"},
+    "REL": {"COLUMNS.csv", "COMPARISONS/S1_DPD_SOURCES.csv", "COMPARISONS/S1_TABLE.csv", "COMPARISONS/S2_P1.json",
+            "COMPARISONS/S2_P1_MATCHED.csv", "COMPARISONS/S3_HALE.csv", "COMPARISONS/S4_DWL_ALL.csv",
+            "COMPARISONS/WL_TILTS.csv", "EXCLUDED_MAGNETOGRAMS.csv", "JOY_BY_CYCLE.csv",
+            "MWO_TILT_CATALOGUE_ALL_1974_2012.csv", "MWO_TILT_CATALOGUE_ISOLATED_1974_2012.csv", "README.md"},
+}
+# every file whose content enters the run (code, note, inputs, receipts); hashed before the computation and again
+# before writing
+INPUTS = ("docs/T3_MWO_S2_DIAGNOSIS_NOTE.md", "scripts/t3_mwo_s2_diagnosis.py", "scripts/t3_mwo_analysis.py",
+          "scripts/t3_mwo_stability_extras.py", "python/sharpbl/p2d.py", "python/sharpbl/p2f_pilot.py",
+          "python/sharpbl/p2f_validation.py", "results/T3_MWO_CATALOGUE_R4/DESIGN.csv",
+          "results/T3_MWO_CATALOGUE_R4/META.json", "results/T3_MWO_STABILITY_R4/WL_TILTS.csv",
+          "results/T3_MWO_STABILITY_R4/STABILITY.json", "results/T3_MWO_STABILITY_R4/META.json",
+          "results/T3_MWO_ESTIMATE_R4/META.json", "results/MWO_TILT_CATALOGUE_RELEASE/MWO_TILT_CATALOGUE_ISOLATED_1974_2012.csv",
+          "results/MWO_TILT_CATALOGUE_RELEASE/META.json", "data/sharp/external_DPD_20261118/dailyDPD1974_2016.txt",
+          "results/T3_MWO_STABILITY_R4_RECOUNT/RECEIPT.json", "results/T3_MWO_ESTIMATE_R4_RECOUNT/RECEIPT.json",
+          "results/MWO_TILT_CATALOGUE_RELEASE_RECOUNT/RECEIPT.json")
+
+
+def strict_int(x):
+    return isinstance(x, int) and not isinstance(x, bool)
+
+
+def receipt_problem(path, key, meta_path):
+    """Strict receipt: integer non-boolean counts, total > 0, passed == total, exactly `total` checks each with
+    ok is True, partial is False, bound to the current META."""
+    try:
+        r = json.loads(Path(path).read_text())
+        mh = sha(meta_path)
+    except (OSError, ValueError) as exc:
+        return f"{Path(path).parent.name}: unreadable ({type(exc).__name__})"
+    if not isinstance(r, dict):
+        return f"{Path(path).parent.name}: not an object"
+    p, t, ch = r.get("passed"), r.get("total"), r.get("checks")
+    if not (strict_int(p) and strict_int(t) and t > 0 and p == t):
+        return f"{Path(path).parent.name}: counts not strict ({p!r}/{t!r})"
+    if not (isinstance(ch, list) and len(ch) == t and all(isinstance(c, dict) and c.get("ok") is True for c in ch)):
+        return f"{Path(path).parent.name}: checks not complete or not all ok is True"
+    if r.get("partial") is not False:
+        return f"{Path(path).parent.name}: partial not False"
+    if r.get(key) != mh:
+        return f"{Path(path).parent.name}: not bound to the current META"
+    return None
+
+
+def manifest_problems(folder, expected):
+    try:
+        m = json.loads((Path(folder) / "META.json").read_text())
+    except (OSError, ValueError) as exc:
+        return [f"{Path(folder).name}: META unreadable ({type(exc).__name__})"], {}
+    ps = m.get("products_sha256")
+    if not isinstance(ps, dict) or set(ps) != set(expected):
+        return [f"{Path(folder).name}: product set differs from the expected one"], m
+    probs = []
+    for n, h in ps.items():
+        try:
+            if sha(Path(folder) / n) != h:
+                probs.append(f"{Path(folder).name}/{n}: hash differs from META")
+        except OSError:
+            probs.append(f"{Path(folder).name}/{n}: missing")
+    return probs, m
+
+
 def chain_problems():
     probs = []
-    for d, key in ((STAB_REC, "stability_meta_sha256"), (EST_REC, "estimate_meta_sha256"), (REL_REC, "release_meta_sha256")):
-        try:
-            r = json.loads((d / "RECEIPT.json").read_text())
-        except (OSError, ValueError) as exc:
-            probs.append(f"{d.name}: {exc}")
-            continue
-        src = {STAB_REC: STAB, EST_REC: EST, REL_REC: REL}[d]
-        ok = (isinstance(r.get("passed"), int) and r.get("passed") == r.get("total") and r.get("partial") is False
-              and len(r.get("checks", [])) == r["total"] and all(c.get("ok") for c in r["checks"])
-              and r.get(key) == sha(src / "META.json"))
-        if not ok:
-            probs.append(f"{d.name}: receipt incomplete or not bound")
-    for src in (STAB, REL):
-        meta = json.loads((src / "META.json").read_text())
-        for n, h in meta.get("products_sha256", {}).items():
-            if sha(src / n) != h:
-                probs.append(f"{src.name}/{n}: hash differs from META")
+    for rec, key, src in ((STAB_REC, "stability_meta_sha256", STAB), (EST_REC, "estimate_meta_sha256", EST),
+                          (REL_REC, "release_meta_sha256", REL)):
+        p = receipt_problem(rec / "RECEIPT.json", key, src / "META.json")
+        if p:
+            probs.append(p)
+    metas = {}
+    for name, folder in (("STAB", STAB), ("EST", EST), ("REL", REL)):
+        p, metas[name] = manifest_problems(folder, PRODUCTS[name])
+        probs += p
+    try:
+        cat_meta = json.loads((CAT / "META.json").read_text())
+        h_cat = sha(CAT / "META.json")
+        if cat_meta.get("products_sha256", {}).get("DESIGN.csv") != sha(CAT / "DESIGN.csv"):
+            probs.append("DESIGN.csv not bound to the catalogue META")
+        links = [(metas.get("STAB", {}).get("catalogue_meta_sha256"), h_cat, "stability -> catalogue"),
+                 (metas.get("STAB", {}).get("script_sha256"), sha(ROOT / "scripts/t3_mwo_analysis.py"), "stability -> analysis script"),
+                 (metas.get("STAB", {}).get("extras_sha256"), sha(ROOT / "scripts/t3_mwo_stability_extras.py"), "stability -> extras"),
+                 (metas.get("EST", {}).get("stability_meta_sha256"), sha(STAB / "META.json"), "estimate -> stability"),
+                 (metas.get("EST", {}).get("catalogue_meta_sha256"), h_cat, "estimate -> catalogue"),
+                 (metas.get("REL", {}).get("catalogue_meta_sha256"), h_cat, "release -> catalogue"),
+                 (metas.get("REL", {}).get("stability_meta_sha256"), sha(STAB / "META.json"), "release -> stability"),
+                 (metas.get("REL", {}).get("estimate_meta_sha256"), sha(EST / "META.json"), "release -> estimate"),
+                 (metas.get("REL", {}).get("estimate_recount_receipt_sha256"), sha(EST_REC / "RECEIPT.json"),
+                  "release -> estimate recount")]
+        probs += [f"stale link: {what}" for have, want, what in links if have != want]
+    except (OSError, ValueError, AttributeError) as exc:
+        probs.append(f"catalogue or links unreadable ({type(exc).__name__})")
     return probs
+
+
+def input_hashes():
+    out = {}
+    for p in INPUTS:
+        try:
+            out[p] = sha(ROOT / p)
+        except OSError:
+            out[p] = None
+    return out
 
 
 def load_subset():
@@ -237,6 +324,13 @@ def load_subset():
     if len(sub) != N_S2:
         raise ValueError(f"S2 subset has {len(sub)} rows, expected {N_S2}")
     return sub
+
+
+def removed(item, label, big, mask):
+    den = int(mask.sum())
+    n = int((big & mask).sum())
+    return dict(item=item, label=label, n=n, share=(n / den) if den else np.nan,
+                share_note="" if den else "empty denominator")
 
 
 def build(sub, src, ref, reps=REPS):
@@ -268,10 +362,8 @@ def build(sub, src, ref, reps=REPS):
     counts += [dict(item=f"tercile {k}", label=str(t), n=int(((a_cls if k == "A_main" else classes[k]) == t).sum()))
                for k in ["A_main"] + [n for n, _ in D4_VARS] for t in (1, 2, 3)]
     counts += [dict(item=f"tercile edges {k}", label=json.dumps([float(x) for x in v]), n=None) for k, v in edges.items()]
-    counts += [dict(item="removed |d_WL|>45 by A tercile", label=str(t), n=int((big & (a_cls == t)).sum()),
-                    share=float((big & (a_cls == t)).sum() / max(1, (a_cls == t).sum()))) for t in (1, 2, 3)]
-    counts += [dict(item="removed |d_WL|>45 by hemisphere", label=h, n=int((big & (hem == h)).sum()),
-                    share=float((big & (hem == h)).sum() / max(1, (hem == h).sum()))) for h in ("N", "S")]
+    counts += [removed("removed |d_WL|>45 by A tercile", str(t), big, a_cls == t) for t in (1, 2, 3)]
+    counts += [removed("removed |d_WL|>45 by hemisphere", h, big, hem == h) for h in ("N", "S")]
     return dict(FITS=pd.DataFrame(fits), DECOMPOSITION=decomposition(sub), SUMMARIES=summ, COUNTS=pd.DataFrame(counts))
 
 
@@ -302,8 +394,12 @@ def run():
     git = lambda *a: subprocess.run(["git", *a], cwd=ROOT, capture_output=True, text=True).stdout.strip()  # noqa: E731
     if git("status", "--porcelain", "--untracked-files=no"):
         sys.exit("tracked tree not clean")
-    if git("ls-files", str(NOTE.relative_to(ROOT))) == "":
-        sys.exit("note not committed")
+    for p in INPUTS[:7]:                                   # note, scripts and modules must be committed
+        if git("ls-files", p) == "":
+            sys.exit(f"{p} not committed")
+    before = input_hashes()
+    if any(h is None for h in before.values()):
+        sys.exit("missing inputs: " + ", ".join(p for p, h in before.items() if h is None))
     probs = chain_problems()
     if probs:
         sys.exit("chain problems: " + "; ".join(probs))
@@ -319,15 +415,13 @@ def run():
     if np.max(np.abs(A.axial(sub.gamma_mwo - sub.gamma_wl) - sub.d_wl)) > 1e-9:
         sys.exit("axial(gamma_mwo - gamma_wl) differs from the saved d_WL")
     prods = build(sub, EX.daily_sources(), ref)
-    inputs = [A.CAT / "DESIGN.csv", STAB / "WL_TILTS.csv", STAB / "STABILITY.json", STAB / "META.json",
-              REL / "MWO_TILT_CATALOGUE_ISOLATED_1974_2012.csv", REL / "META.json", EX.DAILY,
-              STAB_REC / "RECEIPT.json", EST_REC / "RECEIPT.json", REL_REC / "RECEIPT.json"]
-    meta = dict(note_sha256=sha(NOTE), script_sha256=sha(__file__),
-                analysis_sha256=sha(ROOT / "scripts/t3_mwo_analysis.py"),
-                extras_sha256=sha(ROOT / "scripts/t3_mwo_stability_extras.py"),
-                inputs_sha256={str(Path(p).relative_to(ROOT)): sha(p) for p in inputs},
-                git_commit=git("rev-parse", "HEAD"), seed=SEED, reps=REPS, seed_check=sc, s2_reference=dict(beta=ref[0], se=ref[1]),
-                sealed_read=False, post_hoc=True, changes_outcome=False)
+    after = input_hashes()
+    if after != before or git("status", "--porcelain", "--untracked-files=no") or chain_problems():
+        sys.exit("inputs, tracked tree or chain changed during the computation: nothing written")
+    meta = dict(note_sha256=before[INPUTS[0]], script_sha256=before[INPUTS[1]], inputs_sha256=before,
+                inputs_hashed="before the computation and again before writing (identical)",
+                git_commit=git("rev-parse", "HEAD"), seed=SEED, reps=REPS, seed_check=sc,
+                s2_reference=dict(beta=ref[0], se=ref[1]), sealed_read=False, post_hoc=True, changes_outcome=False)
     write_atomic(OUT, prods, meta)
     print(f"written {OUT}")
     return 0
@@ -350,6 +444,83 @@ def synthetic(n=900, seed=7):
     d["gamma_wl"] = 20 * s + rng.normal(0, 20, n)
     d["d_wl"] = A.axial(d.gamma_mwo - d.gamma_wl)
     return d
+
+
+def synthetic_chain(base, mutate=None):
+    """Builds a minimal valid chain under `base`, applies `mutate`, runs chain_problems() on it, restores globals."""
+    g = globals()
+    saved = {k: g[k] for k in ("CAT", "STAB", "EST", "REL", "STAB_REC", "EST_REC", "REL_REC")}
+    dirs = {k: Path(base) / k for k in saved}
+    try:
+        for d in dirs.values():
+            d.mkdir(parents=True)
+        (dirs["CAT"] / "DESIGN.csv").write_text("design\n")
+        (dirs["CAT"] / "META.json").write_text(json.dumps({"products_sha256": {"DESIGN.csv": sha(dirs["CAT"] / "DESIGN.csv")}}))
+        h_cat = sha(dirs["CAT"] / "META.json")
+
+        def products(folder, names, extra):
+            for n in names:
+                (folder / n).parent.mkdir(parents=True, exist_ok=True)
+                (folder / n).write_text(n)
+            (folder / "META.json").write_text(json.dumps(dict(extra, products_sha256={n: sha(folder / n) for n in names})))
+
+        def receipt(folder, key, meta, n=3):
+            (folder / "RECEIPT.json").write_text(json.dumps(dict(passed=n, total=n, partial=False, checks=[dict(name=str(i), ok=True)
+                                                                                                         for i in range(n)], **{key: sha(meta)})))
+
+        products(dirs["STAB"], PRODUCTS["STAB"], dict(catalogue_meta_sha256=h_cat, script_sha256=sha(ROOT / "scripts/t3_mwo_analysis.py"),
+                                                       extras_sha256=sha(ROOT / "scripts/t3_mwo_stability_extras.py")))
+        receipt(dirs["STAB_REC"], "stability_meta_sha256", dirs["STAB"] / "META.json")
+        products(dirs["EST"], PRODUCTS["EST"], dict(stability_meta_sha256=sha(dirs["STAB"] / "META.json"), catalogue_meta_sha256=h_cat))
+        receipt(dirs["EST_REC"], "estimate_meta_sha256", dirs["EST"] / "META.json")
+        products(dirs["REL"], PRODUCTS["REL"], dict(catalogue_meta_sha256=h_cat, stability_meta_sha256=sha(dirs["STAB"] / "META.json"),
+                                                     estimate_meta_sha256=sha(dirs["EST"] / "META.json"),
+                                                     estimate_recount_receipt_sha256=sha(dirs["EST_REC"] / "RECEIPT.json")))
+        receipt(dirs["REL_REC"], "release_meta_sha256", dirs["REL"] / "META.json")
+        if mutate:
+            mutate(dirs)
+        g.update(dirs)
+        return chain_problems()
+    finally:
+        g.update(saved)
+
+
+def chain_cases():
+    def rec(name, **kw):
+        def f(d):
+            p = d[name] / "RECEIPT.json"
+            r = json.loads(p.read_text())
+            r.update(kw)
+            p.write_text(json.dumps(r))
+        return f
+
+    def write(path_fn, text):
+        return lambda d: path_fn(d).write_text(text)
+
+    def empty_manifest(d):
+        p = d["EST"] / "META.json"
+        m = json.loads(p.read_text())
+        m["products_sha256"] = {}
+        p.write_text(json.dumps(m))
+
+    def stale_link(d):
+        p = d["REL"] / "META.json"
+        m = json.loads(p.read_text())
+        m["stability_meta_sha256"] = "0" * 64
+        p.write_text(json.dumps(m))
+        rec("REL_REC", release_meta_sha256=sha(p))(d)
+
+    return [("valid synthetic chain accepted", None, True),
+            ("receipt 0/0 with no checks refused", rec("STAB_REC", passed=0, total=0, checks=[]), False),
+            ("boolean counts refused", rec("EST_REC", passed=True, total=True, checks=[dict(ok=True)]), False),
+            ("check with ok not boolean refused", rec("REL_REC", checks=[dict(ok="yes")] * 3), False),
+            ("partial receipt refused", rec("STAB_REC", partial=True), False),
+            ("empty product manifest refused", empty_manifest, False),
+            ("modified stability product refused", write(lambda d: d["STAB"] / "WL_TILTS.csv", "changed"), False),
+            ("modified estimate product refused", write(lambda d: d["EST"] / "FINAL.json", "changed"), False),
+            ("modified design refused", write(lambda d: d["CAT"] / "DESIGN.csv", "changed"), False),
+            ("stale link refused", stale_link, False),
+            ("missing receipt refused", lambda d: (d["EST_REC"] / "RECEIPT.json").unlink(), False)]
 
 
 def selftest():
@@ -444,8 +615,16 @@ def selftest():
             ok("refuses to overwrite", False)
         except SystemExit:
             ok("refuses to overwrite", True)
+    # strict chain guards on a synthetic chain (no real product touched)
+    ok("removed share with an empty denominator: missing with cause, not 0",
+       np.isnan(removed("x", "1", np.array([True]), np.array([False]))["share"])
+       and removed("x", "1", np.array([True]), np.array([False]))["share_note"] == "empty denominator")
+    with tempfile.TemporaryDirectory() as td:
+        for label, mutate, expect_ok in chain_cases():
+            probs = synthetic_chain(Path(td) / label, mutate)
+            ok(f"chain guard: {label}", (not probs) == expect_ok, probs[:2])
     sc = seed_collisions()
-    joy_src = (ROOT / "scripts/t3_mwo_catalogue_release.py").read_text()
+    joy_src =(ROOT / "scripts/t3_mwo_catalogue_release.py").read_text()
     ok("seed 69 600 001 against the 76 000 grid seeds, USED, S1 and Joy", sc["grid_size"] == 76_000 and not any(
         sc[k] for k in ("in_grid", "in_used", "equals_s1", "equals_joy")) and re.search(r"JOY_SEED[^=]*=\s*69_500_001", joy_src), sc)
     src_txt = Path(__file__).read_text().split("def selftest")[0]
