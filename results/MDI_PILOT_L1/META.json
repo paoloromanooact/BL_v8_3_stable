@@ -1,0 +1,15 @@
+{
+  "protocol_sha256": "77367350e8f9a5f71933afdcc791429b307c95ec1875224c1f2d7486950d086f",
+  "script_sha256": "e924afa673cef235f88a78b63aa27b9bd58a5c977ef3e005d7f3508b32c7bca3",
+  "adapter_sha256": "1787dc0ae085b12bff03cdde96c61b6954f9fccd3fa5e83e36016e6b26a1038a",
+  "module_sha256": "05c3bd0dbc69a08bb6b74f8acf3b54a8930df510ff82e0fb204852843e5260bf",
+  "selection_meta_sha256": "b7e3e7007069cabb01536abfa4d62f6a83a585118acb4425a35a677c8897177e",
+  "selection_receipt_sha256": "82a1484813e2c88bb827d88e6425b59851913c4cbe8d59a26cd6bebc2a2531c0",
+  "audit_sha256": "29678a4f63851351ab6832cf4d37935e081948dae378432961099b81d569eeb5",
+  "ct_diagnostic_max_abs_deg": 2.6625188338803127,
+  "git_commit": "495c32d2358f056614e9e7bc72d694eff71cc22b",
+  "products_sha256": {
+    "CT_DIAGNOSTIC.csv": "6caf306872d24ac87ea331f628e3f2d7100c30edfd24cd5bbc8a1526707ce15a",
+    "L1_RECORDS.csv": "42c178a0498fcc9e2a9fd24dde32e38e38ef089bbc2df18accedaa9ed4a2151a"
+  }
+}
