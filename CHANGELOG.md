@@ -1,5 +1,10 @@
 # Cronologia
 
+## Chiusura del riconteggio dei metadati MDI L2
+
+- Verificati ricostruzione e provenienza; aggiunta regressione sulle query e impronta del prefisso di registro.
+- Via al riconteggio reale prima della lettura QUALITY; nessun cambiamento a risposte o regole scientifiche.
+
 ## Revisione del blocco metadati MDI L2
 
 - Verificate prenotazioni e gate; corrette condizioni limite con prove offline, senza cambiare regole scientifiche.

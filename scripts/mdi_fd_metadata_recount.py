@@ -73,6 +73,14 @@ def interval(v):
     return x if math.isfinite(x) and x > 0 else None
 
 
+def expected_query(t_dpd):
+    """Own reconstruction of the authorised series and symmetric +/-10 h UTC window, serialized in TAI."""
+    t = pd.Timestamp(t_dpd)
+    def tai(dt):
+        return Time(dt.to_pydatetime(), scale="utc").tai.to_datetime().strftime("%Y.%m.%d_%H:%M:%S_TAI")
+    return f"mdi.fd_M_96m_lev182[{tai(t-pd.Timedelta(hours=10))}-{tai(t+pd.Timedelta(hours=10))}]"
+
+
 def records(doc):
     kw = {k["name"]: k["values"] for k in doc["keywords"]}
     n = int(doc["count"])
@@ -244,6 +252,13 @@ def check(md=MD, sel=SEL, sel_rec=SEL_REC, ledger=LEDGER, protocol=PROTOCOL, fre
                     for a in answers)
     ok("answers: unique, every level-2 unit present once, none extra, JSOC status and schema", len(set(keys)) == len(keys)
        and set(keys) == set(l2k) and len(keys) == len(l2k) and schema_ok, (len(keys), len(l2k)))
+    expected = {(r.noaa, r.day): (pd.Timestamp(r.t_dpd), expected_query(r.t_dpd)) for r in l2.itertuples()}
+    query_ok = True
+    for a in answers:
+        key = (a["noaa"], a["day"])
+        query_ok &= (key in expected and pd.Timestamp(a.get("t_dpd")) == expected[key][0]
+                     and a.get("ds") == expected[key][1])
+    ok("queries: authorised series, selected DPD instant and exact +/-10 h window independently rebuilt", query_ok)
     own, n_ok = rebuild(answers, l2)
     for name, df in own.items():
         g, why = frames_equal(pd.read_csv(md / name, dtype={"noaa": str}, keep_default_na=True, float_precision="round_trip"), df)
@@ -251,7 +266,8 @@ def check(md=MD, sel=SEL, sel_rec=SEL_REC, ledger=LEDGER, protocol=PROTOCOL, fre
     complete = n_ok == len(l2) and not meta.get("stopped") and not meta.get("derivation_errors")
     ok("META completeness, requests_ok and level2_groups rebuilt", meta.get("completeness") == ("complete" if complete else "incomplete")
        and meta.get("requests_ok") == n_ok and meta.get("level2_groups") == len(l2), (meta.get("completeness"), meta.get("requests_ok")))
-    ent = [json.loads(x) for x in Path(ledger).read_text().splitlines() if x.strip()] if Path(ledger).exists() else []
+    ledger_bytes = Path(ledger).read_bytes() if Path(ledger).exists() else b""
+    ent = [json.loads(x) for x in ledger_bytes.splitlines() if x.strip()]
     starts = [e for e in ent if e["phase"] == "start" and e["kind"] == "metadata"]
     ends = {e["id"]: e for e in ent if e["phase"] == "end" and e["kind"] == "metadata"}
     # answers are matched IN ORDER with the metadata starts of the ledger (several groups of the same day share the
@@ -272,7 +288,9 @@ def check(md=MD, sel=SEL, sel_rec=SEL_REC, ledger=LEDGER, protocol=PROTOCOL, fre
     passed = sum(c["ok"] for c in checks)
     real = not synthetic
     receipt = dict(passed=passed, total=len(checks), partial=not real, checks=checks, metadata_meta_sha256=sha(md / "META.json"),
-                   coverage=f"{n_ok}/{len(l2)} level-2 units answered", completeness=meta.get("completeness"))
+                   coverage=f"{n_ok}/{len(l2)} level-2 units answered", completeness=meta.get("completeness"),
+                   ledger_prefix_sha256=hashlib.sha256(ledger_bytes).hexdigest(), ledger_prefix_lines=len(ledger_bytes.splitlines()),
+                   script_sha256=sha(__file__))
     if write:
         if not real:
             sys.exit("a receipt is written only on the real path")
@@ -372,6 +390,24 @@ def selftest():
         res.append(not quiet(check, out, **kw))
         print("[OK]" if res[-1] else "[FALLITO]", "refused: ledger bytes differ from the answer")
         led.write_text(led_text)
+        # A wrong query copied consistently into answer and ledger must still fail against the selection.
+        query_answers = (out / "ANSWERS.jsonl").read_text()
+        changed = [json.loads(x) for x in query_answers.splitlines()]
+        wrong_ds = "mdi.fd_M_96m_lev182[1999.01.01_00:00:00_TAI-1999.01.01_01:00:00_TAI]"
+        changed[0]["ds"] = wrong_ds
+        (out / "ANSWERS.jsonl").write_text("".join(json.dumps(x)+"\n" for x in changed))
+        entries = [json.loads(x) for x in led_text.splitlines()]
+        entries[0]["target"] = wrong_ds
+        led.write_text("".join(json.dumps(x)+"\n" for x in entries))
+        mm = json.loads((out / "META.json").read_text())
+        mm["products_sha256"]["ANSWERS.jsonl"] = sha(out / "ANSWERS.jsonl")
+        (out / "META.json").write_text(json.dumps(mm))
+        res.append(not quiet(check, out, **kw))
+        print("[OK]" if res[-1] else "[FALLITO]", "refused: wrong query consistent in answer and ledger")
+        (out / "ANSWERS.jsonl").write_text(query_answers)
+        led.write_text(led_text)
+        mm["products_sha256"]["ANSWERS.jsonl"] = sha(out / "ANSWERS.jsonl")
+        (out / "META.json").write_text(json.dumps(mm))
         rc = json.loads((fx["sel_rec"] / "RECEIPT.json").read_text())
         (fx["sel_rec"] / "RECEIPT.json").write_text(json.dumps(dict(rc, partial=True)))
         res.append(not quiet(check, out, **kw))

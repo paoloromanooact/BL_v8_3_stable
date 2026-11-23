@@ -1,5 +1,13 @@
 # Cold restart — SHARP BL
 
+## MDI L2 — riconteggio dei metadati approvato
+
+- Revisione di 34fc26b chiusa: `docs/MDI_L2_METADATA_RECOUNT_CODEX_CLOSE.md`.
+- Aggiunto controllo indipendente di serie/istante/finestra ±10h e impronta del prefisso di registro; selftest 15/15.
+- Hash dei prodotti e registro identici a 98ee895: 90 richieste, 349154 byte; composizione QUALITY non letta qui.
+- Via a --check reale, conservazione della ricevuta positiva, poi lettura e proposta di eventuale emendamento.
+- Nessun FITS, allargamento QUALITY o nuova rete autorizzati. Blocchi B/C e misura L2 ancora separati.
+
 ## MDI L2 — via tecnico ai soli metadati, riconteggio ancora da chiudere
 
 - 329be47 rivisto in `docs/MDI_L2_METADATA_ACQUISITION_CODEX_REVIEW.md`.
