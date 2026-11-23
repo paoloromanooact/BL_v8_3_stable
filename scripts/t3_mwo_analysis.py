@@ -47,6 +47,7 @@ OUT_EST = ROOT / "results/T3_MWO_ESTIMATE_R4"
 CAT_RECOUNT = ROOT / "results/T3_MWO_CATALOGUE_R4_RECOUNT"
 VAL_RECOUNT = ROOT / "results/T3_MWO_VALIDATION_R4_RECOUNT"
 CHECK_RECOUNT = ROOT / "results/T3_MWO_DESIGN_CHECK_R4_RECOUNT"
+STAB_RECOUNT = ROOT / "results/T3_MWO_STABILITY_R4_RECOUNT"      # S1-S4 verified before beta3 (user and Codex, 20 Nov)
 VAL_READ = ROOT / "results/T3_MWO_VALIDATION_R4_READING"
 BENCH_SEED_BASE = 59_000_000                           # benchmark only, outside the grid and every registered range
 PROVENANCE_FILES = ("scripts/t3_mwo_analysis.py", "python/sharpbl/p2f_validation.py", "python/sharpbl/p2f_pilot.py",
@@ -632,8 +633,13 @@ def _chain_problem(stage, rp=None):
         if rd.get("acceptance_sha256") != sha(Path(val) / "ACCEPTANCE.json") or \
                 rd.get("recount_receipt_sha256") != sha(Path(vrc) / "RECEIPT.json"):
             return "reading record not bound to the current validation and its recount"
-    if i >= 4 and not committed(stb):
-        return "stability outputs not preserved in Git"
+    if i >= 4:
+        if not committed(stb):
+            return "stability outputs not preserved in Git"
+        good, why = receipt_ok(Path(rp.get("stab_recount", STAB_RECOUNT)) / "RECEIPT.json", "stability_meta_sha256",
+                               Path(stb) / "META.json")
+        if not good:
+            return why
     return None
 
 
@@ -869,12 +875,17 @@ def stability(protocol_sha, amendment_sha):
     idf = json.loads((OUT_CHECK / "IDENTIFIABILITY.json").read_text())["joy"]["identifiable"]
     rule = final_rule(s1_res["status"], s2_status, unver, val["accepted_15deg"], idf, cov["outcome"] == "informativo")
     s4 = s4_table(d)
+    d_all = load_design("all")                  # descriptive outputs of §6 (Codex's second review, point 3)
+    ex = EX.extras(sys.modules[__name__], d, sealed, d_all)
     res = dict(S1=s1_res, S2=dict(r2, C=C, status=s2_status, distinguishable_from_zero=s2_nonzero, by_hemisphere=s2_hem),
                unverifiable_share=unver, verifiable=[f"{e}{h}" for (e, h), v in verif.items() if v],
                subset=dict(n=len(sub), share=len(sub) / len(d)), rule=dict(outcome=rule[0], reasons=rule[1]))
     write_out(OUT_STAB, {"STABILITY.json": res, "S1_TABLE.csv": s1_tab, "S3_HALE.csv": s3, "S4.csv": s4,
-                         "WL_TILTS.csv": d[["noaa", "day", "epoch", "hemisphere", "wl_status", "gamma_wl", "d_wl"]]},
-              dict(protocol_sha256=protocol_sha, amendment_a1_sha256=amendment_sha))
+                         "WL_TILTS.csv": d[["noaa", "day", "epoch", "hemisphere", "wl_status", "gamma_wl", "d_wl"]], **ex},
+              dict(protocol_sha256=protocol_sha, amendment_a1_sha256=amendment_sha,
+                   extras_sha256=sha(ROOT / "scripts/t3_mwo_stability_extras.py"),
+                   catalogue_meta_sha256=sha(CAT / "META.json"), design_check_meta_sha256=sha(OUT_CHECK / "META.json"),
+                   validation_meta_sha256=sha(OUT_VAL / "META.json"), reading_sha256=sha(VAL_READ / "READ.json")))
     print(json.dumps(dict(S1=s1_res["status"], S2=s2_status, rule=rule), indent=2))
     return 0
 
@@ -924,7 +935,8 @@ def fit_beta3(d, form="joy", weights="phi_mwo", act="A_main"):
     if r["verdict"] == "errore":
         return dict(n=len(d), identifiable=True, state="errore di M", error=r.get("error"), beta=np.nan, se=np.nan,
                     lo=np.nan, hi=np.nan)
-    return dict(n=len(d), identifiable=True, state="stimato", **{k: r[k] for k in ("beta", "se", "lo", "hi", "verdict")})
+    return dict(n=len(d), identifiable=True, state="stimato",       # M parameters saved for the independent recount
+                **{k: r[k] for k in ("beta", "se", "lo", "hi", "verdict", "var_a", "var_b", "phi", "kappa", "sigma_x2")})
 
 
 def filtered(d, filt):
@@ -968,7 +980,8 @@ def estimate(protocol_sha, amendment_sha):
                  main_state=main.state, verdict=verdict_of(main.lo, main.hi) if outcome == "verdetto" else None,
                  targets=json.loads((OUT_CHECK / "TARGETS.json").read_text()))
     write_out(OUT_EST, {"ESTIMATE.csv": tab, "FINAL.json": final},
-              dict(protocol_sha256=protocol_sha, amendment_a1_sha256=amendment_sha))
+              dict(protocol_sha256=protocol_sha, amendment_a1_sha256=amendment_sha,
+                   stability_meta_sha256=sha(OUT_STAB / "META.json"), catalogue_meta_sha256=sha(CAT / "META.json")))
     print(tab.to_string(index=False))
     print(json.dumps(final, indent=2, default=str))
     return 0

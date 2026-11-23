@@ -12,8 +12,7 @@ no function here reads SEALED.csv.gz itself.
   s4_dwl_all         d_WL of the 'all records' sensitivity, isolated against non-isolated records, overall and by
                      activity tercile (descriptive)
 
-Not yet wired into the stability stage (that file must not change while the validation runs): IMPLEMENTED stays
-False until the call is added and reviewed.
+Wired into the stability stage after the validation (patch reviewed by Codex before it is applied).
 """
 from pathlib import Path
 
@@ -21,7 +20,7 @@ import numpy as np
 import pandas as pd
 
 ROOT = Path(__file__).resolve().parents[1]
-IMPLEMENTED = False
+IMPLEMENTED = True
 DAILY = ROOT / "data/sharp/external_DPD_20261118/dailyDPD1974_2016.txt"
 P1_CAT = ROOT / "results/P1/P1_SBL_CATALOG_BY_HARP.csv"
 
