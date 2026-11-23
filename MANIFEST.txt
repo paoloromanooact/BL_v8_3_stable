@@ -1172,6 +1172,7 @@ scripts/mdi_hmi_second_sample_check.py
 scripts/mdi_hmi_second_sample_fetch.py
 scripts/mdi_hmi_second_sample_select.py
 scripts/mdi_hmi_selection_check.py
+scripts/mdi_l2_ledger.py
 scripts/mdi_overlap_kernels.py
 scripts/mdi_overlap_metadata_review.py
 scripts/mdi_pilot_analysis_l1.py
