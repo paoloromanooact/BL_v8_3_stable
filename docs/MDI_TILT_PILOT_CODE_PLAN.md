@@ -1,4 +1,4 @@
-# Pilota MDI — piano del codice e delle prove (BOZZA)
+# Pilota MDI — piano del codice e delle prove (approvato da Codex, con le correzioni recepite)
 
 23 novembre 2026 (Claude).
 - Accompagna la bozza rev. 3 del protocollo (`docs/PROTOCOL_MDI_TILT_PILOT_DRAFT.md`, `4385692`), limitata a Q1–Q3.
@@ -45,7 +45,8 @@ Ogni fase ha:
 **Identità con MWO**, script `scripts/mdi_pilot_mwo_identity.py`:
 - ricalcola con il modulo, usando lettore, geometria, soglie (50/4000 G), area e precisione di lettura di MWO:
   - i record del pilota MWO;
-  - il sottoinsieme deterministico di R4 (due per epoca × emisfero, NOAA più basso, più tre con `n_blank_window > 0`);
+  - il sottoinsieme deterministico di R4 (due per epoca × emisfero, NOAA più basso, più fino a tre con
+    `n_blank_window > 0` se presenti: in R4 non ce ne sono, e l'assenza si dichiara);
 - confronta tilt e γ entro 1e-6°, flusso entro 1e-9 relativo, conteggi esatti;
 - legge i FITS MWO già sul disco senza modificarli; ricevuta propria.
 
@@ -75,14 +76,17 @@ indipendente dal successo; π corretti; confini con valori uguali; seme confront
 
 - `load_map(cr)`: verifica lo SHA contro l'audit e restituisce dati, header e griglia.
 - `pixel_coords(header)`: CT, L e sin λ, con CRVAL2.
-- `ct_of_time(t)` = 360·R(t) − 360, con `carrington_continuous_from_date` della pipeline MWO congelata.
-- `ct_group(t_dpd, L_dpd)`: N che minimizza la distanza, spareggio sul minore.
+- `ct_of_time(t)` = 360·R(t) − 360, con `carrington_continuous_from_date` della pipeline MWO congelata (periodo
+  medio), usata **solo** per scegliere l'intero N.
+- `ct_group(t_dpd, L_dpd)`: N che minimizza la distanza, spareggio sul minore; verifica indipendente con `cr_of`
+  (effemeride) a t_cm = t_DPD − LCM/13,2 °/d. In caso di disaccordo: «N ambiguo».
 - `extract(ct_g, lat_c)`: cucitura CR e CR ± 1, stato «mappa mancante», controllo della banda polar-fill (LAT0).
 - Area dei pixel costante; nessuna divisione per μ.
 
 **Prove**
-- Sui metadati reali (sola lettura degli header, non tilt): a T_ROT di ogni mappa, |CT(T_ROT) − CARRTIME| entro una
-  tolleranza dichiarata.
+- Sui metadati reali (sola lettura degli header, non tilt): a T_ROT di ogni mappa, |CT(T_ROT) − CARRTIME| ≤ 3°
+  (controllo diagnostico; la funzione a periodo medio arriva a 2,66°).
+- Verifica di N con l'effemeride su casi sintetici vicini ai bordi di rotazione, e segno di LCM.
 - LON_FRST/LON_LAST coerenti con la formula.
 - Continuità dei bordi: le ultime colonne di CR e le prime di CR+1 hanno CT contigui.
 - Mappa sintetica con dipolo a coordinate note, anche a cavallo del bordo.
@@ -164,5 +168,5 @@ confronto della geometria con i valori di header reali di uno dei file MDI 2010 
 1. Se il modulo condiviso debba vivere in `python/sharpbl/`, come qui proposto, o in `scripts/`.
 2. Implementazione indipendente nei riconteggi: proposta di centroidi e tilt riscritti da zero, non importati dal
    modulo.
-3. Tolleranza per la verifica del tempo di Carrington sui metadati reali: proposta 0,05° (mezzo pixel di
-   longitudine).
+3. Tempo di Carrington: la funzione a periodo medio sceglie solo N; controllo diagnostico entro 3°; verifica
+   indipendente di N con l'effemeride (decisione di Codex, recepita).

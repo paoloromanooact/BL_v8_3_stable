@@ -122,8 +122,10 @@ un giorno isolato (regola di isolamento MWO).
 - Il modulo, con le soglie, i criteri sui pixel, la precisione di lettura e l'area originali di MWO (non con il filtro
   MDI di 10 pixel), deve riprodurre:
   - i record del pilota MWO già misurato;
-  - un sottoinsieme deterministico di R4: per ogni epoca × emisfero presente, i due record con NOAA più basso, più i tre
-    record con NOAA più basso fra quelli con `n_blank_window > 0`.
+  - un sottoinsieme deterministico di R4: per ogni epoca × emisfero presente, i due record con NOAA più basso, più
+    **fino a tre** record con NOAA più basso fra quelli con `n_blank_window > 0`, se presenti.
+    - In R4 non ce ne sono: 0 su 11 165 righe del DESIGN. L'assenza si dichiara.
+    - Restano obbligatorie le prove sintetiche con pixel mancanti sotto e sopra il 5 %.
 - Tolleranze fissate ora: tilt e γ entro 1e-6°, flusso entro 1e-9 relativo, conteggi esatti.
 - Nessuna sorgente o prodotto conservato viene modificato.
 
@@ -132,13 +134,17 @@ un giorno isolato (regola di isolamento MWO).
   - CT = CRVAL1 + (i + 1 − CRPIX1)·CDELT1;
   - L = (360·CR − CT) mod 360;
   - sin λ = CRVAL2 + (j + 1 − CRPIX2)·CDELT2.
-- **Tempo di Carrington di t_DPD:** CT(t) = 360·R(t) − 360, con R(t) il numero di rotazione frazionario dell'istante
-  completo t_DPD, dato da `carrington_continuous_from_date` della pipeline MWO congelata (la stessa usata dal catalogo
-  MWO per CENLON). Il `cr_of` del catalogo dà solo la rotazione intera.
-  - La convenzione si verifica nel selftest sui metadati reali: a T_ROT di ogni mappa deve risultare CT ≈ CARRTIME =
-    360·CR − 180, entro una tolleranza dichiarata.
-- **Tempo di Carrington del gruppo:** CT_g = 360·N − L_DPD, con N intero che minimizza |CT_g − CT(t_DPD)|; spareggio,
-  N minore.
+- **Rotazione del gruppo (solo l'intero N).** CT_g = 360·N − L_DPD.
+  - **Scelta di N:** R(t) è il numero di rotazione frazionario di `carrington_continuous_from_date` della pipeline MWO
+    congelata, una funzione a periodo medio; CT(t) = 360·R(t) − 360. N è l'intero che minimizza |CT_g − CT(t_DPD)|;
+    spareggio, N minore.
+    - La funzione serve **solo a scegliere N**: l'errore della funzione a periodo medio (fino a 2,66° sugli header)
+      non entra nelle coordinate né nei tilt, che dipendono da L_DPD e dalla griglia.
+  - **Controllo diagnostico** sui metadati reali: |CT(T_ROT) − CARRTIME| ≤ 3° per ogni mappa.
+  - **Verifica indipendente di N tramite effemeridi:** N deve coincidere con `cr_of` (effemeride con termini
+    periodici, usata dal catalogo MWO per la rotazione) dell'istante di passaggio al meridiano centrale stimato,
+    t_cm = t_DPD + Δ, con Δ = −LCM/13,2° al giorno. Il segno di LCM si verifica nel selftest.
+    - In caso di disaccordo la misura non si esegue («N ambiguo») e il caso si conta.
 - **Bordi:** estrazione in CT cucendo le mappe CR e CR ± 1. Una parte in una CR mancante fa fallire la misura («mappa
   mancante»).
 - **Test indipendente** su passaggi e bordi con mappe adiacenti e metadati reali, oltre a un dipolo sintetico. È un
