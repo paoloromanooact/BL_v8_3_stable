@@ -1,5 +1,14 @@
 # Cold restart — SHARP BL
 
+## 23 novembre — risorsa MDI sinottica verificata e metodo precisato
+
+- Confermati 193 file locali, CR1909–2104 meno 1938–1940; letto un header, nessun array/tilt.
+- Parere in `docs/MDI_TILT_PILOT_SYNOPTIC_CODEX_REVIEW.md`: sinottiche utilizzabili come prodotto da valutare,
+  confronto full-disk nel pilota prima di adottarle per il catalogo/T3. Nessuna piccola differenza presunta.
+- Br già radiale; area su griglia lon/sinlat, tempi per longitudine e bordi CR da gestire con adattatore proprio.
+- Precedente pubblico ARISE individuato; nessun suo dato scaricato. Nota bibliografica e limiti nella revisione.
+- Via alla bozza rivista, non alla misura completa. Nessuna acquisizione JSOC o trasferimento di risultati di altri progetti.
+
 ## 23 novembre — impostazione del pilota MDI rivista
 
 - Inventario 2a7838b letto; parere in `docs/MDI_TILT_PILOT_METHOD_CODEX_REVIEW.md`.

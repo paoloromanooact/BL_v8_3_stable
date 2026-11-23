@@ -1,5 +1,10 @@
 # Cronologia
 
+## 2026-11-23 — revisione del metodo MDI sinottico
+
+- Confermati file locali e geometria di un header; distinti prodotto sinottico e magnetogramma istantaneo.
+- Precisati confronti, tempi, aree e validazione preliminare; documentato il precedente ARISE.
+
 ## 2026-11-23 — parere sul metodo del pilota MDI
 
 - Preferite finestre DPD sui full-disk, con adattatore MDI e campione indipendente dalla disponibilità MWO.
