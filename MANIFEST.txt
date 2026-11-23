@@ -157,6 +157,7 @@ docs/T3_MWO_R4_FINAL_RUNBOOK.md
 docs/T3_MWO_R4_VALIDATION_CODEX_REVIEW.md
 docs/T3_MWO_REFERENCES.md
 docs/T3_MWO_S2_DIAGNOSIS_CODEX_REVIEW.md
+docs/T3_MWO_S2_DIAGNOSIS_NOTE.md
 docs/T3_MWO_S2_DIAGNOSIS_NOTE_DRAFT.md
 docs/T3_MWO_STABILITY_R4_CODEX_REVIEW.md
 docs/T3_MWO_STABILITY_R4_RESULTS.md
@@ -1122,6 +1123,8 @@ scripts/t3_mwo_preparation_review.py
 scripts/t3_mwo_release_recount.py
 scripts/t3_mwo_release_review_probe.py
 scripts/t3_mwo_s1_singular_diagnosis.py
+scripts/t3_mwo_s2_diagnosis.py
+scripts/t3_mwo_s2_diagnosis_recount.py
 scripts/t3_mwo_stability_extras.py
 scripts/t3_mwo_stability_recount.py
 scripts/t3_mwo_stability_recount_residual_probe.py

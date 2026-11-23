@@ -167,7 +167,8 @@ See `COLUMNS.csv`. Groups of columns:
   - among the non-singular replicates, only E4N differs by more than the 2.4° threshold with an interval that
     excludes zero.
 - Against activity: the slope of the MWO − white-light difference is −3.18, nominal 97.5 % interval [−8.77, +2.40].
-  - This is neither within the equivalence margin ±0.53 nor shown to depend on activity.
+  - The interval is not contained in the equivalence margin ±0.53, and it includes zero: the check could not show
+    stability against activity, and it does not show a dependence on activity either.
   - Magnetic and white-light tilts differ for physical and observational reasons (Wang et al. 2014).
 - DPD sources by epoch: `COMPARISONS/S1_DPD_SOURCES.csv`.
 
