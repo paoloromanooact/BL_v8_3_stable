@@ -15,19 +15,23 @@ in `ed8f2f3`.
 **Il tentativo 1.** La guardia congelata («`s2_fit` sul sottoinsieme ricostruito riproduce STABILITY.json entro
 1e-9») ha fermato la corsa:
 - β era identico, ma SE differiva di 1,7e-5.
-- Causa: il lettore CSV predefinito di pandas non è esatto all'ultimo bit. d_WL differiva dai valori in memoria della
-  corsa di stabilità di circa 3e-14, e l'ottimo REML di M, piatto in κ, si spostava.
-- Con la lettura `round_trip` la riproduzione è esatta su tutti i campi.
+- Il lettore predefinito di pandas e quello `round_trip` danno differenze massime di 7,1·10⁻¹⁵ su d_WL e γ_WL.
+  Codex ha verificato che `round_trip` coincide con la conversione `float` dei valori testuali conservati.
+- Su questo sottoinsieme la piccola differenza nella risposta cambia i parametri di covarianza stimati da M:
+  SE cambia di −1,704·10⁻⁵, mentre β è identico. Con `round_trip` tutti i nove campi numerici del fit S2
+  riproducono esattamente STABILITY.json. È una sensibilità numerica osservata; la curvatura dell'ottimo REML
+  non è stata caratterizzata da questa verifica.
 
-Regole, tolleranze e nota sono invariate. La correzione è successiva all'approvazione di Codex e va rivista insieme
-a questi esiti.
+Regole, tolleranze e nota sono invariate. La correzione, successiva all'approvazione iniziale, è stata rivista
+da Codex insieme agli esiti: `docs/T3_MWO_S2_DIAGNOSIS_RESULTS_CODEX_REVIEW.md`.
 
 ## Stato
 
 **Diagnosi descrittiva, successiva alla lettura.**
 - Gli intervalli dei sottoinsiemi e delle componenti sono nominali e **non validati**.
 - I 19 fit sono correlati fra loro e lo stimando cambia con il sottoinsieme. Δβ/SE_S2 è una scala, non un test.
-- Con tanti fit, qualche intervallo che esclude zero è atteso anche senza un effetto.
+- Sono molti confronti correlati e gli intervalli non sono validati: una singola esclusione di zero non è
+  evidenza confermativa di un effetto nel gruppo.
 - Nessuna classificazione e nessuna attribuzione causale. S2, la regola e l'esito descrittivo di β₃
   (−4,93 [−10,21, +0,34]) restano invariati.
 
@@ -54,7 +58,11 @@ Riferimento: S2 = −3,184, SE 2,492, n = 4694.
   - sullo stesso disegno, la pendenza dei tilt MWO ha stima puntuale negativa;
   - quella dei tilt in luce bianca ha stima puntuale piccola e positiva, con un intervallo che contiene zero;
   - il termine assiale vale circa +3,0. Senza di esso la differenza delle due pendenze sarebbe −6,19.
-  - La scomposizione non dice quale strumento o fenomeno causi la differenza.
+  - È il termine necessario per passare dalla differenza delle due risposte codificate alla differenza assiale.
+    Non è una correzione da togliere, né una quota di errore strumentale: i 180 record non sono dichiarati errati.
+    I contributi dipendono dalla riga g, non soltanto dal numero di riavvolgimenti.
+  - La scomposizione non dice quale strumento o fenomeno causi la differenza. I −4,76 riguardano il sottoinsieme
+    WL (4694 record), non la stima principale −4,93 sui 5223 record.
 
 ## D2–D4, D6 — stime di S2 su sottoinsiemi ed esclusioni
 
@@ -88,14 +96,19 @@ Nessun record senza fonte DPD.
 
 Osservazioni descrittive:
 - **Esclusioni di epoca.** Le stime cambiano poco, salvo due:
-  - senza E8 (1996–2012, 1983 record) la stima puntuale va a circa zero;
+  - senza E8 (1996–2012, 1983 record) la stima puntuale va a circa zero, ma l'intervallo
+    [−7,27, +7,26] non dimostra equivalenza. Togliere E8 cambia anche la copertura temporale, i cicli e il disegno:
+    non dimostra un difetto dell'epoca e non autorizza a escluderla dal catalogo;
   - senza E2 (1974–1981) diventa più negativa.
   - Le altre esclusioni spostano la stima di meno di 0,03 SE.
 - **Fonte DPD.** La stima è più negativa sui giorni di Gyula che sulle altre fonti. Gli intervalli sono larghi e si
   sovrappongono ampiamente.
 - **Area DPD.** Le stime puntuali vanno da positive nei gruppi piccoli a negative nei grandi. Solo il terzile più
-  grande ha un intervallo che esclude zero. Nei gruppi piccoli gli intervalli sono molto larghi.
-- **Separazione.** Andamento analogo: più negativo per le separazioni corte, vicino a zero per le lunghe.
+  grande ha un intervallo che esclude zero, tra i 19 fit correlati e con intervalli non validati. Non è un nuovo
+  verdetto per le regioni grandi né un motivo per sceglierle come nuova analisi principale. Nei gruppi piccoli
+  gli intervalli sono molto larghi.
+- **Separazione.** La stima passa da più negativa per le separazioni corte a vicina a zero per le lunghe.
+  Il verso del cambiamento puntuale è diverso da quello dei terzili di area; nessuno dei tre intervalli esclude zero.
 - **Flusso Φ_MWO.** Stime simili fra terzili.
 - **Differenze grandi (D6).** Escludendo i 825 record con |d_WL| > 45° (17,6 %), la stima è −1,18, con SE 1,58.
   - La selezione è sulla risposta: il cambiamento può venire dal taglio stesso.
@@ -114,13 +127,16 @@ ogni cella non vuota.
 | tutti | mediana d_WL | +1,14 [+0,37, +2,12] | +0,82 [+0,07, +1,68] | +0,64 [−0,59, +1,49] |
 | tutti | quota \|d_WL\| > 45° | 15,3 % [13,4, 17,3] | 17,9 % [16,1, 19,6] | 19,5 % [17,0, 21,9] |
 
-- **La pendenza di S2 si vede nella media pesata**, che scende con l'attività. La mediana scende meno.
-- **La quota di differenze grandi cresce con l'attività.** È anche più alta:
+- **La media pesata scende nei tre terzili osservati di attività.** È un riassunto non aggiustato per ciclo,
+  emisfero ed epoca: non riproduce né spiega da solo la pendenza parziale S2. La mediana scende meno.
+- **La quota osservata di differenze grandi cresce nei tre terzili di attività.** È anche più alta:
   - nei gruppi piccoli: 28,7 % nel primo terzile di area contro 9,9 % nel terzo;
   - con separazione corta: 23,7 % contro 15,1 %;
   - con poco flusso: 21,0 % contro 12,8 %.
 - **Esclusione di E8:** la media pesata va da +2,35 a +0,48 fra i terzili 1 e 3, contro +1,64 → −1,18 con tutte le
   epoche.
+- Queste quote marginali non separano attività, dimensione e geometria delle regioni e non dimostrano errori di
+  misura o differenze fra gruppi nella popolazione solare. Gli intervalli bootstrap restano descrittivi.
 - Tutte le 84 celle sono in `SUMMARIES.csv`. Il gruppo «fonte mancante» è vuoto (n = 0, intervalli assenti con causa).
 
 ## Limiti

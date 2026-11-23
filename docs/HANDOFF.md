@@ -1,5 +1,14 @@
 # Cold restart — SHARP BL
 
+## 23 novembre — diagnosi S2 conclusa e rivista da Codex
+
+- Modifica round_trip d606806 approvata dopo verifica; fit S2 riprodotto esattamente, selftest 33/33 e 22/22.
+- Ricevuta 19/19 e hash confermati; diciannove pendenze ricostruite separatamente entro 3,48e-13.
+- Rapporto precisato: termine assiale non è correzione, senza E8 non è equivalenza, area terzile 3 non è verdetto;
+  area e separazione hanno andamenti puntuali diversi, quote e medie marginali non spiegano la causa.
+- Revisione in `docs/T3_MWO_S2_DIAGNOSIS_RESULTS_CODEX_REVIEW.md`; esito T3 invariato.
+- Diagnosi chiusa. Priorità alla preparazione del deposito; eventuale studio di confrontabilità separato da pianificare.
+
 ## 23 novembre — via alla diagnosi descrittiva S2 (c675d39 rivisto)
 
 - Rilievi chiusi in `docs/T3_MWO_S2_DIAGNOSIS_CODE_REVIEW.md`: runner 33/33, riconteggio 22/22;

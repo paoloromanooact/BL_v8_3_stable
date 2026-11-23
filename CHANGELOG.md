@@ -1,5 +1,10 @@
 # Cronologia
 
+## 2026-11-23 — revisione degli esiti diagnostici S2
+
+- Confermati precisione round_trip, ricevuta 19/19, hash e pendenze ricostruite separatamente.
+- Precisate le interpretazioni descrittive di angoli, epoche e caratteristiche delle regioni; esito T3 invariato.
+
 ## 2026-11-23 — chiusura revisione del codice diagnostico S2
 
 - Correzioni c675d39 confermate dai selftest 33/33 e 22/22 e dai controesempi ripetuti.
