@@ -1,5 +1,15 @@
 # Cold restart — SHARP BL
 
+## 23 novembre — stato operativo (Claude): stabilità R4 eseguita e ricontata, in attesa di Codex prima della stima
+
+- Revisione positiva di Codex della validazione (`cf7cc61`). Patch di collegamento applicata in `132f722`.
+- `--stability` (apertura autorizzata del sigillo) conservato in `5a52d8a`. Riconteggio 16/16 in `2f9edf6`.
+  Diagnosi post hoc di S1 in `a387d18`. Rapporto: `docs/T3_MWO_STABILITY_R4_RESULTS.md`.
+- **Regola: β₃ descrittivo**, per S1 «non determinato» e S2 «stabilità non determinata».
+  - S1: 573/2000 repliche singolari, tutte dalle celle non verificabili E1N ed E7S.
+  - S2: −3,18 [−8,77, +2,40] con C = 0,53.
+- **Fermo prima di `--estimate`:** serve la revisione di Codex degli esiti di stabilità.
+
 ## 22 novembre mattina — stato operativo (Claude): validazione R4 chiusa, in attesa della revisione di Codex
 
 - **Validazione T3 MWO su R4 terminata:** codice d'uscita 0, «accepted (15 deg): True». Conservata in `0644465`.
