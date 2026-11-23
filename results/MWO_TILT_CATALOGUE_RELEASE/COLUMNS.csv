@@ -1,0 +1,31 @@
+column,source,definition
+noaa,noaa,"DPD group number (string, letters kept)"
+day_utc,day,UTC day of the DPD row and of the MWO scan
+mwo_time_utc,obs_time,UTC instant of the MWO magnetogram (session date + TAVG-UT)
+mwo_file,member,FITS member of the MWO archive
+epoch,epoch,instrumental epoch E1-E8 (protocol §4)
+resolution_class,res_class,"R1 ~9.5x13 arcsec, R2 ~13x20, R3 ~14x17, R0 other"
+carrington_rotation,CR,Carrington rotation of the MWO instant
+cycle,cycle,"solar cycle by date (minima 1976-03, 1986-09, 1996-08, 2008-12)"
+hemisphere,hemisphere,"N or S, sign of lat_flux_weighted"
+lat_flux_weighted_deg,lat_bar,"flux-weighted latitude of the measured pixels, deg"
+dpd_lat_deg,dpd_lat,"latitude of the DPD group, deg"
+dpd_carrington_lon_deg,dpd_lon,"Carrington longitude of the DPD group, deg"
+dpd_lcm_deg,lcm,"longitude from the central meridian of the DPD group, deg"
+dpd_area_msh,dpd_area,"corrected whole-spot area of the DPD group, millionths of the hemisphere"
+flux_window_mx,phi_mwo,"unsigned flux of the pixels with 50 <= |B_r| <= 4000 G in the window, Mx"
+tilt_deg,tilt_deg,"tilt in the P1 convention (leading = westernmost polarity), deg"
+joy_gamma_deg,gamma_deg,"Joy variable sign(lat) asin(sin tilt), positive for leading closer to the equator"
+leading_polarity_sign,leading_sign,sign of the leading (west) polarity
+hale_expected_sign,hale_expected,leading sign expected from Hale's law for the cycle and hemisphere
+lon_pos_deg,lon_pos,"Carrington longitude of the positive-polarity centroid, deg"
+lat_pos_deg,lat_pos,"latitude of the positive-polarity centroid, deg"
+lon_neg_deg,lon_neg,"Carrington longitude of the negative-polarity centroid, deg"
+lat_neg_deg,lat_neg,"latitude of the negative-polarity centroid, deg"
+separation_deg,sep_deg,"great-circle distance of the two centroids, deg"
+isolated_day,isolated,no other DPD group centre inside the window on that day
+n_neighbours,n_neighbours,other DPD group centres inside the window
+candidate_rank,rank,position of the chosen day in the |LCM| order of the candidate days
+n_candidate_days,n_cand,candidate days of the group
+n_blank_window,n_blank_win,BLANK pixels in the window (amendment A1)
+activity_dpd_norm,A_main,"monthly hemispheric DPD activity, normalised to the 1974-2012 mean"
