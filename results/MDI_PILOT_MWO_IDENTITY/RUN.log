@@ -1,0 +1,13 @@
+{
+ "pilot_rows": 267,
+ "pilot_identical": 267,
+ "r4_rows": 32,
+ "r4_identical": 32,
+ "r4_blank_records_available": 0,
+ "r4_blank_note": "no R4 record has n_blank_window > 0",
+ "all_identical": true,
+ "tolerances": {
+  "angle_deg": 1e-06,
+  "flux_rel": 1e-09
+ }
+}

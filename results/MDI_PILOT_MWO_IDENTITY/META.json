@@ -1,0 +1,15 @@
+{
+  "protocol_sha256": "77367350e8f9a5f71933afdcc791429b307c95ec1875224c1f2d7486950d086f",
+  "script_sha256": "6679bd4dc2da12d2f67f20d93c293ff295775399124e13fa6e03f47138f8f74b",
+  "module_sha256": "05c3bd0dbc69a08bb6b74f8acf3b54a8930df510ff82e0fb204852843e5260bf",
+  "inputs_sha256": {
+    "results/MWO_PILOT/ROWS.csv": "5306328b45001691bec0293cf13ab0f9cec2ba5897a251d76989b66513d8fb7f",
+    "results/MWO_TILT_CATALOGUE_RELEASE/MWO_TILT_CATALOGUE_ISOLATED_1974_2012.csv": "5b35116ae8dcc58f68eeeff452281e62a37169b6c92f9050ab1da65c64c9a373",
+    "results/T3_MWO_CATALOGUE_R4/ATTEMPTS.csv.gz": "b0465973909a931a019a7104a1c8fef7558973b49e6778f32d6219f57cf85828"
+  },
+  "git_commit": "49154615b63cd35d13ed980f7e7deda33256aaaf",
+  "products_sha256": {
+    "ROWS.csv": "fc4fcc7770d2585f09014df68b765df401c8f9129de35bc5d9caa3a94e87dfc7",
+    "SUMMARY.json": "693ee8a9b013cc77cc0c66dbf8ccdc3f327869a95c915a055651fed35f7ff2cf"
+  }
+}
