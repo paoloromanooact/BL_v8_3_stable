@@ -1,5 +1,10 @@
 # Cronologia
 
+## 2026-11-23 — revisione del pacchetto locale MWO
+
+- Confermati script, copie del rilascio, README e manifesti: selftest 11/11, check 6/6, checksum 16/16.
+- Preparazione locale approvata; pubblicazione, licenza, autori e crediti restano da concordare.
+
 ## 2026-11-23 — revisione degli esiti diagnostici S2
 
 - Confermati precisione round_trip, ricevuta 19/19, hash e pendenze ricostruite separatamente.

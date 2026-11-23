@@ -1,5 +1,13 @@
 # Cold restart — SHARP BL
 
+## 23 novembre — pacchetto locale del catalogo MWO rivisto
+
+- Approvati script 67eac4b e pacchetto 02708d1; revisione in `docs/MWO_TILT_CATALOGUE_DEPOSIT_CODEX_REVIEW.md`.
+- Selftest 11/11, check 6/6, 16 checksum positivi; 13 prodotti confrontati byte per byte con il rilascio.
+- Pacchetto 17 file, record 5223/5942, README esteso e snapshot dei metadati originali coerenti.
+- Nessuna pubblicazione. Licenza, autori, crediti definitivi e repository da concordare con utente e Paolo.
+- Per pubblicare: versione definitiva separata con manifesti aggiornati; conservare V1. Esito T3 invariato.
+
 ## 23 novembre — diagnosi S2 conclusa e rivista da Codex
 
 - Modifica round_trip d606806 approvata dopo verifica; fit S2 riprodotto esattamente, selftest 33/33 e 22/22.
