@@ -1,0 +1,68 @@
+{
+  "passed": 12,
+  "total": 12,
+  "partial": false,
+  "checks": [
+    {
+      "name": "L2 products: exact set and actual hashes before reading",
+      "ok": true,
+      "info": ""
+    },
+    {
+      "name": "protocol and A1 texts equal to their freezes, linked to the run",
+      "ok": true,
+      "info": ""
+    },
+    {
+      "name": "selection products and strict selection recount receipt",
+      "ok": true,
+      "info": ""
+    },
+    {
+      "name": "metadata products and strict metadata recount receipt, linked to A1 and the run",
+      "ok": true,
+      "info": ""
+    },
+    {
+      "name": "plan products and strict plan recount receipt, linked to the run",
+      "ok": true,
+      "info": ""
+    },
+    {
+      "name": "checkpoint: linked to the run and the plan; completed lines with planned path, same T_REC, own file name, one per path",
+      "ok": true,
+      "info": ""
+    },
+    {
+      "name": "inputs recorded by the run equal to the inputs read here",
+      "ok": true,
+      "info": ""
+    },
+    {
+      "name": "keywords: every T_REC with one set of values across the answers",
+      "ok": true,
+      "info": "[]"
+    },
+    {
+      "name": "FITS read only with SHA-256 equal to the checkpoint",
+      "ok": true,
+      "info": "[]"
+    },
+    {
+      "name": "every row and every exported column reproduced: keys and order, choice, pair and status, files and SHA, QUALITY, INTERVAL, Delta t, exact integer counts, fluxes, areas, centroids, tilts, separation, lat_bar, mu_min, quiet windows",
+      "ok": true,
+      "info": "360/360 first bad []"
+    },
+    {
+      "name": "measured rows: at least one (an empty run is not a recount)",
+      "ok": true,
+      "info": "180"
+    },
+    {
+      "name": "number of FITS read recorded by the run",
+      "ok": true,
+      "info": "(180, 180)"
+    }
+  ],
+  "l2_meta_sha256": "2defc8b3b534b251d199af13922b85978ce70f9f67cf390ead3918559a77fa8a"
+}
