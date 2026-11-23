@@ -1,5 +1,10 @@
 # Cronologia
 
+## 2026-11-23 — revisione del rapporto finale T3 MWO e figure V2
+
+- Confermati prodotti e stato descrittivo; precisati confronto S2 e parametri REML al bordo.
+- Corrette impaginazione, unità e numerosità delle figure senza cambiare valori o originali.
+
 ## 2026-11-23 — revisione della stabilità MWO R4
 
 - Confermati ricevuta 16/16 e hash; esito descrittivo, via alla stima unica e riconteggio.

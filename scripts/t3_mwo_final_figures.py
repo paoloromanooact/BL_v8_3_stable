@@ -30,7 +30,7 @@ ROOT = Path(__file__).resolve().parents[1]
 REL = ROOT / "results/MWO_TILT_CATALOGUE_RELEASE"
 REL_RC = ROOT / "results/MWO_TILT_CATALOGUE_RELEASE_RECOUNT"
 EST = ROOT / "results/T3_MWO_ESTIMATE_R4"
-OUT = ROOT / "results/T3_MWO_FINAL_FIGURES"
+OUT = ROOT / "results/T3_MWO_FINAL_FIGURES_V2"
 EPOCHS = ("E1", "E2", "E3", "E4", "E5", "E6", "E7", "E8")
 
 
@@ -38,29 +38,29 @@ def fig_beta3(est_tab, final, out):
     t = est_tab.copy()
     t = t[t.state == "stimato"] if "state" in t else t
     y = np.arange(len(t))[::-1]
-    fig, ax = plt.subplots(figsize=(7, 0.35 * len(t) + 1.6))
+    fig, ax = plt.subplots(figsize=(11, 0.42 * len(t) + 2.5))
     ax.errorbar(t.beta, y, xerr=[t.beta - t.lo, t.hi - t.beta], fmt="o", color="k", capsize=3)
     ax.axvline(0, color="grey", lw=0.8)
     tg = final.get("targets") or {}
     for key, ls in (("delta_beta_10", ":"), ("delta_beta_20", "--")):
         if key in tg:
             ax.axvline(tg[key], color="tab:red", ls=ls, lw=1,
-                       label=f"ramp {key[-2:]} % target of the MAIN analysis only: {tg[key]:.2f}")
+                       label=f"Main-analysis ramp {key[-2:]}%: {tg[key]:.2f}")
     ax.set_yticks(y)
     ax.set_yticklabels(t.analysis)
-    ax.set_xlabel("beta3 (deg of Joy coefficient per unit of activity), nominal 97.5 % interval")
+    ax.set_xlabel("beta3 (deg of Joy coefficient per unit of activity)\nNominal 97.5% intervals")
     status = {"verdetto": "validated: verdict allowed", "descrittivo": "descriptive (no verdict)",
               "non concludente": "non-conclusive"}.get(final.get("outcome"), str(final.get("outcome")))
     ax.set_title(f"T3 on MWO 1974-2012 - main analysis: {status}\n"
-                 "sensitivities: nominal intervals, not covered by the validation of the main design", fontsize=9)
-    ax.legend(fontsize=7, loc="lower right")
+                 "Sensitivity intervals are not covered by validation of the main design", fontsize=10)
+    ax.legend(fontsize=8, loc="upper center", bbox_to_anchor=(0.5, -0.16), ncol=2)
     fig.tight_layout()
-    fig.savefig(out / "fig_beta3_summary.png", dpi=150)
+    fig.savefig(out / "fig_beta3_summary.png", dpi=150, bbox_inches="tight", pad_inches=0.15)
     plt.close(fig)
 
 
 def fig_joy(joy, out):
-    fig, ax = plt.subplots(figsize=(7, 3.5))
+    fig, ax = plt.subplots(figsize=(8, 4.5))
     off = {("N", True): -0.15, ("S", True): -0.05, ("N", False): 0.05, ("S", False): 0.15}
     for (h, w), g in joy.groupby(["hemisphere", "weighted"]):
         x = g.cycle.to_numpy() + off[(h, bool(w))]
@@ -68,20 +68,21 @@ def fig_joy(joy, out):
         line = ax.plot(x, g.k_deg, "o" if w else "s", label=f"{h}, {'flux-weighted' if w else 'unweighted'}",
                        mfc="none" if not w else None)[0]
         ax.vlines(x, g.lo, g.hi, color=line.get_color())
-        for xi, pc in zip(x, g.partial_cycle):
-            if pc:
-                ax.annotate("partial", (xi, ax.get_ylim()[0]), fontsize=6, ha="center")
+    cycles = sorted(joy.cycle.unique())
+    partial = set(joy.loc[joy.partial_cycle, "cycle"])
+    ax.set_xticks(cycles)
+    ax.set_xticklabels([f"{c}\n(partial)" if c in partial else str(c) for c in cycles])
     ax.set_xlabel("cycle")
     ax.set_ylabel("k in gamma = k sin|lat| (deg)")
     ax.set_title("Joy's law per cycle (descriptive)")
     ax.legend(fontsize=7)
     fig.tight_layout()
-    fig.savefig(out / "fig_joy_by_cycle.png", dpi=150)
+    fig.savefig(out / "fig_joy_by_cycle.png", dpi=150, bbox_inches="tight", pad_inches=0.15)
     plt.close(fig)
 
 
 def fig_wl(s1, out):
-    fig, ax = plt.subplots(figsize=(7, 3.5))
+    fig, ax = plt.subplots(figsize=(8, 4.5))
     for h, mk, dx in (("N", "o", -0.1), ("S", "s", 0.1)):
         g = s1[s1.hemisphere == h]
         x = np.array([EPOCHS.index(e) for e in g.epoch]) + dx
@@ -90,11 +91,11 @@ def fig_wl(s1, out):
     ax.axhspan(-2.4, 2.4, color="grey", alpha=0.15, label="+-2.4 deg (10 % of gamma0)")
     ax.set_xticks(range(len(EPOCHS)))
     ax.set_xticklabels(EPOCHS)
-    ax.set_ylabel("a(e,h) - mean, deg")
-    ax.set_title("S1: MWO - white-light Joy coefficient by epoch (relative)")
+    ax.set_ylabel("Relative Joy-coefficient difference\n(deg per unit of sin|latitude|)")
+    ax.set_title("S1: relative MWO - white-light Joy coefficient\nPercentiles conditional on nonsingular bootstrap replicates", fontsize=10)
     ax.legend(fontsize=7)
     fig.tight_layout()
-    fig.savefig(out / "fig_wl_by_epoch.png", dpi=150)
+    fig.savefig(out / "fig_wl_by_epoch.png", dpi=150, bbox_inches="tight", pad_inches=0.15)
     plt.close(fig)
 
 
@@ -109,23 +110,26 @@ def fig_p1(matched, out):
     ax.set_title(f"S2-P1: same region and day, 2010-2012 (n = {len(matched)})")
     ax.legend(fontsize=7)
     fig.tight_layout()
-    fig.savefig(out / "fig_p1_comparison.png", dpi=150)
+    fig.savefig(out / "fig_p1_comparison.png", dpi=150, bbox_inches="tight", pad_inches=0.15)
     plt.close(fig)
 
 
 def fig_hale(s3, out):
-    fig, ax = plt.subplots(figsize=(6, 3.2))
+    fig, ax = plt.subplots(figsize=(9, 4))
     for h, mk in (("N", "o"), ("S", "s")):
         g = s3[s3.hemisphere == h]
         ax.plot([EPOCHS.index(e) for e in g.epoch], g["mean"], mk + "-", label=h)
     ax.set_xticks(range(len(EPOCHS)))
     ax.set_xticklabels(EPOCHS)
+    counts = s3.set_index(["epoch", "hemisphere"])["size"].to_dict()
+    ax.set_xticklabels([f"{e}\nN: {counts.get((e, 'N'), 0)}\nS: {counts.get((e, 'S'), 0)}" for e in EPOCHS], fontsize=8)
+    ax.set_xlabel("Epoch; numbers of regions by hemisphere")
     ax.set_ylim(0, 1.02)
     ax.set_ylabel("fraction agreeing with Hale")
     ax.set_title("S3: Hale agreement by epoch")
     ax.legend(fontsize=7)
     fig.tight_layout()
-    fig.savefig(out / "fig_hale_by_epoch.png", dpi=150)
+    fig.savefig(out / "fig_hale_by_epoch.png", dpi=150, bbox_inches="tight", pad_inches=0.15)
     plt.close(fig)
 
 

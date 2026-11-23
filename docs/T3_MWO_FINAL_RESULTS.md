@@ -32,17 +32,24 @@ era necessaria, non sufficiente. L'obiettivo di una conclusione inferenziale su 
   - Le sensibilità condividono gran parte dei dati: la concordanza dei segni non è un'evidenza aggiuntiva
     indipendente.
   - I loro intervalli non sono coperti dalla validazione del disegno principale.
-- **Perché il segno non si può attribuire al Sole:** la pendenza dello scarto strumentale MWO − luce bianca (S2) è
-  −3,18 [−8,77, +2,40], dello stesso segno e ordine di grandezza. Una dipendenza strumentale dall'attività di quella
-  entità non è esclusa, e potrebbe spiegare tutto o parte di β₃. Non è nemmeno dimostrata: S2 è indeterminato,
-  non «dipendente dall'attività».
+- **Perché il segno non si può attribuire al Sole:** S2 misura la pendenza dello scarto relativo
+  MWO − luce bianca su 4694 record, mentre β₃ riguarda i 5223 record principali. S2 è −3,18
+  [−8,77, +2,40], dello stesso segno e ordine di grandezza, ma non distingue uno scarto contenuto
+  entro il margine previsto da uno abbastanza grande da interferire con T3. Non dimostra una
+  distorsione di MWO: anche la misura fotografica e la relazione fra le due misure possono variare.
+  Le due pendenze condividono dati e non sono indipendenti; non si sottrae S2 da β₃ e non si stima
+  con questo confronto una quota del segnale attribuibile allo strumento.
 - **Parametri della procedura M al bordo del dominio REML:**
   - φ = 0,98 (il limite) nella principale e in otto sensibilità;
   - |κ| = 0,98 in sei sensibilità;
   - σ²ₓ ≈ 2,6·10⁻⁴.
 
-  La persistenza temporale stimata è quindi al massimo consentito. La validazione copre questa situazione solo per
-  quanto i generatori la contenevano: è un'avvertenza sull'intervallo, non un errore tecnico.
+  φ raggiunge il massimo consentito, ma da solo non dimostra che una componente temporale forte
+  domini l'incertezza: nella principale σ²ₓ è piccolo e il contributo dipende dall'intera covarianza
+  e dalla sua proiezione sul coefficiente. I valori al bordo sono un'avvertenza sulla stima dei
+  parametri di covarianza; non sono automaticamente un errore tecnico né una prova di adeguatezza
+  del modello. La validazione resta condizionata ai generatori studiati e non certifica la copertura
+  dell'intervallo sul processo solare reale.
 - **Nessuna percentuale di quenching** si ricava da β₃, come prescrive il runbook. Il rapporto con Δβ₂₀ non
   trasforma questo intervallo in un limite percentuale utile.
 
@@ -72,15 +79,13 @@ Valori in gradi, k in γ = k·sin|λ|.
 - Senza pesi i coefficienti del sud sono più bassi (16–17°), quelli del nord simili.
 - Nessuna relazione con l'ampiezza dei cicli è stata cercata né si può leggere da questa tabella.
 
-## Figure (`results/T3_MWO_FINAL_FIGURES`)
+## Figure originali e revisione di impaginazione
 
-Contenuti coerenti con i prodotti verificati. Difetti di impaginazione da correggere in una nuova cartella, senza
-sovrascrivere questa:
-- `fig_beta3_summary.png`: titolo ed etichetta dell'asse x tagliati a destra; la legenda copre l'ultima riga
-  (SILSO split);
-- `fig_joy_by_cycle.png`: le etichette «partial» dei cicli 20 e 24 si sovrappongono;
-- `fig_wl_by_epoch.png`: l'unità dell'asse y è un coefficiente (gradi per unità di sin|λ|), non un tilt;
-- `fig_hale_by_epoch.png`: non indica la numerosità; E1N (6 record) ed E7 (18–27) sono celle piccole.
+Le figure originali restano in `results/T3_MWO_FINAL_FIGURES`. La revisione di sola presentazione
+è in `results/T3_MWO_FINAL_FIGURES_V2`: titolo e assi completi, legenda fuori dai punti,
+una sola etichetta «partial» per ciclo, unità del coefficiente di S1 e numerosità per emisfero in S3.
+S1 indica che gli intervalli sono condizionati alle repliche non singolari. Gli input numerici
+sono gli stessi prodotti verificati; i loro hash sono registrati nel META delle figure.
 
 ## Che cosa abbiamo e che cosa no
 

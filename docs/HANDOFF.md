@@ -1,5 +1,13 @@
 # Cold restart — SHARP BL
 
+## 23 novembre — revisione finale Codex e figure V2
+
+- Revisione di rapporto e prodotti completata: `docs/T3_MWO_FINAL_CODEX_REVIEW.md`.
+- Confermati hash, ricevute 16/16 e 115/115 e dodici intervalli comprendenti zero.
+- Precisati S2 (controllo relativo, non correzione) e phi al bordo (non prova di componente dominante).
+- Figure corrette in `results/T3_MWO_FINAL_FIGURES_V2`, stessi input verificati; originali conservate.
+- T3 MWO chiuso come descrittivo; restano da concordare deposito, licenza e autori. Nessuna pubblicazione.
+
 ## 23 novembre, tarda mattina — T3 MWO R4 chiuso (descrittivo); rilascio locale verificato
 
 - Catena completata: stima `e6ac79e`, riconteggio 16/16 `a636aeb`, esportazione `93f3eb7`, controllo del rilascio

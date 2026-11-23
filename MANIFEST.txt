@@ -149,6 +149,7 @@ docs/T3_MWO_AUTONOMOUS_PREPARATION_20261120.md
 docs/T3_MWO_CATALOGUE_RELEASE_PLAN_DRAFT.md
 docs/T3_MWO_CATALOGUE_RESULTS.md
 docs/T3_MWO_CLAUDE_CROSS_REVIEW_20261120.md
+docs/T3_MWO_FINAL_CODEX_REVIEW.md
 docs/T3_MWO_FINAL_RESULTS.md
 docs/T3_MWO_METADATA_AND_CALIBRATION_REVIEW.md
 docs/T3_MWO_R4_FINAL_RUNBOOK.md
@@ -961,6 +962,12 @@ results/T3_MWO_FINAL_FIGURES/fig_hale_by_epoch.png
 results/T3_MWO_FINAL_FIGURES/fig_joy_by_cycle.png
 results/T3_MWO_FINAL_FIGURES/fig_p1_comparison.png
 results/T3_MWO_FINAL_FIGURES/fig_wl_by_epoch.png
+results/T3_MWO_FINAL_FIGURES_V2/META.json
+results/T3_MWO_FINAL_FIGURES_V2/fig_beta3_summary.png
+results/T3_MWO_FINAL_FIGURES_V2/fig_hale_by_epoch.png
+results/T3_MWO_FINAL_FIGURES_V2/fig_joy_by_cycle.png
+results/T3_MWO_FINAL_FIGURES_V2/fig_p1_comparison.png
+results/T3_MWO_FINAL_FIGURES_V2/fig_wl_by_epoch.png
 results/T3_MWO_SDPD_ACQUISITION/FETCH_LOG.json
 results/T3_MWO_SDPD_ACQUISITION/README.md
 results/T3_MWO_SDPD_ACQUISITION/RETRIEVED_UTC.txt
