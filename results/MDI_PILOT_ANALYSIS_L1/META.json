@@ -1,0 +1,32 @@
+{
+  "protocol_sha256": "77367350e8f9a5f71933afdcc791429b307c95ec1875224c1f2d7486950d086f",
+  "script_sha256": "39e8f3128959d608a66cb452a1069a84a93e24250eb7dda8f894d4dc0cfcda3f",
+  "module_sha256": "05c3bd0dbc69a08bb6b74f8acf3b54a8930df510ff82e0fb204852843e5260bf",
+  "m_modules_sha256": {
+    "scripts/t3_mwo_analysis.py": "1f73a1759eae2439ec0678ab882fd2febba9101afe400112acf64669c5f6ddef",
+    "python/sharpbl/p2d.py": "5e6dad4f2450f244d969d90c8305f9c18f71dc6d3ab19212f464325d5d546aa1",
+    "python/sharpbl/p2f_pilot.py": "17d1f728f3c7626ebbbca38620fb2711769dc3228d0090747990410631e28ec8",
+    "python/sharpbl/p2f_validation.py": "8adfc197e9ee9d66359ed893162d38b92cf9c98c634beb250bb34b9b8a4ae1f1"
+  },
+  "selection_meta_sha256": "b7e3e7007069cabb01536abfa4d62f6a83a585118acb4425a35a677c8897177e",
+  "l1_meta_sha256": "8dc1b065e7fed09ee64f86f5e9770eb851d1ff96ed3e1a7530313e30214d7f3d",
+  "selection_receipt_sha256": "82a1484813e2c88bb827d88e6425b59851913c4cbe8d59a26cd6bebc2a2531c0",
+  "l1_receipt_sha256": "30be325c09602ce190cec746d96f01b43fcab3e047071aa64baa0c37eeed28c3",
+  "release_sha256": "5b35116ae8dcc58f68eeeff452281e62a37169b6c92f9050ab1da65c64c9a373",
+  "seed": 71100001,
+  "reps": 2000,
+  "git_commit": "85c1e2cd23ac905a93db91473aa898576c7a070c",
+  "products_sha256": {
+    "CLASS_EDGES.json": "9b2a9e25c5ccb9330067de4d6d0131793df260fbcf74f7ee18f917887cefac64",
+    "NOTES.json": "84772916b5be5d0ffcc7393ad763d16e1cbf64f8ddcf605d78e0ea3f9bb57eda",
+    "Q1_M_EXPLORATORY.json": "a54d46be4a5a02e387a5b8d197a673b259543fad6688362bc5fd80d5e5f0fd5c",
+    "Q1_QUIET_AVAILABILITY.csv": "d341da9ccdce85fa0fd80446ab6588c062cc1111a27548cdd29bc7b5d71568db",
+    "Q1_QUIET_SUMMARY.json": "62b1720d10a8d4312e9b7502fbe6a081daaba1fd392f753d1647be9da4858bf3",
+    "Q1_YIELD_CELLS.csv": "a1ec8d70c490247f002d37a912a5c0db8fadd3fd4b6aacc7ddb833d7e588275d",
+    "Q1_YIELD_PROJECTED.csv": "78290c48a9d55148fd60569ac895c3c5a1ce84148161e792bcea43a59597616b",
+    "Q3_PAIRS_main.csv": "333f4f8c9a8e0d85bb90f9615e6f970998173e2834e87c0d529743a6f2fb3007",
+    "Q3_PAIRS_sens100.csv": "4f09550232dc6bd1ee3b110712df3d0cf21c84e0010d977b22d7d77434f404df",
+    "Q3_SUMMARY_main.csv": "50d5e7f0a28eaf773e6830366f7f954cd69b5b2eacfad6019b1d112411ebcbb1",
+    "Q3_SUMMARY_sens100.csv": "598a876a678c1431183f19992845aa3cf82a8ac24d325b45d48fb8f028046e81"
+  }
+}

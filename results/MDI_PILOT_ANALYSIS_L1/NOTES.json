@@ -1,0 +1,7 @@
+{
+  "bard_mdi": "deferred: BARD has no NOAA number and the frozen protocol fixes no matching rule; a separate note is required before any matching",
+  "mwo_pixel_area_ratios": "not computable: the MWO release has no pixel counts or areas per polarity",
+  "synoptic_time": "the synoptic instant per pixel is undetermined; MWO - t_DPD is the protocol distance; MWO - t_cm (estimated central-meridian passage) is supplementary and approximate",
+  "abs_lcm_classes": "omitted: not fixed by the frozen protocol",
+  "quiet": "scaled MAD = observed field dispersion (solar field, noise and processing), not instrumental noise"
+}

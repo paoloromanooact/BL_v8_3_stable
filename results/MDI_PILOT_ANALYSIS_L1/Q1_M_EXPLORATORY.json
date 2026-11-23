@@ -1,0 +1,19 @@
+{
+  "var_a": 7.149858417613565,
+  "var_b": -0.14281628457965298,
+  "phi": 0.2852418926360381,
+  "kappa": -0.98,
+  "sigma_x2": 16.68110019412854,
+  "error": null,
+  "state": "stimato",
+  "finite": true,
+  "in_domain": true,
+  "phi_at_bound": false,
+  "kappa_at_bound": true,
+  "n": 498,
+  "cells": 222,
+  "rotations": 145,
+  "cr_min": 1909,
+  "cr_max": 2100,
+  "note": "exploratory, little informative by construction; not a measurement of the correlation between rotations; no coefficient, SE or interval saved"
+}

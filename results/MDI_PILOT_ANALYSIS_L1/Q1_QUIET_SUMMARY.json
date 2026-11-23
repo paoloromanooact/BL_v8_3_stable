@@ -1,0 +1,10 @@
+{
+  "sides_total": 1060,
+  "sides_ok": 331,
+  "groups_total": 530,
+  "groups_with_value": 260,
+  "median_g": 6.078659999999999,
+  "p10_g": 4.959297,
+  "p90_g": 8.59908,
+  "note": "scaled MAD = observed field dispersion (solar field, noise and processing), not instrumental noise"
+}

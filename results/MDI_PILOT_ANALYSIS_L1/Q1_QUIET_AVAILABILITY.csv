@@ -1,0 +1,5 @@
+status,n_sides
+dpd_group_inside,706
+finite_below_50pct,7
+not_attempted,16
+ok,331
