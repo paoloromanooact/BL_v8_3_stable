@@ -1,5 +1,10 @@
 # Cronologia
 
+## 2026-11-23 — revisione del codice Q1/Q3 MDI L1
+
+- Conservati nove controesempi sintetici del riconteggio e documentati confini comuni e tempi del confronto.
+- Precisati dipendenze, tolleranza esplorativa di M e rinvio BARD; nessuna analisi sui dati reali.
+
 ## 2026-11-23 — chiusura della revisione del pilota MDI
 
 - Verificate le correzioni ai riconteggi e alla quiete; aggiornata la sonda alla nuova API.

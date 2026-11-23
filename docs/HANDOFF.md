@@ -1,5 +1,13 @@
 # Cold restart — SHARP BL
 
+## 23 novembre — revisione dell'analisi MDI L1
+
+- Revisione di 107e78c in `docs/MDI_PILOT_ANALYSIS_L1_CODEX_REVIEW.md`; non ancora via alla corsa reale.
+- Nove mutazioni sintetiche accettate dal riconteggio; sonda conservata. Completare controllo degli output e input.
+- Confini di separazione unici fra soglie; correggere distanza temporale MWO−DPD e dichiarare quantità indisponibili.
+- BARD rinviabile esplicitamente; classi aggiuntive |LCM| da omettere o specificare con nota prima degli scarti.
+- Nessuna analisi reale, rete o nuova simulazione lunga avviata. Protocollo e risultati conservati invariati.
+
 ## 23 novembre — chiusura della revisione MDI fasi 1–3
 
 - Correzioni c2e7fb3 verificate: `docs/MDI_TILT_PILOT_PHASE123_CODEX_CLOSE.md`.
