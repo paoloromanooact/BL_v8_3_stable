@@ -1,5 +1,13 @@
 # Cold restart — SHARP BL
 
+## 23 novembre — chiusura della revisione MDI fasi 1–3
+
+- Correzioni c2e7fb3 verificate: `docs/MDI_TILT_PILOT_PHASE123_CODEX_CLOSE.md`.
+- Corrette in revisione le costanti di own_ct/t_for nel riconteggio; regressione sui due lati del confine N.
+- Selftest: selezione ricontata 11/11, misura L1 19/19, riconteggio L1 19/19; sonda indipendente aggiornata.
+- Via alla selezione, conservazione e riconteggio; se positivo e completo, misura L1, conservazione e riconteggio.
+- Nessuna selezione o misura reale eseguita qui. Acquisizione full-disk separata, non autorizzata dalla revisione.
+
 ## 23 novembre — revisione del codice MDI fasi 1–3
 
 - Revisione di b5913f6: `docs/MDI_TILT_PILOT_PHASE123_CODEX_REVIEW.md`; non ancora via alla misura L1.

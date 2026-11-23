@@ -50,7 +50,8 @@ def jd(t):
 
 
 def own_ct(t):
-    return 360.0 * ((jd(t) - 2398140.2270) / 27.2752316 - 1.0)
+    # Reimplement the frozen mean-period definition; Meeus constants below are for the independent ephemeris.
+    return 360.0 * (jd(t) - 2398167.329) / 27.2753
 
 
 def own_n(t, lon):
@@ -313,7 +314,7 @@ def check(l1=L1, rec_dir=REC, write=True, sample=None, maps=None, dpd=None):
 
 def t_for(ct, lcm=0.0):
     """A UTC time at which a longitude with Carrington time ct has LCM = lcm (own mean-period inverse)."""
-    j = (ct / 360.0 + 1.0) * 27.2752316 + 2398140.2270 + lcm / 13.2
+    j = ct / 360.0 * 27.2753 + 2398167.329 + lcm / 13.2
     return pd.Timestamp(pd.to_datetime(j - 2440587.5, unit="D"))
 
 
@@ -335,6 +336,13 @@ def selftest():
     agree = all(abs(own_tilt(a, (a[0] + d1, a[1] + d2)) - geo.tilt_deg(a, (a[0] + d1, a[1] + d2))) < 1e-9
                 for (a,), d1, d2 in zip(pairs, rng.uniform(-5, 5, 300), rng.uniform(-5, 5, 300)))
     ok("own tilt agrees with sharpbl.geometry.tilt_deg on random pairs", agree)
+    # Regression: a 0.52-degree discrepancy in the wrong mean-period formula changed N near this boundary.
+    boundary_t = pd.Timestamp("2000-01-01")
+    boundary_lon = 187.80178403062745
+    ok("frozen mean-period N on both sides of the decision boundary (not a tie)",
+       own_n(boundary_t, boundary_lon - 0.01) == 1957 and own_n(boundary_t, boundary_lon + 0.01) == 1958
+       and all(own_n(boundary_t, boundary_lon + e) == M.A.group_rotation(boundary_t, boundary_lon + e, 0.0)[0]
+               for e in (-0.01, 0.01)))
     starts = [meeus_start(c) for c in (1909, 2000, 2104)]
     ok("own Meeus rotation starts close to the mean period (|periodic terms| < 0.2 d)",
        all(abs(s - (2398140.2270 + 27.2752316 * c)) < 0.2 for s, c in zip(starts, (1909, 2000, 2104))))

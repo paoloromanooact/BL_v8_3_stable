@@ -1,5 +1,11 @@
 # Cronologia
 
+## 2026-11-23 — chiusura della revisione del pilota MDI
+
+- Verificate le correzioni ai riconteggi e alla quiete; aggiornata la sonda alla nuova API.
+- Allineata la formula indipendente del periodo medio alla definizione congelata, con regressione al confine N.
+- Via alla sequenza locale selezione/riconteggio/misura L1; nessuna acquisizione o misura reale eseguita.
+
 ## 2026-11-23 — revisione del codice del pilota MDI
 
 - Conservati controesempi sintetici su selezione, N ambiguo e finestre di quiete al taglio di longitudine.
