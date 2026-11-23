@@ -15,7 +15,16 @@ Obiettivi del pilota (utente e Codex):
 - **Patch SMARP CEA**: solo del 2010, dai due piccoli confronti MDI–HMI.
   - `data/sharp/metadata_inventory_mdi/small_comparison_6d6fd12/` (84 FITS, 12 coppie);
   - `.../second_sample_bbd719c/` (140 FITS, 20 coppie).
-  - **Nessun magnetogramma MDI del 1996–2009 è sul disco.**
+  - Nessun magnetogramma MDI full-disk o SMARP del 1996–2009 è sul disco (ma vedi le mappe sinottiche sotto).
+- **Mappe sinottiche MDI (correzione del 23 novembre: nella prima versione erano state scartate per errore).**
+  - 193 file `mdi.synoptic_mr_polfil_96m.<CR>.Br_polfil.fits` in `/storage/shared/gianluca/MWO_project/sunpy/data/`,
+    dal progetto del flusso polare.
+  - CR 1909–2104, cioè 1996-05 → 2010-12: **coprono tutto il periodo del pilota, già sul disco**.
+  - Campo radiale (Mx cm⁻²), griglia CEA 3600×1440: 0,1° in longitudine di Carrington, passo uniforme in seno della
+    latitudine.
+  - Mancano le CR 1938–1940 (perdita di SOHO, metà 1998). La CR 1937 è coperta al 71 %.
+  - Massimo |B_r| circa 3000 nelle rotazioni attive controllate.
+  - Provenienza da documentare: scaricate con sunpy a luglio; SHA-256 da registrare.
 - **Full-disk `mdi.fd_M_96m_lev182`**:
   - nel progetto SHARP BL solo metadati (schema, conteggi, `RECORDS_fd_min.csv.gz` per gennaio–ottobre 2010);
   - 42 FITS 2010–2011 nel progetto del flusso polare (`/storage/shared/gianluca/MWO_project/…/MDI_HMI_POLAR_FLUX/`),
@@ -110,8 +119,27 @@ Obiettivi del pilota (utente e Codex):
      popolazione, giorno e misura confrontabili record per record con lo stesso codice.
    - **(b) patch SMARP.** Usano le maschere native, ma la popolazione e la geometria sono diverse da MWO.
 
-   **Proposta: (a)**, con (b) al più come controllo descrittivo.
-2. **Dati:** magnetogrammi full-disk MDI dei giorni scelti per il pilota.
+   - **(c) finestre su posizioni DPD nelle mappe sinottiche MDI già sul disco**, alla longitudine di Carrington del
+     gruppo.
+     - Vantaggi:
+       - nessuno scaricamento;
+       - tutto il 1996–2010;
+       - campo radiale;
+       - le posizioni DPD sono già in coordinate di Carrington.
+     - Limiti:
+       - ogni longitudine è un composito di osservazioni vicine al passaggio al meridiano centrale, non un'immagine di
+         un giorno scelto: c'è un'evoluzione mediata e l'istante non coincide con il giorno DPD o MWO;
+       - due gruppi vicini in longitudine possono provenire da giorni diversi;
+       - la mappa scelta per un gruppo è quella della rotazione del suo passaggio, non del giorno di minimo |LCM|
+         usato per MWO, che però è vicino al meridiano (|LCM| medio circa 7°).
+
+   **Proposta rivista:** un pilota in due livelli.
+   - **(c) per tutto il disegno**, senza rete: stima resa, rumore, copertura e correlazione temporale, e il confronto
+     con MWO sugli stessi gruppi.
+   - **(a) su un sottoinsieme stratificato**, dopo un'autorizzazione di rete: misura l'effetto della composizione
+     sinottica, confrontando sinottica e full-disk sullo stesso gruppo e giorno.
+   - (b) al più come controllo descrittivo.
+2. **Dati per il livello (a):** magnetogrammi full-disk MDI dei giorni scelti per il sottoinsieme.
    - Ordine di grandezza: qualche centinaio di file, circa 1 GB. Da stimare dai metadati prima di scaricare.
    - Servono i metadati per record di `fd_M` (T_REC, QUALITY, INTERVAL, MISSVALS, geometria) per i giorni candidati.
    - Entrambi richiedono rete e un budget autorizzato.
@@ -137,5 +165,5 @@ Obiettivi del pilota (utente e Codex):
 
 ## Prossimo passo
 
-Bozza del protocollo del pilota, con il metodo (a) e i punti 3–7, da rivedere con Codex. Nessuna richiesta di rete
-prima dell'approvazione e di un'autorizzazione esplicita del budget.
+Bozza del protocollo del pilota in due livelli, (c) poi (a), con i punti 3–7, da rivedere con Codex. Il livello (c) non
+richiede rete. Nessuna richiesta di rete per (a) prima dell'approvazione e di un'autorizzazione esplicita del budget.
