@@ -308,11 +308,11 @@ def input_hashes():
 
 def load_subset():
     d = A.load_design()
-    wl = pd.read_csv(STAB / "WL_TILTS.csv", dtype={"noaa": str})
+    wl = pd.read_csv(STAB / "WL_TILTS.csv", dtype={"noaa": str}, float_precision="round_trip")
     if len(wl) != len(d) or not (wl.noaa.to_numpy() == d.noaa.to_numpy()).all() or not (wl.day.to_numpy() == d.day.to_numpy()).all():
         raise ValueError("WL_TILTS does not align with the design")
     d["gamma_wl"], d["d_wl"], d["wl_status"] = wl.gamma_wl.to_numpy(), wl.d_wl.to_numpy(), wl.wl_status.to_numpy()
-    rel = pd.read_csv(REL / "MWO_TILT_CATALOGUE_ISOLATED_1974_2012.csv", dtype={"noaa": str})
+    rel = pd.read_csv(REL / "MWO_TILT_CATALOGUE_ISOLATED_1974_2012.csv", dtype={"noaa": str}, float_precision="round_trip")
     if rel.duplicated(["noaa", "day_utc"]).any():
         raise ValueError("release keys not unique")
     m = d.merge(rel[["noaa", "day_utc", "joy_gamma_deg", "separation_deg"]], left_on=["noaa", "day"],

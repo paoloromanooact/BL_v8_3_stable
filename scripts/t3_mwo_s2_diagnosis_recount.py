@@ -43,9 +43,9 @@ def sha(p):
 def own_subset():
     d = pd.read_csv(DESIGN, dtype={"noaa": str})
     d = d[d.record_set == "isolated"].reset_index(drop=True)
-    wl = pd.read_csv(WL, dtype={"noaa": str})
+    wl = pd.read_csv(WL, dtype={"noaa": str}, float_precision="round_trip")
     assert list(zip(wl.noaa, wl.day)) == list(zip(d.noaa, d.day)), "WL_TILTS order"
-    rel = pd.read_csv(RELT, dtype={"noaa": str}).set_index(["noaa", "day_utc"])
+    rel = pd.read_csv(RELT, dtype={"noaa": str}, float_precision="round_trip").set_index(["noaa", "day_utc"])
     assert rel.index.is_unique
     key = pd.MultiIndex.from_arrays([d.noaa, d.day])
     d["gamma_mwo"] = rel.loc[key, "joy_gamma_deg"].to_numpy()

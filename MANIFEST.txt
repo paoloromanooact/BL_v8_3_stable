@@ -973,6 +973,8 @@ results/T3_MWO_FINAL_FIGURES_V2/fig_hale_by_epoch.png
 results/T3_MWO_FINAL_FIGURES_V2/fig_joy_by_cycle.png
 results/T3_MWO_FINAL_FIGURES_V2/fig_p1_comparison.png
 results/T3_MWO_FINAL_FIGURES_V2/fig_wl_by_epoch.png
+results/T3_MWO_S2_DIAGNOSIS_R4_ATTEMPT1_REFUSED/README.md
+results/T3_MWO_S2_DIAGNOSIS_R4_ATTEMPT1_REFUSED/RUN.log
 results/T3_MWO_SDPD_ACQUISITION/FETCH_LOG.json
 results/T3_MWO_SDPD_ACQUISITION/README.md
 results/T3_MWO_SDPD_ACQUISITION/RETRIEVED_UTC.txt
