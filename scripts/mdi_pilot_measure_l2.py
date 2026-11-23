@@ -191,7 +191,7 @@ def gate_l2():
     need("protocol text", lambda: sha(PROTOCOL) == fr["sha256"])
     need("A1 text and parent", lambda: sha(A1) == fz["sha256"] and fz["parent_sha256"] == fr["sha256"])
     need("selection products", lambda: set(sm["products_sha256"]) == {"POPULATION.csv", "SAMPLE.csv", "CELLS.csv"}
-         and all(sha(SEL / n) == h for n, h in sm["products_sha256"].items()) and sm["protocol_sha256"] == fr["sha256"])
+         and all(sha(SEL / n) == h for n, h in sm["products_sha256"].items()) and sm["protocol_sha256"] == fr["sha256"] and mm.get("selection_meta_sha256") == sha(SEL / "META.json"))
     need("selection recount receipt", lambda: strict_receipt(SEL_REC / "RECEIPT.json", "selection_meta_sha256", SEL / "META.json"))
     need("metadata products", lambda: all(sha(MD / n) == h for n, h in mm["products_sha256"].items()) and "ANSWERS.jsonl" in mm["products_sha256"])
     need("metadata recount receipt and A1 link", lambda: strict_receipt(MD_REC / "RECEIPT.json", "metadata_meta_sha256", MD / "META.json")
@@ -401,7 +401,16 @@ def gate_tests(ok, td):
         e[0]["T_REC"] = e[1]["T_REC"]
         f.write_text("".join(json.dumps(x) + "\n" for x in e))
 
-    cases = [("selection SAMPLE changed under its META", edit_sample, "selection products"),
+    def stale_selection_link():
+        f = g["SEL"] / "META.json"
+        doc = json.loads(f.read_text()); doc["review_probe"] = "different selection META"
+        f.write_text(json.dumps(doc))
+        f = g["SEL_REC"] / "RECEIPT.json"
+        doc = json.loads(f.read_text()); doc["selection_meta_sha256"] = sha(g["SEL"] / "META.json")
+        f.write_text(json.dumps(doc))
+
+    cases = [("selection META not named by metadata, receipt updated", stale_selection_link, "selection products"),
+             ("selection SAMPLE changed under its META", edit_sample, "selection products"),
              ("protocol text changed", lambda: g["PROTOCOL"].write_text(g["PROTOCOL"].read_text() + " "), "protocol text"),
              ("plan recount receipt partial", partial_receipt, "plan products, plan recount receipt, A1"),
              ("metadata recount receipt removed", lambda: (g["MD_REC"] / "RECEIPT.json").unlink(), "metadata recount receipt and A1 link"),

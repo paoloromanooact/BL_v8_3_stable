@@ -1,5 +1,5 @@
 """Offline review of phase 5 at bedc06c. Only synthetic FITS and preserved metadata; no network.
-Exit 1 means a residual defect has been reproduced. No scientific products or receipts are written.
+Exit 0 means the regression cases are correctly rejected; exit 1 means a residual defect. No scientific products or receipts are written.
 """
 import contextlib
 import importlib.util
@@ -74,5 +74,15 @@ with tempfile.TemporaryDirectory() as td:
         M.SEL,M.STATE,M._load,M.build=saved
         M.subprocess.run=git_run
     record('runner refuses modified selection before measurement',not reached)
+with tempfile.TemporaryDirectory() as td:
+    td=Path(td);sel=td/'sel';rec=td/'rec'
+    shutil.copytree(M.SEL,sel);shutil.copytree(M.SEL_REC,rec)
+    f=sel/'META.json';doc=json.loads(f.read_text());doc['review_probe']='selection META not named by metadata';f.write_text(json.dumps(doc))
+    f=rec/'RECEIPT.json';doc=json.loads(f.read_text());doc['selection_meta_sha256']=M.sha(sel/'META.json');f.write_text(json.dumps(doc))
+    saved=M.SEL,M.SEL_REC;M.SEL,M.SEL_REC=sel,rec
+    try:
+        problems,_=M.gate_l2()
+        record('selection META not named by preserved metadata refused, even with updated receipt', 'selection products' in problems)
+    finally:M.SEL,M.SEL_REC=saved
 print(json.dumps(dict(passed=sum(c['ok'] for c in checks),total=len(checks),checks=checks,network_used=False,real_fits_read=False),indent=2))
 raise SystemExit(0 if all(c['ok'] for c in checks) else 1)

@@ -302,7 +302,8 @@ def own_upstream(meta, l2):
         == fz["parent_sha256"] == meta["protocol_sha256"] and sha(A1) == fz["sha256"] == meta["a1_sha256"] == pm["a1_sha256"])
     add("selection products and strict selection recount receipt", lambda: set(sm["products_sha256"]) == {"POPULATION.csv", "SAMPLE.csv", "CELLS.csv"}
         and all(sha(SEL / n) == h for n, h in sm["products_sha256"].items()) and meta["selection_meta_sha256"] == sha(SEL / "META.json")
-        and RC.strict_receipt(ROOT / "results/MDI_PILOT_SELECTION_RECOUNT/RECEIPT.json", "selection_meta_sha256", SEL / "META.json"))
+        and RC.strict_receipt(ROOT / "results/MDI_PILOT_SELECTION_RECOUNT/RECEIPT.json", "selection_meta_sha256", SEL / "META.json")
+        and mm.get("selection_meta_sha256") == sha(SEL / "META.json"))
     add("metadata products and strict metadata recount receipt, linked to A1 and the run",
         lambda: all(sha(MD / n) == h for n, h in mm["products_sha256"].items()) and meta["metadata_meta_sha256"] == sha(MD / "META.json")
         == fz["source_metadata_meta_sha256"] == pm["metadata_meta_sha256"]

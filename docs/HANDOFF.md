@@ -1,5 +1,15 @@
 # Cold restart — SHARP BL
 
+## MDI L2 — misura e riconteggio approvati
+
+- Revisione di 913ab1d chiusa: `docs/MDI_PILOT_L2_CODEX_CLOSE.md`.
+- Aggiunto l'ultimo legame selezione-META/metadati, anche nel riconteggio; nessuna regola scientifica cambiata.
+- Runner 16/16, riconteggio 25/25, sonda indipendente 7/7.
+- Download 85609aa ricontato: 161 file, hash/byte/path/T_REC concordi; 412 richieste, 243994274 byte, zero prenotazioni aperte.
+- Via tecnico: --run da albero pulito, conservare prodotti prima della lettura, --check e conservare ricevuta completa.
+- Nessuna misura reale fatta da Codex. Analisi dei confronti Q2 da rivedere prima della sua esecuzione.
+
+
 ## MDI L2 — revisione fase 5: correzioni necessarie prima della misura
 
 - bedc06c rivisto: `docs/MDI_PILOT_L2_CODEX_REVIEW.md`; selftest esistenti 8/8 e 16/16 riprodotti.

@@ -1,5 +1,12 @@
 # Cronologia
 
+## Chiusura della revisione misura MDI L2
+
+- Confermate le correzioni ai gate, ai confronti completi e a INTERVAL ignoto.
+- Legata la selezione a quella nominata dai metadati congelati, con regressione dedicata.
+- Download verificato indipendentemente; via tecnico alla misura e al riconteggio, senza eseguirli.
+
+
 ## Revisione offline della misura MDI L2 (bedc06c)
 
 - Riprodotti cinque controesempi su provenienza, campi non verificati, conteggi e INTERVAL ignoto.
