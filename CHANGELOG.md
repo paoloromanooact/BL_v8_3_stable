@@ -1,5 +1,10 @@
 # Cronologia
 
+## 2026-11-23 — parere sul metodo del pilota MDI
+
+- Preferite finestre DPD sui full-disk, con adattatore MDI e campione indipendente dalla disponibilità MWO.
+- Definiti vincoli per la bozza: qualità, tempi, comparabilità relativa e precisione prospettica del catalogo.
+
 ## 2026-11-23 — revisione del pacchetto locale MWO
 
 - Confermati script, copie del rilascio, README e manifesti: selftest 11/11, check 6/6, checksum 16/16.

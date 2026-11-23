@@ -1,5 +1,13 @@
 # Cold restart — SHARP BL
 
+## 23 novembre — impostazione del pilota MDI rivista
+
+- Inventario 2a7838b letto; parere in `docs/MDI_TILT_PILOT_METHOD_CODEX_REVIEW.md`.
+- Preferito metodo (a), finestre DPD sul full-disk MDI; nuovo adattatore strumentale, kernel geometrico condivisibile.
+- Distinguere campione MDI da DPD e sottoinsieme abbinato MWO; copertura e precisione prospettica non dal solo overlap.
+- Precisati qualità/soglie, prodotti 1/5 min, tempi UTC e necessità di disegno temporale adeguato alla correlazione.
+- Via alla bozza, nessuna misura o acquisizione eseguita; protocollo e codice da rivedere prima della corsa.
+
 ## 23 novembre — pacchetto locale del catalogo MWO rivisto
 
 - Approvati script 67eac4b e pacchetto 02708d1; revisione in `docs/MWO_TILT_CATALOGUE_DEPOSIT_CODEX_REVIEW.md`.
