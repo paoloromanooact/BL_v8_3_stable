@@ -1,16 +1,21 @@
 """MDI pilot, phase 4a: JSOC metadata of mdi.fd_M_96m_lev182 around the 90 level-2 groups and choice of images A and B
 (frozen protocol docs/PROTOCOL_MDI_TILT_PILOT.md §4). NETWORK: only with the user's explicit authorisation (--fetch).
 
-Per level-2 group: one rs_list over [t_DPD - 10 h, t_DPD + 10 h] (TAI) with T_REC, T_OBS, QUALITY, INTERVAL,
-MISSVALS, the geometry and the 'data' segment. The answers are kept UNFILTERED. Choice from metadata only, with the
-frozen admissible set QUALITY in {0}:
+Before any request: strict provenance gate (frozen protocol, selection products and their hashes, strict selection
+receipt bound to the selection META, protocol of the selection, unique level-2 units equal in number to the cells'
+n2, clean tracked tree on the real path). The whole run holds the ledger RunLock; each request reserves its budget
+atomically (5 MB) and the actual bytes received are recorded also when the request fails (HTTP status, read or JSON).
+
+Per level-2 group: one rs_list over [t_DPD - 10 h, t_DPD + 10 h] (TAI). Answers and per-group outcomes are written
+progressively (ANSWERS.jsonl) before any derived product. Choice from metadata only, frozen admissible QUALITY {0}:
   A = admissible record with T_OBS (UTC, fractional seconds kept) closest to t_DPD within +-6 h; ties -> earliest.
   B = first admissible record after A with numeric INTERVAL equal to A's within 4 h; else the first before A with the
-      same conditions; else 'no_pair'. A missing INTERVAL never forms a pair.
-For the decision on a possible blind amendment (before any FITS), the script also reports, WITHOUT changing groups or
-days: QUALITY x INTERVAL composition by year, cell and cohort, and the counts of A and of A/B pairs obtainable with the
-frozen set {0} and with {0, 0x200}. Only the frozen choice feeds the download plan.
-Every request is recorded in the shared cumulative ledger (scripts/mdi_l2_ledger.py) before its outcome is used.
+      same conditions; else 'no_pair'. A missing / unparsable INTERVAL (None or NaN) never forms a pair.
+  QUALITY missing or not interpretable is NOT zero: such a record is not admissible (cause recorded).
+Decision material for a possible blind amendment (without changing groups or days): QUALITY x INTERVAL composition and
+counts of A and A/B pairs under {0} and under {0, 0x200}, for ALL selected groups: a failed request is 'not
+determined', kept in the denominators and never counted as evidence for either rule. Only the frozen choice feeds the
+download plan. All products are always written with complete schemas and an explicit completeness state.
 
     .venv/bin/python scripts/mdi_fd_metadata.py --selftest
     .venv/bin/python scripts/mdi_fd_metadata.py --fetch      # only after code review AND user authorisation
@@ -20,6 +25,7 @@ import hashlib
 import http.client
 import importlib.util
 import json
+import math
 import os
 import shutil
 import subprocess
@@ -45,6 +51,14 @@ A_WINDOW_H, B_WINDOW_H = 6.0, 4.0
 FROZEN_ADMISSIBLE = (0,)
 ALTERNATIVE_ADMISSIBLE = (0, 0x200)
 HOST, PATH = "jsoc.stanford.edu", "/cgi-bin/ajax/jsoc_info"
+CLS = ["act_class", "hemisphere", "area_class", "cohort"]
+CHOICE_COLS = ["noaa", "day", "t_dpd", "request_status", "n_records", "status", "A", "A_path", "A_size", "A_dt_h", "A_quality",
+               "A_interval", "B", "B_path", "B_size", "B_dt_h", "pair_dt_min", "pair_status", "error"]
+GROUP_COLS = ["noaa", "day", "year"] + CLS + ["request_status", "status_frozen", "pair_frozen", "status_alt", "pair_alt"]
+COMP_COLS = ["year"] + CLS + ["quality", "interval", "n_records_10h", "n_records_6h"]
+ALT_COLS = CLS + ["n_groups", "n_requests_ok", "n_not_determined", "A_frozen", "pair_frozen", "A_alt", "pair_alt"]
+PLAN_COLS = ["T_REC", "path", "size"]
+DISC_COLS = ["noaa", "day", "T_REC", "T_OBS", "QUALITY", "INTERVAL", "reason"]
 _spec = importlib.util.spec_from_file_location("mdi_l2_ledger", ROOT / "scripts/mdi_l2_ledger.py")
 LG = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(LG)
@@ -52,6 +66,10 @@ _spec.loader.exec_module(LG)
 
 def sha(p):
     return hashlib.sha256(Path(p).read_bytes()).hexdigest()
+
+
+def missing(v):
+    return v is None or (isinstance(v, float) and math.isnan(v))
 
 
 def tai_string(t_utc):
@@ -75,10 +93,14 @@ def jsoc_to_utc(s):
 
 
 def parse_quality(q):
+    """(value or None, state) with state in ok / missing / unparsable; a missing QUALITY is never zero."""
+    if missing(q) or str(q).strip() in ("", "MISSING", "nan", "None"):
+        return None, "missing"
     try:
-        return int(str(q), 16) if str(q).lower().startswith("0x") else int(q)
+        s = str(q).strip()
+        return (int(s, 16) if s.lower().startswith("0x") else int(s)), "ok"
     except (ValueError, TypeError):
-        return None
+        return None, "unparsable"
 
 
 def parse_interval(v):
@@ -98,35 +120,43 @@ def records_from_answer(doc):
         raise ValueError("keyword lengths")
     seg = doc.get("segments") or []
     t = pd.DataFrame(cols).assign(path=seg[0]["values"] if seg else [None] * n)
+    for c in ("T_REC", "T_OBS", "QUALITY", "INTERVAL"):
+        if c not in t:
+            t[c] = None
     t["t_obs_utc"] = [jsoc_to_utc(x) for x in t.T_OBS]
-    t["quality_int"] = [parse_quality(x) for x in t.QUALITY]
-    t["interval_s"] = [parse_interval(x) for x in (t.INTERVAL if "INTERVAL" in t else [None] * n)]
+    q = [parse_quality(x) for x in t.QUALITY]
+    t["quality_int"] = pd.array([v for v, _ in q], dtype="Int64")
+    t["quality_state"] = [s for _, s in q]
+    t["interval_s"] = pd.array([parse_interval(x) for x in t.INTERVAL], dtype="Float64")
     return t
 
 
 def choose(t, t_dpd, admissible=FROZEN_ADMISSIBLE):
-    """Choice of A and B for one group. Returns (choice dict, discarded records with their cause)."""
     t_dpd = pd.Timestamp(t_dpd)
     t = t.copy()
     t["dt_h"] = [(x - t_dpd).total_seconds() / 3600.0 if x is not None else np.nan for x in t.t_obs_utc]
+    adm_q = [st == "ok" and int(v) in admissible for v, st in zip(t.quality_int, t.quality_state)]
     t["reason"] = np.where(t.t_obs_utc.isna(), "t_obs_unparsable",
-                           np.where(~t.quality_int.isin(admissible), "quality_not_admissible",
-                                    np.where(t.path.isna() | ~t.path.astype(str).str.startswith("/SUM"), "no_data_segment", "")))
+                           np.where(t.quality_state != "ok", "quality_" + t.quality_state.astype(str),
+                                    np.where(~np.array(adm_q), "quality_not_admissible",
+                                             np.where(t.path.isna() | ~t.path.astype(str).str.startswith("/SUM"), "no_data_segment", ""))))
     adm = t[t.reason == ""]
-    out = dict(status="no_magnetogram", A=None, B=None, A_path=None, B_path=None, A_size=None, B_size=None, A_dt_h=np.nan, B_dt_h=np.nan,
-               pair_dt_min=np.nan, A_interval=None, A_quality=None, pair_status="no_pair")
+    out = dict(status="no_magnetogram", A=None, B=None, A_path=None, B_path=None, A_size=None, B_size=None, A_dt_h=np.nan,
+               B_dt_h=np.nan, pair_dt_min=np.nan, A_interval=None, A_quality=None, pair_status="no_pair")
     near = adm[adm.dt_h.abs() <= A_WINDOW_H]
     if near.empty:
         return out, t[t.reason != ""]
     a = near.assign(_a=near.dt_h.abs()).sort_values(["_a", "t_obs_utc"], kind="stable").iloc[0]
-    out.update(status="ok", A=a.T_REC, A_path=a.path, A_dt_h=a.dt_h, A_interval=a.interval_s, A_size=a.get("*size*"), A_quality=a.quality_int)
-    if a.interval_s is None:
+    a_int = None if pd.isna(a.interval_s) else float(a.interval_s)
+    out.update(status="ok", A=a.T_REC, A_path=a.path, A_dt_h=a.dt_h, A_interval=a_int, A_size=a.get("*size*"),
+               A_quality=f"0x{int(a.quality_int):08x}")
+    if a_int is None:
         out["pair_status"] = "no_pair_interval_unknown"
         return out, t[t.reason != ""]
-    same = adm[(adm.interval_s == a.interval_s) & (adm.T_REC != a.T_REC)]
+    same = adm[adm.interval_s.notna() & (adm.interval_s == a_int) & (adm.T_REC != a.T_REC)]
     cand = same.assign(_dt=(same.t_obs_utc - a.t_obs_utc).dt.total_seconds() / 3600.0)
     after = cand[(cand._dt > 0) & (cand._dt <= B_WINDOW_H)].sort_values(["_dt", "t_obs_utc"], kind="stable")
-    before = cand[(cand._dt < 0) & (cand._dt >= -B_WINDOW_H)].assign(_a=lambda x: -x._dt).sort_values(["_a", "t_obs_utc"], kind="stable")
+    before = cand[(cand._dt < 0) & (cand._dt >= -B_WINDOW_H)].assign(_b=lambda x: -x._dt).sort_values(["_b", "t_obs_utc"], kind="stable")
     b = after.iloc[0] if len(after) else (before.iloc[0] if len(before) else None)
     if b is not None:
         out.update(B=b.T_REC, B_path=b.path, B_dt_h=(b.t_obs_utc - t_dpd).total_seconds() / 3600.0,
@@ -144,112 +174,209 @@ def size_or_none(x):
 
 
 def plan(choices):
-    """Deduplicated download plan of the A and B data segments (frozen choice only); unknown sizes kept as unknown."""
     rows = [dict(T_REC=c[k], path=c[f"{k}_path"], size=size_or_none(c.get(f"{k}_size"))) for c in choices for k in ("A", "B")
             if c.get(f"{k}_path")]
-    p = pd.DataFrame(rows, columns=["T_REC", "path", "size"]).drop_duplicates("path").reset_index(drop=True)
-    return p
+    return pd.DataFrame(rows, columns=PLAN_COLS).drop_duplicates("path").reset_index(drop=True)
 
 
 def composition(recs):
-    """QUALITY x INTERVAL counts by year, cell and cohort, inside +-10 h and inside the A window +-6 h."""
-    r = recs.assign(quality=recs.quality_int.map(lambda q: f"0x{q:08x}" if q is not None and q == q else "unparsable"),
-                    interval=recs.interval_s.map(lambda v: "missing" if v is None or v != v else f"{v:g}"),
-                    in_a_window=recs.dt_h.abs() <= A_WINDOW_H)
-    keys = ["year", "act_class", "hemisphere", "area_class", "cohort", "quality", "interval"]
-    allw = r.groupby(keys).size().rename("n_records_10h")
-    aw = r[r.in_a_window].groupby(keys).size().rename("n_records_6h")
-    return pd.concat([allw, aw], axis=1).fillna(0).astype(int).reset_index()
+    if recs is None or recs.empty:
+        return pd.DataFrame(columns=COMP_COLS)
+    q = [f"0x{int(v):08x}" if st == "ok" else st for v, st in zip(recs.quality_int, recs.quality_state)]
+    iv = ["missing" if pd.isna(v) else f"{float(v):g}" for v in recs.interval_s]
+    r = recs.assign(quality=q, interval=iv, in6=recs.dt_h.abs() <= A_WINDOW_H)
+    keys = ["year"] + CLS + ["quality", "interval"]
+    a = r.groupby(keys).size().rename("n_records_10h")
+    b = r[r.in6].groupby(keys).size().rename("n_records_6h")
+    return pd.concat([a, b], axis=1).fillna(0).astype(int).reset_index()[COMP_COLS]
 
 
-def alternative_counts(per_group):
-    """Per cell x cohort: groups with an A and with an A/B pair under the frozen set and under {0, 0x200}."""
+def alternatives(groups):
     rows = []
-    for keys, g in per_group.groupby(["act_class", "hemisphere", "area_class", "cohort"]):
-        r = dict(zip(["act_class", "hemisphere", "area_class", "cohort"], keys), n_groups=len(g))
+    for keys, g in groups.groupby(CLS):
+        okr = g.request_status == "ok"
+        r = dict(zip(CLS, keys), n_groups=len(g), n_requests_ok=int(okr.sum()), n_not_determined=int((~okr).sum()))
         for tag in ("frozen", "alt"):
-            r[f"A_{tag}"] = int((g[f"status_{tag}"] == "ok").sum())
-            r[f"pair_{tag}"] = int(g[f"pair_{tag}"].isin(["after", "before"]).sum())
+            r[f"A_{tag}"] = int((okr & (g[f"status_{tag}"] == "ok")).sum())
+            r[f"pair_{tag}"] = int((okr & g[f"pair_{tag}"].isin(["after", "before"])).sum())
         rows.append(r)
-    return pd.DataFrame(rows)
+    return pd.DataFrame(rows, columns=ALT_COLS)
 
 
-# ---------------------------------------------------------------- network (only with --fetch)
+# ---------------------------------------------------------------- provenance gate
+
+def strict_receipt(path, key, meta):
+    try:
+        r = json.loads(Path(path).read_text())
+    except (OSError, ValueError):
+        return False
+    p, t, ch = r.get("passed"), r.get("total"), r.get("checks")
+    si = lambda x: isinstance(x, int) and not isinstance(x, bool)          # noqa: E731
+    return (si(p) and si(t) and t > 0 and p == t and isinstance(ch, list) and len(ch) == t
+            and all(isinstance(c, dict) and c.get("ok") is True for c in ch) and r.get("partial") is False and r.get(key) == sha(meta))
+
+
+def gate_problems(sel=None, sel_rec=None, protocol=None, freeze=None, require_clean=True):
+    sel, sel_rec = Path(sel or SEL), Path(sel_rec or SEL_REC)
+    protocol, freeze = Path(protocol or PROTOCOL), Path(freeze or FREEZE)
+    probs = []
+    try:
+        fr = json.loads(freeze.read_text())
+        m = json.loads((sel / "META.json").read_text())
+    except (OSError, ValueError) as exc:
+        return [f"unreadable ({type(exc).__name__})"]
+    if sha(protocol) != fr.get("sha256") or m.get("protocol_sha256") != fr.get("sha256"):
+        probs.append("protocol")
+    ps = m.get("products_sha256", {})
+    if set(ps) != {"POPULATION.csv", "SAMPLE.csv", "CELLS.csv"} or any(sha(sel / n) != h for n, h in ps.items()):
+        probs.append("selection products")
+    if not strict_receipt(sel_rec / "RECEIPT.json", "selection_meta_sha256", sel / "META.json"):
+        probs.append("selection receipt")
+    if not probs:
+        s = pd.read_csv(sel / "SAMPLE.csv", dtype={"noaa": str})
+        c = pd.read_csv(sel / "CELLS.csv")
+        l2 = s[s.level2.astype(str) == "True"]
+        if l2.duplicated(["noaa", "day"]).any() or len(l2) != int(c.n2.sum()):
+            probs.append("level-2 units")
+    if require_clean and subprocess.run(["git", "status", "--porcelain", "--untracked-files=no"], cwd=ROOT,
+                                        capture_output=True, text=True).stdout.strip():
+        probs.append("tracked tree not clean")
+    return probs
+
+
+# ---------------------------------------------------------------- network
+
+class TransportFailure(Exception):
+    def __init__(self, stage, msg, nbytes, requests=1):
+        super().__init__(f"{stage}: {msg}")
+        self.stage, self.nbytes, self.requests = stage, nbytes, requests
+
 
 def http_json(query, timeout=30):
-    """Plain HTTP GET of jsoc_info (no redirect followed). Returns (doc, bytes, requests)."""
+    """Plain HTTP GET of jsoc_info (no redirect followed). Returns (doc, bytes, requests); failures carry the bytes."""
     conn = http.client.HTTPConnection(HOST, 80, timeout=timeout)
+    body = b""
     try:
         conn.request("GET", PATH + "?" + urlencode(query), headers={"Accept-Encoding": "identity"})
         res = conn.getresponse()
-        body = res.read(5_000_000)
+        try:
+            while len(body) < LG.METADATA_CAP_BYTES:
+                chunk = res.read1(65536)
+                if not chunk:
+                    break
+                body += chunk
+        except Exception as exc:
+            raise TransportFailure("read", f"{type(exc).__name__}: {exc}", len(body)) from exc
         if res.status != 200:
-            raise ValueError(f"HTTP {res.status} ({len(body)} bytes)")
-        return json.loads(body), len(body), 1
+            raise TransportFailure("http", f"HTTP {res.status}", len(body))
+        try:
+            return json.loads(body), len(body), 1
+        except ValueError as exc:
+            raise TransportFailure("json", str(exc), len(body)) from exc
+    except TransportFailure:
+        raise
+    except Exception as exc:
+        raise TransportFailure("connect", f"{type(exc).__name__}: {exc}", len(body)) from exc
     finally:
         conn.close()
 
 
-def fetch(out=OUT, transport=http_json, ledger=None):
+def fetch(out=OUT, transport=http_json, ledger=None, sel=None, sel_rec=None, protocol=None, freeze=None, require_clean=True):
     ledger = ledger or LG.LEDGER
+    sel = Path(sel or SEL)
     if Path(out).exists():
         sys.exit("refusing to overwrite")
-    fr = json.loads(FREEZE.read_text())
-    if sha(PROTOCOL) != fr["sha256"]:
-        sys.exit("frozen protocol changed")
-    samp = pd.read_csv(SEL / "SAMPLE.csv", dtype={"noaa": str}, float_precision="round_trip")
+    probs = gate_problems(sel, sel_rec, protocol, freeze, require_clean)
+    if probs:
+        sys.exit("provenance gate: " + "; ".join(probs))
+    samp = pd.read_csv(sel / "SAMPLE.csv", dtype={"noaa": str}, float_precision="round_trip")
     l2 = samp[samp.level2.astype(str) == "True"].reset_index(drop=True)
-    choices, groups, discarded, recs_all, answers = [], [], [], [], {}
-    for r in l2.itertuples():
-        t0 = pd.Timestamp(r.t_dpd)
-        half = pd.Timedelta(hours=A_WINDOW_H + B_WINDOW_H)                  # symmetric: B may precede A by 4 h
-        ds = f"{SERIES}[{tai_string(t0 - half)}-{tai_string(t0 + half)}]"
-        okc, why = LG.can_start("metadata", 0, ledger)
-        if not okc:
-            sys.exit(f"ledger cap reached before {r.noaa} {r.day}: {why}")
-        i = LG.start("metadata", ds, ledger)
-        try:
-            doc, nbytes, nreq = transport(dict(op="rs_list", ds=ds, key=",".join(KEYWORDS), seg="data"))
-            LG.finish(i, "metadata", nreq, nbytes, "ok", path=ledger)
-        except Exception as exc:                                         # recorded, never retried silently
-            LG.finish(i, "metadata", 1, 0, "failed", f"{type(exc).__name__}: {exc}", path=ledger)
-            choices.append(dict(noaa=r.noaa, day=r.day, t_dpd=r.t_dpd, status="metadata_failed", error=f"{type(exc).__name__}: {exc}"))
-            continue
-        answers[f"{r.noaa}_{r.day}"] = doc
-        t = records_from_answer(doc)
-        c, disc = choose(t, r.t_dpd, FROZEN_ADMISSIBLE)
-        c_alt, _ = choose(t, r.t_dpd, ALTERNATIVE_ADMISSIBLE)
-        choices.append(dict(noaa=r.noaa, day=r.day, t_dpd=r.t_dpd, n_records=len(t), **c))
-        cls = dict(act_class=r.act_class, hemisphere=r.hemisphere, area_class=r.area_class, cohort=r.cohort, year=str(r.day)[:4])
-        groups.append(dict(noaa=r.noaa, day=r.day, **cls, status_frozen=c["status"], pair_frozen=c["pair_status"],
-                           status_alt=c_alt["status"], pair_alt=c_alt["pair_status"]))
-        tt = t.assign(dt_h=[(x - t0).total_seconds() / 3600.0 if x is not None else np.nan for x in t.t_obs_utc])
-        recs_all.append(tt.assign(noaa=r.noaa, day=r.day, **cls))
-        discarded.append(disc.assign(noaa=r.noaa, day=r.day))
-    ch = pd.DataFrame(choices)
-    pl = plan([c for c in choices if c.get("status") == "ok"])
+    fr = json.loads(Path(freeze or FREEZE).read_text())
     tmp = Path(tempfile.mkdtemp(prefix=f".{Path(out).name}.tmp-", dir=Path(out).parent))
-    try:
-        (tmp / "ANSWERS.json").write_text(json.dumps(answers) + "\n")
-        ch.to_csv(tmp / "CHOICES.csv", index=False)
-        (pd.concat(discarded) if discarded else pd.DataFrame()).to_csv(tmp / "DISCARDED.csv", index=False)
-        pl.to_csv(tmp / "DOWNLOAD_PLAN.csv", index=False)
-        if recs_all:
-            composition(pd.concat(recs_all)).to_csv(tmp / "QUALITY_INTERVAL.csv", index=False)
-            alternative_counts(pd.DataFrame(groups)).to_csv(tmp / "ADMISSIBLE_ALTERNATIVES.csv", index=False)
+    stopped, errors = "", []
+    with LG.RunLock(ledger):
+        try:
+            with (tmp / "ANSWERS.jsonl").open("w") as fa:
+                for r in l2.itertuples():
+                    t0 = pd.Timestamp(r.t_dpd)
+                    half = pd.Timedelta(hours=A_WINDOW_H + B_WINDOW_H)
+                    ds = f"{SERIES}[{tai_string(t0 - half)}-{tai_string(t0 + half)}]"
+                    rec = dict(noaa=r.noaa, day=r.day, t_dpd=str(r.t_dpd), ds=ds)
+                    i, why = LG.reserve("metadata", ds, LG.METADATA_CAP_BYTES, ledger)
+                    if i is None:
+                        stopped = f"ledger refused: {why}"
+                        rec.update(request_status="not_attempted", error=stopped)
+                        fa.write(json.dumps(rec) + "\n")
+                        continue
+                    try:
+                        doc, nbytes, nreq = transport(dict(op="rs_list", ds=ds, key=",".join(KEYWORDS), seg="data"))
+                        LG.finish(i, "metadata", nreq, nbytes, "ok", path=ledger)
+                        rec.update(request_status="ok", bytes=nbytes, doc=doc)
+                    except TransportFailure as exc:
+                        LG.finish(i, "metadata", exc.requests, exc.nbytes, "failed", str(exc), exc.stage, path=ledger)
+                        rec.update(request_status=f"failed_{exc.stage}", bytes=exc.nbytes, error=str(exc))
+                    except Exception as exc:
+                        LG.finish(i, "metadata", 1, 0, "failed", f"{type(exc).__name__}: {exc}", "unknown", path=ledger)
+                        rec.update(request_status="failed_unknown", bytes=0, error=f"{type(exc).__name__}: {exc}")
+                    fa.write(json.dumps(rec) + "\n")
+                    fa.flush()
+            prods = derive(tmp / "ANSWERS.jsonl", l2)
+        except Exception as exc:
+            errors.append(f"{type(exc).__name__}: {exc}")
+            prods = derive_empty()
+        for name, df in prods.items():
+            df.to_csv(tmp / name, index=False)
+        ch = prods["CHOICES.csv"]
+        n_ok = int((ch.request_status == "ok").sum()) if len(ch) else 0
+        complete = not stopped and not errors and n_ok == len(l2)
         meta = dict(protocol_sha256=fr["sha256"], script_sha256=sha(__file__), ledger_module_sha256=sha(ROOT / "scripts/mdi_l2_ledger.py"),
-                    selection_meta_sha256=sha(SEL / "META.json"), ledger_totals_after=LG.totals(ledger),
-                    planned_files=len(pl), planned_bytes_known=int(pl["size"].dropna().sum()) if len(pl) else 0,
-                    planned_files_size_unknown=int(pl["size"].isna().sum()) if len(pl) else 0,
+                    selection_meta_sha256=sha(sel / "META.json"), level2_groups=len(l2), requests_ok=n_ok,
+                    completeness="complete" if complete else "incomplete", stopped=stopped, derivation_errors=errors,
+                    ledger_totals_after=LG.totals(ledger),
                     git_commit=subprocess.run(["git", "rev-parse", "HEAD"], cwd=ROOT, capture_output=True, text=True).stdout.strip())
         meta["products_sha256"] = {f.name: sha(f) for f in sorted(tmp.iterdir())}
         (tmp / "META.json").write_text(json.dumps(meta, indent=2) + "\n")
         os.rename(tmp, out)
-    finally:
-        if tmp.exists():
-            shutil.rmtree(tmp)
-    print(json.dumps(dict(ledger=LG.totals(ledger), statuses=ch.status.value_counts().to_dict(), planned_files=len(pl)), indent=1))
-    return 0
+    print(json.dumps(dict(completeness=meta["completeness"], requests_ok=n_ok, ledger=LG.totals(ledger)), indent=1))
+    return 0 if complete else 2
+
+
+def derive_empty():
+    return {"CHOICES.csv": pd.DataFrame(columns=CHOICE_COLS), "GROUPS.csv": pd.DataFrame(columns=GROUP_COLS),
+            "DISCARDED.csv": pd.DataFrame(columns=DISC_COLS), "DOWNLOAD_PLAN.csv": pd.DataFrame(columns=PLAN_COLS),
+            "QUALITY_INTERVAL.csv": pd.DataFrame(columns=COMP_COLS), "ADMISSIBLE_ALTERNATIVES.csv": pd.DataFrame(columns=ALT_COLS)}
+
+
+def derive(answers_path, l2):
+    """All derived products from the preserved answers (also used by the offline recount)."""
+    lines = [json.loads(x) for x in Path(answers_path).read_text().splitlines() if x.strip()]
+    by = {(x["noaa"], x["day"]): x for x in lines}
+    choices, groups, disc, recs = [], [], [], []
+    for r in l2.itertuples():
+        x = by.get((r.noaa, r.day), dict(request_status="not_attempted"))
+        cls = dict(act_class=r.act_class, hemisphere=r.hemisphere, area_class=r.area_class, cohort=r.cohort)
+        base = dict(noaa=r.noaa, day=r.day, t_dpd=str(r.t_dpd), request_status=x["request_status"], error=x.get("error", ""))
+        if x["request_status"] != "ok":
+            choices.append(dict(base, status="not_determined", pair_status="not_determined"))
+            groups.append(dict(noaa=r.noaa, day=r.day, year=str(r.day)[:4], **cls, request_status=x["request_status"],
+                               status_frozen="not_determined", pair_frozen="not_determined", status_alt="not_determined", pair_alt="not_determined"))
+            continue
+        t = records_from_answer(x["doc"])
+        c, d = choose(t, r.t_dpd, FROZEN_ADMISSIBLE)
+        c2, _ = choose(t, r.t_dpd, ALTERNATIVE_ADMISSIBLE)
+        choices.append(dict(base, n_records=len(t), **c))
+        groups.append(dict(noaa=r.noaa, day=r.day, year=str(r.day)[:4], **cls, request_status="ok", status_frozen=c["status"],
+                           pair_frozen=c["pair_status"], status_alt=c2["status"], pair_alt=c2["pair_status"]))
+        disc.append(d.assign(noaa=r.noaa, day=r.day))
+        t0 = pd.Timestamp(r.t_dpd)
+        recs.append(t.assign(dt_h=[(v - t0).total_seconds() / 3600.0 if v is not None else np.nan for v in t.t_obs_utc],
+                             year=str(r.day)[:4], **cls))
+    ch = pd.DataFrame(choices).reindex(columns=CHOICE_COLS)
+    gr = pd.DataFrame(groups, columns=GROUP_COLS)
+    di = pd.concat(disc).reindex(columns=DISC_COLS) if disc else pd.DataFrame(columns=DISC_COLS)
+    return {"CHOICES.csv": ch, "GROUPS.csv": gr, "DISCARDED.csv": di,
+            "DOWNLOAD_PLAN.csv": plan([c for c in choices if c.get("status") == "ok"]),
+            "QUALITY_INTERVAL.csv": composition(pd.concat(recs) if recs else None), "ADMISSIBLE_ALTERNATIVES.csv": alternatives(gr)}
 
 
 # ---------------------------------------------------------------- selftest (offline)
@@ -264,6 +391,26 @@ def rec(trec, tobs, q="0x00000000", interval="300", path="/SUM1/D1/S0/data.fits"
     return {"T_REC": trec, "T_OBS": tobs, "QUALITY": q, "INTERVAL": interval, "MISSVALS": "0", "*size*": size, "path": path}
 
 
+def fixture(td, n=2, receipt_ok=True):
+    """Consistent synthetic selection (products, META, strict receipt, protocol, freeze) for the gate."""
+    td = Path(td)
+    sel, rec_d = td / "sel", td / "selrec"
+    sel.mkdir(parents=True)
+    rec_d.mkdir()
+    (td / "prot.md").write_text("frozen")
+    (td / "freeze.json").write_text(json.dumps(dict(sha256=sha(td / "prot.md"))))
+    s = pd.DataFrame(dict(noaa=[str(k + 1) for k in range(n)], day=["2000-06-01"] * n, t_dpd=["2000-06-01 10:00:00"] * n,
+                          level2=[True] * n, act_class=[1] * n, hemisphere=["N"] * n, area_class=[1] * n, cohort=["M1"] * n))
+    s.to_csv(sel / "SAMPLE.csv", index=False)
+    pd.DataFrame(dict(act_class=[1], hemisphere=["N"], area_class=[1], cohort=["M1"], n2=[n])).to_csv(sel / "CELLS.csv", index=False)
+    (sel / "POPULATION.csv").write_text("x\n")
+    (sel / "META.json").write_text(json.dumps(dict(protocol_sha256=sha(td / "prot.md"),
+                                                   products_sha256={k: sha(sel / k) for k in ("POPULATION.csv", "SAMPLE.csv", "CELLS.csv")})))
+    rc = dict(passed=1, total=1, partial=not receipt_ok, checks=[dict(ok=True)], selection_meta_sha256=sha(sel / "META.json"))
+    (rec_d / "RECEIPT.json").write_text(json.dumps(rc))
+    return dict(sel=sel, sel_rec=rec_d, protocol=td / "prot.md", freeze=td / "freeze.json", require_clean=False)
+
+
 def selftest():
     res = []
 
@@ -271,74 +418,81 @@ def selftest():
         res.append(bool(c))
         print(f"[{'OK' if c else 'FALLITO'}] {n} {info}")
 
-    ok("TAI -> UTC (32 s in 2000), seconds = 60 as an interval, fractional seconds kept, UTC string kept",
+    ok("times: TAI -> UTC, seconds = 60 as interval, fractional seconds kept, UTC string kept",
        jsoc_to_utc("2000.01.01_00:00:32_TAI") == pd.Timestamp("2000-01-01 00:00:00")
        and jsoc_to_utc("2000.01.01_00:00:60_TAI") == pd.Timestamp("2000-01-01 00:00:28")
        and jsoc_to_utc("2000.01.01_00:00:32.75_TAI") == pd.Timestamp("2000-01-01 00:00:00.75")
        and jsoc_to_utc("2000.01.01_00:00:05.5") == pd.Timestamp("2000-01-01 00:00:05.5"))
-    ok("QUALITY parsed from hex strings", parse_quality("0x00000200") == 512 and parse_quality("0x00000000") == 0)
+    ok("QUALITY: hex parsed; missing and unparsable are not zero", parse_quality("0x00000200") == (512, "ok")
+       and parse_quality(None) == (None, "missing") and parse_quality(float("nan"))[1] == "missing" and parse_quality("zz") == (None, "unparsable"))
     t_dpd = pd.Timestamp("2000-06-01 10:00:00")
     base = [rec("2000.06.01_08:00:00_TAI", "2000.06.01_08:01:00_TAI", path="/SUM1/a"),
             rec("2000.06.01_09:36:00_TAI", "2000.06.01_09:37:00_TAI", path="/SUM1/b"),
             rec("2000.06.01_11:12:00_TAI", "2000.06.01_11:13:00_TAI", path="/SUM1/c"),
             rec("2000.06.01_12:48:00_TAI", "2000.06.01_12:49:00_TAI", path="/SUM1/d", interval="30")]
     c, _ = choose(records_from_answer(answer(base)), t_dpd)
-    ok("A closest to t_DPD; B first after with the same INTERVAL", c["A"] == "2000.06.01_09:36:00_TAI" and c["B"] == "2000.06.01_11:12:00_TAI"
-       and c["pair_status"] == "after")
-    q = [dict(r, QUALITY="0x00000200") if r["path"] == "/SUM1/b" else r for r in base]
-    c, disc = choose(records_from_answer(answer(q)), t_dpd)
-    c2, _ = choose(records_from_answer(answer(q)), t_dpd, ALTERNATIVE_ADMISSIBLE)
-    ok("QUALITY 0x200 discarded under the frozen set, admitted under {0, 0x200} (counts only)", c["A"] == "2000.06.01_11:12:00_TAI"
-       and (disc.reason == "quality_not_admissible").sum() == 1 and c2["A"] == "2000.06.01_09:36:00_TAI")
-    nob = [dict(r, INTERVAL="30") if r["path"] == "/SUM1/c" else r for r in base]
-    c, _ = choose(records_from_answer(answer(nob)), t_dpd)
-    ok("B before A when no later record has the same INTERVAL", c["B"] == "2000.06.01_08:00:00_TAI" and c["pair_status"] == "before")
-    edge = [rec("2000.06.01_04:00:00_TAI", "2000.06.01_04:00:32_TAI", path="/SUM2/a"),          # A at exactly -6 h
-            rec("2000.06.01_00:00:00_TAI", "2000.06.01_00:00:32_TAI", path="/SUM2/b")]          # B at -10 h (4 h before A)
+    ok("A closest; B first after with the same INTERVAL", c["A"] == "2000.06.01_09:36:00_TAI" and c["B"] == "2000.06.01_11:12:00_TAI")
+    mixq = [dict(r, QUALITY=None) if r["path"] == "/SUM1/b" else r for r in base]
+    t = records_from_answer(answer(mixq))
+    c, d = choose(t, t_dpd)
+    comp = composition(t.assign(dt_h=0.0, year="2000", act_class=1, hemisphere="N", area_class=1, cohort="M1"))
+    ok("valid + missing QUALITY: nullable integer, missing record not admissible, composition does not fail",
+       str(t.quality_int.dtype) == "Int64" and c["A"] == "2000.06.01_11:12:00_TAI" and (d.reason == "quality_missing").sum() == 1
+       and "missing" in set(comp.quality))
+    mixi = [dict(r, INTERVAL="MISSING") if r["path"] == "/SUM1/b" else r for r in base]
+    c, _ = choose(records_from_answer(answer(mixi)), t_dpd)
+    ok("A with missing INTERVAL while others are numeric -> no_pair_interval_unknown (NaN handled)", c["pair_status"] == "no_pair_interval_unknown")
+    edge = [rec("2000.06.01_04:00:00_TAI", "2000.06.01_04:00:32_TAI", path="/SUM2/a"), rec("2000.06.01_00:00:00_TAI", "2000.06.01_00:00:32_TAI", path="/SUM2/b")]
     c, _ = choose(records_from_answer(answer(edge)), t_dpd)
-    ok("edges: A at exactly -6 h accepted, B exactly 4 h before A (t_DPD - 10 h) accepted", c["A"] == "2000.06.01_04:00:00_TAI"
-       and c["B"] == "2000.06.01_00:00:00_TAI", (c["A"], c["B"]))
-    out6 = [rec("2000.06.01_03:59:00_TAI", "2000.06.01_03:59:31_TAI", path="/SUM2/c")]
-    c, _ = choose(records_from_answer(answer(out6)), t_dpd)
-    ok("edge: A 1 s beyond 6 h refused", c["status"] == "no_magnetogram")
-    none = [dict(r, INTERVAL="30") for r in base if r["path"] != "/SUM1/b"] + [r for r in base if r["path"] == "/SUM1/b"]
-    c, _ = choose(records_from_answer(answer(none)), t_dpd)
-    ok("no other record with the same INTERVAL within 4 h -> no_pair, no phantom row", c["B"] is None and c["pair_status"] == "no_pair")
-    miss = [dict(r, INTERVAL="MISSING") for r in base]
-    c, _ = choose(records_from_answer(answer(miss)), t_dpd)
-    ok("missing INTERVAL: A kept, no repeatability pair", c["status"] == "ok" and c["pair_status"] == "no_pair_interval_unknown")
-    tie = [rec("2000.06.01_09:00:00_TAI", "2000.06.01_09:00:32_TAI", path="/SUM9/x"), rec("2000.06.01_11:00:00_TAI", "2000.06.01_11:00:32_TAI", path="/SUM9/y")]
-    c, _ = choose(records_from_answer(answer(tie)), t_dpd)
-    ok("tie at equal distance -> earliest", c["A"] == "2000.06.01_09:00:00_TAI")
-    p = plan([dict(A="r1", A_path="/p1", A_size="1", B="r2", B_path="/p2", B_size="MISSING"), dict(A="r2", A_path="/p2", A_size="1")])
-    ok("download plan deduplicated; unknown size kept as unknown, not zero", len(p) == 2 and p["size"].isna().sum() == 1)
-    with tempfile.TemporaryDirectory() as td:
-        g = globals()
-        saved = g["SEL"]
-        try:
-            g["SEL"] = Path(td)
-            pd.DataFrame(dict(noaa=["1", "2"], day=["2000-06-01", "2000-06-01"], t_dpd=["2000-06-01 10:00:00", "2000-06-01 10:00:00"],
-                              level2=[True, True], act_class=[1, 2], hemisphere=["N", "S"], area_class=[1, 3], cohort=["M1", "U"])).to_csv(Path(td) / "SAMPLE.csv", index=False)
-            (Path(td) / "META.json").write_text("{}")
-            calls = {"n": 0}
+    ok("edges: A at -6 h and B 4 h before A accepted", c["A"] == "2000.06.01_04:00:00_TAI" and c["B"] == "2000.06.01_00:00:00_TAI")
+    import tempfile as tf
+    with tf.TemporaryDirectory() as td:
+        fx = fixture(td)
+        calls = {"n": 0}
 
-            def fake(qy, timeout=30):
-                calls["n"] += 1
-                if calls["n"] == 1:
-                    raise ConnectionError("offline test failure")
-                return answer([dict(r, QUALITY="0x00000200") for r in base]), 1234, 1
-            led = Path(td) / "LEDGER.jsonl"
-            fetch(Path(td) / "out", transport=fake, ledger=led)
-            ch = pd.read_csv(Path(td) / "out/CHOICES.csv")
-            alt = pd.read_csv(Path(td) / "out/ADMISSIBLE_ALTERNATIVES.csv")
-            qi = pd.read_csv(Path(td) / "out/QUALITY_INTERVAL.csv")
-            tot = LG.totals(led)
-        finally:
-            g["SEL"] = saved
-        ok("offline fetch: failure recorded and not retried; ledger counts both requests and the bytes received",
-           calls["n"] == 2 and list(ch.status) == ["metadata_failed", "no_magnetogram"] and tot["requests"] == 2 and tot["bytes"] == 1234)
-        ok("alternative counts and QUALITY x INTERVAL composition reported without changing the frozen choice",
-           int(alt.A_frozen.sum()) == 0 and int(alt.A_alt.sum()) == 1 and set(qi.quality) == {"0x00000200"} and int(qi.n_records_10h.sum()) == 4)
+        def flaky(qy, timeout=30):
+            calls["n"] += 1
+            if calls["n"] == 1:
+                raise TransportFailure("http", "HTTP 500", 1234)
+            return answer([dict(r, QUALITY="0x00000200") for r in base]), 800, 1
+        led = Path(td) / "L.jsonl"
+        rc = fetch(Path(td) / "out", flaky, led, **fx)
+        meta = json.loads((Path(td) / "out/META.json").read_text())
+        alt = pd.read_csv(Path(td) / "out/ADMISSIBLE_ALTERNATIVES.csv")
+        ok("bytes of a failed request counted: ledger 1234 + 800", LG.totals(led)["bytes"] == 2034, LG.totals(led))
+        ok("failed group kept in the denominator as not determined; run marked incomplete",
+           rc == 2 and meta["completeness"] == "incomplete" and int(alt.n_groups.sum()) == 2 and int(alt.n_not_determined.sum()) == 1
+           and int(alt.A_frozen.sum()) == 0 and int(alt.A_alt.sum()) == 1)
+        ok("answers preserved progressively (one line per group)", len((Path(td) / "out/ANSWERS.jsonl").read_text().splitlines()) == 2)
+    with tf.TemporaryDirectory() as td:
+        fx = fixture(td)
+
+        def broken(qy, timeout=30):
+            raise TransportFailure("json", "invalid JSON", 4321)
+        rc = fetch(Path(td) / "out", broken, Path(td) / "L.jsonl", **fx)
+        names = {f.name for f in (Path(td) / "out").iterdir()}
+        ok("all requests failed: complete schemas written, explicit incomplete state, bytes of invalid JSON counted",
+           rc == 2 and {"CHOICES.csv", "GROUPS.csv", "QUALITY_INTERVAL.csv", "ADMISSIBLE_ALTERNATIVES.csv", "DOWNLOAD_PLAN.csv"} <= names
+           and LG.totals(Path(td) / "L.jsonl")["bytes"] == 2 * 4321)
+    with tf.TemporaryDirectory() as td:
+        fx = fixture(td, receipt_ok=False)
+        called = {"n": 0}
+
+        def spy(qy, timeout=30):
+            called["n"] += 1
+            return answer(base), 1, 1
+        try:
+            fetch(Path(td) / "out", spy, Path(td) / "L.jsonl", **fx)
+            ok("partial selection receipt -> refused before any request", False)
+        except SystemExit:
+            ok("partial selection receipt -> refused before any request", called["n"] == 0)
+        fx = fixture(Path(td) / "b")
+        (fx["sel"] / "SAMPLE.csv").write_text("noaa,day\n1,2000-06-01\n")
+        try:
+            fetch(Path(td) / "out2", spy, Path(td) / "L.jsonl", **fx)
+            ok("SAMPLE changed after its META -> refused before any request", False)
+        except SystemExit:
+            ok("SAMPLE changed after its META -> refused before any request", called["n"] == 0)
     print(f"selftest: {sum(res)}/{len(res)} superati")
     return all(res)
 

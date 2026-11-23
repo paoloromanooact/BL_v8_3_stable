@@ -89,15 +89,14 @@ def run(meta_dir=META_DIR, dest=DEST, out=OUT, transport=real_transport, ledger=
             continue
         status, err, attempts = "failed", "", 0
         while attempts < MAX_ATTEMPTS:
-            okc, why = LG.can_start("fits", size, ledger)
-            if not okc:
+            i, why = LG.reserve("fits", r.path, size or LG.FILE_CAP_BYTES, ledger)
+            if i is None:
                 rows.append(dict(T_REC=r.T_REC, path=r.path, file=f.name, status=f"not_attempted_{why.replace(' ', '_')}", attempts=attempts))
                 return finish(rows, plan, meta_dir, dest, out, ledger, stopped=why)
             attempts += 1
             tmp = f.with_suffix(".part")
             if tmp.exists():
                 tmp.unlink()
-            i = LG.start("fits", r.path, ledger)
             try:
                 nreq, final_url = transport(r.path, tmp, size or LG.FILE_CAP_BYTES, {size} if size else None, TIMEOUT_S)
                 got = tmp.stat().st_size if tmp.exists() else 0
@@ -215,7 +214,7 @@ def selftest():
         ok("stop after 3 consecutive failures of the same class", rc == 2 and "consecutive" in meta["stopped"], meta["stopped"])
         big = td / "L3.jsonl"
         for k in range(116):                                          # 116 x 13 MB > 1.5e9
-            i = LG.start("fits", f"/x{k}", big)
+            i, _ = LG.reserve("fits", f"/x{k}", 13_000_000, big)
             LG.finish(i, "fits", 2, 13_000_000, "ok", path=big)
         plan([("z1", "/SUM/z1", gsize)])
         script.update({"/SUM/z1": ["ok"]})
