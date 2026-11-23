@@ -1,5 +1,13 @@
 # Cold restart — SHARP BL
 
+## 23 novembre — codice della diagnosi S2: correzioni richieste prima della corsa
+
+- Revisione 9106186: `docs/T3_MWO_S2_DIAGNOSIS_CODE_REVIEW.md`; selftest ripetuti 21/21 e 7/7.
+- Terzili, matrice indipendente e dipendenza comune da M approvati metodologicamente.
+- Probe sintetico: accettati intervalli D1, parametri M e conteggi alterati; guardia accetta ricevute 0/0.
+- Correggere controlli e completezza/provenienza delle ricevute; nuova revisione prima del --run.
+- Nessuna diagnosi reale eseguita da Codex. Script dei controesempi `scripts/t3_mwo_s2_review_probe.py`.
+
 ## 23 novembre — bozza diagnostica S2 rivista da Codex
 
 - Revisione di a252063 in `docs/T3_MWO_S2_DIAGNOSIS_CODEX_REVIEW.md`; nessuna diagnosi reale eseguita.

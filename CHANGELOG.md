@@ -1,5 +1,10 @@
 # Cronologia
 
+## 2026-11-23 — revisione del codice diagnostico S2
+
+- Confermati sui sintetici terzili e matrice indipendente; registrate lacune nel riconteggio e nelle guardie.
+- Nessuna corsa reale; controesempi sintetici conservati per la correzione da parte di Claude.
+
 ## 2026-11-23 — revisione della nota diagnostica S2
 
 - Ammessa la scomposizione descrittiva; precisati termine assiale, soglie, bootstrap e provenienza.
