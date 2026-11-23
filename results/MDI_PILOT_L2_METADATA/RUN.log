@@ -1,0 +1,14 @@
+/home/gianluca/BL_v8_3_stable/scripts/mdi_fd_metadata.py:381: FutureWarning: The behavior of DataFrame concatenation with empty or all-NA entries is deprecated. In a future version, this will no longer exclude empty or all-NA columns when determining the result dtypes. To retain the old behavior, exclude the relevant entries before the concat operation.
+  di = pd.concat(disc).reindex(columns=DISC_COLS) if disc else pd.DataFrame(columns=DISC_COLS)
+/home/gianluca/BL_v8_3_stable/scripts/mdi_fd_metadata.py:384: FutureWarning: The behavior of DataFrame concatenation with empty or all-NA entries is deprecated. In a future version, this will no longer exclude empty or all-NA columns when determining the result dtypes. To retain the old behavior, exclude the relevant entries before the concat operation.
+  "QUALITY_INTERVAL.csv": composition(pd.concat(recs) if recs else None), "ADMISSIBLE_ALTERNATIVES.csv": alternatives(gr)}
+{
+ "completeness": "complete",
+ "requests_ok": 90,
+ "ledger": {
+  "requests": 90,
+  "bytes": 349154,
+  "files": 0,
+  "open_attempts": 0
+ }
+}

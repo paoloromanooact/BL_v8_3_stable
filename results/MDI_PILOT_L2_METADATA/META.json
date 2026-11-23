@@ -1,0 +1,27 @@
+{
+  "protocol_sha256": "77367350e8f9a5f71933afdcc791429b307c95ec1875224c1f2d7486950d086f",
+  "script_sha256": "6bfe425703ab18e7e3b6fe79e8225bc077a2f85e37db79d14755c050386d6a6c",
+  "ledger_module_sha256": "f175b89a8d8d2989e9e97d69d159dd7ec82488f5131d4731fc544e42757b5a66",
+  "selection_meta_sha256": "b7e3e7007069cabb01536abfa4d62f6a83a585118acb4425a35a677c8897177e",
+  "level2_groups": 90,
+  "requests_ok": 90,
+  "completeness": "complete",
+  "stopped": "",
+  "derivation_errors": [],
+  "ledger_totals_after": {
+    "requests": 90,
+    "bytes": 349154,
+    "files": 0,
+    "open_attempts": 0
+  },
+  "git_commit": "54b9422178099e75cc890a93e709d1f5b902bd5d",
+  "products_sha256": {
+    "ADMISSIBLE_ALTERNATIVES.csv": "f4f977a0cadbcf7f39d6203a5ae3b3150bc0dd6734404bf69ac2bb5bdd2439d8",
+    "ANSWERS.jsonl": "be4ed7606863b8ddbf5e7318ac70e03de709e686c9ab446da396ea6b88a67bb8",
+    "CHOICES.csv": "c0555030ddfccc9ab173f45f17dfc3253f2a5366b26490eb29793d1572211168",
+    "DISCARDED.csv": "17d9c3019c7c431903fde53f55b8458d93e7525c81571581f05d8accb780efb4",
+    "DOWNLOAD_PLAN.csv": "db61fa83245255c8efe86cf8060d666ce5c63721af83691089a7d1d82941d674",
+    "GROUPS.csv": "b894a813d59d517159e73f87600d88d49e690f75e093eab411990aa8bf9cd1d4",
+    "QUALITY_INTERVAL.csv": "87b59f35c91110844c00b91a4e4d224156aae231b98a9adc83afd95fdd0dc972"
+  }
+}
