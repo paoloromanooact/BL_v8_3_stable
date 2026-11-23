@@ -178,3 +178,325 @@
 {"id": "metadata-176-20261123T160039398391", "phase": "end", "kind": "metadata", "requests": 1, "bytes": 3791, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:00:40.489797+00:00"}
 {"id": "metadata-178-20261123T160040494291", "phase": "start", "kind": "metadata", "target": "mdi.fd_M_96m_lev182[2000.02.12_03:05:43_TAI-2000.02.12_23:05:43_TAI]", "reserve_bytes": 5000000, "utc": "2026-11-23T16:00:40.494392+00:00"}
 {"id": "metadata-178-20261123T160040494291", "phase": "end", "kind": "metadata", "requests": 1, "bytes": 3804, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:00:41.755523+00:00"}
+{"id": "fits-180-20261123T164423407266", "phase": "start", "kind": "fits", "target": "/SUM30/D300355220/S00008/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:44:23.407419+00:00"}
+{"id": "fits-180-20261123T164423407266", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1581120, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:44:28.119582+00:00"}
+{"id": "fits-182-20261123T164428122936", "phase": "start", "kind": "fits", "target": "/SUM30/D300355220/S00009/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:44:28.123053+00:00"}
+{"id": "fits-182-20261123T164428122936", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1581120, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:44:31.986367+00:00"}
+{"id": "fits-184-20261123T164431989332", "phase": "start", "kind": "fits", "target": "/SUM30/D300362092/S00006/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:44:31.989438+00:00"}
+{"id": "fits-184-20261123T164431989332", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1419840, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:44:35.858886+00:00"}
+{"id": "fits-186-20261123T164435861875", "phase": "start", "kind": "fits", "target": "/SUM30/D300362092/S00007/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:44:35.861988+00:00"}
+{"id": "fits-186-20261123T164435861875", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1419840, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:44:39.872133+00:00"}
+{"id": "fits-188-20261123T164439875272", "phase": "start", "kind": "fits", "target": "/SUM30/D300364552/S00009/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:44:39.875388+00:00"}
+{"id": "fits-188-20261123T164439875272", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1480320, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:44:43.936506+00:00"}
+{"id": "fits-190-20261123T164443939719", "phase": "start", "kind": "fits", "target": "/SUM30/D300364552/S00010/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:44:43.939816+00:00"}
+{"id": "fits-190-20261123T164443939719", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1480320, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:44:47.754398+00:00"}
+{"id": "fits-192-20261123T164447757404", "phase": "start", "kind": "fits", "target": "/SUM30/D300373457/S00007/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:44:47.757506+00:00"}
+{"id": "fits-192-20261123T164447757404", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1463040, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:44:51.667354+00:00"}
+{"id": "fits-194-20261123T164451670680", "phase": "start", "kind": "fits", "target": "/SUM30/D300373457/S00008/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:44:51.670813+00:00"}
+{"id": "fits-194-20261123T164451670680", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1463040, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:44:55.062999+00:00"}
+{"id": "fits-196-20261123T164455066122", "phase": "start", "kind": "fits", "target": "/SUM30/D300374449/S00007/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:44:55.066228+00:00"}
+{"id": "fits-196-20261123T164455066122", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1494720, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:44:58.965427+00:00"}
+{"id": "fits-198-20261123T164458969280", "phase": "start", "kind": "fits", "target": "/SUM30/D300374449/S00008/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:44:58.969390+00:00"}
+{"id": "fits-198-20261123T164458969280", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1494720, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:45:02.777849+00:00"}
+{"id": "fits-200-20261123T164502781288", "phase": "start", "kind": "fits", "target": "/SUM30/D300386283/S00006/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:45:02.781412+00:00"}
+{"id": "fits-200-20261123T164502781288", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1532160, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:45:06.817860+00:00"}
+{"id": "fits-202-20261123T164506819661", "phase": "start", "kind": "fits", "target": "/SUM30/D300386283/S00007/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:45:06.819748+00:00"}
+{"id": "fits-202-20261123T164506819661", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1532160, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:45:10.566208+00:00"}
+{"id": "fits-204-20261123T164510569426", "phase": "start", "kind": "fits", "target": "/SUM30/D300387049/S00005/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:45:10.569536+00:00"}
+{"id": "fits-204-20261123T164510569426", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1431360, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:45:14.267608+00:00"}
+{"id": "fits-206-20261123T164514271176", "phase": "start", "kind": "fits", "target": "/SUM30/D300387049/S00006/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:45:14.271353+00:00"}
+{"id": "fits-206-20261123T164514271176", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1431360, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:45:18.048939+00:00"}
+{"id": "fits-208-20261123T164518052085", "phase": "start", "kind": "fits", "target": "/SUM30/D300392779/S00005/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:45:18.052184+00:00"}
+{"id": "fits-208-20261123T164518052085", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1584000, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:45:22.050225+00:00"}
+{"id": "fits-210-20261123T164522053854", "phase": "start", "kind": "fits", "target": "/SUM30/D300392779/S00006/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:45:22.053966+00:00"}
+{"id": "fits-210-20261123T164522053854", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1584000, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:45:26.120788+00:00"}
+{"id": "fits-212-20261123T164526124139", "phase": "start", "kind": "fits", "target": "/SUM30/D300395668/S00007/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:45:26.124241+00:00"}
+{"id": "fits-212-20261123T164526124139", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1514880, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:45:30.224954+00:00"}
+{"id": "fits-214-20261123T164530228514", "phase": "start", "kind": "fits", "target": "/SUM30/D300395668/S00008/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:45:30.228661+00:00"}
+{"id": "fits-214-20261123T164530228514", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1514880, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:45:34.500064+00:00"}
+{"id": "fits-216-20261123T164534503260", "phase": "start", "kind": "fits", "target": "/SUM30/D300395799/S00006/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:45:34.503412+00:00"}
+{"id": "fits-216-20261123T164534503260", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1506240, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:45:38.822699+00:00"}
+{"id": "fits-218-20261123T164538826385", "phase": "start", "kind": "fits", "target": "/SUM30/D300395799/S00007/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:45:38.826561+00:00"}
+{"id": "fits-218-20261123T164538826385", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1506240, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:45:42.956297+00:00"}
+{"id": "fits-220-20261123T164542959923", "phase": "start", "kind": "fits", "target": "/SUM30/D300397161/S00006/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:45:42.960051+00:00"}
+{"id": "fits-220-20261123T164542959923", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1491840, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:45:46.916557+00:00"}
+{"id": "fits-222-20261123T164546920813", "phase": "start", "kind": "fits", "target": "/SUM30/D300397161/S00007/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:45:46.921006+00:00"}
+{"id": "fits-222-20261123T164546920813", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1491840, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:45:51.044819+00:00"}
+{"id": "fits-224-20261123T164551048454", "phase": "start", "kind": "fits", "target": "/SUM30/D300397923/S00006/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:45:51.048553+00:00"}
+{"id": "fits-224-20261123T164551048454", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1480320, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:45:54.757087+00:00"}
+{"id": "fits-226-20261123T164554759060", "phase": "start", "kind": "fits", "target": "/SUM30/D300397923/S00007/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:45:54.759125+00:00"}
+{"id": "fits-226-20261123T164554759060", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1480320, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:45:58.462463+00:00"}
+{"id": "fits-228-20261123T164558466200", "phase": "start", "kind": "fits", "target": "/SUM30/D300398380/S00006/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:45:58.466298+00:00"}
+{"id": "fits-228-20261123T164558466200", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1477440, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:46:02.129171+00:00"}
+{"id": "fits-230-20261123T164602132767", "phase": "start", "kind": "fits", "target": "/SUM30/D300398380/S00007/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:46:02.132878+00:00"}
+{"id": "fits-230-20261123T164602132767", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1474560, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:46:05.744470+00:00"}
+{"id": "fits-232-20261123T164605747981", "phase": "start", "kind": "fits", "target": "/SUM30/D300401155/S00003/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:46:05.748089+00:00"}
+{"id": "fits-232-20261123T164605747981", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1440000, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:46:09.561609+00:00"}
+{"id": "fits-234-20261123T164609565238", "phase": "start", "kind": "fits", "target": "/SUM30/D300401155/S00004/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:46:09.565365+00:00"}
+{"id": "fits-234-20261123T164609565238", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1440000, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:46:13.260602+00:00"}
+{"id": "fits-236-20261123T164613264570", "phase": "start", "kind": "fits", "target": "/SUM31/D300354266/S00004/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:46:13.264703+00:00"}
+{"id": "fits-236-20261123T164613264570", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1578240, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:46:17.238905+00:00"}
+{"id": "fits-238-20261123T164617242680", "phase": "start", "kind": "fits", "target": "/SUM31/D300354266/S00005/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:46:17.242792+00:00"}
+{"id": "fits-238-20261123T164617242680", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1578240, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:46:21.072720+00:00"}
+{"id": "fits-240-20261123T164621076261", "phase": "start", "kind": "fits", "target": "/SUM31/D300357562/S00006/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:46:21.076376+00:00"}
+{"id": "fits-240-20261123T164621076261", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1555200, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:46:24.967153+00:00"}
+{"id": "fits-242-20261123T164624971839", "phase": "start", "kind": "fits", "target": "/SUM31/D300357562/S00007/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:46:24.971974+00:00"}
+{"id": "fits-242-20261123T164624971839", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1555200, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:46:28.850065+00:00"}
+{"id": "fits-244-20261123T164628852299", "phase": "start", "kind": "fits", "target": "/SUM31/D300370392/S00007/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:46:28.852358+00:00"}
+{"id": "fits-244-20261123T164628852299", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1520640, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:46:32.847482+00:00"}
+{"id": "fits-246-20261123T164632851528", "phase": "start", "kind": "fits", "target": "/SUM31/D300370392/S00008/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:46:32.851681+00:00"}
+{"id": "fits-246-20261123T164632851528", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1520640, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:46:36.817368+00:00"}
+{"id": "fits-248-20261123T164636821328", "phase": "start", "kind": "fits", "target": "/SUM31/D300372527/S00004/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:46:36.821459+00:00"}
+{"id": "fits-248-20261123T164636821328", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1512000, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:46:40.312371+00:00"}
+{"id": "fits-250-20261123T164640316166", "phase": "start", "kind": "fits", "target": "/SUM31/D300372527/S00005/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:46:40.316310+00:00"}
+{"id": "fits-250-20261123T164640316166", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1512000, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:46:44.497534+00:00"}
+{"id": "fits-252-20261123T164644501684", "phase": "start", "kind": "fits", "target": "/SUM31/D300383407/S00007/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:46:44.501819+00:00"}
+{"id": "fits-252-20261123T164644501684", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1592640, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:46:48.465772+00:00"}
+{"id": "fits-254-20261123T164648469535", "phase": "start", "kind": "fits", "target": "/SUM31/D300383407/S00009/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:46:48.470320+00:00"}
+{"id": "fits-254-20261123T164648469535", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1592640, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:46:52.488959+00:00"}
+{"id": "fits-256-20261123T164652493365", "phase": "start", "kind": "fits", "target": "/SUM31/D300385198/S00006/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:46:52.493562+00:00"}
+{"id": "fits-256-20261123T164652493365", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1560960, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:46:56.482756+00:00"}
+{"id": "fits-258-20261123T164656484900", "phase": "start", "kind": "fits", "target": "/SUM31/D300385198/S00007/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:46:56.484955+00:00"}
+{"id": "fits-258-20261123T164656484900", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1560960, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:47:00.129509+00:00"}
+{"id": "fits-260-20261123T164700133519", "phase": "start", "kind": "fits", "target": "/SUM31/D300390643/S00007/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:47:00.133642+00:00"}
+{"id": "fits-260-20261123T164700133519", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1581120, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:47:04.080681+00:00"}
+{"id": "fits-262-20261123T164704084816", "phase": "start", "kind": "fits", "target": "/SUM31/D300390643/S00008/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:47:04.084933+00:00"}
+{"id": "fits-262-20261123T164704084816", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1581120, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:47:07.953525+00:00"}
+{"id": "fits-264-20261123T164707957495", "phase": "start", "kind": "fits", "target": "/SUM31/D300401244/S00006/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:47:07.957642+00:00"}
+{"id": "fits-264-20261123T164707957495", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1497600, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:47:11.996833+00:00"}
+{"id": "fits-266-20261123T164712003093", "phase": "start", "kind": "fits", "target": "/SUM31/D300401244/S00007/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:47:12.003284+00:00"}
+{"id": "fits-266-20261123T164712003093", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1497600, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:47:16.052283+00:00"}
+{"id": "fits-268-20261123T164716056335", "phase": "start", "kind": "fits", "target": "/SUM31/D300402644/S00009/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:47:16.056470+00:00"}
+{"id": "fits-268-20261123T164716056335", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1514880, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:47:20.038836+00:00"}
+{"id": "fits-270-20261123T164720042881", "phase": "start", "kind": "fits", "target": "/SUM31/D300402644/S00010/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:47:20.043008+00:00"}
+{"id": "fits-270-20261123T164720042881", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1514880, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:47:23.981908+00:00"}
+{"id": "fits-272-20261123T164723986562", "phase": "start", "kind": "fits", "target": "/SUM32/D300363758/S00004/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:47:23.986732+00:00"}
+{"id": "fits-272-20261123T164723986562", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1526400, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:47:27.936449+00:00"}
+{"id": "fits-274-20261123T164727941222", "phase": "start", "kind": "fits", "target": "/SUM32/D300363758/S00005/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:47:27.941404+00:00"}
+{"id": "fits-274-20261123T164727941222", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1529280, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:47:31.639395+00:00"}
+{"id": "fits-276-20261123T164731643696", "phase": "start", "kind": "fits", "target": "/SUM32/D300386772/S00008/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:47:31.643805+00:00"}
+{"id": "fits-276-20261123T164731643696", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1448640, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:47:35.129164+00:00"}
+{"id": "fits-278-20261123T164735133223", "phase": "start", "kind": "fits", "target": "/SUM32/D300386772/S00009/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:47:35.133353+00:00"}
+{"id": "fits-278-20261123T164735133223", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1448640, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:47:38.996988+00:00"}
+{"id": "fits-280-20261123T164739001337", "phase": "start", "kind": "fits", "target": "/SUM32/D300390971/S00005/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:47:39.001443+00:00"}
+{"id": "fits-280-20261123T164739001337", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1578240, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:47:42.857884+00:00"}
+{"id": "fits-282-20261123T164742862367", "phase": "start", "kind": "fits", "target": "/SUM32/D300390971/S00006/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:47:42.862514+00:00"}
+{"id": "fits-282-20261123T164742862367", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1578240, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:47:46.836441+00:00"}
+{"id": "fits-284-20261123T164746840763", "phase": "start", "kind": "fits", "target": "/SUM32/D300404374/S00008/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:47:46.840877+00:00"}
+{"id": "fits-284-20261123T164746840763", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1558080, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:47:50.601363+00:00"}
+{"id": "fits-286-20261123T164750605639", "phase": "start", "kind": "fits", "target": "/SUM32/D300404374/S00009/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:47:50.605736+00:00"}
+{"id": "fits-286-20261123T164750605639", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1558080, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:47:54.542657+00:00"}
+{"id": "fits-288-20261123T164754548469", "phase": "start", "kind": "fits", "target": "/SUM33/D300363642/S00007/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:47:54.548602+00:00"}
+{"id": "fits-288-20261123T164754548469", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1454400, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:47:58.254560+00:00"}
+{"id": "fits-290-20261123T164758259113", "phase": "start", "kind": "fits", "target": "/SUM33/D300363642/S00008/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:47:58.259229+00:00"}
+{"id": "fits-290-20261123T164758259113", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1454400, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:48:01.990505+00:00"}
+{"id": "fits-292-20261123T164801994682", "phase": "start", "kind": "fits", "target": "/SUM33/D300379645/S00005/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:48:01.994800+00:00"}
+{"id": "fits-292-20261123T164801994682", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1520640, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:48:06.173478+00:00"}
+{"id": "fits-294-20261123T164806177986", "phase": "start", "kind": "fits", "target": "/SUM33/D300379645/S00006/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:48:06.178116+00:00"}
+{"id": "fits-294-20261123T164806177986", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1520640, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:48:10.269563+00:00"}
+{"id": "fits-296-20261123T164810273579", "phase": "start", "kind": "fits", "target": "/SUM33/D300381814/S00007/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:48:10.273695+00:00"}
+{"id": "fits-296-20261123T164810273579", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1584000, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:48:14.220469+00:00"}
+{"id": "fits-298-20261123T164814226018", "phase": "start", "kind": "fits", "target": "/SUM33/D300381814/S00008/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:48:14.226243+00:00"}
+{"id": "fits-298-20261123T164814226018", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1581120, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:48:18.230280+00:00"}
+{"id": "fits-300-20261123T164818234680", "phase": "start", "kind": "fits", "target": "/SUM33/D300382307/S00007/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:48:18.234836+00:00"}
+{"id": "fits-300-20261123T164818234680", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1572480, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:48:21.828806+00:00"}
+{"id": "fits-302-20261123T164821833327", "phase": "start", "kind": "fits", "target": "/SUM33/D300382307/S00008/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:48:21.833438+00:00"}
+{"id": "fits-302-20261123T164821833327", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1572480, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:48:25.701220+00:00"}
+{"id": "fits-304-20261123T164825705867", "phase": "start", "kind": "fits", "target": "/SUM33/D300386070/S00005/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:48:25.706045+00:00"}
+{"id": "fits-304-20261123T164825705867", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1483200, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:48:29.464084+00:00"}
+{"id": "fits-306-20261123T164829468718", "phase": "start", "kind": "fits", "target": "/SUM33/D300386070/S00006/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:48:29.468848+00:00"}
+{"id": "fits-306-20261123T164829468718", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1483200, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:48:33.474684+00:00"}
+{"id": "fits-308-20261123T164833479399", "phase": "start", "kind": "fits", "target": "/SUM33/D300390115/S00004/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:48:33.479536+00:00"}
+{"id": "fits-308-20261123T164833479399", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1442880, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:48:37.543352+00:00"}
+{"id": "fits-310-20261123T164837548824", "phase": "start", "kind": "fits", "target": "/SUM33/D300390115/S00005/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:48:37.548948+00:00"}
+{"id": "fits-310-20261123T164837548824", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1442880, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:48:41.324635+00:00"}
+{"id": "fits-312-20261123T164841329512", "phase": "start", "kind": "fits", "target": "/SUM33/D300395150/S00005/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:48:41.329674+00:00"}
+{"id": "fits-312-20261123T164841329512", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1529280, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:48:45.188358+00:00"}
+{"id": "fits-314-20261123T164845193335", "phase": "start", "kind": "fits", "target": "/SUM33/D300406864/S00006/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:48:45.193463+00:00"}
+{"id": "fits-314-20261123T164845193335", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1595520, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:48:49.172912+00:00"}
+{"id": "fits-316-20261123T164849177695", "phase": "start", "kind": "fits", "target": "/SUM33/D300406864/S00007/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:48:49.177811+00:00"}
+{"id": "fits-316-20261123T164849177695", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1595520, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:48:53.151274+00:00"}
+{"id": "fits-318-20261123T164853156248", "phase": "start", "kind": "fits", "target": "/SUM40/D300364840/S00009/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:48:53.156400+00:00"}
+{"id": "fits-318-20261123T164853156248", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1477440, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:48:57.185398+00:00"}
+{"id": "fits-320-20261123T164857188100", "phase": "start", "kind": "fits", "target": "/SUM40/D300364840/S00010/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:48:57.188170+00:00"}
+{"id": "fits-320-20261123T164857188100", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1477440, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:49:02.350686+00:00"}
+{"id": "fits-322-20261123T164902355245", "phase": "start", "kind": "fits", "target": "/SUM40/D300367708/S00006/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:49:02.355366+00:00"}
+{"id": "fits-322-20261123T164902355245", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1595520, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:49:06.478598+00:00"}
+{"id": "fits-324-20261123T164906483486", "phase": "start", "kind": "fits", "target": "/SUM40/D300367708/S00007/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:49:06.483620+00:00"}
+{"id": "fits-324-20261123T164906483486", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1595520, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:49:10.600049+00:00"}
+{"id": "fits-326-20261123T164910604901", "phase": "start", "kind": "fits", "target": "/SUM40/D300371263/S00007/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:49:10.605053+00:00"}
+{"id": "fits-326-20261123T164910604901", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1500480, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:49:14.270050+00:00"}
+{"id": "fits-328-20261123T164914274913", "phase": "start", "kind": "fits", "target": "/SUM40/D300371263/S00008/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:49:14.275029+00:00"}
+{"id": "fits-328-20261123T164914274913", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1500480, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:49:17.779504+00:00"}
+{"id": "fits-330-20261123T164917784516", "phase": "start", "kind": "fits", "target": "/SUM40/D300375258/S00004/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:49:17.784662+00:00"}
+{"id": "fits-330-20261123T164917784516", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1509120, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:49:21.351969+00:00"}
+{"id": "fits-332-20261123T164921356902", "phase": "start", "kind": "fits", "target": "/SUM40/D300375258/S00005/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:49:21.357040+00:00"}
+{"id": "fits-332-20261123T164921356902", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1509120, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:49:25.201549+00:00"}
+{"id": "fits-334-20261123T164925206671", "phase": "start", "kind": "fits", "target": "/SUM40/D300376959/S00004/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:49:25.206837+00:00"}
+{"id": "fits-334-20261123T164925206671", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1552320, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:49:29.295617+00:00"}
+{"id": "fits-336-20261123T164929300741", "phase": "start", "kind": "fits", "target": "/SUM40/D300376959/S00006/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:49:29.300875+00:00"}
+{"id": "fits-336-20261123T164929300741", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1552320, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:49:33.436831+00:00"}
+{"id": "fits-338-20261123T164933441861", "phase": "start", "kind": "fits", "target": "/SUM40/D300379895/S00006/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:49:33.442002+00:00"}
+{"id": "fits-338-20261123T164933441861", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1598400, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:49:37.354701+00:00"}
+{"id": "fits-340-20261123T164937359625", "phase": "start", "kind": "fits", "target": "/SUM40/D300382838/S00005/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:49:37.359747+00:00"}
+{"id": "fits-340-20261123T164937359625", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1569600, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:49:41.437405+00:00"}
+{"id": "fits-342-20261123T164941442983", "phase": "start", "kind": "fits", "target": "/SUM40/D300382838/S00006/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:49:41.443169+00:00"}
+{"id": "fits-342-20261123T164941442983", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1569600, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:49:45.577472+00:00"}
+{"id": "fits-344-20261123T164945582578", "phase": "start", "kind": "fits", "target": "/SUM40/D300387976/S00006/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:49:45.582701+00:00"}
+{"id": "fits-344-20261123T164945582578", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1434240, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:49:49.148519+00:00"}
+{"id": "fits-346-20261123T164949153681", "phase": "start", "kind": "fits", "target": "/SUM40/D300387976/S00007/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:49:49.153862+00:00"}
+{"id": "fits-346-20261123T164949153681", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1434240, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:49:53.035719+00:00"}
+{"id": "fits-348-20261123T164953040956", "phase": "start", "kind": "fits", "target": "/SUM40/D300389111/S00009/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:49:53.041078+00:00"}
+{"id": "fits-348-20261123T164953040956", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1474560, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:49:56.849443+00:00"}
+{"id": "fits-350-20261123T164956854663", "phase": "start", "kind": "fits", "target": "/SUM40/D300389111/S00010/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:49:56.854808+00:00"}
+{"id": "fits-350-20261123T164956854663", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1474560, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:50:00.939281+00:00"}
+{"id": "fits-352-20261123T165000944634", "phase": "start", "kind": "fits", "target": "/SUM40/D300390878/S00007/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:50:00.944756+00:00"}
+{"id": "fits-352-20261123T165000944634", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1578240, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:50:04.823228+00:00"}
+{"id": "fits-354-20261123T165004828588", "phase": "start", "kind": "fits", "target": "/SUM40/D300391111/S00005/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:50:04.828733+00:00"}
+{"id": "fits-354-20261123T165004828588", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1532160, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:50:08.678332+00:00"}
+{"id": "fits-356-20261123T165008683522", "phase": "start", "kind": "fits", "target": "/SUM40/D300391111/S00006/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:50:08.683651+00:00"}
+{"id": "fits-356-20261123T165008683522", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1532160, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:50:12.784670+00:00"}
+{"id": "fits-358-20261123T165012789988", "phase": "start", "kind": "fits", "target": "/SUM40/D300395415/S00005/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:50:12.790112+00:00"}
+{"id": "fits-358-20261123T165012789988", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1523520, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:50:16.602205+00:00"}
+{"id": "fits-360-20261123T165016607507", "phase": "start", "kind": "fits", "target": "/SUM40/D300395415/S00006/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:50:16.607630+00:00"}
+{"id": "fits-360-20261123T165016607507", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1523520, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:50:20.541854+00:00"}
+{"id": "fits-362-20261123T165020547382", "phase": "start", "kind": "fits", "target": "/SUM40/D300402368/S00007/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:50:20.547510+00:00"}
+{"id": "fits-362-20261123T165020547382", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1440000, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:50:24.264924+00:00"}
+{"id": "fits-364-20261123T165024270317", "phase": "start", "kind": "fits", "target": "/SUM40/D300402368/S00009/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:50:24.270459+00:00"}
+{"id": "fits-364-20261123T165024270317", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1440000, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:50:28.183615+00:00"}
+{"id": "fits-366-20261123T165028189082", "phase": "start", "kind": "fits", "target": "/SUM41/D300361589/S00006/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:50:28.189233+00:00"}
+{"id": "fits-366-20261123T165028189082", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1488960, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:50:32.344767+00:00"}
+{"id": "fits-368-20261123T165032350807", "phase": "start", "kind": "fits", "target": "/SUM41/D300361589/S00007/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:50:32.351011+00:00"}
+{"id": "fits-368-20261123T165032350807", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1488960, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:50:35.822651+00:00"}
+{"id": "fits-370-20261123T165035827890", "phase": "start", "kind": "fits", "target": "/SUM41/D300365748/S00006/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:50:35.828024+00:00"}
+{"id": "fits-370-20261123T165035827890", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1578240, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:50:39.903839+00:00"}
+{"id": "fits-372-20261123T165039909754", "phase": "start", "kind": "fits", "target": "/SUM41/D300365748/S00007/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:50:39.909915+00:00"}
+{"id": "fits-372-20261123T165039909754", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1578240, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:50:43.773827+00:00"}
+{"id": "fits-374-20261123T165043779490", "phase": "start", "kind": "fits", "target": "/SUM41/D300369320/S00008/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:50:43.779638+00:00"}
+{"id": "fits-374-20261123T165043779490", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1451520, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:50:47.594757+00:00"}
+{"id": "fits-376-20261123T165047600285", "phase": "start", "kind": "fits", "target": "/SUM41/D300369320/S00009/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:50:47.600428+00:00"}
+{"id": "fits-376-20261123T165047600285", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1451520, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:50:51.293848+00:00"}
+{"id": "fits-378-20261123T165051299467", "phase": "start", "kind": "fits", "target": "/SUM41/D300372953/S00005/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:50:51.299630+00:00"}
+{"id": "fits-378-20261123T165051299467", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1497600, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:50:55.115434+00:00"}
+{"id": "fits-380-20261123T165055120854", "phase": "start", "kind": "fits", "target": "/SUM41/D300372953/S00006/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:50:55.120974+00:00"}
+{"id": "fits-380-20261123T165055120854", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1497600, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:50:59.025880+00:00"}
+{"id": "fits-382-20261123T165059031600", "phase": "start", "kind": "fits", "target": "/SUM41/D300379610/S00004/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:50:59.031723+00:00"}
+{"id": "fits-382-20261123T165059031600", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1460160, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:51:02.787522+00:00"}
+{"id": "fits-384-20261123T165102792771", "phase": "start", "kind": "fits", "target": "/SUM41/D300379610/S00005/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:51:02.792920+00:00"}
+{"id": "fits-384-20261123T165102792771", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1460160, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:51:06.779826+00:00"}
+{"id": "fits-386-20261123T165106786346", "phase": "start", "kind": "fits", "target": "/SUM41/D300388706/S00005/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:51:06.786554+00:00"}
+{"id": "fits-386-20261123T165106786346", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1494720, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:51:10.734626+00:00"}
+{"id": "fits-388-20261123T165110740431", "phase": "start", "kind": "fits", "target": "/SUM41/D300388706/S00006/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:51:10.740575+00:00"}
+{"id": "fits-388-20261123T165110740431", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1494720, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:51:14.595760+00:00"}
+{"id": "fits-390-20261123T165114601557", "phase": "start", "kind": "fits", "target": "/SUM41/D300389717/S00004/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:51:14.601679+00:00"}
+{"id": "fits-390-20261123T165114601557", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1500480, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:51:18.351405+00:00"}
+{"id": "fits-392-20261123T165118357015", "phase": "start", "kind": "fits", "target": "/SUM41/D300389717/S00005/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:51:18.357154+00:00"}
+{"id": "fits-392-20261123T165118357015", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1500480, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:51:22.414977+00:00"}
+{"id": "fits-394-20261123T165122421148", "phase": "start", "kind": "fits", "target": "/SUM41/D300390610/S00007/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:51:22.421338+00:00"}
+{"id": "fits-394-20261123T165122421148", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1578240, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:51:26.650992+00:00"}
+{"id": "fits-396-20261123T165126656736", "phase": "start", "kind": "fits", "target": "/SUM41/D300390610/S00008/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:51:26.656869+00:00"}
+{"id": "fits-396-20261123T165126656736", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1578240, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:51:30.517259+00:00"}
+{"id": "fits-398-20261123T165130524484", "phase": "start", "kind": "fits", "target": "/SUM42/D300357396/S00006/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:51:30.524624+00:00"}
+{"id": "fits-398-20261123T165130524484", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1560960, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:51:34.666034+00:00"}
+{"id": "fits-400-20261123T165134672054", "phase": "start", "kind": "fits", "target": "/SUM42/D300357396/S00007/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:51:34.672221+00:00"}
+{"id": "fits-400-20261123T165134672054", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1560960, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:51:38.468946+00:00"}
+{"id": "fits-402-20261123T165138474766", "phase": "start", "kind": "fits", "target": "/SUM42/D300369524/S00009/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:51:38.474900+00:00"}
+{"id": "fits-402-20261123T165138474766", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1575360, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:51:42.533009+00:00"}
+{"id": "fits-404-20261123T165142539214", "phase": "start", "kind": "fits", "target": "/SUM42/D300369524/S00010/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:51:42.539401+00:00"}
+{"id": "fits-404-20261123T165142539214", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1575360, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:51:46.395819+00:00"}
+{"id": "fits-406-20261123T165146401564", "phase": "start", "kind": "fits", "target": "/SUM42/D300373263/S00006/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:51:46.401691+00:00"}
+{"id": "fits-406-20261123T165146401564", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1428480, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:51:49.938456+00:00"}
+{"id": "fits-408-20261123T165149944570", "phase": "start", "kind": "fits", "target": "/SUM42/D300373263/S00007/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:51:49.944702+00:00"}
+{"id": "fits-408-20261123T165149944570", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1428480, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:51:53.359118+00:00"}
+{"id": "fits-410-20261123T165153365116", "phase": "start", "kind": "fits", "target": "/SUM42/D300375931/S00007/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:51:53.365249+00:00"}
+{"id": "fits-410-20261123T165153365116", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1457280, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:51:57.051229+00:00"}
+{"id": "fits-412-20261123T165157057237", "phase": "start", "kind": "fits", "target": "/SUM42/D300375931/S00008/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:51:57.057361+00:00"}
+{"id": "fits-412-20261123T165157057237", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1457280, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:52:00.859116+00:00"}
+{"id": "fits-414-20261123T165200865238", "phase": "start", "kind": "fits", "target": "/SUM42/D300381723/S00007/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:52:00.865375+00:00"}
+{"id": "fits-414-20261123T165200865238", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1581120, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:52:05.009102+00:00"}
+{"id": "fits-416-20261123T165205017265", "phase": "start", "kind": "fits", "target": "/SUM42/D300381723/S00008/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:52:05.017392+00:00"}
+{"id": "fits-416-20261123T165205017265", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1581120, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:52:08.741082+00:00"}
+{"id": "fits-418-20261123T165208747227", "phase": "start", "kind": "fits", "target": "/SUM42/D300387156/S00006/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:52:08.747355+00:00"}
+{"id": "fits-418-20261123T165208747227", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1428480, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:52:12.907189+00:00"}
+{"id": "fits-420-20261123T165212913259", "phase": "start", "kind": "fits", "target": "/SUM42/D300387156/S00008/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:52:12.913383+00:00"}
+{"id": "fits-420-20261123T165212913259", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1428480, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:52:16.541079+00:00"}
+{"id": "fits-422-20261123T165216547425", "phase": "start", "kind": "fits", "target": "/SUM42/D300388777/S00007/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:52:16.547556+00:00"}
+{"id": "fits-422-20261123T165216547425", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1491840, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:52:20.434032+00:00"}
+{"id": "fits-424-20261123T165220440150", "phase": "start", "kind": "fits", "target": "/SUM42/D300388777/S00008/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:52:20.440275+00:00"}
+{"id": "fits-424-20261123T165220440150", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1491840, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:52:24.302045+00:00"}
+{"id": "fits-426-20261123T165224308231", "phase": "start", "kind": "fits", "target": "/SUM42/D300391292/S00007/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:52:24.308366+00:00"}
+{"id": "fits-426-20261123T165224308231", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1537920, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:52:28.220822+00:00"}
+{"id": "fits-428-20261123T165228227313", "phase": "start", "kind": "fits", "target": "/SUM42/D300391292/S00008/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:52:28.227476+00:00"}
+{"id": "fits-428-20261123T165228227313", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1537920, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:52:31.744272+00:00"}
+{"id": "fits-430-20261123T165231750222", "phase": "start", "kind": "fits", "target": "/SUM42/D300392329/S00004/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:52:31.750375+00:00"}
+{"id": "fits-430-20261123T165231750222", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1572480, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:52:35.442125+00:00"}
+{"id": "fits-432-20261123T165235448273", "phase": "start", "kind": "fits", "target": "/SUM42/D300392329/S00005/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:52:35.448416+00:00"}
+{"id": "fits-432-20261123T165235448273", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1572480, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:52:39.367218+00:00"}
+{"id": "fits-434-20261123T165239374014", "phase": "start", "kind": "fits", "target": "/SUM42/D300395562/S00008/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:52:39.374176+00:00"}
+{"id": "fits-434-20261123T165239374014", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1584000, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:52:43.509817+00:00"}
+{"id": "fits-436-20261123T165243516049", "phase": "start", "kind": "fits", "target": "/SUM42/D300395562/S00009/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:52:43.516183+00:00"}
+{"id": "fits-436-20261123T165243516049", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1584000, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:52:47.591303+00:00"}
+{"id": "fits-438-20261123T165247598392", "phase": "start", "kind": "fits", "target": "/SUM43/D300358743/S00005/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:52:47.598564+00:00"}
+{"id": "fits-438-20261123T165247598392", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1529280, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:52:51.958205+00:00"}
+{"id": "fits-440-20261123T165251965930", "phase": "start", "kind": "fits", "target": "/SUM43/D300358743/S00006/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:52:51.966141+00:00"}
+{"id": "fits-440-20261123T165251965930", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1529280, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:52:55.547203+00:00"}
+{"id": "fits-442-20261123T165255554327", "phase": "start", "kind": "fits", "target": "/SUM43/D300367303/S00007/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:52:55.554528+00:00"}
+{"id": "fits-442-20261123T165255554327", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1595520, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:52:59.680438+00:00"}
+{"id": "fits-444-20261123T165259688900", "phase": "start", "kind": "fits", "target": "/SUM43/D300367303/S00008/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:52:59.689100+00:00"}
+{"id": "fits-444-20261123T165259688900", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1595520, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:53:03.848887+00:00"}
+{"id": "fits-446-20261123T165303857448", "phase": "start", "kind": "fits", "target": "/SUM43/D300372448/S00009/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:53:03.857680+00:00"}
+{"id": "fits-446-20261123T165303857448", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1405440, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:53:07.709194+00:00"}
+{"id": "fits-448-20261123T165307715636", "phase": "start", "kind": "fits", "target": "/SUM43/D300372448/S00010/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:53:07.715790+00:00"}
+{"id": "fits-448-20261123T165307715636", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1405440, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:53:11.356435+00:00"}
+{"id": "fits-450-20261123T165311363168", "phase": "start", "kind": "fits", "target": "/SUM43/D300375105/S00005/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:53:11.363301+00:00"}
+{"id": "fits-450-20261123T165311363168", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1500480, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:53:15.209529+00:00"}
+{"id": "fits-452-20261123T165315217074", "phase": "start", "kind": "fits", "target": "/SUM43/D300375105/S00006/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:53:15.217235+00:00"}
+{"id": "fits-452-20261123T165315217074", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1500480, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:53:18.967682+00:00"}
+{"id": "fits-454-20261123T165318975370", "phase": "start", "kind": "fits", "target": "/SUM43/D300381054/S00005/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:53:18.975572+00:00"}
+{"id": "fits-454-20261123T165318975370", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1514880, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:53:22.812273+00:00"}
+{"id": "fits-456-20261123T165322818840", "phase": "start", "kind": "fits", "target": "/SUM43/D300381054/S00006/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:53:22.819000+00:00"}
+{"id": "fits-456-20261123T165322818840", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1514880, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:53:26.512858+00:00"}
+{"id": "fits-458-20261123T165326519461", "phase": "start", "kind": "fits", "target": "/SUM43/D300382974/S00005/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:53:26.519613+00:00"}
+{"id": "fits-458-20261123T165326519461", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1491840, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:53:30.703097+00:00"}
+{"id": "fits-460-20261123T165330710084", "phase": "start", "kind": "fits", "target": "/SUM43/D300382974/S00006/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:53:30.710311+00:00"}
+{"id": "fits-460-20261123T165330710084", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1491840, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:53:34.592864+00:00"}
+{"id": "fits-462-20261123T165334600285", "phase": "start", "kind": "fits", "target": "/SUM43/D300385218/S00005/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:53:34.600438+00:00"}
+{"id": "fits-462-20261123T165334600285", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1503360, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:53:38.548850+00:00"}
+{"id": "fits-464-20261123T165338555612", "phase": "start", "kind": "fits", "target": "/SUM43/D300385218/S00006/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:53:38.555755+00:00"}
+{"id": "fits-464-20261123T165338555612", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1503360, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:53:42.362828+00:00"}
+{"id": "fits-466-20261123T165342369624", "phase": "start", "kind": "fits", "target": "/SUM43/D300389952/S00008/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:53:42.369769+00:00"}
+{"id": "fits-466-20261123T165342369624", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1437120, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:53:46.142365+00:00"}
+{"id": "fits-468-20261123T165346149139", "phase": "start", "kind": "fits", "target": "/SUM43/D300389952/S00009/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:53:46.149269+00:00"}
+{"id": "fits-468-20261123T165346149139", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1437120, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:53:49.521918+00:00"}
+{"id": "fits-470-20261123T165349529218", "phase": "start", "kind": "fits", "target": "/SUM43/D300393426/S00004/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:53:49.529398+00:00"}
+{"id": "fits-470-20261123T165349529218", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1575360, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:53:53.533707+00:00"}
+{"id": "fits-472-20261123T165353540240", "phase": "start", "kind": "fits", "target": "/SUM43/D300393426/S00005/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:53:53.540372+00:00"}
+{"id": "fits-472-20261123T165353540240", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1575360, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:53:57.467768+00:00"}
+{"id": "fits-474-20261123T165357475572", "phase": "start", "kind": "fits", "target": "/SUM43/D300395227/S00009/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:53:57.475738+00:00"}
+{"id": "fits-474-20261123T165357475572", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1497600, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:54:01.533037+00:00"}
+{"id": "fits-476-20261123T165401540386", "phase": "start", "kind": "fits", "target": "/SUM43/D300395227/S00010/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:54:01.540533+00:00"}
+{"id": "fits-476-20261123T165401540386", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1474560, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:54:05.537993+00:00"}
+{"id": "fits-478-20261123T165405544946", "phase": "start", "kind": "fits", "target": "/SUM43/D300395330/S00009/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:54:05.545088+00:00"}
+{"id": "fits-478-20261123T165405544946", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1520640, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:54:09.140898+00:00"}
+{"id": "fits-480-20261123T165409148065", "phase": "start", "kind": "fits", "target": "/SUM43/D300395330/S00010/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:54:09.148263+00:00"}
+{"id": "fits-480-20261123T165409148065", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1523520, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:54:12.906061+00:00"}
+{"id": "fits-482-20261123T165412912873", "phase": "start", "kind": "fits", "target": "/SUM43/D300396991/S00004/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:54:12.913003+00:00"}
+{"id": "fits-482-20261123T165412912873", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1411200, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:54:16.676924+00:00"}
+{"id": "fits-484-20261123T165416683766", "phase": "start", "kind": "fits", "target": "/SUM43/D300396991/S00005/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:54:16.684011+00:00"}
+{"id": "fits-484-20261123T165416683766", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1411200, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:54:20.348363+00:00"}
+{"id": "fits-486-20261123T165420355307", "phase": "start", "kind": "fits", "target": "/SUM43/D300397442/S00009/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:54:20.355442+00:00"}
+{"id": "fits-486-20261123T165420355307", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1494720, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:54:24.162018+00:00"}
+{"id": "fits-488-20261123T165424168987", "phase": "start", "kind": "fits", "target": "/SUM43/D300397442/S00010/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:54:24.169137+00:00"}
+{"id": "fits-488-20261123T165424168987", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1494720, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:54:27.984321+00:00"}
+{"id": "fits-490-20261123T165427991359", "phase": "start", "kind": "fits", "target": "/SUM43/D300398335/S00010/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:54:27.991503+00:00"}
+{"id": "fits-490-20261123T165427991359", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1537920, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:54:31.739084+00:00"}
+{"id": "fits-492-20261123T165431746077", "phase": "start", "kind": "fits", "target": "/SUM43/D300398335/S00011/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:54:31.746228+00:00"}
+{"id": "fits-492-20261123T165431746077", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1537920, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:54:35.582536+00:00"}
+{"id": "fits-494-20261123T165435589226", "phase": "start", "kind": "fits", "target": "/SUM43/D300403261/S00007/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:54:35.589387+00:00"}
+{"id": "fits-494-20261123T165435589226", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1500480, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:54:39.496356+00:00"}
+{"id": "fits-496-20261123T165439530814", "phase": "start", "kind": "fits", "target": "/SUM43/D300403261/S00009/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:54:39.530943+00:00"}
+{"id": "fits-496-20261123T165439530814", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1503360, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:54:43.206377+00:00"}
+{"id": "fits-498-20261123T165443213376", "phase": "start", "kind": "fits", "target": "/SUM30/D300398380/S00005/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:54:43.213514+00:00"}
+{"id": "fits-498-20261123T165443213376", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1477440, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:54:48.127078+00:00"}
+{"id": "fits-500-20261123T165448134418", "phase": "start", "kind": "fits", "target": "/SUM40/D300389111/S00012/data.fits", "reserve_bytes": 33554432, "utc": "2026-11-23T16:54:48.134560+00:00"}
+{"id": "fits-500-20261123T165448134418", "phase": "end", "kind": "fits", "requests": 2, "bytes": 1546560, "status": "ok", "stage": "", "error": "", "utc": "2026-11-23T16:54:51.863681+00:00"}

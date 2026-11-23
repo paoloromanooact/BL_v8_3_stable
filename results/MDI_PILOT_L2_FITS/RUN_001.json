@@ -1,0 +1,17 @@
+{
+  "run": 1,
+  "plan_meta_sha256": "53d40b1fe61f7fcb9348f1106b9996a50b7991e8a03404aba389b9eef3150fa3",
+  "script_sha256": "1f663f15cd75b74be4db897c6d1a28b31f52d054101eec93445d857196d65210",
+  "planned": 161,
+  "complete": 161,
+  "completeness": "complete",
+  "stopped": "",
+  "states": {},
+  "ledger_totals_after": {
+    "requests": 412,
+    "bytes": 243994274,
+    "files": 161,
+    "open_attempts": 0
+  },
+  "checkpoint_sha256": "dfa819089ef95f0e099e9a079f8abfaec34e820c9438dde8ecff937cfde845a8"
+}
