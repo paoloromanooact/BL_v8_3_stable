@@ -1,0 +1,27 @@
+{
+  "protocol": "docs/PROTOCOL_MDI_TILT_PILOT_AMENDMENT_A1.md",
+  "sha256": "73a075e804dfceeb6c38ba86aa04b51547be3d30f4bae9c1a599a3704d4ea296",
+  "freeze_commit": "0428653af94905693bae5b7a2ad451c0988f4d9e",
+  "parent_protocol": "docs/PROTOCOL_MDI_TILT_PILOT.md",
+  "parent_sha256": "77367350e8f9a5f71933afdcc791429b307c95ec1875224c1f2d7486950d086f",
+  "source_metadata_commit": "98ee895",
+  "source_metadata_meta_sha256": "bc8837ac0f43a6d1baa9c958309e9242c119bd40f6b5380f9c219d5bd516b4ff",
+  "metadata_recount_commit": "9d3e937",
+  "metadata_recount_receipt_sha256": "e6284115f018c260fa92e4befc862e7c17cb8bea3729d853d68f0c8db424c930",
+  "not_blind": true,
+  "admissible_quality": [
+    0,
+    512
+  ],
+  "main_files_from_metadata": 159,
+  "original_baseline_supplementary_files": 2,
+  "expected_union_files": 161,
+  "budget_unchanged": {
+    "requests": 600,
+    "files": 220,
+    "bytes": 1500000000,
+    "unknown_file_reservation_bytes": 33554432
+  },
+  "network_authorized": false,
+  "status": "frozen before FITS L2; code and plan review and explicit user authorization still required"
+}

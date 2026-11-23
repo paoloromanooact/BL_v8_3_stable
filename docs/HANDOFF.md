@@ -2,6 +2,8 @@
 
 ## MDI L2 — emendamento A1 congelato, nessun via ai FITS
 
+- Congelamento `0428653`; ricevuta `docs/PROTOCOL_MDI_TILT_PILOT_AMENDMENT_A1_FREEZE.json`.
+
 - Testo `docs/PROTOCOL_MDI_TILT_PILOT_AMENDMENT_A1.md`; revisione in `docs/MDI_TILT_PILOT_A1_CODEX_REVIEW.md`.
 - QUALITY esattamente {0,0x200}; altri esclusi. Scelte principali A/B invariate, risultati distinti per QUALITY/INTERVAL.
 - Controllo originale con assegnazioni originali: due file supplementari, 161 file unici pianificabili; nessun nuovo gruppo.
