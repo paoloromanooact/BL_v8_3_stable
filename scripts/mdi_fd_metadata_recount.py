@@ -261,7 +261,8 @@ def check(md=MD, sel=SEL, sel_rec=SEL_REC, ledger=LEDGER, protocol=PROTOCOL, fre
     ok("queries: authorised series, selected DPD instant and exact +/-10 h window independently rebuilt", query_ok)
     own, n_ok = rebuild(answers, l2)
     for name, df in own.items():
-        g, why = frames_equal(pd.read_csv(md / name, dtype={"noaa": str}, keep_default_na=True, float_precision="round_trip"), df)
+        # keep JSOC's literal "NA" (unavailable size) as a string: only empty fields are missing
+        g, why = frames_equal(pd.read_csv(md / name, dtype={"noaa": str}, keep_default_na=False, na_values=[""], float_precision="round_trip"), df)
         ok(f"{name}: every column, key and value", g, why)
     complete = n_ok == len(l2) and not meta.get("stopped") and not meta.get("derivation_errors")
     ok("META completeness, requests_ok and level2_groups rebuilt", meta.get("completeness") == ("complete" if complete else "incomplete")
@@ -316,11 +317,11 @@ def selftest():
     def quiet(fn, *a, **k):
         with contextlib.redirect_stdout(io.StringIO()):
             return fn(*a, **k)
-    base = [M.rec("2000.06.01_08:00:00_TAI", "2000.06.01_08:01:00_TAI", path="/SUM1/a"),
+    base = [M.rec("2000.06.01_08:00:00_TAI", "2000.06.01_08:01:00_TAI", path="/SUM1/a", size="NA"),     # chosen record with JSOC "NA" size
             M.rec("2000.06.01_09:36:00_TAI", "2000.06.01_09:37:00.5_TAI", path="/SUM1/b", q="0x00000200"),
             M.rec("2000.06.01_11:12:00_TAI", "2000.06.01_11:13:00_TAI", path="/SUM1/c"),
             M.rec("2000.06.01_12:48:00_TAI", "2000.06.01_12:49:00_TAI", path="/SUM1/d", interval="MISSING", q=None),
-            M.rec("2000.06.01_13:00:00_TAI", "2000.06.01_13:00:32_TAI", path="/SUM1/e", q="zz", size="MISSING")]
+            M.rec("2000.06.01_13:00:00_TAI", "2000.06.01_13:00:32_TAI", path="/SUM1/e", q="zz", size="NA")]
     empty = dict(status=0, count=0, keywords=[dict(name=n, values=[]) for n in ("T_REC", "T_OBS", "QUALITY", "INTERVAL")],
                  segments=[dict(name="data", values=[])])
     with tempfile.TemporaryDirectory() as td:

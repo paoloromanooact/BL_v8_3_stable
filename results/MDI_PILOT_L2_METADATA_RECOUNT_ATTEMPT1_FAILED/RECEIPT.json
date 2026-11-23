@@ -1,0 +1,73 @@
+{
+  "passed": 11,
+  "total": 12,
+  "partial": false,
+  "checks": [
+    {
+      "name": "metadata products: exact set and actual hashes before reading",
+      "ok": true,
+      "info": ""
+    },
+    {
+      "name": "selection provenance: protocol, products and hashes, strict receipt, link",
+      "ok": true,
+      "info": ""
+    },
+    {
+      "name": "answers: unique, every level-2 unit present once, none extra, JSOC status and schema",
+      "ok": true,
+      "info": "(90, 90)"
+    },
+    {
+      "name": "queries: authorised series, selected DPD instant and exact +/-10 h window independently rebuilt",
+      "ok": true,
+      "info": ""
+    },
+    {
+      "name": "CHOICES.csv: every column, key and value",
+      "ok": false,
+      "info": "A_size"
+    },
+    {
+      "name": "GROUPS.csv: every column, key and value",
+      "ok": true,
+      "info": ""
+    },
+    {
+      "name": "DISCARDED.csv: every column, key and value",
+      "ok": true,
+      "info": ""
+    },
+    {
+      "name": "DOWNLOAD_PLAN.csv: every column, key and value",
+      "ok": true,
+      "info": ""
+    },
+    {
+      "name": "QUALITY_INTERVAL.csv: every column, key and value",
+      "ok": true,
+      "info": ""
+    },
+    {
+      "name": "ADMISSIBLE_ALTERNATIVES.csv: every column, key and value",
+      "ok": true,
+      "info": ""
+    },
+    {
+      "name": "META completeness, requests_ok and level2_groups rebuilt",
+      "ok": true,
+      "info": "('complete', 90)"
+    },
+    {
+      "name": "ledger: each request matched in order to one start/end with the same target, status and bytes",
+      "ok": true,
+      "info": ""
+    }
+  ],
+  "metadata_meta_sha256": "bc8837ac0f43a6d1baa9c958309e9242c119bd40f6b5380f9c219d5bd516b4ff",
+  "coverage": "90/90 level-2 units answered",
+  "completeness": "complete",
+  "ledger_prefix_sha256": "88fe24214cdf5f510e05a1aef483122409ddee197d2b70bd546a8f86f84f35fc",
+  "ledger_prefix_lines": 180,
+  "script_sha256": "f42b015a8f3f9acc34a99ec5e8d18bff235cabd0ca90f199d9bfe649ca62132d"
+}

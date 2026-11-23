@@ -1,0 +1,13 @@
+[OK] metadata products: exact set and actual hashes before reading 
+[OK] selection provenance: protocol, products and hashes, strict receipt, link 
+[OK] answers: unique, every level-2 unit present once, none extra, JSOC status and schema (90, 90)
+[OK] queries: authorised series, selected DPD instant and exact +/-10 h window independently rebuilt 
+[FALLITO] CHOICES.csv: every column, key and value A_size
+[OK] GROUPS.csv: every column, key and value 
+[OK] DISCARDED.csv: every column, key and value 
+[OK] DOWNLOAD_PLAN.csv: every column, key and value 
+[OK] QUALITY_INTERVAL.csv: every column, key and value 
+[OK] ADMISSIBLE_ALTERNATIVES.csv: every column, key and value 
+[OK] META completeness, requests_ok and level2_groups rebuilt ('complete', 90)
+[OK] ledger: each request matched in order to one start/end with the same target, status and bytes 
+recount: 11/12 (partial False)
