@@ -1,0 +1,48 @@
+{
+  "passed": 8,
+  "total": 8,
+  "partial": false,
+  "checks": [
+    {
+      "name": "plan products: exact set and actual hashes before reading",
+      "ok": true,
+      "info": ""
+    },
+    {
+      "name": "A1 freeze, metadata products, metadata recount receipt and links",
+      "ok": true,
+      "info": ""
+    },
+    {
+      "name": "CHOICES_A1.csv: every column, key and value",
+      "ok": true,
+      "info": ""
+    },
+    {
+      "name": "CHOICES_ORIGINAL.csv: every column, key and value",
+      "ok": true,
+      "info": ""
+    },
+    {
+      "name": "PLAN.csv: every column, key and value",
+      "ok": true,
+      "info": ""
+    },
+    {
+      "name": "COVERAGE.csv: every column, key and value",
+      "ok": true,
+      "info": ""
+    },
+    {
+      "name": "original assignments equal to the preserved metadata CHOICES (A, B, status)",
+      "ok": true,
+      "info": ""
+    },
+    {
+      "name": "161 unique files = main + supplementary, as frozen in A1",
+      "ok": true,
+      "info": "(161, 159, 2)"
+    }
+  ],
+  "plan_meta_sha256": "53d40b1fe61f7fcb9348f1106b9996a50b7991e8a03404aba389b9eef3150fa3"
+}

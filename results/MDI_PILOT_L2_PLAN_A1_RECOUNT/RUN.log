@@ -1,0 +1,9 @@
+[OK] plan products: exact set and actual hashes before reading 
+[OK] A1 freeze, metadata products, metadata recount receipt and links 
+[OK] CHOICES_A1.csv: every column, key and value 
+[OK] CHOICES_ORIGINAL.csv: every column, key and value 
+[OK] PLAN.csv: every column, key and value 
+[OK] COVERAGE.csv: every column, key and value 
+[OK] original assignments equal to the preserved metadata CHOICES (A, B, status) 
+[OK] 161 unique files = main + supplementary, as frozen in A1 (161, 159, 2)
+recount: 8/8
