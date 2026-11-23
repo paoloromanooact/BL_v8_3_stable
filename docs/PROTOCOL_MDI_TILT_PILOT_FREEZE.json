@@ -1,0 +1,8 @@
+{
+  "protocol": "docs/PROTOCOL_MDI_TILT_PILOT.md",
+  "sha256": "77367350e8f9a5f71933afdcc791429b307c95ec1875224c1f2d7486950d086f",
+  "freeze_commit": "d789e151b57a10ffb706930343318a6d5a21632a",
+  "frozen_utc": "2026-11-23T14:06:08.962351+00:00",
+  "approved_by": "Codex (plan approved with corrections on Carrington N and the R4 BLANK subset, recepite)",
+  "scope": "Q1-Q3; Q4 deferred to a separate note; network acquisition not authorised by the freeze"
+}
