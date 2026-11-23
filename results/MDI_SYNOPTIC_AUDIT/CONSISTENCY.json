@@ -1,0 +1,68 @@
+{
+  "n_files": 193,
+  "cr_min": 1909,
+  "cr_max": 2104,
+  "missing_crs": [
+    1938,
+    1939,
+    1940
+  ],
+  "name_matches_CAR_ROT": true,
+  "carrtime_is_360_cr_minus_180": true,
+  "grid_values": {
+    "NAXIS1": [
+      "3600"
+    ],
+    "NAXIS2": [
+      "1440"
+    ],
+    "CTYPE1": [
+      "CRLN-CEA"
+    ],
+    "CTYPE2": [
+      "CRLT-CEA"
+    ],
+    "CRPIX1": [
+      "1800.0"
+    ],
+    "CRPIX2": [
+      "720.5"
+    ],
+    "CDELT1": [
+      "-0.1"
+    ],
+    "CDELT2": [
+      "0.001388888888888889"
+    ],
+    "CUNIT2": [
+      "Sine Latitude"
+    ],
+    "BUNIT": [
+      "Mx/cm^2"
+    ],
+    "LON_STEP": [
+      "-0.1"
+    ]
+  },
+  "grid_identical": true,
+  "calver64_values": [
+    "0"
+  ],
+  "w_weight_values": [
+    "Even"
+  ],
+  "hwnwidth_values": [
+    "20.0"
+  ],
+  "method_values": [
+    "TEMP_SPAT"
+  ],
+  "img_num_min": 10,
+  "img_num_median": 415.0,
+  "img_num_max": 447,
+  "files_with_missing_pixels": 17,
+  "files_with_missing_lowlat_pixels": 17,
+  "build_dates": [
+    "2018-08-13"
+  ]
+}

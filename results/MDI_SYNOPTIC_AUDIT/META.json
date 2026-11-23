@@ -1,0 +1,12 @@
+{
+  "source_dir": "/storage/shared/gianluca/MWO_project/sunpy/data",
+  "script_sha256": "71928216001961eb7c9f145703fcef1e304a443b4bc328985ba2e5d9eaf55c92",
+  "git_commit": "18598e3c620e301540241476768061289ca224c3",
+  "tilts_measured": false,
+  "network": false,
+  "products_sha256": {
+    "CONSISTENCY.json": "a971c65a21e9b22a93e8e101d1d2a0651f344c914261a3bba6f87d701bc10f05",
+    "FILES.csv": "29678a4f63851351ab6832cf4d37935e081948dae378432961099b81d569eeb5",
+    "HEADER_EXAMPLE.txt": "5c889c3a5387aa7c15a1962d495751b256a4575ac3f5702468e63755beb37849"
+  }
+}

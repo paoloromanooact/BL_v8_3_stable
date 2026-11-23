@@ -1,0 +1,98 @@
+SIMPLE  =                    T / file does conform to FITS standard             
+BITPIX  =                   32 / data type of original image                    
+NAXIS   =                    2 / dimension of original image                    
+NAXIS1  =                 3600 / length of original image axis                  
+NAXIS2  =                 1440 / length of original image axis                  
+BLANK   =          -2147483648                                                  
+BZERO   =                   0.                                                  
+BSCALE  =                  0.1                                                  
+N_EXTRAP=                    0 / Extrapolation in north                         
+S_EXTRAP=                    0 / Extrapolation in south                         
+METHOD  = 'TEMP_SPAT'          / Method used for polar correction               
+LAT0    =                  60. / Latitude above which is used for fitting.      
+LATFIL  =                  75. / Latitude above which is filled in              
+LATFIL1 =                  62. / Latitude when transition from filling to data e
+NMAX    =                    5 / Max order of Chebychev for smoothing           
+DATE    = '2018-08-13T20:53:42.000' / [ISO] Date_time of processing; ISO 8601 fo
+TELESCOP= 'SoHO/MDI'           / For MDI: SOHO/MDI                              
+INSTRUME= 'MDI     '           / MDI                                            
+WAVELNTH=                6768. / [Angstrom] For MDI: 6768 Angstroms             
+BUNIT   = 'Mx/cm^2 '           / BUNIT: physical units of data, Mx/cm^2         
+CONTENT = 'Carrington Synoptic Chart Of Mr Field' / CONTENT: Carrington Synoptic
+HISTORY Carrington-Time conversion corrected; o2helio.c bug corrected -- July 20
+HISTORY 13                                                                      
+BLD_VERS=                      / (MISSING) Code release build number of program 
+CTYPE1  = 'CRLN-CEA'           / Carrington Time                                
+CTYPE2  = 'CRLT-CEA'           / Sine Latitude                                  
+CRPIX1  =                1800. / [pixel] CRPIX1: 180 degree in x direction      
+CRPIX2  =                720.5 / [pixel] CRPIX2: Equator in y direction         
+CRVAL1  =              722700. / [Carrington Time] CRVAL1: x origin - Carrington
+CRVAL2  =                   0. / [Sine Latitude] CRVAL2: y origin - Sine latitud
+CDELT1  = -0.10000000000000001 / [degree/pixel] Carrington Time step in the x di
+CDELT2  = 0.0013888888888888889 / [Sine Latitude/pixel] Sine Latitude in the y d
+CUNIT1  = 'degree  '           / CUNIT1: degree                                 
+CUNIT2  = 'Sine Latitude'      / CUNIT2: Sine Latitude                          
+CRDER1  =                   0. / [arcsec] CRDER1: estimate of random error in co
+CRDER2  =                   0. / [Sine Latitude] CRDER1: estimate of random erro
+CSYSER1 =                      / [arcsec] (MISSING) CRDER1: estimate of systemat
+CSYSER2 =                      / [Sine Latitude] (MISSING) CRDER1: estimate of s
+WCSNAME = 'Carrington Heliographic' / WCS system name                           
+T_REC   =                      / [TAI] (MISSING) nominal slot time              
+TRECEPOC= '1977.01.01_00:00:00.000_TAI' / [TAI] Time of origin                  
+TRECSTEP=             2356586. / [seconds] slot width                           
+TRECUNIT= 'secs    '                                                            
+CADENCE =                 360. / [Carrington Degree] repetition interval        
+DATASIGN=                    1 / DATASIGN: sign of observable quantity wrt Sun c
+T_OBS   = '2003.10.09_21:36:08_TAI' / Time of Rotation Center                   
+T_START = '2003.09.26_06:12:29_TAI' / Carrington Rotation Start Time            
+T_STOP  = '2003.10.23_13:06:31_TAI' / Carrington Rotation Stop Time             
+T_ROT   = '2003.10.09_21:36:08_TAI' / Carrington Rotation Middle Time           
+CAR_ROT =                 2008 / Carrington Rotation                            
+CARRTIME=              722700. / Carrington Time of Rotation Center             
+B0_ROT  =   6.2510038577740845 / [degrees] B0 angle                             
+B0_FRST =   6.9336719307426442 / [degrees] B0 angle First                       
+B0_LAST =   5.2172217768948643 / [degrees] B0 angle Last                        
+LON_FRST=              722520. / [degrees] First Longitude Time - Last Column   
+LON_LAST=   722879.90000000002 / [degrees] Last Longitude Time - First Column   
+LON_STEP= -0.10000000000000001 / [degrees] Time runs right to left              
+W_OFFSET=                   0. / Nominal offset from central meridian           
+W_WEIGHT= 'Even    '           / Even                                           
+IMG_NUM =                  388 / Number of magnetograms used                    
+IMG_FRST= '2003.09.25_00:00:00_TAI' / Time of first contributing magnetogram    
+IMG_LAST= '2003.10.24_00:00:00_TAI' / Time of last contributing magnetogram     
+IMG_ROT = '2003.10.10_20:48:00_TAI' / Time of magnetogram nearest T_OBS         
+HWNWIDTH=                  20. / [degree] Half width of selection-window        
+EQPOINTS=                  20. / Number of contributed magnetograms             
+NSIGMA  =                   3. / Number of SIGMA                                
+CARSTRCH=                    1 / Differential Rotation correction: 1; not correc
+DIFROT_A=           13.5620003 / Differential Rotation Parameter A              
+DIFROT_B=          -2.03999996 / Differential Rotation Parameter B              
+DIFROT_C=          -1.48749995 / Differential Rotation Parameter C              
+TOTVALS =              5184000 / Expected number of data values (pixels)        
+DATAVALS=              5184000 / Actual number of data values in images (pixels)
+MISSVALS=                    0 / Missing values: TOTVALS - DATAVALS             
+DATAMIN =    -2735.24755859375 / Minimum value from all pixels                  
+DATAMAX =      2218.3095703125 / Maximum value from all pixels                  
+DATAMEDN= -0.0051177628338336945 / Median value from all pixels                 
+DATAMEAN= -0.06630141568175961 / Mean value from all pixels                     
+DATARMS =   43.655386445319387 / Rms deviation from the mean value of all pixels
+DATASKEW=  -5.2666403307063572 / Skewness from the mean value of all pixels     
+DATAKURT=   504.53438585618466 / Kurtosis of all pixels                         
+CALVER64=                    0 / Calibration Version                            
+RECNUM  =                   98 / Recnum                                         
+DRMS_ID = 'mdi.synoptic_Mr_polfil_96m:98:Br_polfil' / DRMS ID                   
+PRIMARYK= 'CAR_ROT '           / DRMS primary key                               
+LICENSE = 'mdi.synoptic_Mr_polfil_96m by JSOC-SDP is marked CC0 1.0. To view a&'
+CONTINUE  ' copy of this mark, visit https://creativecommons.org/publicdomain/&'
+CONTINUE  'zero/1.0/  '        / License attribution                            
+POLICY  = 'The use of SDO data or images requires no express authorization. Ho&'
+CONTINUE  'wever, it is requested that the attribution "Courtesy of NASA/SDO a&'
+CONTINUE  'nd the AIA, EVE, and HMI science teams." accompanies such use.'      
+HEADSUM = 'WQDDYPCBWPCBWPCB'   / Keyword checksum                               
+LONGSTRN= 'OGIP 1.0'           / The HEASARC Long String Convention may be used.
+COMMENT   This FITS file may contain long string keyword values that are        
+COMMENT   continued over multiple keywords.  The HEASARC convention uses the &  
+COMMENT   character at the end of each substring which is then continued        
+COMMENT   on the next keyword which has the name CONTINUE.                      
+CHECKSUM= 'kAMdm3Lak9Lak9La'   / HDU checksum updated 2026-07-22T13:41:12       
+DATASUM = '3048487421'         / data unit checksum updated 2026-07-22T13:41:12 
