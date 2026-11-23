@@ -1,0 +1,104 @@
+{
+  "passed": 19,
+  "total": 19,
+  "partial": false,
+  "checks": [
+    {
+      "name": "products match META (exact set)",
+      "ok": true,
+      "info": ""
+    },
+    {
+      "name": "note SHA in META equals the current note",
+      "ok": true,
+      "info": ""
+    },
+    {
+      "name": "inputs: exact declared set, hashes unchanged since the run",
+      "ok": true,
+      "info": "None"
+    },
+    {
+      "name": "note and script in META equal the declared inputs",
+      "ok": true,
+      "info": ""
+    },
+    {
+      "name": "outputs and note committed and unchanged in Git",
+      "ok": true,
+      "info": ""
+    },
+    {
+      "name": "S2 subset size",
+      "ok": true,
+      "info": "4694"
+    },
+    {
+      "name": "D1 terms with an own g (incl. the axial term by sign)",
+      "ok": true,
+      "info": "{'g_d': -3.183986, 'g_gamma_mwo': -4.760661, 'g_gamma_wl': 1.424833, 'g_r': 3.001508, 'g_r_from_minus180': -0.322066, 'g_r_from_plus180': 3.323574}"
+    },
+    {
+      "name": "D1 identity g d = g mwo - g wl + g r",
+      "ok": true,
+      "info": ""
+    },
+    {
+      "name": "D1 n, identifiability, tolerance, wraps by sign, saved d max deviation",
+      "ok": true,
+      "info": "(72, 108)"
+    },
+    {
+      "name": "D1 components carry no verdict",
+      "ok": true,
+      "info": ""
+    },
+    {
+      "name": "D1 components: all M fields (common procedure: declared dependency)",
+      "ok": true,
+      "info": ""
+    },
+    {
+      "name": "exactly the declared fits, in order",
+      "ok": true,
+      "info": "19"
+    },
+    {
+      "name": "fit descriptions: n, n_CR, blocks, composition, A range, n_eff, threshold rows",
+      "ok": true,
+      "info": ""
+    },
+    {
+      "name": "point estimate of every fit with an own g (and delta, delta/SE), identifiability",
+      "ok": true,
+      "info": "[('S2 complete', -3.184), ('without E2', -5.9011), ('without E3', -3.1734), ('without E4', -3.2248)]"
+    },
+    {
+      "name": "state, all M parameters and boundary flags (common procedure: declared dependency)",
+      "ok": true,
+      "info": ""
+    },
+    {
+      "name": "counts: exact unique key set, all counts, tercile edges, removed records and shares",
+      "ok": true,
+      "info": "41"
+    },
+    {
+      "name": "summaries: exact unique key set",
+      "ok": true,
+      "info": "84"
+    },
+    {
+      "name": "D5 point summaries (n, median, weighted mean, share)",
+      "ok": true,
+      "info": ""
+    },
+    {
+      "name": "D5 bootstrap replay: valid/empty replicates, percentile intervals and causes of missing intervals",
+      "ok": true,
+      "info": ""
+    }
+  ],
+  "diagnosis_meta_sha256": "8d88d57b74fa54426150de4b9e51b6215c40700b9732aaa11e36c508ae795a77",
+  "dependency": "SE, intervals and parameters of M via the common s2_fit/procedure (not independently verified)"
+}

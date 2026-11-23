@@ -1,0 +1,20 @@
+[OK] products match META (exact set) 
+[OK] note SHA in META equals the current note 
+[OK] inputs: exact declared set, hashes unchanged since the run None
+[OK] note and script in META equal the declared inputs 
+[OK] outputs and note committed and unchanged in Git 
+[OK] S2 subset size 4694
+[OK] D1 terms with an own g (incl. the axial term by sign) {'g_d': -3.183986, 'g_gamma_mwo': -4.760661, 'g_gamma_wl': 1.424833, 'g_r': 3.001508, 'g_r_from_minus180': -0.322066, 'g_r_from_plus180': 3.323574}
+[OK] D1 identity g d = g mwo - g wl + g r 
+[OK] D1 n, identifiability, tolerance, wraps by sign, saved d max deviation (72, 108)
+[OK] D1 components carry no verdict 
+[OK] D1 components: all M fields (common procedure: declared dependency) 
+[OK] exactly the declared fits, in order 19
+[OK] fit descriptions: n, n_CR, blocks, composition, A range, n_eff, threshold rows 
+[OK] point estimate of every fit with an own g (and delta, delta/SE), identifiability [('S2 complete', -3.184), ('without E2', -5.9011), ('without E3', -3.1734), ('without E4', -3.2248)]
+[OK] state, all M parameters and boundary flags (common procedure: declared dependency) 
+[OK] counts: exact unique key set, all counts, tercile edges, removed records and shares 41
+[OK] summaries: exact unique key set 84
+[OK] D5 point summaries (n, median, weighted mean, share) 
+[OK] D5 bootstrap replay: valid/empty replicates, percentile intervals and causes of missing intervals 
+recount: 19/19 (partial False)
