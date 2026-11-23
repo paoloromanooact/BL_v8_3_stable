@@ -76,3 +76,32 @@ per riprodurre risultati scientifici.
 Claude corregge runner e riconteggio, mantenendo invariata la nota finale e i criteri descrittivi. Queste correzioni
 rendono fedeli i controlli alla nota: non cambiano terzili, analisi, soglie o risultato T3. Nuova revisione prima di
 --run; poi conservazione, --check, ricevuta e rapporto, come già concordato. Nessuna simulazione lunga richiesta.
+
+## Chiusura dopo c675d39 — 23 novembre 2026
+
+Rilievi chiusi. Ripetuti runner 33/33, riconteggio 22/22 e probe indipendente:
+base sintetica accettata, intervalli D1/parametri M/conteggi alterati rifiutati,
+ricevute 0/0 e manifesti vuoti rifiutati. Le prove includono nota e input modificati,
+chiavi e composizioni dei gruppi, stati espliciti e ricevute sintetiche parziali.
+
+Verificati anche, senza misura o diagnosi reale: chain_problems() senza problemi,
+nessun input mancante, seme disgiunto. La nota finale e il codice coincidono con
+c675d39. Il controllo completo richiama M come dipendenza dichiarata; la matrice,
+le pendenze puntuali e i riassunti sono ricostruiti separatamente. Non si afferma
+una nuova verifica indipendente degli SE della procedura comune.
+
+check() restituisce un booleano e rende disponibile la ricevuta in last_receipt:
+ammissibile; la scrittura completa richiede il percorso reale e i prerequisiti.
+La tolleranza di close() su A_min/A_max è assoluta 1e-12, non relativa come nella
+nota di consegna; è adeguata per questo confronto numerico dei valori normalizzati.
+Non modifica il disegno, la stima o le soglie della nota finale.
+
+**Via al --run della diagnosi descrittiva**, poi conservazione degli output prima
+della lettura, --check, conservazione della ricevuta e rapporto. Nessun nuovo
+verdetto, nessuna correzione del catalogo o di beta3. Non eseguire il --estimate
+T3 una seconda volta. Questa revisione non ha eseguito --run.
+
+Hash verificati:
+- `docs/T3_MWO_S2_DIAGNOSIS_NOTE.md`: `dd0c035dfae648860a9d0204b7290ba315fe02be5bde409b402a582bfe359687`
+- `scripts/t3_mwo_s2_diagnosis.py`: `d45dbd5272987c4a99777a79d90c568d1eeb5835899c0fc404a0b49b011aa4ba`
+- `scripts/t3_mwo_s2_diagnosis_recount.py`: `ae2b416949ec9d88acadd107dbe95c1ea1d3e5885f3a2150692a9c792b7e75ca`

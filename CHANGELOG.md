@@ -1,5 +1,10 @@
 # Cronologia
 
+## 2026-11-23 — chiusura revisione del codice diagnostico S2
+
+- Correzioni c675d39 confermate dai selftest 33/33 e 22/22 e dai controesempi ripetuti.
+- Via alla sola diagnosi descrittiva con conservazione e riconteggio; nessuna corsa reale eseguita in revisione.
+
 ## 2026-11-23 — revisione del codice diagnostico S2
 
 - Confermati sui sintetici terzili e matrice indipendente; registrate lacune nel riconteggio e nelle guardie.

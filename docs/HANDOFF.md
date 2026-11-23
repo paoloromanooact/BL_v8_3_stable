@@ -1,5 +1,13 @@
 # Cold restart — SHARP BL
 
+## 23 novembre — via alla diagnosi descrittiva S2 (c675d39 rivisto)
+
+- Rilievi chiusi in `docs/T3_MWO_S2_DIAGNOSIS_CODE_REVIEW.md`: runner 33/33, riconteggio 22/22;
+  probe: base accettata e tutti i controesempi rifiutati. Catena integra, nessun input mancante.
+- Via a --run, conservazione prima della lettura, --check e rapporto descrittivo, nell'ordine già concordato.
+- Nessuna diagnosi reale eseguita da Codex; nota e codice invariati, nessun cambiamento a T3.
+- Tolleranza A_min/A_max verificata: assoluta 1e-12; uso comune di M dichiarato nel riconteggio.
+
 ## 23 novembre — codice della diagnosi S2: correzioni richieste prima della corsa
 
 - Revisione 9106186: `docs/T3_MWO_S2_DIAGNOSIS_CODE_REVIEW.md`; selftest ripetuti 21/21 e 7/7.
