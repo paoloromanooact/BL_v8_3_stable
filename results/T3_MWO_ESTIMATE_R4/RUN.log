@@ -1,0 +1,62 @@
+                      analysis    n  identifiable   state      beta       se         lo       hi    verdict    var_a     var_b      phi     kappa  sigma_x2
+                          main 5223          True stimato -4.934181 2.353765 -10.209916 0.341554 non deciso 6.825299 -0.094353 0.980000  0.152932  0.000260
+          additive epoch terms 5223          True stimato -4.850475 2.344615 -10.105701 0.404750 non deciso 6.824345 -0.094638 0.930642  0.980000  0.000262
+                no epoch terms 5223          True stimato -4.757771 2.274593  -9.856051 0.340508 non deciso 6.825806 -0.094304 0.980000  0.260308  0.000262
+            weights = DPD area 5223          True stimato -4.012562 2.782955 -10.250284 2.225160 non deciso 6.816162 -0.132833 0.843872  0.980000  0.000321
+                   all records 5942          True stimato -3.901410 2.227603  -8.894367 1.091546 non deciso 6.862012 -0.077613 0.980000 -0.980000  0.000247
+                       R1 only 4816          True stimato -5.047184 2.432082 -10.498459 0.404091 non deciso 6.831025 -0.097137 0.980000  0.980000  0.000265
+      first candidate day only 4749          True stimato -4.936052 2.377758 -10.265565 0.393460 non deciso 6.797058 -0.102054 0.925305  0.895119  0.000266
+                before 2010-05 4845          True stimato -4.048580 2.428742  -9.492369 1.395209 non deciso 6.837657 -0.094070 0.980000  0.059981  0.000262
+  excluding +-1 yr from minima 5025          True stimato -4.946759 2.402457 -10.331633 0.438114 non deciso 6.828990 -0.097069 0.980000  0.167462  0.000219
+   activity (a) Gyula/Debrecen 5007          True stimato -4.405616 2.454363  -9.906833 1.095601 non deciso 6.831810 -0.092512 0.980000  0.980000  0.000276
+activity (b) SILSO hemispheric 2695          True stimato -8.819327 4.268007 -18.385650 0.746995 non deciso 6.789563 -0.113718 0.980000 -0.980000  0.000240
+      activity (c) SILSO split 5223          True stimato -5.685227 2.939334 -12.273458 0.903003 non deciso 6.825614 -0.094274 0.980000  0.117006  0.000260
+{
+  "outcome": "descrittivo",
+  "reasons": "S1 non determinato; S2 stabilit\u00e0 non determinata",
+  "beta3": -4.934181217830946,
+  "se": 2.3537649070320343,
+  "lo": -10.209916300593353,
+  "hi": 0.34155386493146,
+  "main_state": "stimato",
+  "verdict": null,
+  "targets": {
+    "delta_beta_10": -0.5309294861450381,
+    "delta_beta_20": -1.0618589722900762,
+    "q5": 0.17385759099228065,
+    "q95": 3.4781709120549076,
+    "C": 0.5303421951126327,
+    "subset_identifiable": {
+      "identifiable": true,
+      "rank_Z": 24,
+      "kept": [
+        "k_20N",
+        "k_20S",
+        "k_21N",
+        "k_21S",
+        "k_22N",
+        "k_22S",
+        "k_23N",
+        "k_23S",
+        "k_24N",
+        "k_24S",
+        "d_E1N",
+        "d_E1S",
+        "d_E2N",
+        "d_E2S",
+        "d_E3N",
+        "d_E3S",
+        "d_E4N",
+        "d_E4S",
+        "d_E5N",
+        "d_E5S",
+        "d_E6N",
+        "d_E6S",
+        "d_E7N",
+        "d_E7S"
+      ],
+      "dropped": [],
+      "cond": 910.4147877644449
+    }
+  }
+}

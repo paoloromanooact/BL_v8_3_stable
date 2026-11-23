@@ -1,0 +1,12 @@
+{
+  "protocol_sha256": "4408a0ee78d48f65275a1a4936ce687fe324a35598dd5bb18a8f3e53a01df8ff",
+  "amendment_a1_sha256": "bc88452b382d739866ff801a14aecf596968e092904906d7d7298355a0e063c5",
+  "stability_meta_sha256": "b6789830d48dced0d0f8e9d3a5a95e617ee5e53edaff4147ecd0d2aa4984d04e",
+  "catalogue_meta_sha256": "77db727e40b061cd1b7251e7e81387c22cb36a2cb5853ed4341911b175cbb3e4",
+  "products_sha256": {
+    "ESTIMATE.csv": "d6f16c52cb86fd5ef8aff4a358756e3f1494ea557e8d3ca2376668abded6557d",
+    "FINAL.json": "8faff9e22f9640aaf6432f13cd00d428074efc36bb73d372e5f13f724a458dfe"
+  },
+  "git_commit": "17a479aa624479a67bfca365950c36bef3075493",
+  "script_sha256": "1f73a1759eae2439ec0678ab882fd2febba9101afe400112acf64669c5f6ddef"
+}
