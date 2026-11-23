@@ -144,7 +144,7 @@ def own_pairs(rec, samp, mwo, tag, e):
     ax = (raw + 90) % 180 - 90
     sg = np.sign(m.lat.to_numpy(float))
     sep = m[f"{tag}_sep_deg"].to_numpy(float)
-    hours = lambda a, b: (pd.to_datetime(a) - pd.to_datetime(b)).dt.total_seconds().to_numpy() / 3600.0   # noqa: E731
+    hours = lambda a, b: (pd.to_datetime(a, format="ISO8601") - pd.to_datetime(b, format="ISO8601")).dt.total_seconds().to_numpy() / 3600.0   # noqa: E731
     f = (m[f"{tag}_flux_pos_mx"] + m[f"{tag}_flux_neg_mx"]).to_numpy(float)
     return pd.DataFrame({"noaa": m.noaa, "day": m.day, "N": m.N.astype(int), "hemisphere": m.hemisphere, "act_class": m.act_class,
                          "area_class": m.area_class, "sep_class": np.where(sep < e[0], 1, np.where(sep < e[1], 2, 3)), "lat": m.lat,
@@ -262,7 +262,7 @@ def check(out=OUT, write=True, rec_dir=REC, data=None, reps=REPS, A=None):
     exact = [k for k in om if k not in var]
     ok("Q1_M_EXPLORATORY.json: state, error, finiteness, domain, flags, n, cells, rotations exact; variance parameters within "
        "1e-5 relative (common M: declared dependency); no coefficient", set(M) == set(om) | {"note"}
-       and all(M[k] == om[k] for k in exact) and all(om[k] is not None and M[k] is not None and np.isclose(M[k], om[k], rtol=1e-5, atol=1e-9) for k in var)
+       and all(M[k] == om[k] for k in exact) and all((om[k] is None and M[k] is None) or (om[k] is not None and M[k] is not None and np.isclose(M[k], om[k], rtol=1e-5, atol=1e-9)) for k in var)
        and not any(k in M for k in ("beta", "se", "lo", "hi", "verdict")), {k: (M.get(k), om[k]) for k in exact if M.get(k) != om[k]})
     e = own_edges(rec)
     E = js("CLASS_EDGES.json")
@@ -354,6 +354,21 @@ def selftest():
         tamper("an interval note changed", "Q3_SUMMARY_main.csv", lambda t: first(t, "interval_note", "x"))
         tamper("a quiet availability count changed", "Q1_QUIET_AVAILABILITY.csv", lambda t: first(t, "n_sides", 1))
         tamper("a note removed", "NOTES.json", lambda j: j.pop("bard_mdi"), js=True)
+    # A faithfully reported exploratory M failure must not invalidate the remaining descriptive products.
+    saved_verdict = A.m_verdict
+    try:
+        A.m_verdict = lambda unit, truth: dict(verdict="errore", error="synthetic M failure")
+        error_prods = dict(prods, Q1_M_EXPLORATORY=Mx.q1_m_fit(data[0], data[1], A))
+        with tempfile.TemporaryDirectory() as ed:
+            ep = Path(ed)
+            Mx.write(error_prods, ep)
+            (ep / "META.json").write_text(json.dumps(dict(products_sha256={f.name: sha(f) for f in ep.iterdir() if f.name != "META.json"})))
+            with contextlib.redirect_stdout(io.StringIO()):
+                accepted_error = check(ep, write=False, data=data, reps=reps, A=A)
+            res.append(accepted_error and check.last_receipt["partial"] is True)
+            print("[OK]" if res[-1] else "[FALLITO]", "exploratory M error reported consistently, other products recounted (partial)")
+    finally:
+        A.m_verdict = saved_verdict
     # upstream provenance on synthetic folders (globals redirected, restored afterwards)
     g = globals()
     saved = {k: g[k] for k in ("SEL", "SEL_REC", "L1", "L1_REC", "RELEASE", "PROTOCOL", "FREEZE")}

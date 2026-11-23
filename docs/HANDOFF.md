@@ -1,5 +1,13 @@
 # Cold restart — SHARP BL
 
+## 23 novembre — chiusura della revisione dell'analisi MDI L1
+
+- Correzioni 5959250 verificate; dettagli in `docs/MDI_PILOT_ANALYSIS_L1_CODEX_CLOSE.md`.
+- Corrette in revisione la lettura degli orari ISO interi/frazionari e la riproduzione dello stato errore di M.
+- Via alla corsa descrittiva Q1/Q3: run, conservazione prima della lettura, riconteggio completo, rapporto.
+- BARD e rapporti MWO indisponibili dichiarati; Q2/ripetibilità attendono L2, Q4 separato.
+- Nessuna analisi dei tilt reali eseguita qui. Rete e serie BL combinata non autorizzate da questa revisione.
+
 ## 23 novembre — revisione dell'analisi MDI L1
 
 - Revisione di 107e78c in `docs/MDI_PILOT_ANALYSIS_L1_CODEX_REVIEW.md`; non ancora via alla corsa reale.

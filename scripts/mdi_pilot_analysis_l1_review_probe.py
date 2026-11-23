@@ -20,17 +20,16 @@ def cached(*args):
     return copy.deepcopy(cache[key])
 A.m_unit=cached
 rec,samp,cells,mwo=M.synthetic()
-prods=M.build(rec,samp,cells,mwo,reps=2,A=A)
+prods=M.build(rec,samp,cells,mwo,A,reps=2)
 out={}
-out['main_sep_edges']=prods['CLASS_EDGES']['main']['sep_edges']
-out['sens100_sep_edges']=prods['CLASS_EDGES']['sens100']['sep_edges']
+out['shared_sep_edges']=prods['CLASS_EDGES']['separation_main_l1_ok']
 with tempfile.TemporaryDirectory() as td:
     d=Path(td)
     def check(p):
         M.write(p,d)
         (d/'META.json').write_text(json.dumps({'products_sha256':{f.name:sha(f) for f in d.iterdir() if f.name!='META.json'}}))
         with contextlib.redirect_stdout(io.StringIO()):
-            return R.check(d,write=False,data=(rec,samp,mwo),reps=2,A=A)
+            return R.check(d,write=False,data=(rec,samp,cells,mwo),reps=2,A=A)
     out['base_accepted']=check(prods)
     mutations={
         'cell_causes': lambda p: p['Q1_YIELD_CELLS'].__setitem__('cause_map_missing',999),
@@ -47,4 +46,6 @@ with tempfile.TemporaryDirectory() as td:
     mutations['projected100_subgroups']=subgroup
     for name,mut in mutations.items():
         p=copy.deepcopy(prods);mut(p);out[name+'_mutation_accepted']=check(p)
+assert out['base_accepted']
+assert not any(v for k,v in out.items() if k.endswith('_mutation_accepted'))
 print(json.dumps(out,indent=2))

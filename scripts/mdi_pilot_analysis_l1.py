@@ -201,9 +201,9 @@ def q3_pairs(rec, samp, mwo, tag, sep_edges):
     p = pd.DataFrame(dict(noaa=m.noaa, day=m.day, N=m.N.astype(int), hemisphere=m.hemisphere, act_class=m.act_class,
                           area_class=m.area_class, sep_class=np.searchsorted(sep_edges, m[f"{tag}_sep_deg"].to_numpy(float), side="right") + 1,
                           lat=m.lat, t_dpd=m.t_dpd, mwo_time_utc=m.mwo_time_utc,
-                          dt_mwo_minus_tdpd_h=(pd.to_datetime(m.mwo_time_utc) - pd.to_datetime(m.t_dpd)).dt.total_seconds() / 3600.0,
+                          dt_mwo_minus_tdpd_h=(pd.to_datetime(m.mwo_time_utc, format="ISO8601") - pd.to_datetime(m.t_dpd, format="ISO8601")).dt.total_seconds() / 3600.0,
                           CT_g=m.CT_g, t_rot=m.t_rot, t_cm=m.t_cm,
-                          dt_mwo_minus_tcm_h_approx=(pd.to_datetime(m.mwo_time_utc) - pd.to_datetime(m.t_cm)).dt.total_seconds() / 3600.0,
+                          dt_mwo_minus_tcm_h_approx=(pd.to_datetime(m.mwo_time_utc, format="ISO8601") - pd.to_datetime(m.t_cm, format="ISO8601")).dt.total_seconds() / 3600.0,
                           mdi_tilt_deg=t1, mwo_tilt_deg=t2, d_raw=tw.diff_raw(t1, t2), d_dir=tw.diff_dir(t1, t2), d_ax=tw.diff_ax(t1, t2),
                           d_gamma=tw.d_gamma(t1, t2, m.lat.to_numpy(float)), mdi_leading_sign=m[f"{tag}_leading_sign"].astype(int),
                           mwo_leading_sign=m.leading_polarity_sign.astype(int)))
@@ -364,6 +364,7 @@ def synthetic(n=200, seed=4):
     mwo = pd.DataFrame(dict(noaa=samp.noaa[m1], day_utc=samp.day[m1], mwo_time_utc=samp.day[m1] + "T18:00:00",
                             tilt_deg=(tilt[m1] + rng.normal(0, 5, m1.sum()) + 180) % 360 - 180, leading_polarity_sign=1,
                             flux_window_mx=10 ** rng.uniform(20, 22, m1.sum())))
+    mwo.loc[mwo.index[::2], "mwo_time_utc"] += ".125"  # mixed ISO precision, as in real MWO metadata
     cells = samp.groupby(KEYS).size().reset_index(name="N")
     return rec, samp, cells, mwo
 
@@ -396,6 +397,11 @@ def selftest():
        and np.allclose(p.d_ax, tw.diff_ax(p.mdi_tilt_deg, p.mwo_tilt_deg)) and np.allclose(p.d_gamma, np.sign(p.lat) * p.d_ax))
     ok("Q3: time distance MWO - t_DPD (protocol) and MWO - t_cm (supplementary)",
        np.allclose(p.dt_mwo_minus_tdpd_h, 10.0) and np.allclose(p.dt_mwo_minus_tcm_h_approx, 6.0))
+    expected_dt = (p.mwo_time_utc.map(pd.Timestamp) - p.t_dpd.map(pd.Timestamp)).dt.total_seconds() / 3600.0
+    ok("Q3: mixed integer/fractional ISO timestamps preserve exact time distances",
+       mwo.mwo_time_utc.str.contains(r"\.", regex=True).any()
+       and (~mwo.mwo_time_utc.str.contains(r"\.", regex=True)).any()
+       and np.allclose(p.dt_mwo_minus_tdpd_h, expected_dt, rtol=0, atol=1e-12))
     ok("Q3: no |LCM| classes", not any("LCM" in g for g in pr["Q3_SUMMARY_main"].group))
     s0 = samp.copy()
     s0.loc[s0.index[0], "lat"] = 0.0

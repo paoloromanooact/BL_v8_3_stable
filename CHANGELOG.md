@@ -1,5 +1,11 @@
 # Cronologia
 
+## 2026-11-23 — chiusura dell'analisi descrittiva MDI L1
+
+- Verificate le correzioni Q1/Q3 e aggiornata la sonda indipendente.
+- Gestiti orari ISO a precisione mista e stato errore esplorativo di M, con regressioni sintetiche.
+- Via alla corsa descrittiva locale dopo conservazione e riconteggio; nessuna analisi reale eseguita in revisione.
+
 ## 2026-11-23 — revisione del codice Q1/Q3 MDI L1
 
 - Conservati nove controesempi sintetici del riconteggio e documentati confini comuni e tempi del confronto.
