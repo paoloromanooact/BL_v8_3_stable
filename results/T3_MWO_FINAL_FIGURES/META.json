@@ -1,0 +1,12 @@
+{
+  "release_meta_sha256": "b5879cd37c7687dc2f8965d5f65ebeed8af475fbbb993244d30fe0f15691768c",
+  "estimate_meta_sha256": "8bad8c81dc47453c4d58b3ce0254d25fc4949be6bd9aba667369c7cab7589d81",
+  "script_sha256": "f19e1ee4bb413bec5427e5a754f5fca2cee07045096ab7155e08d5b24b2f6ac1",
+  "products_sha256": {
+    "fig_beta3_summary.png": "edd106a17ed87a671b88f433e820fdc1c5908f9414014848b0ab6098dc9fb9e4",
+    "fig_hale_by_epoch.png": "efc06ea87414ae4ffc678c4139be3b366c68e49a66b2d3c2c2e8f0b526574c74",
+    "fig_joy_by_cycle.png": "ef1bd8098a157e333c82906a4af01e64df6a94ada27ac53a505fcc8b61f23ba4",
+    "fig_p1_comparison.png": "79f4545120c9defe68529e3c7cf9692bc1b5e324f10f1bbabffed240c89bfc0b",
+    "fig_wl_by_epoch.png": "35707304bd95f364db104f81748da57ad2a190d09bb51ec30df5046be7138de0"
+  }
+}

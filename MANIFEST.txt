@@ -954,6 +954,12 @@ results/T3_MWO_ESTIMATE_R4/META.json
 results/T3_MWO_ESTIMATE_R4/RUN.log
 results/T3_MWO_ESTIMATE_R4_RECOUNT/RECEIPT.json
 results/T3_MWO_ESTIMATE_R4_RECOUNT/RUN.log
+results/T3_MWO_FINAL_FIGURES/META.json
+results/T3_MWO_FINAL_FIGURES/fig_beta3_summary.png
+results/T3_MWO_FINAL_FIGURES/fig_hale_by_epoch.png
+results/T3_MWO_FINAL_FIGURES/fig_joy_by_cycle.png
+results/T3_MWO_FINAL_FIGURES/fig_p1_comparison.png
+results/T3_MWO_FINAL_FIGURES/fig_wl_by_epoch.png
 results/T3_MWO_SDPD_ACQUISITION/FETCH_LOG.json
 results/T3_MWO_SDPD_ACQUISITION/README.md
 results/T3_MWO_SDPD_ACQUISITION/RETRIEVED_UTC.txt
