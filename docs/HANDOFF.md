@@ -1,5 +1,14 @@
 # Cold restart — SHARP BL
 
+## Pilota MDI L2 — revisione offline della rete
+
+- Revisione di 0e32539 in `docs/MDI_PILOT_L2_NETWORK_CODEX_REVIEW.md`; nessun via alla rete.
+- Prima dei metadati: byte falliti/interrotti e prenotazione, gate di selezione, QUALITY mancante, denominatori con fallimenti.
+- Downloader separato: ripresa senza hash atteso e tentativi cumulativi; completezza esplicita.
+- Adattatore: QUALITY assente/hex, area con CDELT1/CDELT2, prove geometriche indipendenti da completare.
+- Test esistenti 13/13, 3/3 e 7/7; sonda offline aggiuntiva conserva i controesempi. Nessun FITS reale letto o rete usata.
+- Chiudere prima i soli metadati, poi autorizzazione utente; downloader/adattatore hanno cancelli separati.
+
 ## Pilota MDI L1 — rapporto descrittivo rivisto
 
 - Rapporto 79fb406 rivisto; dettagli in `docs/MDI_PILOT_L1_RESULTS_CODEX_REVIEW.md`.

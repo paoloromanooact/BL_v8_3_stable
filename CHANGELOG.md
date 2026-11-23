@@ -1,5 +1,10 @@
 # Cronologia
 
+## Revisione offline del codice di rete MDI L2
+
+- Conservati controesempi di contabilità, provenienza, QUALITY/INTERVAL, ripresa FITS e adattatore.
+- Distinta la chiusura richiesta per i soli metadati da downloader e misura; nessuna rete o modifica ai risultati.
+
 ## Revisione del rapporto MDI L1 e seguito QUALITY
 
 - Precisate le interpretazioni descrittive senza modificare numeri o prodotti conservati.
