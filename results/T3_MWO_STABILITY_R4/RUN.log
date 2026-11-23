@@ -1,0 +1,10 @@
+/home/gianluca/BL_v8_3_stable/scripts/t3_mwo_stability_extras.py:81: FutureWarning: The behavior of DatetimeProperties.to_pydatetime is deprecated, in a future version this will return a Series containing python datetime objects instead of an ndarray. To retain the old behavior, call `np.array` on the result
+  utc = Time(list(np.array(S["t"].dt.to_pydatetime())), scale="tai").utc.to_datetime()
+{
+  "S1": "non determinato",
+  "S2": "stabilit\u00e0 non determinata",
+  "rule": [
+    "descrittivo",
+    "S1 non determinato; S2 stabilit\u00e0 non determinata"
+  ]
+}

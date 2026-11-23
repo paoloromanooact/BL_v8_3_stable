@@ -1,0 +1,87 @@
+{
+  "S1": {
+    "status": "non determinato",
+    "singular": 573,
+    "reps": 2000,
+    "seed": 69000001
+  },
+  "S2": {
+    "beta": -3.1839855245778987,
+    "se": 2.4918367770088428,
+    "lo": -8.769195273311839,
+    "hi": 2.401224224156041,
+    "verdict": "non deciso",
+    "covered": 1,
+    "lo_above": 0,
+    "hi_below": 0,
+    "var_a": 6.925065814189056,
+    "var_b": -0.12849825844364293,
+    "phi": 0.9690881215775202,
+    "kappa": 0.0012163709625887312,
+    "sigma_x2": 1.8127235465607299,
+    "state": "stimato",
+    "n": 4694,
+    "C": 0.5303421951126327,
+    "status": "stabilit\u00e0 non determinata",
+    "distinguishable_from_zero": false,
+    "by_hemisphere": {
+      "N": {
+        "beta": -1.7044217264779504,
+        "se": 3.653973929043321,
+        "lo": -9.894448857633014,
+        "hi": 6.485605404677114,
+        "verdict": "non deciso",
+        "covered": 1,
+        "lo_above": 0,
+        "hi_below": 0,
+        "var_a": 6.917423190876745,
+        "var_b": -0.13163091889324982,
+        "phi": 0.7504946884151209,
+        "kappa": 0.0,
+        "sigma_x2": 2.4841802668141266,
+        "state": "stimato",
+        "n": 2228
+      },
+      "S": {
+        "beta": -4.2778456669848595,
+        "se": 3.413454263580414,
+        "lo": -11.928771363928735,
+        "hi": 3.3730800299590165,
+        "verdict": "non deciso",
+        "covered": 1,
+        "lo_above": 0,
+        "hi_below": 0,
+        "var_a": 6.932199247188445,
+        "var_b": -0.12525083302393897,
+        "phi": 0.9772526962159901,
+        "kappa": 0.0,
+        "sigma_x2": 3.146810104358107,
+        "state": "stimato",
+        "n": 2466
+      }
+    }
+  },
+  "unverifiable_share": 0.015891250239326058,
+  "verifiable": [
+    "E2N",
+    "E2S",
+    "E3N",
+    "E3S",
+    "E4N",
+    "E4S",
+    "E5N",
+    "E5S",
+    "E6N",
+    "E6S",
+    "E8N",
+    "E8S"
+  ],
+  "subset": {
+    "n": 4694,
+    "share": 0.8987172123300785
+  },
+  "rule": {
+    "outcome": "descrittivo",
+    "reasons": "S1 non determinato; S2 stabilit\u00e0 non determinata"
+  }
+}
