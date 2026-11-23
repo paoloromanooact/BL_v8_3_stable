@@ -1,0 +1,38 @@
+{
+  "passed": 6,
+  "total": 6,
+  "partial": false,
+  "checks": [
+    {
+      "name": "products match META (exact set, actual hashes before reading)",
+      "ok": true,
+      "info": ""
+    },
+    {
+      "name": "frozen protocol unchanged and equal to the one of the selection",
+      "ok": true,
+      "info": ""
+    },
+    {
+      "name": "DPD files and MWO release unchanged since the selection",
+      "ok": true,
+      "info": ""
+    },
+    {
+      "name": "population: every column (positions, t_DPD, LCM, area, A_main, classes, cohorts, labels)",
+      "ok": true,
+      "info": ""
+    },
+    {
+      "name": "sample: every column, replayed draw, probabilities and weights (NaN where undefined)",
+      "ok": true,
+      "info": ""
+    },
+    {
+      "name": "cells: labels, N, n1, n2, shortfalls and probabilities",
+      "ok": true,
+      "info": ""
+    }
+  ],
+  "selection_meta_sha256": "b7e3e7007069cabb01536abfa4d62f6a83a585118acb4425a35a677c8897177e"
+}

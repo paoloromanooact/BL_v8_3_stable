@@ -1,0 +1,7 @@
+[OK] products match META (exact set, actual hashes before reading) 
+[OK] frozen protocol unchanged and equal to the one of the selection 
+[OK] DPD files and MWO release unchanged since the selection 
+[OK] population: every column (positions, t_DPD, LCM, area, A_main, classes, cohorts, labels) 
+[OK] sample: every column, replayed draw, probabilities and weights (NaN where undefined) 
+[OK] cells: labels, N, n1, n2, shortfalls and probabilities 
+recount: 6/6 (partial False)
