@@ -120,6 +120,55 @@ def own_draw(p):
             pd.DataFrame(cells, columns=["act_class", "hemisphere", "area_class", "cohort", "N", "n1", "n2"]))
 
 
+PROTOCOL = ROOT / "docs/PROTOCOL_MDI_TILT_PILOT.md"
+FREEZE = ROOT / "docs/PROTOCOL_MDI_TILT_PILOT_FREEZE.json"
+SAMPLE_COLS = ["noaa", "day", "t_dpd", "lat", "lon", "lcm", "area", "A_main", "act_class", "hemisphere", "area_class",
+               "cohort", "mwo_label", "perm_rank", "level2", "pi1", "pi2", "w1", "w2"]
+POP_COLS = ["noaa", "day", "t_dpd", "lat", "lon", "lcm", "area", "A_main", "hemisphere", "act_class", "area_class",
+            "cohort", "mwo_label"]
+CELL_COLS = ["act_class", "hemisphere", "area_class", "cohort", "N", "n1", "n2", "shortfall1", "shortfall2", "pi1", "pi2"]
+
+
+def own_full(pop_own):
+    """Own sample and cells with every column of the products."""
+    s_own, c_own = own_draw(pop_own)
+    c_own["shortfall1"] = [N1[c] - k for c, k in zip(c_own.cohort, c_own.n1)]
+    c_own["shortfall2"] = [N2[c] - k for c, k in zip(c_own.cohort, c_own.n2)]
+    c_own["pi1"] = np.where(c_own.N > 0, c_own.n1 / c_own.N.where(c_own.N > 0, 1), np.nan)
+    c_own["pi2"] = np.where(c_own.N > 0, c_own.n2 / c_own.N.where(c_own.N > 0, 1), np.nan)
+    m = s_own.merge(pop_own[POP_COLS], on=["noaa", "day", "act_class", "hemisphere", "area_class", "cohort"], how="left",
+                    validate="one_to_one")
+    m = m.merge(c_own[["act_class", "hemisphere", "area_class", "cohort", "N", "n1", "n2"]],
+                on=["act_class", "hemisphere", "area_class", "cohort"], how="left", validate="many_to_one")
+    m["pi1"] = m.n1 / m.N
+    m["pi2"] = np.where(m.level2, m.n2 / m.N, np.nan)
+    m["w1"] = 1.0 / m.pi1
+    m["w2"] = np.where(m.level2, 1.0 / m.pi2, np.nan)
+    return m[SAMPLE_COLS], c_own[CELL_COLS]
+
+
+def same_frame(a, b, cols, keys):
+    """Column-by-column equality with NaN = NaN; times compared as timestamps; exact key coverage and uniqueness."""
+    if list(a.columns[: len(cols)]) != cols and not set(cols) <= set(a.columns):
+        return False, "columns"
+    if a.duplicated(keys).any() or b.duplicated(keys).any():
+        return False, "duplicate keys"
+    if len(a) != len(b) or not (a[keys].astype(str).to_numpy() == b[keys].astype(str).to_numpy()).all():
+        return False, "keys or order"
+    for c in cols:
+        x, y = a[c], b[c]
+        if c == "t_dpd":
+            if not (pd.to_datetime(x.astype(str), format="ISO8601").to_numpy() == pd.to_datetime(y.astype(str), format="ISO8601").to_numpy()).all():
+                return False, c
+        elif pd.api.types.is_numeric_dtype(y) and c not in ("level2",):
+            xv, yv = pd.to_numeric(x, errors="coerce").to_numpy(float), y.to_numpy(float)
+            if not np.allclose(xv, yv, rtol=1e-12, atol=0, equal_nan=True):
+                return False, c
+        elif not (x.astype(str).str.replace("^nan$", "", regex=True).to_numpy() == y.astype(str).str.replace("^nan$", "", regex=True).to_numpy()).all():
+            return False, c
+    return True, ""
+
+
 def check(sel=SEL, write=True, rec=REC, pop_own=None):
     checks = []
 
@@ -129,32 +178,26 @@ def check(sel=SEL, write=True, rec=REC, pop_own=None):
 
     meta = json.loads((Path(sel) / "META.json").read_text())
     ps = meta.get("products_sha256", {})
-    ok("products match META (exact set)", set(ps) == PRODUCTS and all(sha(Path(sel) / n) == h for n, h in ps.items()))
+    ok("products match META (exact set, actual hashes before reading)", set(ps) == PRODUCTS and all(sha(Path(sel) / n) == h for n, h in ps.items()))
     real = pop_own is None
     if real:
+        fr = json.loads(FREEZE.read_text())
+        ok("frozen protocol unchanged and equal to the one of the selection", sha(PROTOCOL) == fr["sha256"] == meta.get("protocol_sha256"))
         ok("DPD files and MWO release unchanged since the selection", all(sha(DPD / n) == h for n, h in meta["dpd_sha256"].items())
            and meta["mwo_release_sha256"] == sha(RELEASE))
         pop_own = own_population()
     pop = pd.read_csv(Path(sel) / "POPULATION.csv", dtype={"noaa": str}, float_precision="round_trip")
     samp = pd.read_csv(Path(sel) / "SAMPLE.csv", dtype={"noaa": str}, float_precision="round_trip")
     cells = pd.read_csv(Path(sel) / "CELLS.csv")
-    a = pop.set_index(["noaa", "day"]).sort_index()
-    b = pop_own.set_index(["noaa", "day"]).sort_index()
-    ok("population: same groups and chosen days", a.index.equals(b.index), (len(a), len(b)))
-    same = a.index.equals(b.index)
-    ok("population: positions, area, A_main", same and np.allclose(a.lat, b.lat) and np.allclose(a.lon, b.lon)
-       and (a.area.to_numpy() == b.area.to_numpy()).all() and np.allclose(a.A_main, b.A_main, rtol=1e-12, atol=0))
-    ok("population: classes, cohorts and labels", same and all((a[c].astype(str).to_numpy() == b[c].astype(str).to_numpy()).all()
-                                                               for c in ("hemisphere", "act_class", "area_class", "cohort", "mwo_label")))
-    s_own, c_own = own_draw(pop_own)
-    ok("sample replayed with the same generator: same units, ranks and level-2 flags",
-       samp[["noaa", "day", "perm_rank", "level2"]].reset_index(drop=True).astype(str).equals(
-           s_own[["noaa", "day", "perm_rank", "level2"]].reset_index(drop=True).astype(str)), (len(samp), len(s_own)))
-    ok("cells: N, n1, n2", cells[["N", "n1", "n2"]].reset_index(drop=True).equals(c_own[["N", "n1", "n2"]].reset_index(drop=True)))
-    m = samp.merge(c_own, on=["act_class", "hemisphere", "area_class", "cohort"])
-    ok("probabilities and weights: pi1 = n1/N, pi2 = n2/N on level 2, weights their inverses",
-       np.allclose(m.pi1, m.n1 / m.N) and np.allclose(m[m.level2].pi2, m[m.level2].n2 / m[m.level2].N)
-       and np.allclose(m.w1, 1 / m.pi1) and m[~m.level2].pi2.isna().all())
+    po = pop_own.assign(_k=pd.to_numeric(pop_own.noaa.str.extract(r"^(\d+)")[0], errors="coerce").fillna(-1)).sort_values(["_k", "noaa", "day"])
+    pa = pop.assign(_k=pd.to_numeric(pop.noaa.str.extract(r"^(\d+)")[0], errors="coerce").fillna(-1)).sort_values(["_k", "noaa", "day"])
+    g, why = same_frame(pa.reset_index(drop=True), po[POP_COLS].reset_index(drop=True), POP_COLS, ["noaa", "day"])
+    ok("population: every column (positions, t_DPD, LCM, area, A_main, classes, cohorts, labels)", g, why)
+    s_own, c_own = own_full(pop_own)
+    g, why = same_frame(samp.reset_index(drop=True), s_own.reset_index(drop=True), SAMPLE_COLS, ["noaa", "day"])
+    ok("sample: every column, replayed draw, probabilities and weights (NaN where undefined)", g, why)
+    g, why = same_frame(cells.reset_index(drop=True), c_own.reset_index(drop=True), CELL_COLS, ["act_class", "hemisphere", "area_class", "cohort"])
+    ok("cells: labels, N, n1, n2, shortfalls and probabilities", g, why)
     passed = sum(c["ok"] for c in checks)
     receipt = dict(passed=passed, total=len(checks), partial=not real, checks=checks, selection_meta_sha256=sha(Path(sel) / "META.json"))
     if write:
@@ -190,14 +233,25 @@ def selftest():
         ctab.to_csv(d / "CELLS.csv", index=False)
         (d / "META.json").write_text(json.dumps(dict(products_sha256={n: sha(d / n) for n in PRODUCTS})))
         ok("recount passes on a synthetic selection (own draw replay)", check(d, write=False, pop_own=pop))
-        s2 = samp.copy()
-        s2.loc[0, "noaa"] = "99999"
-        s2.to_csv(d / "SAMPLE.csv", index=False)
-        (d / "META.json").write_text(json.dumps(dict(products_sha256={n: sha(d / n) for n in PRODUCTS})))
-        ok("refused: a sampled unit changed", not check(d, write=False, pop_own=pop))
-        samp.assign(pi1=samp.pi1 * 1.01).to_csv(d / "SAMPLE.csv", index=False)
-        (d / "META.json").write_text(json.dumps(dict(products_sha256={n: sha(d / n) for n in PRODUCTS})))
-        ok("refused: a probability changed", not check(d, write=False, pop_own=pop))
+
+        def mutate(name, fn, target="SAMPLE.csv"):
+            t0 = pd.read_csv(d / target, dtype={"noaa": str}, float_precision="round_trip") if target != "CELLS.csv" else pd.read_csv(d / target)
+            t1 = fn(t0.copy())
+            t1.to_csv(d / target, index=False)
+            (d / "META.json").write_text(json.dumps(dict(products_sha256={n: sha(d / n) for n in PRODUCTS})))
+            ok(f"refused with updated hashes: {name}", not check(d, write=False, pop_own=pop))
+            t0.to_csv(d / target, index=False)
+            (d / "META.json").write_text(json.dumps(dict(products_sha256={n: sha(d / n) for n in PRODUCTS})))
+        l2 = samp.index[samp.level2][0]
+        mutate("lat of a level-2 row", lambda t: t.assign(lat=t.lat.where(t.index != l2, t.lat + 0.01)))
+        mutate("lon of a level-2 row", lambda t: t.assign(lon=t.lon.where(t.index != l2, t.lon + 0.01)))
+        mutate("t_dpd of a level-2 row", lambda t: t.assign(t_dpd=t.t_dpd.astype(str).where(t.index != l2, "1999-01-01 00:00:01")))
+        mutate("A_main of a level-2 row", lambda t: t.assign(A_main=t.A_main.where(t.index != l2, t.A_main + 0.1)))
+        mutate("w2 of a level-2 row", lambda t: t.assign(w2=t.w2.where(t.index != l2, t.w2 * 1.01)))
+        mutate("a sampled unit", lambda t: t.assign(noaa=t.noaa.where(t.index != 0, "99999")))
+        mutate("a duplicated sample row", lambda t: pd.concat([t, t.iloc[[0]]]))
+        mutate("a cell label", lambda t: t.assign(hemisphere=t.hemisphere.where(t.index != 0, "S")), "CELLS.csv")
+        mutate("a population LCM", lambda t: t.assign(lcm=t.lcm.where(t.index != 5, t.lcm + 1)), "POPULATION.csv")
     def line(y, mo, d, hh, mm, ss, noaa, area, lat, lon, lcm):
         b = [" "] * 80
         for (i, j), v in (((0, 2), "g "), ((2, 6), f"{y:4d}"), ((7, 9), f"{mo:02d}"), ((10, 12), f"{d:02d}"), ((13, 15), f"{hh:02d}"),

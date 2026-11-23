@@ -51,9 +51,14 @@ def ephemeris_cr(times):
 
 
 def parse_jsoc_time(s):
-    """'YYYY.MM.DD_hh:mm:ss[_TAI]' with seconds = 60 taken as an interval (as in DPD)."""
+    """'YYYY.MM.DD_hh:mm:ss[_TAI]' -> naive UTC datetime. Seconds = 60 are taken as an interval (as in DPD); the
+    time scale is converted explicitly (TAI -> UTC with astropy; a string without scale is taken as UTC)."""
+    from astropy.time import Time
     d, h = s[:10].split("."), s[11:19].split(":")
-    return datetime(int(d[0]), int(d[1]), int(d[2]), int(h[0]), int(h[1])) + timedelta(seconds=int(h[2]))
+    t = datetime(int(d[0]), int(d[1]), int(d[2]), int(h[0]), int(h[1])) + timedelta(seconds=int(h[2]))
+    if s.rstrip().endswith("_TAI"):
+        return Time(t, scale="tai").utc.to_datetime()
+    return t
 
 
 # ---------------------------------------------------------------- maps

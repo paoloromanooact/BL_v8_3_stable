@@ -58,29 +58,33 @@ def mad_scaled(x):
 
 
 def quiet(maps, ct_g, lat0, t_cm, dpd_all):
-    """Observed field dispersion in the two quiet windows; returns (value or NaN, details)."""
-    vals, det = [], []
-    for side in (-1, 1):
+    """Observed field dispersion in the two quiet windows. The centre of each window is fixed by CT:
+    L_q = (-CT_q) mod 360 (never a median of longitudes). Returns dict with per-side status/value and the mean."""
+    out, vals = {}, []
+    for side, tag in ((-1, "qm"), (1, "qp")):
         ct_q = ct_g + side * QUIET_OFFSET
+        l_q = (-ct_q) % 360.0
         t_q = pd.Timestamp(t_cm) + pd.Timedelta(days=side * QUIET_OFFSET / A.OMEGA_DEG_PER_DAY)
+        out[f"{tag}_lon"], out[f"{tag}_time"] = l_q, str(t_q)
         ex = A.extract(maps, ct_q, lat0)
         if ex["status"] != "ok":
-            det.append(f"{side:+d}:{ex['status']}")
+            out[f"{tag}_status"], out[f"{tag}_mad_g"] = ex["status"], np.nan
             continue
-        l_q = float(np.median(ex["lon"]))
         near = dpd_all[(dpd_all.t_dpd >= t_q - pd.Timedelta(days=QUIET_DAYS)) & (dpd_all.t_dpd <= t_q + pd.Timedelta(days=QUIET_DAYS))]
         hit = ((near.lat - lat0).abs() <= 12.0) & (((near.lon - l_q + 180.0) % 360.0 - 180.0).abs() <= 16.0)
         win = tw.window_mask(ex["lat"], ex["lon"], lat0, l_q)
-        fin = np.isfinite(ex["br"][win]).mean() if win.any() else 0.0
+        fin = float(np.isfinite(ex["br"][win]).mean()) if win.any() else 0.0
+        out[f"{tag}_finite_frac"] = fin
         if hit.any():
-            det.append(f"{side:+d}:dpd_group_inside")
+            out[f"{tag}_status"], out[f"{tag}_mad_g"] = "dpd_group_inside", np.nan
         elif fin < QUIET_MIN_FINITE:
-            det.append(f"{side:+d}:finite_below_50pct")
+            out[f"{tag}_status"], out[f"{tag}_mad_g"] = "finite_below_50pct", np.nan
         else:
             v = mad_scaled(ex["br"][win])
+            out[f"{tag}_status"], out[f"{tag}_mad_g"] = "ok", v
             vals.append(v)
-            det.append(f"{side:+d}:{v:.3f}")
-    return (float(np.mean(vals)) if vals else np.nan), ";".join(det)
+    out["quiet_mad_g"] = float(np.mean(vals)) if vals else np.nan
+    return out
 
 
 def measure_group(maps, r, dpd_all):
@@ -102,7 +106,7 @@ def measure_group(maps, r, dpd_all):
         if "sep_deg" in m:
             out[f"{tag}_sep_lonsteps"] = m["sep_deg"] / LON_STEP
     out["status"] = out["main_status"]
-    out["quiet_mad_g"], out["quiet_detail"] = quiet(maps, ct_g, r.lat, t_cm, dpd_all)
+    out.update(quiet(maps, ct_g, r.lat, t_cm, dpd_all))
     return out
 
 
@@ -128,6 +132,12 @@ def run(out=OUT):
         sys.exit("tracked tree not clean")
     if not receipt_ok(SEL_REC / "RECEIPT.json", "selection_meta_sha256", SEL / "META.json"):
         sys.exit("selection recount receipt missing, incomplete or not bound")
+    sm = json.loads((SEL / "META.json").read_text())
+    want = {"POPULATION.csv", "SAMPLE.csv", "CELLS.csv"}
+    if set(sm.get("products_sha256", {})) != want or any(sha(SEL / n) != h for n, h in sm["products_sha256"].items()):
+        sys.exit("selection products differ from their META (checked before reading)")
+    if sm.get("protocol_sha256") != fr["sha256"]:
+        sys.exit("selection made under another protocol")
     samp = pd.read_csv(SEL / "SAMPLE.csv", dtype={"noaa": str}, float_precision="round_trip", parse_dates=["t_dpd"])
     cat = A._load("t3_mwo_catalogue", ROOT / "scripts/t3_mwo_catalogue.py")
     dpd_all = cat.dpd_groups(years=range(1995, 2012))
@@ -189,6 +199,8 @@ def synthetic_maps(td, crs=(2000, 2001), lat0=12.0, lon0=2.0, tilt=10.0, sep=4.0
     pd.DataFrame(rows).to_csv(Path(td) / "FILES.csv", index=False)
     return A.Maps(td, Path(td) / "FILES.csv")
 
+
+from datetime import datetime  # noqa: E402
 
 from astropy.io import fits  # noqa: E402
 
@@ -257,9 +269,26 @@ def selftest():
         ok("pixel area constant and equal to dlon dsin R^2", abs(A.pixel_area_cm2(h) - np.radians(0.1) / 720.0 * A.RSUN_CM ** 2) < 1e3)
         t_cm = pd.Timestamp("2003-01-01")
         dpd = pd.DataFrame(dict(t_dpd=[t_cm + pd.Timedelta(days=30 / 13.2)], lat=[12.0], lon=[170.0]))   # inside the +1 window
-        v, det = quiet(maps, 360.0 * 2001 - 200.0, 12.0, t_cm, dpd)
-        ok("quiet windows: scaled MAD of the noise (sigma 5) where no DPD group; DPD group inside drops the window",
-           "+1:dpd_group_inside" in det and det.startswith("-1:") and np.isfinite(v) and abs(v - 5.0) < 0.5, det)
+        q = quiet(maps, 360.0 * 2001 - 200.0, 12.0, t_cm, dpd)
+        ok("quiet windows: scaled MAD of the noise (sigma 5) on the clean side; a DPD group inside drops the other side",
+           q["qp_status"] == "dpd_group_inside" and q["qm_status"] == "ok" and abs(q["quiet_mad_g"] - 5.0) < 0.5, q)
+        dpd_edge = pd.DataFrame(dict(t_dpd=[t_cm + pd.Timedelta(days=30 / 13.2 + 0.99)], lat=[12.0 + 11.9], lon=[170.0 - 15.9]))
+        q2 = quiet(maps, 360.0 * 2001 - 200.0, 12.0, t_cm, dpd_edge)
+        ok("quiet windows: contaminant on the edge of the enlarged box (+-12/+-16 deg, +-1 day) drops the side", q2["qp_status"] == "dpd_group_inside")
+        q3 = quiet(maps, 360.0 * 2001 - 200.0, 12.0, t_cm, dpd.iloc[:0])
+        ok("quiet windows: no contaminant -> both sides valid, mean of the two", q3["qm_status"] == q3["qp_status"] == "ok"
+           and abs(q3["quiet_mad_g"] - np.mean([q3["qm_mad_g"], q3["qp_mad_g"]])) < 1e-12)
+    with tf.TemporaryDirectory() as td:
+        # Codex's counterexample: quiet window centred on L = 0 (CT_q multiple of 360); centre fixed by CT, not a median
+        maps = synthetic_maps(td, crs=(2000, 2001, 2002), lat0=12.0, lon0=200.0)
+        ct_g = 360.0 * 2001 - 30.0                                   # minus side at CT_g - 30 = 360*2001 - 60 ... plus side at L = 0
+        q = quiet(maps, ct_g, 12.0, pd.Timestamp("2003-01-01"), pd.DataFrame(dict(t_dpd=pd.to_datetime([]), lat=[], lon=[])))
+        ok("quiet window centred at L = 0/360: centre from CT, both sides valid", q["qp_lon"] == 0.0 and q["qp_status"] == "ok"
+           and q["qm_status"] == "ok", (q["qp_lon"], q["qp_status"]))
+    from astropy.time import Time
+    ok("header time: TAI converted to UTC explicitly, seconds = 60 as an interval",
+       A.parse_jsoc_time("2003.03.05_22:54:28_TAI") == Time(datetime(2003, 3, 5, 22, 54, 28), scale="tai").utc.to_datetime()
+       and A.parse_jsoc_time("1998.09.24_19:37:60_TAI") == Time(datetime(1998, 9, 24, 19, 38, 0), scale="tai").utc.to_datetime())
     with tf.TemporaryDirectory() as td:
         maps = synthetic_maps(td, crs=(2001,), lat0=12.0, lon0=200.0)
         p = Path(td) / "mdi.synoptic_mr_polfil_96m.2001.Br_polfil.fits"
