@@ -15,12 +15,12 @@
 
 - **Descrittivo.** Gli intervalli sono bootstrap a blocchi di 6 rotazioni (seme 71 100 001), nominali e **non
   validati**.
-- I gruppi di Q3 sono correlati fra loro e numerosi: qualche intervallo che esclude zero è atteso anche senza un
-  effetto.
+- I sottogruppi di Q3 sono numerosi e i confronti correlati: un intervallo nominale che esclude zero non basta
+  a dichiarare una dipendenza dall’attività. Le soglie 50/100 G sugli stessi dati non sono repliche indipendenti.
 - Q3 misura **differenze relative MDI(sinottica) − MWO**: non dice quale strumento introduca lo scarto e, da sola,
   non autorizza una serie combinata per la sorgente BL.
 - Le mappe sinottiche sono compositi: l'istante per pixel è indeterminato. La distanza riportata è MWO − t_DPD
-  (mediana 7,0 h).
+  (mediana della distanza assoluta 7,0 h).
 - **Restano da fare:**
   - Q2 (sinottica contro full-disk) e la ripetibilità, che richiedono il livello 2;
   - Q4, rinviato;
@@ -29,7 +29,8 @@
 ## Q1 — resa, copertura, dispersione (serve a entrambi gli obiettivi)
 
 Denominatore: tutti i 530 gruppi del campione. La resa proiettata sulla popolazione eleggibile (5401 gruppi) usa i
-pesi di selezione 1/π₁.
+pesi di selezione 1/π₁. Il periodo eleggibile è maggio 1996–ottobre 2010: comprende il ciclo 23 e
+porzioni dei cicli adiacenti; non rappresenta tutti i gruppi solari osservati in quegli anni.
 
 | Gruppo | Resa del campione, 50 G | Resa proiettata, 50 G | Resa proiettata, 100 G |
 |---|---|---|---|
@@ -44,18 +45,20 @@ pesi di selezione 1/π₁.
   - rotazione mancante (1998) 8;
   - meno di 10 pixel per polarità 6;
   - una sola polarità 6.
-- **La resa cresce con area e attività.** I gruppi con un record MWO nello stesso giorno (M1) riescono più spesso:
-  la loro selezione MWO favorisce regioni misurabili.
+- **La resa proiettata è inferiore per i gruppi piccoli e nel terzile di attività più basso.** Con l’attività non
+  è monotona (89,9 → 94,3 → 94,2 %). La coorte M1 ha resa maggiore di U; il confronto è condizionato
+  all’avere già un record MWO misurabile nello stesso giorno, non isola un effetto della selezione.
 - **Dispersione osservata del campo** (MAD scalata nelle finestre di quiete; non è rumore strumentale):
   - lati validi 331 su 1060, gli altri scartati quasi sempre per la presenza di gruppi DPD;
-  - 260 gruppi con un valore: mediana 6,1 G (10° percentile 5,0, 90° 8,6).
+  - 260 gruppi con un valore: sintesi condizionata alla disponibilità delle finestre, mediana 6,1 G (10° percentile 5,0, 90° 8,6).
 - **Fit esplorativo di M** su γ (498 misure, 222 celle, 145 rotazioni):
   - φ = 0,29, κ = −0,98 al bordo, σ²ₓ = 16,7, stato «stimato», nel dominio;
   - poco informativo per costruzione: non è una misura della correlazione fra rotazioni e non va usato da solo per Q4.
 
 ## Q3 — MDI sinottica − MWO, stesso gruppo e giorno (coorte M1)
 
-Confini di separazione fissati dalle misure L1 principali: 3,97° e 5,94°.
+Confini di separazione fissati dalle misure L1 principali: 3,97° e 5,94°. Le mediane non pesate descrivono
+le coppie M1 misurate del campione bilanciato, non la popolazione eleggibile.
 
 | Gruppo | n | mediana d_ax | mediana d_γ | accordo leading | rapporto di flusso MDI/MWO |
 |---|---|---|---|---|---|
@@ -77,12 +80,15 @@ Fra parentesi gli intervalli bootstrap al 95 %, non validati.
   - nel terzile più attivo l'intervallo esclude zero, alla soglia principale (−1,7° [−5,8, −0,3]) e a 100 G
     (−1,7° [−6,2, −0,3]);
   - nel terzile intermedio, a 100 G, l'intervallo è positivo (+1,5° [+0,7, +3,3]).
-  - È il tipo di differenza strumentale legata all'attività che interessa T3, ma qui è descrittiva, con molti
-    confronti correlati e intervalli non validati: non indica quale dei due strumenti dipenda dall'attività.
+  - Queste sono differenze relative fra classi di attività nel campione. Con confronti correlati e intervalli
+    non validati non dimostrano una dipendenza sistematica, né identificano uno strumento responsabile.
+    L’accordo fra le due soglie non è una conferma indipendente.
 - **L'accordo della polarità leading cala** con l'attività (97,5 → 88,4 %) e per separazioni piccole (82,7 %).
-- **Il rapporto di flusso MDI/MWO è circa 7–21.**
-  - Nasce da soglie, risoluzioni e prodotti diversi: la sinottica è media e composita, la finestra MWO è a 50 G
-    alla sua risoluzione.
+- **Le mediane del rapporto di flusso MDI/MWO nei sottogruppi sono circa 7–21** (mediana complessiva 13,7);
+  non è l’intervallo dei rapporti individuali.
+  - La causa della differenza non è identificata. Prodotti, risoluzioni e campionamento temporale sono diversi,
+    ma alla soglia principale entrambi i percorsi usano 50 G: non si può attribuire il fattore 13,7 a una diversa
+    soglia nominale. La sensibilità MDI a 100 G dà una mediana di 11,0, senza isolare le altre componenti.
   - È più alto per le regioni piccole.
   - Va letto come differenza di misura, non come calibrazione.
 - **Non calcolabili:** i rapporti di pixel e aree con MWO, perché il rilascio MWO non li contiene.
@@ -90,9 +96,11 @@ Fra parentesi gli intervalli bootstrap al 95 %, non validati.
 ## Cosa dice per i due obiettivi
 
 - **Quenching (T3):**
-  - MDI sinottico misura il 93 % della popolazione eleggibile del ciclo 23. Q4 dirà quale precisione ne deriverebbe.
-  - Il confronto con MWO mostra scarti relativi che, in parte, cambiano con l'attività. Servono Q2 e il livello 2
-    per capire quanto dipenda dal prodotto sinottico.
+  - La resa delle sinottiche è stimata al 92,8 % sui gruppi DPD eleggibili del periodo 1996–2010.
+    Q4 valuterà precisione e potenza attese sotto ipotesi dichiarate, senza garantire un verdetto.
+  - Il confronto con MWO descrive mediane diverse fra le classi di attività. Q2 confronterà sinottiche e full-disk
+    sul sottoinsieme L2 per valutare differenze fra prodotti; non attribuirà automaticamente a uno strumento
+    gli scarti rispetto a MWO.
 - **Sorgente BL:**
   - flussi, separazioni e polarità sono misurati per quasi tutti i gruppi;
   - la grande differenza di scala del flusso fra MDI sinottico e MWO esclude un'unione diretta delle due serie

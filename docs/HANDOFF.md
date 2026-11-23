@@ -1,5 +1,14 @@
 # Cold restart — SHARP BL
 
+## Pilota MDI L1 — rapporto descrittivo rivisto
+
+- Rapporto 79fb406 rivisto; dettagli in `docs/MDI_PILOT_L1_RESULTS_CODEX_REVIEW.md`.
+- Hash, ricevuta 13/13 e principali aggregati controllati; tabelle e risultati numerici invariati.
+- Precisati popolazione/resa stimata, confronti correlati, scarti relativi e causa non identificata del rapporto di flusso.
+- Proposto passo di soli metadati per QUALITY × INTERVAL dei 90 gruppi L2; nessuna rete autorizzata o eseguita.
+- Codice metadati ancora da chiudere: finestra B precedente fino a −10h, frazioni di secondo e registro cumulativo.
+- Un eventuale emendamento QUALITY va congelato prima dei FITS L2 e dichiarato dopo i risultati L1 già noti.
+
 ## 23 novembre — chiusura della revisione dell'analisi MDI L1
 
 - Correzioni 5959250 verificate; dettagli in `docs/MDI_PILOT_ANALYSIS_L1_CODEX_CLOSE.md`.

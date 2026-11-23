@@ -1,5 +1,10 @@
 # Cronologia
 
+## Revisione del rapporto MDI L1 e seguito QUALITY
+
+- Precisate le interpretazioni descrittive senza modificare numeri o prodotti conservati.
+- Documentato il percorso di verifica QUALITY con soli metadati e i punti aperti del codice; nessuna rete eseguita.
+
 ## 2026-11-23 — chiusura dell'analisi descrittiva MDI L1
 
 - Verificate le correzioni Q1/Q3 e aggiornata la sonda indipendente.
