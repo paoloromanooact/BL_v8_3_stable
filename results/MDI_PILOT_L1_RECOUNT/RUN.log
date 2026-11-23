@@ -1,0 +1,7 @@
+[OK] L1 products: exact set and actual hashes before reading 
+[OK] frozen protocol unchanged and equal to the one of the run 
+[OK] selection: META linked, products exact and unchanged, audit unchanged 
+[OK] one record per sampled group, same keys and order, unique 530
+[OK] every record reproduced: N, ephemeris, t_cm, maps and metadata, statuses, counts, fluxes, areas, centroids, tilts, separation, lat_bar, quiet windows 530/530 first bad []
+[OK] maps read with actual SHA equal to the audit []
+recount: 6/6 (partial False)

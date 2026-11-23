@@ -1,0 +1,38 @@
+{
+  "passed": 6,
+  "total": 6,
+  "partial": false,
+  "checks": [
+    {
+      "name": "L1 products: exact set and actual hashes before reading",
+      "ok": true,
+      "info": ""
+    },
+    {
+      "name": "frozen protocol unchanged and equal to the one of the run",
+      "ok": true,
+      "info": ""
+    },
+    {
+      "name": "selection: META linked, products exact and unchanged, audit unchanged",
+      "ok": true,
+      "info": ""
+    },
+    {
+      "name": "one record per sampled group, same keys and order, unique",
+      "ok": true,
+      "info": "530"
+    },
+    {
+      "name": "every record reproduced: N, ephemeris, t_cm, maps and metadata, statuses, counts, fluxes, areas, centroids, tilts, separation, lat_bar, quiet windows",
+      "ok": true,
+      "info": "530/530 first bad []"
+    },
+    {
+      "name": "maps read with actual SHA equal to the audit",
+      "ok": true,
+      "info": "[]"
+    }
+  ],
+  "l1_meta_sha256": "8dc1b065e7fed09ee64f86f5e9770eb851d1ff96ed3e1a7530313e30214d7f3d"
+}
