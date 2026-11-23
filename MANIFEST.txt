@@ -62,6 +62,7 @@ docs/MDI_SMARP_METADATA_INVENTORY_FREEZE.json
 docs/MDI_SMARP_METADATA_INVENTORY_PLAN.md
 docs/MDI_SMARP_OVERLAP_ACQUISITION.md
 docs/MDI_SMARP_OVERLAP_RESULTS.md
+docs/MDI_TILT_PILOT_A1_CODEX_REVIEW.md
 docs/MDI_TILT_PILOT_CODE_PLAN.md
 docs/MDI_TILT_PILOT_CONTRACT_CHECKS.md
 docs/MDI_TILT_PILOT_INVENTORY.md
@@ -115,6 +116,7 @@ docs/PROTOCOL_MDI_HMI_SECOND_SAMPLE_FREEZE.json
 docs/PROTOCOL_MDI_HMI_SMALL_COMPARISON.md
 docs/PROTOCOL_MDI_HMI_SMALL_COMPARISON_A1.md
 docs/PROTOCOL_MDI_TILT_PILOT.md
+docs/PROTOCOL_MDI_TILT_PILOT_AMENDMENT_A1.md
 docs/PROTOCOL_MDI_TILT_PILOT_AMENDMENT_A1_DRAFT.md
 docs/PROTOCOL_MDI_TILT_PILOT_DRAFT.md
 docs/PROTOCOL_MDI_TILT_PILOT_FREEZE.json
@@ -1180,6 +1182,7 @@ scripts/dpd_activity_homogeneity.py
 scripts/hmi_followups.py
 scripts/hmi_followups_recount.py
 scripts/hmi_followups_validation_audit.py
+scripts/mdi_a1_budget_review_probe.py
 scripts/mdi_fd_adapter.py
 scripts/mdi_fd_fetch.py
 scripts/mdi_fd_geometry_oracle.py

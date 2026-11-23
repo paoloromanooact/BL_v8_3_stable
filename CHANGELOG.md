@@ -1,5 +1,11 @@
 # Cronologia
 
+## Congelamento A1 del pilota MDI L2
+
+- Ammessi esattamente QUALITY 0 e 0x200, con controllo originale separato e 161 file unici pianificabili.
+- Corretta la confusione prenotazione/consumo: 32 MiB mantenuti, tetti globali invariati; nessuna rete autorizzata.
+- Riconteggio NA verificato e test isolati corretti; conservati i due tentativi e tutti i prodotti originali.
+
 ## Chiusura del riconteggio dei metadati MDI L2
 
 - Verificati ricostruzione e provenienza; aggiunta regressione sulle query e impronta del prefisso di registro.

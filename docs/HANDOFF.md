@@ -1,5 +1,14 @@
 # Cold restart — SHARP BL
 
+## MDI L2 — emendamento A1 congelato, nessun via ai FITS
+
+- Testo `docs/PROTOCOL_MDI_TILT_PILOT_AMENDMENT_A1.md`; revisione in `docs/MDI_TILT_PILOT_A1_CODEX_REVIEW.md`.
+- QUALITY esattamente {0,0x200}; altri esclusi. Scelte principali A/B invariate, risultati distinti per QUALITY/INTERVAL.
+- Controllo originale con assegnazioni originali: due file supplementari, 161 file unici pianificabili; nessun nuovo gruppo.
+- Prenotazione di 32 MiB mantenuta: non si accumula per file riuscito. Rimossa la riduzione non necessaria a 4 MB.
+- Correzione NA approvata; lettore dei test allineato per non introdurre mutazioni collaterali, selftest 15/15.
+- Ora codice/piano A1 offline in cartella nuova e riconteggio; chiusura B/C e successiva autorizzazione utente prima dei FITS.
+
 ## MDI L2 — riconteggio dei metadati approvato
 
 - Revisione di 34fc26b chiusa: `docs/MDI_L2_METADATA_RECOUNT_CODEX_CLOSE.md`.

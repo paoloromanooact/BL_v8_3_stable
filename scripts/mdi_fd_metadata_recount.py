@@ -353,7 +353,7 @@ def selftest():
                 fn(j)
                 p.write_text(json.dumps(j))
             else:
-                t = pd.read_csv(p, dtype={"noaa": str}, keep_default_na=True)
+                t = pd.read_csv(p, dtype={"noaa": str}, keep_default_na=False, na_values=[""], float_precision="round_trip")
                 fn(t).to_csv(p, index=False)
             m = json.loads((out / "META.json").read_text())
             m["products_sha256"] = {k: sha(out / k) for k in m["products_sha256"]}
