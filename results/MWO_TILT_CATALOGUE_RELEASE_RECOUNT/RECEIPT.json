@@ -1,0 +1,469 @@
+{
+  "passed": 115,
+  "total": 115,
+  "checks": [
+    {
+      "name": "prerequisites preserved",
+      "ok": true
+    },
+    {
+      "name": "input and release product hashes",
+      "ok": true
+    },
+    {
+      "name": "estimate recount complete and bound",
+      "ok": true
+    },
+    {
+      "name": "current catalogue and stability links",
+      "ok": true
+    },
+    {
+      "name": "isolated keys and multiplicity",
+      "ok": true
+    },
+    {
+      "name": "isolated exact schema",
+      "ok": true
+    },
+    {
+      "name": "isolated mwo_time_utc",
+      "ok": true
+    },
+    {
+      "name": "isolated mwo_file",
+      "ok": true
+    },
+    {
+      "name": "isolated epoch",
+      "ok": true
+    },
+    {
+      "name": "isolated resolution_class",
+      "ok": true
+    },
+    {
+      "name": "isolated carrington_rotation",
+      "ok": true
+    },
+    {
+      "name": "isolated cycle",
+      "ok": true
+    },
+    {
+      "name": "isolated hemisphere",
+      "ok": true
+    },
+    {
+      "name": "isolated lat_flux_weighted_deg",
+      "ok": true
+    },
+    {
+      "name": "isolated dpd_lat_deg",
+      "ok": true
+    },
+    {
+      "name": "isolated dpd_carrington_lon_deg",
+      "ok": true
+    },
+    {
+      "name": "isolated dpd_lcm_deg",
+      "ok": true
+    },
+    {
+      "name": "isolated dpd_area_msh",
+      "ok": true
+    },
+    {
+      "name": "isolated flux_window_mx",
+      "ok": true
+    },
+    {
+      "name": "isolated tilt_deg",
+      "ok": true
+    },
+    {
+      "name": "isolated joy_gamma_deg",
+      "ok": true
+    },
+    {
+      "name": "isolated leading_polarity_sign",
+      "ok": true
+    },
+    {
+      "name": "isolated hale_expected_sign",
+      "ok": true
+    },
+    {
+      "name": "isolated lon_pos_deg",
+      "ok": true
+    },
+    {
+      "name": "isolated lat_pos_deg",
+      "ok": true
+    },
+    {
+      "name": "isolated lon_neg_deg",
+      "ok": true
+    },
+    {
+      "name": "isolated lat_neg_deg",
+      "ok": true
+    },
+    {
+      "name": "isolated separation_deg",
+      "ok": true
+    },
+    {
+      "name": "isolated isolated_day",
+      "ok": true
+    },
+    {
+      "name": "isolated n_neighbours",
+      "ok": true
+    },
+    {
+      "name": "isolated candidate_rank",
+      "ok": true
+    },
+    {
+      "name": "isolated n_candidate_days",
+      "ok": true
+    },
+    {
+      "name": "isolated n_blank_window",
+      "ok": true
+    },
+    {
+      "name": "isolated activity_dpd_norm",
+      "ok": true
+    },
+    {
+      "name": "all keys and multiplicity",
+      "ok": true
+    },
+    {
+      "name": "all exact schema",
+      "ok": true
+    },
+    {
+      "name": "all mwo_time_utc",
+      "ok": true
+    },
+    {
+      "name": "all mwo_file",
+      "ok": true
+    },
+    {
+      "name": "all epoch",
+      "ok": true
+    },
+    {
+      "name": "all resolution_class",
+      "ok": true
+    },
+    {
+      "name": "all carrington_rotation",
+      "ok": true
+    },
+    {
+      "name": "all cycle",
+      "ok": true
+    },
+    {
+      "name": "all hemisphere",
+      "ok": true
+    },
+    {
+      "name": "all lat_flux_weighted_deg",
+      "ok": true
+    },
+    {
+      "name": "all dpd_lat_deg",
+      "ok": true
+    },
+    {
+      "name": "all dpd_carrington_lon_deg",
+      "ok": true
+    },
+    {
+      "name": "all dpd_lcm_deg",
+      "ok": true
+    },
+    {
+      "name": "all dpd_area_msh",
+      "ok": true
+    },
+    {
+      "name": "all flux_window_mx",
+      "ok": true
+    },
+    {
+      "name": "all tilt_deg",
+      "ok": true
+    },
+    {
+      "name": "all joy_gamma_deg",
+      "ok": true
+    },
+    {
+      "name": "all leading_polarity_sign",
+      "ok": true
+    },
+    {
+      "name": "all hale_expected_sign",
+      "ok": true
+    },
+    {
+      "name": "all lon_pos_deg",
+      "ok": true
+    },
+    {
+      "name": "all lat_pos_deg",
+      "ok": true
+    },
+    {
+      "name": "all lon_neg_deg",
+      "ok": true
+    },
+    {
+      "name": "all lat_neg_deg",
+      "ok": true
+    },
+    {
+      "name": "all separation_deg",
+      "ok": true
+    },
+    {
+      "name": "all isolated_day",
+      "ok": true
+    },
+    {
+      "name": "all n_neighbours",
+      "ok": true
+    },
+    {
+      "name": "all candidate_rank",
+      "ok": true
+    },
+    {
+      "name": "all n_candidate_days",
+      "ok": true
+    },
+    {
+      "name": "all n_blank_window",
+      "ok": true
+    },
+    {
+      "name": "all activity_dpd_norm",
+      "ok": true
+    },
+    {
+      "name": "column dictionary names and sources",
+      "ok": true
+    },
+    {
+      "name": "comparison S1_TABLE.csv",
+      "ok": true
+    },
+    {
+      "name": "comparison S1_DPD_SOURCES.csv",
+      "ok": true
+    },
+    {
+      "name": "comparison S2_P1.json",
+      "ok": true
+    },
+    {
+      "name": "comparison S2_P1_MATCHED.csv",
+      "ok": true
+    },
+    {
+      "name": "comparison S3_HALE.csv",
+      "ok": true
+    },
+    {
+      "name": "comparison S4_DWL_ALL.csv",
+      "ok": true
+    },
+    {
+      "name": "comparison WL_TILTS.csv",
+      "ok": true
+    },
+    {
+      "name": "README present",
+      "ok": true
+    },
+    {
+      "name": "26 excluded FITS identities and amendments",
+      "ok": true
+    },
+    {
+      "name": "Joy 20N True",
+      "ok": true
+    },
+    {
+      "name": "Joy 20N False",
+      "ok": true
+    },
+    {
+      "name": "Joy 20S True",
+      "ok": true
+    },
+    {
+      "name": "Joy 20S False",
+      "ok": true
+    },
+    {
+      "name": "Joy 21N True",
+      "ok": true
+    },
+    {
+      "name": "Joy 21N False",
+      "ok": true
+    },
+    {
+      "name": "Joy 21S True",
+      "ok": true
+    },
+    {
+      "name": "Joy 21S False",
+      "ok": true
+    },
+    {
+      "name": "Joy 22N True",
+      "ok": true
+    },
+    {
+      "name": "Joy 22N False",
+      "ok": true
+    },
+    {
+      "name": "Joy 22S True",
+      "ok": true
+    },
+    {
+      "name": "Joy 22S False",
+      "ok": true
+    },
+    {
+      "name": "Joy 23N True",
+      "ok": true
+    },
+    {
+      "name": "Joy 23N False",
+      "ok": true
+    },
+    {
+      "name": "Joy 23S True",
+      "ok": true
+    },
+    {
+      "name": "Joy 23S False",
+      "ok": true
+    },
+    {
+      "name": "Joy 24N True",
+      "ok": true
+    },
+    {
+      "name": "Joy 24N False",
+      "ok": true
+    },
+    {
+      "name": "Joy 24S True",
+      "ok": true
+    },
+    {
+      "name": "Joy 24S False",
+      "ok": true
+    },
+    {
+      "name": "Joy keys complete",
+      "ok": true
+    },
+    {
+      "name": "Joy bootstrap 20N True",
+      "ok": true
+    },
+    {
+      "name": "Joy bootstrap 20S True",
+      "ok": true
+    },
+    {
+      "name": "Joy bootstrap 21N True",
+      "ok": true
+    },
+    {
+      "name": "Joy bootstrap 21S True",
+      "ok": true
+    },
+    {
+      "name": "Joy bootstrap 22N True",
+      "ok": true
+    },
+    {
+      "name": "Joy bootstrap 22S True",
+      "ok": true
+    },
+    {
+      "name": "Joy bootstrap 23N True",
+      "ok": true
+    },
+    {
+      "name": "Joy bootstrap 23S True",
+      "ok": true
+    },
+    {
+      "name": "Joy bootstrap 24N True",
+      "ok": true
+    },
+    {
+      "name": "Joy bootstrap 24S True",
+      "ok": true
+    },
+    {
+      "name": "Joy bootstrap 20N False",
+      "ok": true
+    },
+    {
+      "name": "Joy bootstrap 20S False",
+      "ok": true
+    },
+    {
+      "name": "Joy bootstrap 21N False",
+      "ok": true
+    },
+    {
+      "name": "Joy bootstrap 21S False",
+      "ok": true
+    },
+    {
+      "name": "Joy bootstrap 22N False",
+      "ok": true
+    },
+    {
+      "name": "Joy bootstrap 22S False",
+      "ok": true
+    },
+    {
+      "name": "Joy bootstrap 23N False",
+      "ok": true
+    },
+    {
+      "name": "Joy bootstrap 23S False",
+      "ok": true
+    },
+    {
+      "name": "Joy bootstrap 24N False",
+      "ok": true
+    },
+    {
+      "name": "Joy bootstrap 24S False",
+      "ok": true
+    }
+  ],
+  "partial": false,
+  "release_meta_sha256": "b5879cd37c7687dc2f8965d5f65ebeed8af475fbbb993244d30fe0f15691768c",
+  "scope": "table values, provenance, copied comparisons, Joy estimates/counts and deterministic percentile replay; no statistical calibration claim"
+}
