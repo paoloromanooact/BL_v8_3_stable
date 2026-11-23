@@ -58,8 +58,14 @@ def gate(md=MD, md_rec=MD_REC, sel=SEL, a1=A1, a1_freeze=A1_FREEZE):
         probs.append("metadata META differs from the one named by A1")
     if not MDM.strict_receipt(Path(md_rec) / "RECEIPT.json", "metadata_meta_sha256", Path(md) / "META.json"):
         probs.append("metadata recount receipt")
-    if m.get("selection_meta_sha256") != sha(Path(sel) / "META.json"):
-        probs.append("selection link")
+    sm = json.loads((Path(sel) / "META.json").read_text())
+    if (m.get("selection_meta_sha256") != sha(Path(sel) / "META.json")
+            or set(sm.get("products_sha256", {})) != {"POPULATION.csv", "SAMPLE.csv", "CELLS.csv"}
+            or any(sha(Path(sel) / n) != h for n, h in sm["products_sha256"].items())
+            or not MDM.strict_receipt(ROOT / "results/MDI_PILOT_SELECTION_RECOUNT/RECEIPT.json", "selection_meta_sha256", Path(sel) / "META.json")):
+        probs.append("selection products or provenance")
+    if sha(Path(md_rec) / "RECEIPT.json") != fz.get("metadata_recount_receipt_sha256"):
+        probs.append("metadata receipt differs from the one frozen in A1")
     return probs
 
 

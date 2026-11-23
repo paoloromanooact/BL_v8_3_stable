@@ -7,7 +7,7 @@ the actual bytes when it ends. Transport: A1 transport of scripts/mdi_hmi_patch_
 redirect to an allowed JSOC host with verified TLS), actual requests and bytes recorded.
 Persistent checkpoint results/MDI_PILOT_L2_FITS/CHECKPOINT.jsonl (append-only, committed after every run): one line per
 attempt with path, T_REC, attempt number, status, bytes, file name, SHA-256 of a completed file and the plan META SHA.
-  - at most 2 attempts per file over ALL runs (counted from the checkpoint);
+  - at most 2 attempts per file over ALL runs (counted from durable ledger starts, including interrupted attempts);
   - a file already in the destination must match the SHA of its completed checkpoint line; a mismatch, or a file
     without a completed line (unknown provenance), stops the run without overwriting anything;
   - the run stops after 3 consecutive failures of the same class or when the ledger refuses a reservation.
@@ -76,7 +76,24 @@ def gate(plan=PLAN, plan_rec=PLAN_REC, a1=A1, a1_freeze=A1_FREEZE):
 
 def real_transport(target, dest, limit, expected, timeout):
     import mdi_hmi_patch_download as dl
-    return dl.transfer_a1(target, dest, limit, expected, timeout)
+    # Per-attempt files must not carry counters from an earlier interrupted worker.
+    sidecar = dest.with_suffix(".transport.json")
+    for p in (sidecar, dest.with_suffix(".error.json")):
+        if p.exists():
+            p.unlink()
+    try:
+        return dl.transfer_a1(target, dest, limit, expected, timeout)
+    except dl.TransportError as exc:
+        exc.requests, exc.requests_estimated = LG.OPEN_REQUESTS, True
+        try:
+            info = json.loads(sidecar.read_text())
+            count = info.get("requests")
+            if type(count) is int and 1 <= count <= LG.OPEN_REQUESTS:
+                exc.requests, exc.requests_estimated = count, False
+        except (OSError, ValueError):
+            pass
+        raise
+
 
 
 def check_fits(path):
@@ -121,9 +138,17 @@ def run(plan=PLAN, plan_rec=PLAN_REC, a1=A1, a1_freeze=A1_FREEZE, dest=DEST, sta
         if any(e.get("plan_meta_sha256") != plan_sha for e in entries):
             sys.exit("checkpoint belongs to another plan")
         done = {e["path"]: e for e in entries if e["status"] == "ok"}
+        # A checkpoint is written after a transfer; the ledger start is durable BEFORE it.
+        # Count open/interrupted attempts as well, so a killed process cannot reset the per-file limit.
         attempts = {}
+        for e in LG.entries(ledger):
+            if e.get("phase") == "start" and e.get("kind") == "fits":
+                attempts[e["target"]] = attempts.get(e["target"], 0) + 1
+        checkpoint_counts = {}
         for e in entries:
-            attempts[e["path"]] = attempts.get(e["path"], 0) + 1
+            checkpoint_counts[e["path"]] = checkpoint_counts.get(e["path"], 0) + 1
+        if any(n > attempts.get(p, 0) for p, n in checkpoint_counts.items()):
+            sys.exit("checkpoint attempts are not backed by the shared ledger")
         for r in P.itertuples():
             f = Path(dest) / file_name(r.T_REC)
             if r.path in done:
@@ -169,15 +194,18 @@ def run(plan=PLAN, plan_rec=PLAN_REC, a1=A1, a1_freeze=A1_FREEZE, dest=DEST, sta
                         break
                     LG.finish(i, "fits", nreq, got, "partial", st, "check", path=ledger)
                     kind, err = "invalid_file", st
+                    requests_used, requests_estimated = nreq, False
                 except Exception as exc:
                     got = tmp.stat().st_size if tmp.exists() else 0
                     kind = getattr(exc, "kind", type(exc).__name__)
                     err = f"{kind}: {exc}"
+                    requests_used = getattr(exc, "requests", LG.OPEN_REQUESTS)
+                    requests_estimated = getattr(exc, "requests_estimated", not hasattr(exc, "requests"))
                     LG.finish(i, "fits", getattr(exc, "requests", LG.OPEN_REQUESTS), got, "failed", err, "transfer", path=ledger)
                 if tmp.exists():
                     tmp.unlink()
                 append_checkpoint(ck, dict(path=r.path, T_REC=r.T_REC, attempt=n, status="failed", bytes=got, file=f.name, error=err,
-                                           plan_meta_sha256=plan_sha))
+                                           requests=requests_used, requests_estimated=requests_estimated, plan_meta_sha256=plan_sha))
                 states[r.path] = "failed" if attempts[r.path] < MAX_ATTEMPTS else "failed_attempts_exhausted"
                 same_kind = same_kind + 1 if kind == last_kind else 1
                 last_kind = kind
@@ -307,6 +335,52 @@ def selftest():
         script.update({"/SUM/c1": ["ok"]})
         rc = quiet(dest=td / "d6", state=td / "s6", transport=fake, ledger=td / "L6.jsonl", **fx6)
         ok("complete plan -> exit 0, completeness complete", rc == 0)
+    with tempfile.TemporaryDirectory() as td:
+        td = Path(td)
+        fx = fixture(td / "interrupted", ["/SUM/interrupted"])
+        calls = []
+        def interrupted(target, dest, *args):
+            calls.append(target)
+            Path(dest).write_bytes(b"partial")
+            raise KeyboardInterrupt("synthetic interruption")
+        args = dict(dest=td/"dest", state=td/"state", transport=interrupted, ledger=td/"ledger.jsonl", **fx)
+        for j in range(2):
+            try:
+                quiet(**args)
+            except KeyboardInterrupt:
+                pass
+        rc = quiet(**args)
+        ok("two interrupted attempts persist in the ledger; third run makes no request", rc == 2 and len(calls) == 2
+           and LG.totals(td/"ledger.jsonl")["open_attempts"] == 2)
+    import types
+    with tempfile.TemporaryDirectory() as td:
+        td = Path(td)
+        class WorkerError(Exception):
+            kind = "http_500"
+        def worker(target, dest, *args):
+            dest.with_suffix(".transport.json").write_text(json.dumps(dict(requests=1)))
+            raise WorkerError("synthetic failed worker")
+        saved = sys.modules.get("mdi_hmi_patch_download")
+        sys.modules["mdi_hmi_patch_download"] = types.SimpleNamespace(transfer_a1=worker, TransportError=WorkerError)
+        try:
+            try:
+                real_transport("/SUM/a", td/"a.part", 100, None, 1)
+                ok("failed request count comes from its fresh sidecar", False)
+            except WorkerError as exc:
+                ok("failed request count comes from its fresh sidecar", exc.requests == 1 and exc.requests_estimated is False)
+            def no_sidecar(*args):
+                raise WorkerError("worker interrupted before writing counters")
+            sys.modules["mdi_hmi_patch_download"].transfer_a1 = no_sidecar
+            try:
+                real_transport("/SUM/a", td/"a.part", 100, None, 1)
+                ok("stale sidecar discarded; absent counters conservatively reserve two requests", False)
+            except WorkerError as exc:
+                ok("stale sidecar discarded; absent counters conservatively reserve two requests", exc.requests == 2 and exc.requests_estimated is True)
+        finally:
+            if saved is None:
+                sys.modules.pop("mdi_hmi_patch_download", None)
+            else:
+                sys.modules["mdi_hmi_patch_download"] = saved
     print(f"selftest: {sum(res)}/{len(res)} superati")
     return all(res)
 

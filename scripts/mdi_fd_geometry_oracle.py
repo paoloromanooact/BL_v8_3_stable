@@ -193,6 +193,12 @@ def run(adapter=False):
         except (ValueError, TypeError) as exc:
             ok('explicit hexadecimal QUALITY zero accepted', False, error=type(exc).__name__)
         ok('QUALITY 0x200 rejected under the original rule', A.measure(br*mu, dict(k, QUALITY=512), la, lo, 50.).get('status') == 'quality_not_zero')
+        for q in (512, '0x00000200'):
+            result = A.measure(br*mu, dict(k, QUALITY=q), la, lo, 50., admissible=(0, 512))
+            ok('A1 explicit QUALITY accepted '+str(q), result.get('status') == 'ok')
+        for q in (513, 640, 1536):
+            result = A.measure(br*mu, dict(k, QUALITY=q), la, lo, 50., admissible=(0, 512))
+            ok('A1 other QUALITY rejected '+str(q), result.get('status') == 'quality_not_admissible')
         with tempfile.TemporaryDirectory() as td:
             raw = np.array([[10,-20,-32768],[100,-100,0]],dtype=np.int16)
             hdu = fits.PrimaryHDU(raw)

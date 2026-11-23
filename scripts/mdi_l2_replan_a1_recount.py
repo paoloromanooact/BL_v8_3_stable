@@ -88,11 +88,16 @@ def check(plan=PLAN, write=True, rec_dir=REC):
        and all(sha(Path(plan) / n) == h for n, h in ps.items()))
     fz = json.loads(A1_FREEZE.read_text())
     mm = json.loads((MD / "META.json").read_text())
+    sm = json.loads((SEL / "META.json").read_text())
     ok("A1 freeze, metadata products, metadata recount receipt and links", sha(A1) == fz["sha256"] == meta.get("a1_sha256")
        and tuple(fz["admissible_quality"]) == (0, 0x200) and sha(MD / "META.json") == fz["source_metadata_meta_sha256"] == meta.get("metadata_meta_sha256")
        and all(sha(MD / n) == h for n, h in mm["products_sha256"].items())
        and RC.strict_receipt(MD_REC / "RECEIPT.json", "metadata_meta_sha256", MD / "META.json")
-       and meta.get("metadata_recount_receipt_sha256") == sha(MD_REC / "RECEIPT.json"))
+       and meta.get("metadata_recount_receipt_sha256") == sha(MD_REC / "RECEIPT.json") == fz.get("metadata_recount_receipt_sha256")
+       and mm.get("selection_meta_sha256") == sha(SEL / "META.json")
+       and set(sm.get("products_sha256", {})) == {"POPULATION.csv", "SAMPLE.csv", "CELLS.csv"}
+       and all(sha(SEL / n) == h for n, h in sm["products_sha256"].items())
+       and RC.strict_receipt(ROOT / "results/MDI_PILOT_SELECTION_RECOUNT/RECEIPT.json", "selection_meta_sha256", SEL / "META.json"))
     samp = pd.read_csv(SEL / "SAMPLE.csv", dtype={"noaa": str}, float_precision="round_trip")
     l2 = samp[samp.level2.astype(str) == "True"].reset_index(drop=True)
     answers = [json.loads(x) for x in (MD / "ANSWERS.jsonl").read_text().splitlines() if x.strip()]
@@ -148,6 +153,22 @@ def selftest():
         mutate("an A1 B choice changed", "CHOICES_A1.csv", lambda t: t.assign(B=t.B.where(t.index != t.B.first_valid_index(), "x")))
         mutate("a QUALITY of A changed", "CHOICES_A1.csv", lambda t: t.assign(A_quality=t.A_quality.where(t.A_quality.isna(), "0x00000201")))
         mutate("a coverage count changed", "COVERAGE.csv", lambda t: t.assign(A=t.A + (t.index == 0)))
+    # Upstream changed with its META unchanged must fail even when it does not alter image choices.
+    saved_sel = globals()["SEL"]
+    with tempfile.TemporaryDirectory() as td:
+        copied = Path(td)/"selection"
+        shutil.copytree(saved_sel, copied)
+        sample = pd.read_csv(copied/"SAMPLE.csv", dtype={"noaa":str}, float_precision="round_trip")
+        sample.loc[0,"lat"] += 1
+        sample.to_csv(copied/"SAMPLE.csv",index=False)
+        globals()["SEL"] = copied
+        try:
+            with contextlib.redirect_stdout(io.StringIO()):
+                refused = not check(PLAN,write=False)
+            res.append(refused)
+            print("[OK]" if refused else "[FALLITO]", "refused: selected coordinates changed with META unchanged")
+        finally:
+            globals()["SEL"] = saved_sel
     print(f"selftest: {sum(res)}/{len(res)} superati")
     return all(res)
 

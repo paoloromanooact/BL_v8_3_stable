@@ -1,5 +1,12 @@
 # Cronologia
 
+## Chiusura tecnica piano A1 e blocchi FITS MDI L2
+
+- Conteggio persistente anche dei trasferimenti interrotti e contatori degli errori da sidecar fresco.
+- Verificati prodotti effettivi della selezione e legami delle ricevute; piano di 161 file invariato.
+- Regressioni offline e oracolo A1 positivi; download subordinato all'autorizzazione utente, misura L2 separata.
+
+
 ## Congelamento A1 del pilota MDI L2
 
 - Ammessi esattamente QUALITY 0 e 0x200, con controllo originale separato e 161 file unici pianificabili.

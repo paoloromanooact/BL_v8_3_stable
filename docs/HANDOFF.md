@@ -1,5 +1,15 @@
 # Cold restart — SHARP BL
 
+## MDI L2 — piano A1 e blocchi B/C approvati tecnicamente
+
+- Revisione di 20e1d73 chiusa in `docs/MDI_L2_FITS_CODEX_CLOSE.md`.
+- Piano conservato: 161 file, 159 principali e due original-only; nessuna scelta cambiata.
+- Corretti tentativi interrotti, contatori degli errori dal sidecar e hash effettivi della selezione.
+- Downloader 12/12, planner 7/7, riconteggio piano 8/8, adattatore/oracolo 23/23; sonda indipendente positiva.
+- Via tecnico al download, solo dopo autorizzazione esplicita dell'utente ai FITS. Nessuna rete eseguita qui.
+- Il download puo precedere la misura L2; runner e riconteggio della misura devono essere rivisti prima dell'uso.
+
+
 ## MDI L2 — emendamento A1 congelato, nessun via ai FITS
 
 - Congelamento `0428653`; ricevuta `docs/PROTOCOL_MDI_TILT_PILOT_AMENDMENT_A1_FREEZE.json`.
