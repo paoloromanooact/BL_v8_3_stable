@@ -1,0 +1,14 @@
+[OK] products: exact set and actual hashes before reading 
+[OK] upstream: protocol, selection and L1 products, receipts and links, MWO release, M modules, seed and reps {}
+[OK] Q1_YIELD_CELLS.csv: every column, key and value 
+[OK] Q1_YIELD_PROJECTED.csv: every column, key and value 
+[OK] Q1_QUIET_AVAILABILITY.csv: every column, key and value 
+[OK] Q1_QUIET_SUMMARY.json: counts, denominators and percentiles 
+[OK] Q1_M_EXPLORATORY.json: state, error, finiteness, domain, flags, n, cells, rotations exact; variance parameters within 1e-5 relative (common M: declared dependency); no coefficient {}
+[OK] CLASS_EDGES.json: one set of separation edges from the main successful L1 measurements 
+[OK] NOTES.json: BARD deferred, MWO ratios not computable, time, |LCM| omitted, quiet wording 
+[OK] Q3_PAIRS_main.csv: every column, key and value 
+[OK] Q3_SUMMARY_main.csv: every column incl. valid replicates, bounds and notes (bootstrap replay) 
+[OK] Q3_PAIRS_sens100.csv: every column, key and value 
+[OK] Q3_SUMMARY_sens100.csv: every column incl. valid replicates, bounds and notes (bootstrap replay) 
+recount: 13/13 (partial False)

@@ -1,0 +1,74 @@
+{
+  "passed": 13,
+  "total": 13,
+  "partial": false,
+  "checks": [
+    {
+      "name": "products: exact set and actual hashes before reading",
+      "ok": true,
+      "info": ""
+    },
+    {
+      "name": "upstream: protocol, selection and L1 products, receipts and links, MWO release, M modules, seed and reps",
+      "ok": true,
+      "info": "{}"
+    },
+    {
+      "name": "Q1_YIELD_CELLS.csv: every column, key and value",
+      "ok": true,
+      "info": ""
+    },
+    {
+      "name": "Q1_YIELD_PROJECTED.csv: every column, key and value",
+      "ok": true,
+      "info": ""
+    },
+    {
+      "name": "Q1_QUIET_AVAILABILITY.csv: every column, key and value",
+      "ok": true,
+      "info": ""
+    },
+    {
+      "name": "Q1_QUIET_SUMMARY.json: counts, denominators and percentiles",
+      "ok": true,
+      "info": ""
+    },
+    {
+      "name": "Q1_M_EXPLORATORY.json: state, error, finiteness, domain, flags, n, cells, rotations exact; variance parameters within 1e-5 relative (common M: declared dependency); no coefficient",
+      "ok": true,
+      "info": "{}"
+    },
+    {
+      "name": "CLASS_EDGES.json: one set of separation edges from the main successful L1 measurements",
+      "ok": true,
+      "info": ""
+    },
+    {
+      "name": "NOTES.json: BARD deferred, MWO ratios not computable, time, |LCM| omitted, quiet wording",
+      "ok": true,
+      "info": ""
+    },
+    {
+      "name": "Q3_PAIRS_main.csv: every column, key and value",
+      "ok": true,
+      "info": ""
+    },
+    {
+      "name": "Q3_SUMMARY_main.csv: every column incl. valid replicates, bounds and notes (bootstrap replay)",
+      "ok": true,
+      "info": ""
+    },
+    {
+      "name": "Q3_PAIRS_sens100.csv: every column, key and value",
+      "ok": true,
+      "info": ""
+    },
+    {
+      "name": "Q3_SUMMARY_sens100.csv: every column incl. valid replicates, bounds and notes (bootstrap replay)",
+      "ok": true,
+      "info": ""
+    }
+  ],
+  "analysis_meta_sha256": "6346615f9cc1e3ac5921e5a65a9fa9c8bf9b1eec00107231815f5503a852d583",
+  "dependency": "procedure M of scripts/t3_mwo_analysis.py for the exploratory covariance fit"
+}
