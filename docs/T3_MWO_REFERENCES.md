@@ -39,6 +39,14 @@ Ogni voce dice per che cosa serve e che cosa è stato controllato sulla fonte (a
     - riconteggio indipendente;
     - rilascio riproducibile con codice e hash.
   - Il loro catalogo non risultava scaricabile il 18 novembre (pagina in timeout).
+  - **Verifica del 23 novembre:**
+    - l'articolo (arXiv:1209.1642) non ha una dichiarazione di disponibilità dei dati; le sole tabelle sono
+      aggregate (Tabella 1, legge di Hale; Tabella 2, dipendenza dalla latitudine);
+    - la pagina degli autori (www2.ess.ucla.edu/~jingli/ApJ201210/) è ancora in timeout. La copia della Wayback
+      Machine del 2026-07-20 contiene testo e figure, nessun file di dati;
+    - VizieR non rispondeva nemmeno per un catalogo di controllo (Hipparcos): disponibilità lì non determinata.
+    - **Nessun catalogo pubblico trovato.** Un confronto record per record richiederebbe di contattare gli autori;
+      nessun contatto senza istruzione esplicita dell'utente.
   - Va citato come precedente e, se possibile, confrontato.
 - **Wang, Y.-M., Colaninno, R. C., Baranyi, T., Li, J. (2014), ApJ 796, 1**, «Active-Region Tilt Angles: Magnetic Versus
   White-Light Determinations of Joy's Law» (arXiv:1412.2329). Abstract letto: confronto fra tilt in luce bianca DPD e tilt
