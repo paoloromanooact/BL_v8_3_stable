@@ -1,5 +1,16 @@
 # Cold restart — SHARP BL
 
+## 23 novembre — controlli autonomi e revisione 3 MDI
+
+- Liste separate Codex/Claude: `docs/MDI_TILT_PILOT_WORK_SPLIT_20261123.md`.
+- Oracoli indipendenti preparati: contratti numerici 15/15, metadati 193 mappe e 29280 righe DPD;
+  non è ancora un test del codice produttivo di Claude.
+- Rev. 3 4385692 metodologicamente approvata; prima del congelamento precisare tolleranza della conversione
+  CT a periodo medio e assenza di record con BLANK nel DESIGN R4. Dettagli nella revisione rev. 3.
+- Nessuna assegnazione N diversa fra periodo medio ed effemeridi nei record DPD controllati; periodo medio
+  non è però un tempo esatto. Nessuna misura o acquisizione MDI eseguita.
+- Protocolli/codici/META HMI/MWO protetti: 19 file invariati durante la preparazione. Q4 resta rinviato.
+
 ## 23 novembre — revisione 2 del protocollo pilota MDI
 
 - Revisione di 8f8b188 in `docs/MDI_TILT_PILOT_REV2_CODEX_REVIEW.md`; nessuna misura/acquisizione.

@@ -55,10 +55,13 @@ docs/MDI_SMARP_METADATA_INVENTORY_PLAN.md
 docs/MDI_SMARP_OVERLAP_ACQUISITION.md
 docs/MDI_SMARP_OVERLAP_RESULTS.md
 docs/MDI_TILT_PILOT_CODE_PLAN.md
+docs/MDI_TILT_PILOT_CONTRACT_CHECKS.md
 docs/MDI_TILT_PILOT_INVENTORY.md
 docs/MDI_TILT_PILOT_METHOD_CODEX_REVIEW.md
 docs/MDI_TILT_PILOT_REV2_CODEX_REVIEW.md
+docs/MDI_TILT_PILOT_REV3_CODEX_REVIEW.md
 docs/MDI_TILT_PILOT_SYNOPTIC_CODEX_REVIEW.md
+docs/MDI_TILT_PILOT_WORK_SPLIT_20261123.md
 docs/MORPHOLOGY_CALIBRATION_COMPARISON.md
 docs/MORPHOLOGY_COMPARISON_INPUTS_SHA256.csv
 docs/MORPHOLOGY_INTERNAL_REVIEW.md
@@ -1131,6 +1134,7 @@ scripts/mdi_overlap_metadata_review.py
 scripts/mdi_smarp_inventory.py
 scripts/mdi_smarp_overlap_analysis.py
 scripts/mdi_synoptic_audit.py
+scripts/mdi_tilt_pilot_contract_checks.py
 scripts/mwo_a3_rule_check.py
 scripts/mwo_catalogue_deposit_package.py
 scripts/mwo_header_inventory.py

@@ -1,5 +1,10 @@
 # Cronologia
 
+## 2026-11-23 — preparazione autonoma e revisione 3 del pilota MDI
+
+- Liste Codex/Claude e oracoli indipendenti di campionamento, griglia, bordi e tempi; nessun tilt MDI.
+- Precisati conversione CT approssimata e casi BLANK disponibili; nessuna modifica a risultati HMI/MWO.
+
 ## 2026-11-23 — revisione 2 del pilota MDI
 
 - Confermate scelte operative; precisati campionamento, confronti e convenzioni.
