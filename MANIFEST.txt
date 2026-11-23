@@ -42,6 +42,7 @@ docs/HMI_FOLLOWUPS_RESULTS.md
 docs/HMI_FOLLOWUPS_VALIDATION_RESULTS.md
 docs/HMI_MEASUREMENT_ASSESSMENT.md
 docs/HMI_QUENCHING_SYNTHESIS.md
+docs/MDI_FD_GEOMETRY_ORACLE.md
 docs/MDI_HMI_PREPARATION_REVIEW.md
 docs/MDI_HMI_SECOND_SAMPLE_RESULTS.md
 docs/MDI_HMI_SMALL_COMPARISON_RESULTS.md
@@ -1174,6 +1175,7 @@ scripts/hmi_followups_recount.py
 scripts/hmi_followups_validation_audit.py
 scripts/mdi_fd_adapter.py
 scripts/mdi_fd_fetch.py
+scripts/mdi_fd_geometry_oracle.py
 scripts/mdi_fd_metadata.py
 scripts/mdi_fd_metadata_recount.py
 scripts/mdi_hmi_availability.py
