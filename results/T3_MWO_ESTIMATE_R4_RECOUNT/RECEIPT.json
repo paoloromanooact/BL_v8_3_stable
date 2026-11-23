@@ -1,0 +1,90 @@
+{
+  "checks": [
+    {
+      "name": "upstream chain before SEALED: products match META, stability bound, stability receipt complete",
+      "ok": true,
+      "value": "[]"
+    },
+    {
+      "name": "estimate product hashes; estimate bound to the stability and catalogue META",
+      "ok": true,
+      "value": ""
+    },
+    {
+      "name": "every analysis of the protocol present once",
+      "ok": true,
+      "value": ""
+    },
+    {
+      "name": "main: subset, state, beta, SE, bounds, verdict",
+      "ok": true,
+      "value": "stimato"
+    },
+    {
+      "name": "additive epoch terms: subset, state, beta, SE, bounds, verdict",
+      "ok": true,
+      "value": "stimato"
+    },
+    {
+      "name": "no epoch terms: subset, state, beta, SE, bounds, verdict",
+      "ok": true,
+      "value": "stimato"
+    },
+    {
+      "name": "weights = DPD area: subset, state, beta, SE, bounds, verdict",
+      "ok": true,
+      "value": "stimato"
+    },
+    {
+      "name": "all records: subset, state, beta, SE, bounds, verdict",
+      "ok": true,
+      "value": "stimato"
+    },
+    {
+      "name": "R1 only: subset, state, beta, SE, bounds, verdict",
+      "ok": true,
+      "value": "stimato"
+    },
+    {
+      "name": "first candidate day only: subset, state, beta, SE, bounds, verdict",
+      "ok": true,
+      "value": "stimato"
+    },
+    {
+      "name": "before 2010-05: subset, state, beta, SE, bounds, verdict",
+      "ok": true,
+      "value": "stimato"
+    },
+    {
+      "name": "excluding +-1 yr from minima: subset, state, beta, SE, bounds, verdict",
+      "ok": true,
+      "value": "stimato"
+    },
+    {
+      "name": "activity (a) Gyula/Debrecen: subset, state, beta, SE, bounds, verdict",
+      "ok": true,
+      "value": "stimato"
+    },
+    {
+      "name": "activity (b) SILSO hemispheric: subset, state, beta, SE, bounds, verdict",
+      "ok": true,
+      "value": "stimato"
+    },
+    {
+      "name": "activity (c) SILSO split: subset, state, beta, SE, bounds, verdict",
+      "ok": true,
+      "value": "stimato"
+    },
+    {
+      "name": "FINAL: outcome, verdict, reasons, main state, beta3/SE/bounds and targets equal to the recounted values",
+      "ok": true,
+      "value": "('descrittivo', None)"
+    }
+  ],
+  "passed": 16,
+  "total": 16,
+  "partial": false,
+  "estimate_meta_sha256": "8bad8c81dc47453c4d58b3ce0254d25fc4949be6bd9aba667369c7cab7589d81",
+  "recounted_outcome": "descrittivo",
+  "recounted_verdict": null
+}

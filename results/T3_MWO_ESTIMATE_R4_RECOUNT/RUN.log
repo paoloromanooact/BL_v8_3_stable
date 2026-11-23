@@ -1,0 +1,16 @@
+[OK] upstream chain before SEALED: products match META, stability bound, stability receipt complete []
+[OK] estimate product hashes; estimate bound to the stability and catalogue META 
+[OK] every analysis of the protocol present once 
+[OK] main: subset, state, beta, SE, bounds, verdict stimato
+[OK] additive epoch terms: subset, state, beta, SE, bounds, verdict stimato
+[OK] no epoch terms: subset, state, beta, SE, bounds, verdict stimato
+[OK] weights = DPD area: subset, state, beta, SE, bounds, verdict stimato
+[OK] all records: subset, state, beta, SE, bounds, verdict stimato
+[OK] R1 only: subset, state, beta, SE, bounds, verdict stimato
+[OK] first candidate day only: subset, state, beta, SE, bounds, verdict stimato
+[OK] before 2010-05: subset, state, beta, SE, bounds, verdict stimato
+[OK] excluding +-1 yr from minima: subset, state, beta, SE, bounds, verdict stimato
+[OK] activity (a) Gyula/Debrecen: subset, state, beta, SE, bounds, verdict stimato
+[OK] activity (b) SILSO hemispheric: subset, state, beta, SE, bounds, verdict stimato
+[OK] activity (c) SILSO split: subset, state, beta, SE, bounds, verdict stimato
+[OK] FINAL: outcome, verdict, reasons, main state, beta3/SE/bounds and targets equal to the recounted values ('descrittivo', None)
