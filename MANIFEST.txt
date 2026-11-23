@@ -54,6 +54,7 @@ docs/MDI_PILOT_ANALYSIS_L1_CODEX_CLOSE.md
 docs/MDI_PILOT_ANALYSIS_L1_CODEX_REVIEW.md
 docs/MDI_PILOT_L1_RESULTS.md
 docs/MDI_PILOT_L1_RESULTS_CODEX_REVIEW.md
+docs/MDI_PILOT_L2_CODEX_REVIEW.md
 docs/MDI_PILOT_L2_NETWORK_CODEX_REVIEW.md
 docs/MDI_SMARP_COUNTS_REVIEW.md
 docs/MDI_SMARP_FEASIBILITY.md
@@ -1221,6 +1222,7 @@ scripts/mdi_pilot_analysis_l1_recount.py
 scripts/mdi_pilot_analysis_l1_review_probe.py
 scripts/mdi_pilot_l1_recount.py
 scripts/mdi_pilot_l2_recount.py
+scripts/mdi_pilot_l2_review_probe.py
 scripts/mdi_pilot_measure_l1.py
 scripts/mdi_pilot_measure_l2.py
 scripts/mdi_pilot_mwo_identity.py

@@ -1,5 +1,12 @@
 # Cronologia
 
+## Revisione offline della misura MDI L2 (bedc06c)
+
+- Riprodotti cinque controesempi su provenienza, campi non verificati, conteggi e INTERVAL ignoto.
+- Salvata sonda sintetica; fase 5 da correggere prima della misura, approvazione B/C invariata.
+- Confermati i conteggi geometrici dalle sole keyword, senza leggere FITS reali.
+
+
 ## Chiusura tecnica piano A1 e blocchi FITS MDI L2
 
 - Conteggio persistente anche dei trasferimenti interrotti e contatori degli errori da sidecar fresco.

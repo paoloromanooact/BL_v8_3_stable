@@ -1,5 +1,15 @@
 # Cold restart — SHARP BL
 
+## MDI L2 — revisione fase 5: correzioni necessarie prima della misura
+
+- bedc06c rivisto: `docs/MDI_PILOT_L2_CODEX_REVIEW.md`; selftest esistenti 8/8 e 16/16 riprodotti.
+- Sonda `scripts/mdi_pilot_l2_review_probe.py`: base coerente, cinque difetti riprodotti (uscita 1 attesa).
+- Da chiudere: gate completo prima dei FITS; pair_status e conteggi interi; INTERVAL ignoto senza crash.
+- Confermati da sole keyword: 20/81 finestre A fuori mu, quiete 51 senza lati e 30 con un lato.
+- Nessun emendamento geometrico proposto; nessuna rete o misura reale eseguita nella revisione.
+- Piano A1 e blocchi B/C restano approvati in 9185a77; download separato, previa autorizzazione utente.
+
+
 ## MDI L2 — piano A1 e blocchi B/C approvati tecnicamente
 
 - Revisione di 20e1d73 chiusa in `docs/MDI_L2_FITS_CODEX_CLOSE.md`.
