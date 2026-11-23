@@ -1,5 +1,17 @@
 # Cold restart — SHARP BL
 
+## 23 novembre, tarda mattina — T3 MWO R4 chiuso (descrittivo); rilascio locale verificato
+
+- Catena completata: stima `e6ac79e`, riconteggio 16/16 `a636aeb`, esportazione `93f3eb7`, controllo del rilascio
+  115/115 `3c88ca5`, figure `e17f37e`. Rapporto: `docs/T3_MWO_FINAL_RESULTS.md`.
+- **β₃ = −4,93 [−10,21, +0,34]: descrittivo, nessun verdetto.** Lo scarto strumentale S2, −3,18, ha lo stesso segno
+  e ordine di grandezza. M è al bordo, con φ = 0,98.
+- Aperti:
+  - revisione Codex del rapporto;
+  - impaginazione delle figure, da correggere in una nuova cartella;
+  - deposito, licenza e autori (utente e Paolo);
+  - estensione MDI; S42 nel progetto MWO/SINDy.
+
 ## 23 novembre — stato operativo (Claude): stabilità R4 eseguita e ricontata, in attesa di Codex prima della stima
 
 - Revisione positiva di Codex della validazione (`cf7cc61`). Patch di collegamento applicata in `132f722`.
