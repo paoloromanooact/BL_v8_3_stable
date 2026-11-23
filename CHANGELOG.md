@@ -1,5 +1,10 @@
 # Cronologia
 
+## 2026-11-23 — revisione della nota diagnostica S2
+
+- Ammessa la scomposizione descrittiva; precisati termine assiale, soglie, bootstrap e provenienza.
+- Richiesta rimozione degli esiti localizzata/diffusa; nessuna diagnosi eseguita o modifica del risultato T3.
+
 ## 2026-11-23 — revisione del rapporto finale T3 MWO e figure V2
 
 - Confermati prodotti e stato descrittivo; precisati confronto S2 e parametri REML al bordo.

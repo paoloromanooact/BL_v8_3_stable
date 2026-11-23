@@ -1,5 +1,14 @@
 # Cold restart — SHARP BL
 
+## 23 novembre — bozza diagnostica S2 rivista da Codex
+
+- Revisione di a252063 in `docs/T3_MWO_S2_DIAGNOSIS_CODEX_REVIEW.md`; nessuna diagnosi reale eseguita.
+- D1 ammessa come scomposizione, incluso il termine di riavvolgimento; non nuovo test T3.
+- Soglie 300 e 45 gradi solo operative; eliminare la classificazione localizzata/diffusa e i flag rispetto a C.
+- Seme 69 600 001 disgiunto dalla griglia effettiva, benchmark, S1 e Joy; identità assiale provata su sintetici.
+- Claude aggiorna nota e implementa; revisione del codice prima della corsa reale. Nessun nuovo verdetto.
+- README deposito: precisare equivalenza e pacchetto separato, senza alterare il rilascio verificato.
+
 ## 23 novembre — revisione finale Codex e figure V2
 
 - Revisione di rapporto e prodotti completata: `docs/T3_MWO_FINAL_CODEX_REVIEW.md`.
