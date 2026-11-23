@@ -732,6 +732,8 @@ results/MDI_PILOT_L1/META.json
 results/MDI_PILOT_L1/RUN.log
 results/MDI_PILOT_L1_RECOUNT/RECEIPT.json
 results/MDI_PILOT_L1_RECOUNT/RUN.log
+results/MDI_PILOT_L2/L2_RECORDS.csv
+results/MDI_PILOT_L2/META.json
 results/MDI_PILOT_L2_FITS/CHECKPOINT.jsonl
 results/MDI_PILOT_L2_FITS/RUN_001.json
 results/MDI_PILOT_L2_LEDGER/LEDGER.jsonl
@@ -756,6 +758,7 @@ results/MDI_PILOT_L2_PLAN_A1/META.json
 results/MDI_PILOT_L2_PLAN_A1/PLAN.csv
 results/MDI_PILOT_L2_PLAN_A1_RECOUNT/RECEIPT.json
 results/MDI_PILOT_L2_PLAN_A1_RECOUNT/RUN.log
+results/MDI_PILOT_L2_RECOUNT/RECEIPT.json
 results/MDI_PILOT_MWO_IDENTITY/META.json
 results/MDI_PILOT_MWO_IDENTITY/ROWS.csv
 results/MDI_PILOT_MWO_IDENTITY/RUN.log
@@ -1223,6 +1226,8 @@ scripts/mdi_overlap_metadata_review.py
 scripts/mdi_pilot_analysis_l1.py
 scripts/mdi_pilot_analysis_l1_recount.py
 scripts/mdi_pilot_analysis_l1_review_probe.py
+scripts/mdi_pilot_analysis_l2.py
+scripts/mdi_pilot_analysis_l2_recount.py
 scripts/mdi_pilot_l1_recount.py
 scripts/mdi_pilot_l2_recount.py
 scripts/mdi_pilot_l2_review_probe.py

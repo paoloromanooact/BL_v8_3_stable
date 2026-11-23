@@ -1,5 +1,11 @@
 # Cronologia
 
+## Codice dell'analisi MDI L2 (fase 6), non eseguito sui dati reali
+
+- Q2 sinottica − fd(A), ripetibilità A − B con Δt, Q3 fd(A) − MWO; soglie 50/100 G; regola A1 principale e originale secondaria.
+- Resa con denominatori, cause e pesi w2; perdite per anno, INTERVAL e QUALITY; quiete assente «non disponibile».
+- Riconteggio indipendente con manomissioni, sottoinsiemi vuoti e bootstrap a 2000 repliche.
+
 ## Chiusura della revisione misura MDI L2
 
 - Confermate le correzioni ai gate, ai confronti completi e a INTERVAL ignoto.

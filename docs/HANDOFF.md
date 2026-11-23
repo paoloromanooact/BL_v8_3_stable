@@ -1,5 +1,17 @@
 # Cold restart — SHARP BL
 
+## MDI L2 — misura eseguita; codice dell'analisi (fase 6) scritto, da rivedere prima del run
+
+- Misura L2: run su fcba552, prodotti 02aca76, riconteggio 12/12 (b0a38cf). Esiti A1: A ok 61, fuori mu 20, nessun magnetogramma 9; B ok 59; 58 coppie complete. Originale: A ok 8, B ok 5. Quiete: 24 immagini su 159 con un lato valido.
+- `scripts/mdi_pilot_analysis_l2.py` (selftest 18/18): per regola (A1 principale, originale secondaria) e soglia (50/100 G):
+  - resa sui 90 gruppi per A e B, con cause e w2 = 1/pi2, e perdite per anno, INTERVAL e QUALITY di A;
+  - quiete (senza lati validi «non disponibile»);
+  - Q2 = sinottica − fd(A); REPEAT = A − B con Δt dal piano; Q3FD = fd(A) − MWO (M1, MWO − t_DPD e MWO − T_OBS(A)).
+  - Gruppi per QUALITY/INTERVAL di A (e transizione di QUALITY per REPEAT); un sottoinsieme vuoto ha n = 0.
+  - Bootstrap come L1; classi di separazione = terzili L1, uguali a CLASS_EDGES dell'analisi L1.
+- `scripts/mdi_pilot_analysis_l2_recount.py` (selftest 19/19): ricostruzione propria e confronto completo; 14 manomissioni rifiutate; confronti vuoti; 2000 repliche uguali al runner.
+- Gate reale: nessun problema; colonne d'ingresso presenti. Nessun run dell'analisi sui dati reali: si attende la revisione.
+
 ## MDI L2 — misura e riconteggio approvati
 
 - Revisione di 913ab1d chiusa: `docs/MDI_PILOT_L2_CODEX_CLOSE.md`.
