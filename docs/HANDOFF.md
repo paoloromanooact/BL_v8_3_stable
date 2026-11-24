@@ -1,13 +1,13 @@
 # Cold restart — SHARP BL
 
-## MDI — nota prospettica Q4: revisione 3.1 ed emendamento A2 chiusi da Codex, da congelare
+## MDI — nota prospettica Q4 ed emendamento A2 congelati (24 novembre 2026)
 
 - Bozza `docs/MDI_PILOT_Q4_NOTE_DRAFT.md`: revisione 1 in b856beb (rivista, non pronta); revisione 2 (SHA `7fe6cc76…`) rivista ma non conservata (lacuna dichiarata); revisione 3 (`d0574435…`) e 3.1 (`f77c0310…`) conservate anche in `reviews/` della cartella di consegna MWO.
 - Conteggi preparatori non ciechi: regole fissate prima di contare (`docs/MDI_Q4_PREP_COUNTS_RULES.md`, `9ce409fc…`), `scripts/mdi_q4_prep_counts.py`, `results/MDI_Q4_PREP_COUNTS/` (21/21 riscontri; nessun tilt letto). Esiti principali: MS 5151 e MF 5062 gruppi; ciclo 22 solo 20/13 gruppi; rese proiettate L1/L2 riprodotte entro 3,7e-16; le due regole sulla latitudine non soddisfano i criteri fissati → emendamento A2.
 - Bozza `docs/PROTOCOL_MDI_TILT_PILOT_AMENDMENT_A2_DRAFT.md` (`3457b90d…`): requisito flusso–latitudine del §7 attenuato, non soddisfatto (classi della cella di selezione, 5 donatori più vicini in |lat|).
 - Chiusura documentale Codex (`MDI_Q4_NOTA_CHIUSURA_CODEX.txt`): A2 e nota 3.1 pronte per il congelamento, A2 prima. Non è una validazione scientifica né un risultato prospettico.
 - A2 congelato: `docs/PROTOCOL_MDI_TILT_PILOT_AMENDMENT_A2.md` (bozza rivista + sola intestazione di congelamento); ricevuta `docs/PROTOCOL_MDI_TILT_PILOT_AMENDMENT_A2_FREEZE.json` (SHA `c8340770…`, commit d94057f).
-- Nota congelata: `docs/MDI_PILOT_Q4_NOTE.md` (revisione 3.1 + intestazione di congelamento e riferimento ad A2 congelato); ricevuta nel commit successivo.
+- Nota congelata: `docs/MDI_PILOT_Q4_NOTE.md` (revisione 3.1 + intestazione di congelamento e riferimento ad A2 congelato); ricevuta `docs/MDI_PILOT_Q4_NOTE_FREEZE.json` (SHA `e13a3a72…`, commit 1674f57; semi, Z, impronte di input e codice riusato).
 - Poi: codice Q4 e selftest, revisione; nessuna corsa autorizzata.
 
 ## MDI L2 — fase 6 chiusa: rapporto rivisto da Codex (chiusura positiva su 891521c)

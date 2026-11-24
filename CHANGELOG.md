@@ -1,5 +1,9 @@
 # Cronologia
 
+## Congelamento dell'emendamento A2 e della nota prospettica Q4
+
+- A2 congelato (d94057f, ricevuta acb8e33), poi la nota Q4 (1674f57, ricevuta `docs/MDI_PILOT_Q4_NOTE_FREEZE.json` con semi e impronte). Nessun calcolo prospettico autorizzato: seguono codice, selftest e revisione.
+
 ## Nota prospettica Q4: revisioni 2–3.1, conteggi preparatori, bozza dell'emendamento A2
 
 - Conteggi preparatori non ciechi con regole fissate prima di contare (`docs/MDI_Q4_PREP_COUNTS_RULES.md`, `scripts/mdi_q4_prep_counts.py`, `results/MDI_Q4_PREP_COUNTS/`).
