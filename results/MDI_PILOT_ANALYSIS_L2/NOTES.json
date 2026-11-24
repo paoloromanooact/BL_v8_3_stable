@@ -1,0 +1,14 @@
+{
+  "comparisons": "descriptive relative differences; no instrument or product is assumed correct",
+  "order": "Q2 = synoptic - fd(A); REPEAT = A - B; Q3FD = fd(A) - MWO; ratios = first / second member",
+  "q2_time": "T_OBS(A) - t_DPD; the synoptic instant per pixel is undetermined (CT_g and T_ROT kept)",
+  "q3fd_time": "MWO - t_DPD (protocol) and MWO - T_OBS(A); the summary median uses |MWO - T_OBS(A)|",
+  "repeat_time": "T_OBS(B) - T_OBS(A) from the plan; it includes real evolution and possibly correlated errors, not separated",
+  "repeat_interval": "pairs only with the same numeric INTERVAL; an unknown INTERVAL forms no pair",
+  "quality_transitions": "pairs with different QUALITY at the same INTERVAL are kept and reported as a group (A1)",
+  "mwo_pixel_area_ratios": "not computable: the MWO release has no pixel counts or areas per polarity",
+  "quiet": "scaled MAD = observed field dispersion (solar field, noise and processing), not instrumental noise; without a valid side the value is 'non disponibile', never zero, and it does not invalidate a tilt",
+  "separation": "terciles of the successful main level-1 synoptic separations, applied to the MDI member of every comparison",
+  "weights": "yields projected with w2 = 1/pi2; comparisons unweighted",
+  "original_rule": "secondary table with the original A/B assignments (QUALITY {0}); not a filter of the A1 assignments"
+}

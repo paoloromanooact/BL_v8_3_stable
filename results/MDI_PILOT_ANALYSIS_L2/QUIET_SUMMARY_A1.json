@@ -1,0 +1,10 @@
+{
+  "images_measured": 159,
+  "sides_total": 318,
+  "sides_ok": 24,
+  "images_with_value": 24,
+  "median_g": 20.616419643228554,
+  "p10_g": 12.650955828741674,
+  "p90_g": 22.511853865273782,
+  "note": "scaled MAD = observed field dispersion (solar field, noise and processing), not instrumental noise; without a valid side the value is 'non disponibile', never zero, and it does not invalidate a tilt"
+}
