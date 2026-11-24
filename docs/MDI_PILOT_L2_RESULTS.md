@@ -14,6 +14,9 @@ A1 congelato (`0428653`, SHA `73a075e8…`).
 | Analisi L2, codice corretto dopo la revisione Codex (chiusura positiva) | `f089840` | — |
 | Corsa dell'analisi L2 | `4249b72` | riconteggio 10/10, partial false (`52849f0`) |
 
+L'indice `MANIFEST.txt` è stato allineato in `6156144`: nei commit dei prodotti `4249b72` e della ricevuta `52849f0`
+non era ancora aggiornato. Prodotti e ricevuta erano già conservati in Git; i loro byte e hash sono rimasti invariati.
+
 ## Stato e lettura
 
 - **Descrittivo.** Gli intervalli sono bootstrap a blocchi di 6 rotazioni (seme 71 100 001, 2000 repliche),
@@ -34,7 +37,9 @@ A1 congelato (`0428653`, SHA `73a075e8…`).
 ## Resa del livello 2 (regola A1)
 
 Denominatore: i 90 gruppi di livello 2, per l'immagine A e per l'immagine B. La resa proiettata sulla popolazione
-eleggibile (5401 gruppi) usa i pesi 1/π₂.
+eleggibile (5401 gruppi) usa i pesi 1/π₂. È lo stimatore a rapporto sum(w2_i I_i)/sum(w2_i), con I_i = 1 per una
+misura riuscita, calcolato sui 90 gruppi estratti. È una stima della resa nella popolazione eleggibile con queste
+regole, non una misura effettuata su tutti i 5401 gruppi; qui non ne è riportata l'incertezza.
 
 | Gruppo | Resa A del campione | Resa A proiettata | Resa B del campione |
 |---|---|---|---|
@@ -53,9 +58,11 @@ eleggibile (5401 gruppi) usa i pesi 1/π₂.
 - **La proiezione è più bassa del campione** perché la coorte U (gruppi senza record MWO isolato nello stesso
   giorno) pesa 4005 dei 5401 gruppi eleggibili e ha resa bassa: 19 dei suoi 36 gruppi hanno la finestra fuori dal
   dominio μ. La causa di questa concentrazione non è stata esaminata.
-- **Confronto con il livello 1** (sinottiche: resa proiettata 92,8 %): con la geometria congelata (μ ≥ 0,8 e
-  offset ±30° delle finestre di quiete) i full-disk del giorno DPD misurano circa la metà della popolazione
-  eleggibile. Cambiare la geometria richiederebbe un emendamento dichiarato non cieco.
+- **Confronto a 50 G:** resa proiettata 92,8 % per le sinottiche e 47,0 % per le immagini A full-disk selezionate
+  vicino a t_DPD, con le regole congelate.
+  - Per A i fallimenti osservati sono 20 finestre fuori dal dominio μ ≥ 0,8 e 9 assenze di magnetogramma ammissibile.
+  - La disponibilità delle finestre di quiete a ±30° è una quantità distinta e non condiziona la resa del tilt.
+  - Cambiare la geometria richiederebbe un emendamento dichiarato non cieco.
 - **Regola originale {0}:** A 8/90 (8,9 %, proiettata 9,0 %), B 5/90; 78 gruppi senza magnetogramma ammissibile.
 
 **Zone quiete** (dispersione osservata del campo; non è rumore strumentale)
@@ -64,8 +71,9 @@ eleggibile (5401 gruppi) usa i pesi 1/π₂.
   - fuori dal dominio μ: 120;
   - fuori dal disco: 3.
 - 24 immagini con un valore, nessuna con due: mediana 20,6 G (10° percentile 12,7, 90° 22,5).
-- Il valore delle sinottiche (6,1 G) viene da prodotti e campioni diversi: i due numeri non sono un confronto
-  controllato.
+- La mediana 20,6 G è condizionata alle sole 24 immagini con una finestra valida su 159. Prodotti, geometria,
+  epoche e campioni non sono appaiati con le sinottiche: il confronto con 6,1 G non misura un rapporto di rumore né
+  un effetto del prodotto.
 
 ## Q2 — sinottica − full-disk(A), stesso gruppo
 
@@ -82,21 +90,21 @@ Non isola la sola composizione sinottica (protocollo §0).
 | tutti (50 G) | 61 | −0,2° [−0,8, +0,6] | −0,6° [−1,2, −0,2] | 100 % | 0,87 | 0,95 |
 | tutti (100 G) | 59 | −0,1° [−0,8, +0,4] | −1,0° [−1,6, −0,5] | 100 % | 0,87 | 0,96 |
 | emisfero N / S (50 G) | 29 / 32 | −0,6° [−1,3, −0,1] / +0,6° [−0,8, +1,2] | −0,6 / −0,6° | 100 % | 0,85 / 0,90 | 0,95 / 0,95 |
-| attività 1 / 2 / 3 (50 G) | 21 / 21 / 19 | −0,1 / −0,5 / −0,4° | −0,5 / −0,8 / −1,2° | 100 % | 0,87 / 0,85 / 0,90 | 0,95 / 0,97 / 0,95 |
+| attività 1 / 2 / 3 (50 G) | 21 / 21 / 19 | −0,1 / −0,5 / −0,4° | −0,5 / −0,8 / −1,2° | 100 % | 0,87 / 0,85 / 0,89 | 0,95 / 0,97 / 0,95 |
 | separazione 1 / 2 / 3 (50 G) | 18 / 21 / 22 | −0,4 / −0,2 / −0,2° | +0,3 / −0,5 / −1,0° | 100 % | 0,74 / 0,87 / 0,90 | 0,82 / 0,89 / 0,98 |
 | INTERVAL 30 s / 300 s (50 G) | 35 / 26 | −0,4 / −0,1° | −1,2 / −0,6° | 100 % | 0,85 / 0,89 | 0,93 / 0,96 |
 
 Fra parentesi gli intervalli bootstrap al 95 %, non validati.
 
 - **Mediane delle differenze di tilt entro circa 1°.**
-  - d_ax: gli intervalli contengono zero.
-  - d_γ: è negativo, con l'intervallo nominale che esclude zero a entrambe le soglie (−0,6° e −1,0°). Nella
-    sinottica, la componente di tilt orientata come la legge di Joy risulta in mediana più piccola di meno di 1°.
-  - d_ax ha segno opposto nei due emisferi e d_γ lo stesso: la differenza non è una rotazione uniforme del
-    riferimento.
+  - Per l'insieme completo, gli intervalli di d_ax contengono zero.
+  - La mediana di d_γ = sign(λ_DPD)·d_ax è −0,6° a 50 G e −1,0° a 100 G; entrambi gli intervalli nominali
+    escludono zero.
+  - Nei due emisferi le mediane campionarie di d_ax hanno segni opposti, e quelle di d_γ sono entrambe negative.
+    È una descrizione del campione, senza identificazione della causa o esclusione di errori di riferimento.
   - Lo scarto è piccolo rispetto alla dispersione per coppia e le soglie non sono indipendenti: è da tenere
     presente nella scelta del metodo, non è una distorsione dimostrata.
-- **Dispersione per coppia** (calcolo in lettura, vedi sotto): mediana di |d_ax| 1,4°, 90° percentile 17,6°,
+- **Dispersione per coppia** (calcolo in lettura, vedi sotto): mediana di |d_ax| 1,4°, 90° percentile 17,5°,
   2 coppie oltre 45° (0 a 100 G).
 - **Polarità leading:** concorda in tutte le coppie.
 - **Flusso:**
@@ -125,10 +133,10 @@ evoluzione reale ed errori eventualmente correlati: il pilota non li separa.
 - **Flusso:** rapporto A/B fra 0,97 e 1,01 (10°–90° percentile).
 - **La polarità leading cambia in una coppia** (10070m, 2002-08-14, separazione 0,1°; d_ax 89°).
 - Nei sottogruppi un solo intervallo nominale esclude zero (attività 1, d_γ +0,26° [+0,01, +0,80], 50 G). Con
-  una trentina di intervalli angolari correlati per soglia è compatibile con il caso.
+  molti intervalli correlati e copertura nominale non validata, questo risultato isolato non dimostra una dipendenza.
 - **Transizioni di QUALITY:** solo 2 coppie misurate; non permettono una lettura.
-- **Lettura:** a 1,6 h la misura full-disk ripete il tilt entro meno di 1° nella maggior parte dei gruppi. Questo non
-  è l'errore della singola misura e non vale per gruppi con separazione molto piccola.
+- **Lettura:** nelle 58 coppie, con |Δt| mediano 1,6 h e intervallo 1,6–3,2 h, la mediana di |d_ax| è 0,7°.
+  Questo scarto combina evoluzione ed errori eventualmente correlati; non stima l'errore della singola misura.
 
 ## Q3FD — full-disk(A) − MWO, coorte M1
 
@@ -140,13 +148,13 @@ ripetibilità.
 | tutti (50 G) | 49 | +0,8° [−1,8, +4,8] | +0,4° [−3,4, +2,2] | 93,9 % [88,5, 100] | 18,0 |
 | tutti (100 G) | 49 | +1,4° [−1,2, +3,7] | −1,0° [−3,0, +0,9] | 93,9 % | 15,2 |
 | attività 1 / 2 / 3 (50 G) | 16 / 16 / 17 | −0,2 / +0,3 / +3,4° | +0,2 / +1,7 / −3,4° | 100 / 100 / 82,4 % | 16,9 / 23,8 / 18,0 |
-| area 1 / 2 / 3 (50 G) | 17 / 14 / 18 | 0,0 / +0,2 / +1,2° | +2,2 / −0,7 / −0,4° | 94,1 / 85,7 / 100 % | 24,1 / 27,5 / 7,8 |
+| area 1 / 2 / 3 (50 G) | 17 / 14 / 18 | 0,0 / +0,2 / +1,2° | +2,2 / −0,7 / −0,4° | 94,1 / 85,7 / 100 % | 24,1 / 27,5 / 7,7 |
 | separazione 1 / 2 / 3 (50 G) | 16 / 15 / 18 | −4,2 / +4,8 / −1,4° | +0,1 / −3,0 / +1,5° | 93,8 / 93,3 / 94,4 % | 17,2 / 20,9 / 19,7 |
 
 - **Complessivamente** le mediane sono vicine a zero e gli intervalli lo contengono.
   - Dispersione per coppia: mediana di |d_ax| 6,8°, 90° percentile 32°, 4 coppie oltre 45° (8,2 %).
   - La polarità leading discorda in 3 coppie.
-- **Nei sottogruppi due intervalli nominali escludono zero:**
+- **Due sottogruppi presentano intervalli nominali che escludono zero** (tre intervalli):
   - separazione 2, d_ax +4,8° [+0,8, +16,4] a 50 G e +4,5° [+2,1, +16,2] a 100 G;
   - attività 3 a 100 G, d_γ −2,9° [−13,5, −2,5]; a 50 G −3,4° [−16,9, +0,9].
   - Il segno di quest'ultimo è lo stesso del terzile più attivo nel confronto sinottica − MWO del livello 1
@@ -154,12 +162,13 @@ ripetibilità.
   - Con confronti correlati e intervalli non validati questi due sottogruppi non dimostrano una dipendenza
     dall'attività o dalla geometria.
 - **Rapporto di flusso fd/MWO:** mediana 18,0 (15,2 a 100 G), 10°–90° percentile 6,3–55,7. È più alto per le
-  regioni piccole (area 1–2: 24–28; area 3: 7,8).
+  regioni piccole (area 1–2: 24–28; area 3: 7,7).
 
-## Quanto pesa il prodotto sinottico nello scarto con MWO (calcolo appaiato in lettura)
+## Stessi gruppi: sinottica e full-disk contro MWO (calcolo appaiato in lettura)
 
-Sui 49 gruppi di Q3FD, ho unito le coppie Q3FD con le coppie sinottica − MWO conservate dell'analisi L1
-(`Q3_PAIRS_main.csv`, stesse chiavi NOAA e giorno, stesso record MWO): sono presenti tutte e 49 a 50 G e 48 a 100 G.
+Sui 49 gruppi di Q3FD, ho unito le coppie Q3FD con le coppie sinottica − MWO conservate dell'analisi L1 della stessa
+soglia (`Q3_PAIRS_main.csv` a 50 G, `Q3_PAIRS_sens100.csv` a 100 G), su NOAA e giorno, una a una; il record MWO
+(istante, tilt, polarità leading, flusso) è lo stesso nei due file. Coppie comuni: 49/49 a 50 G, 48/49 a 100 G.
 
 | 50 G, stessi 49 gruppi | mediana d_ax | mediana d_γ | mediana \|d_ax\| | 90° perc. \|d_ax\| | oltre 45° | accordo leading | flusso / MWO |
 |---|---|---|---|---|---|---|---|
@@ -170,12 +179,15 @@ Sui 49 gruppi di Q3FD, ho unito le coppie Q3FD con le coppie sinottica − MWO c
   - Correlazione di Spearman fra |d_ax(fd − MWO)| e |d_ax(sin − MWO)|: 0,88.
   - Il full-disk ha lo scarto assoluto minore in 26 coppie su 49.
   - A 100 G: mediane di |d_ax| 7,5° e 5,8°, Spearman 0,87, 24 su 48.
-- **Le coppie con scarti grandi rispetto a MWO sono in gran parte le stesse** per sinottica e full-disk. Sul
-  sottoinsieme, la dispersione rispetto a MWO non dipende in modo apprezzabile dalla composizione sinottica.
-  - Resta non attribuita: può venire da MWO, da MDI in entrambi i prodotti, dall'evoluzione nelle ~8 h di distanza
-    o dalle definizioni di finestra.
-- **La differenza di scala del flusso con MWO non viene dal prodotto sinottico:** il full-disk ha un rapporto
-  maggiore (18,0 contro 14,7 sugli stessi gruppi), coerente con il rapporto sin/fd di 0,87 in Q2.
+- Sulle 49 coppie comuni a 50 G, le due distribuzioni degli scarti assoluti rispetto allo stesso record MWO hanno
+  mediane e 90° percentili vicini. A 100 G, sulle 48 coppie comuni, le mediane sono 7,5° e 5,8°.
+  - Sono confronti descrittivi, senza intervalli per il confronto appaiato né un criterio di equivalenza: non
+    quantificano e non escludono il contributo della composizione sinottica.
+  - I due scarti condividono il record MWO, quindi anche la correlazione elevata non identifica quale contributo
+    produca gli scarti. L'origine degli scarti resta non identificata.
+- **Flusso:** l'ampio rapporto di flusso rispetto a MWO è presente con entrambi i prodotti MDI: sui 49 gruppi comuni la
+  mediana è 18,0 per fd/MWO e 14,7 per sinottica/MWO. Il passaggio al full-disk non elimina la differenza osservata;
+  questo confronto non ne identifica la causa.
 - Questo confronto appaiato non è nel codice rivisto. È un calcolo fatto in lettura sui prodotti conservati, con le
   definizioni scritte sopra; il protocollo (§5) prevede entrambi i confronti con MWO.
 
@@ -185,40 +197,39 @@ Sono calcolati sui prodotti conservati `4249b72` (L2) ed `eda3515` (L1), senza n
 - mediana e 90° percentile di |d_ax|;
 - numero di coppie oltre 45°;
 - percentili del rapporto di flusso;
-- elenco delle coppie con scarti grandi;
-- confronto appaiato sinottica/full-disk contro MWO sugli stessi gruppi.
+- distanze temporali;
+- elenchi delle coppie con scarti grandi (soglie descrittive: |d_ax| > 10° per Q2; > 5° o cambio di polarità per
+  A − B; confine di separazione 3,97°);
+- confronto appaiato sinottica/full-disk contro MWO sugli stessi gruppi, a entrambe le soglie.
 
-Si riproducono con:
+Li riproduce `scripts/mdi_pilot_l2_report_numbers.py`. Lo script:
+- è di sola lettura;
+- unisce i file L1 e L2 della stessa soglia una a una e verifica che il record MWO sia lo stesso;
+- stampa tutti i valori citati.
 
-```python
-import pandas as pd
-rd = lambda p: pd.read_csv(p, dtype={"noaa": str})
-L2, L1 = "results/MDI_PILOT_ANALYSIS_L2/", "results/MDI_PILOT_ANALYSIS_L1/"
-for k in ("Q2", "REPEAT", "Q3FD"):
-    p = rd(f"{L2}{k}_PAIRS_A1_main.csv"); a = p.d_ax.abs()
-    print(k, len(p), a.median(), a.quantile(.9), (a > 45).sum(), p.flux_ratio.quantile([.1, .5, .9]).tolist())
-m = rd(f"{L2}Q3FD_PAIRS_A1_main.csv").merge(rd(f"{L1}Q3_PAIRS_main.csv"), on=["noaa", "day"], suffixes=("_fd", "_syn"))
-print(len(m), m.d_ax_fd.abs().median(), m.d_ax_syn.abs().median(),
-      m.d_ax_fd.abs().corr(m.d_ax_syn.abs(), method="spearman"), (m.d_ax_fd.abs() < m.d_ax_syn.abs()).sum())
-```
+Non è codice di analisi preregistrato e non fa parte del riconteggio 10/10.
 
 ## Cosa dice per i due obiettivi
 
 - **Quenching (T3):**
   - **Prodotto per il catalogo (Q2 precede la scelta del metodo):**
-    - sinottiche e full-disk danno tilt con mediane entro 1°;
-    - la dispersione per coppia è piccola (mediana 1,4°) tranne nei gruppi a separazione piccola;
-    - la sinottica ha d_γ mediano più basso di 0,6–1,0°, da considerare nella scelta del metodo.
+    - nel campione le mediane delle differenze Q2 sono circa entro 1°;
+    - la mediana di |d_ax| è 1,4° a 50 G, con 90° percentile 17,5°;
+    - la mediana della differenza d_γ sinottica − full-disk è −0,6° a 50 G e −1,0° a 100 G, con intervalli nominali
+      non validati che escludono zero: da considerare nella scelta del metodo.
   - **Resa:** le sinottiche hanno resa proiettata del 92,8 %, i full-disk del giorno DPD con la geometria congelata
     del 47 %.
   - Il pilota non dice quale prodotto sia più vicino al tilt vero.
-  - **Ripetibilità:** sotto 1° a 1,6 h nella maggior parte dei gruppi. Q4 potrà usarla come informazione già nota,
-    non come errore di misura.
-  - **Scarto con MWO:** sugli stessi gruppi è quasi uguale con i due prodotti MDI. La dispersione MDI–MWO vista nel
-    livello 1 non è spiegata dalla composizione sinottica, e il pilota non ne identifica l'origine.
+  - **Ripetibilità:** nelle 58 coppie (|Δt| 1,6–3,2 h) la mediana di |d_ax| è 0,7°; combina evoluzione ed errori
+    eventualmente correlati. Q4 potrà usarla come informazione già nota, non come errore di misura.
+  - **Scarto con MWO:** sui 49 gruppi comuni a 50 G, le mediane di |d_ax| sono 6,8° per full-disk e 7,1° per
+    sinottica. Il confronto è descrittivo e non identifica l'origine degli scarti né esclude un contributo della
+    composizione sinottica.
 - **Sorgente BL:**
-  - il flusso full-disk è circa 15 % più alto del sinottico;
-  - la differenza di scala con MWO (circa 15–18 volte) resta per entrambi i prodotti MDI.
+  - sul campione Q2 a 50 G, la mediana del rapporto sin/fd è 0,870, equivalente a una mediana fd/sin di circa 1,149;
+    non è una calibrazione;
+  - l'ampio rapporto di flusso rispetto a MWO è presente con entrambi i prodotti MDI (mediane 14,7 e 18,0 sugli
+    stessi gruppi).
   - Un'unione diretta con MWO richiede ancora una specifica propria.
 - **Restano rinviati:** Q4 (nota prospettica separata, che dovrà dichiarare quali risultati del pilota sono già
   noti), BARD-MDI e la serie BL combinata.

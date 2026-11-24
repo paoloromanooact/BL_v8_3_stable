@@ -1,5 +1,11 @@
 # Cronologia
 
+## Rapporto MDI L2 corretto dopo la revisione Codex
+
+- Confronto appaiato con MWO descritto senza dedurre l'irrilevanza della composizione sinottica; resa distinta dalla quiete; stimatore della resa dichiarato.
+- Arrotondamenti corretti da valori completi; script di sola lettura `scripts/mdi_pilot_l2_report_numbers.py` per i calcoli in lettura.
+- Annotato l'allineamento tardivo di MANIFEST.txt in 6156144.
+
 ## Analisi MDI L2 (fase 6) eseguita e rapporto descrittivo
 
 - Run su f089840, prodotti conservati prima della lettura (4249b72), riconteggio indipendente 10/10 (52849f0).

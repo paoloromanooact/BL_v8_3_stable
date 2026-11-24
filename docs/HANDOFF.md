@@ -7,9 +7,9 @@
   - resa A 61/90, proiettata 47 % (coorte U fuori dominio μ); quiete 24/318 lati, mediana 20,6 G;
   - Q2 sinottica − fd(A), 61 coppie: d_ax −0,2°, d_γ −0,6° [−1,2, −0,2] (−1,0° a 100 G), |d_ax| mediano 1,4°, flusso sin/fd 0,87, leading 100 %;
   - A − B, 58 coppie a 1,6 h: d_ax 0,0°, |d_ax| mediano 0,7°, leading 98,3 %;
-  - Q3FD fd(A) − MWO, 49 coppie: d_ax +0,8°, |d_ax| mediano 6,8°, flusso 18,0; sugli stessi 49 gruppi sinottica − MWO dà 7,1° (Spearman 0,88): lo scarto con MWO non viene dalla composizione sinottica.
-- Calcoli in lettura (dispersioni per coppia, confronto appaiato con le coppie L1) dichiarati nel rapporto, con codice per riprodurli.
-- Prossimo: revisione Codex del rapporto; poi Q4 (nota separata), BARD-MDI e serie combinata restano rinviati.
+  - Q3FD fd(A) − MWO, 49 coppie: d_ax +0,8°, |d_ax| mediano 6,8°, flusso 18,0; sugli stessi 49 gruppi sinottica − MWO dà 7,1° (Spearman 0,88). Confronto descrittivo: non identifica l'origine degli scarti né esclude un contributo della composizione sinottica.
+- Calcoli in lettura (dispersioni per coppia, confronto appaiato con le coppie L1) dichiarati nel rapporto; li riproduce `scripts/mdi_pilot_l2_report_numbers.py` (sola lettura, non preregistrato).
+- Revisione Codex del rapporto (6156144): numeri confermati; testo corretto (confronto appaiato non dimostra irrilevanza della composizione sinottica; quiete distinta dalla resa; arrotondamenti). Q4 (nota separata), BARD-MDI e serie combinata restano rinviati.
 
 ## MDI L2 — fase 6: correzioni dopo la revisione Codex di 3c79d78, da chiudere prima del run
 

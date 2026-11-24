@@ -1265,6 +1265,7 @@ scripts/mdi_pilot_analysis_l2.py
 scripts/mdi_pilot_analysis_l2_recount.py
 scripts/mdi_pilot_l1_recount.py
 scripts/mdi_pilot_l2_recount.py
+scripts/mdi_pilot_l2_report_numbers.py
 scripts/mdi_pilot_l2_review_probe.py
 scripts/mdi_pilot_measure_l1.py
 scripts/mdi_pilot_measure_l2.py
