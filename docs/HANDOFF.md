@@ -1,5 +1,12 @@
 # Cold restart — SHARP BL
 
+## MDI — nota prospettica Q4: bozza (revisione 1), da rivedere con Codex
+
+- `docs/MDI_PILOT_Q4_NOTE_DRAFT.md`: nota prevista dal protocollo del pilota (§7), scritta dopo la lettura del pilota e prima di qualsiasi calcolo prospettico. Non congelata; nessun calcolo, simulazione o dato nuovo.
+- Serve all'obiettivo 2 (T3): se costruire il catalogo MDI 1996–2010 e con quale prodotto. Disegni MS/MF/MS+H/MF+H sui 5401 gruppi DPD eleggibili, rese per strato con estrazione Beta, flussi per strato come pesi; σ_e² = σ_int² + σ_m² con σ_m ∈ {0; 2°; 10°} come scale, non stime; calcolo solo analitico con le funzioni della fase A.
+- Lettura proposta (da fissare al congelamento): «utile come limite» se h(MS+H) ≤ 0,7·h(H); MF solo se h(MF+H) ≤ 1,1·h(MS+H). Cinque punti aperti al §11.
+- Sequenza: revisione Codex → congelamento (FREEZE) → codice e selftest → revisione → corsa unica (decisione dell'utente).
+
 ## MDI L2 — fase 6 chiusa: rapporto rivisto da Codex (chiusura positiva su 891521c)
 
 - Chiusura della revisione del rapporto (24 novembre 2026): nessun rilievo residuo su `docs/MDI_PILOT_L2_RESULTS.md` né su `scripts/mdi_pilot_l2_report_numbers.py`.

@@ -1,5 +1,9 @@
 # Cronologia
 
+## Bozza della nota prospettica Q4 del pilota MDI
+
+- `docs/MDI_PILOT_Q4_NOTE_DRAFT.md` (revisione 1, non congelata): disegni, rese, flussi, scenari di rumore e lettura proposta per la precisione attesa di T3 con un catalogo MDI 1996–2010. Nessun calcolo eseguito; da rivedere con Codex.
+
 ## Chiusura della revisione del rapporto MDI L2
 
 - Codex: chiusura positiva su 891521c; script dei calcoli in lettura concorde 84/84; prodotti e ricevuta invariati.
