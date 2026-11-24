@@ -8,7 +8,7 @@
 - Chiusura documentale Codex (`MDI_Q4_NOTA_CHIUSURA_CODEX.txt`): A2 e nota 3.1 pronte per il congelamento, A2 prima. Non è una validazione scientifica né un risultato prospettico.
 - A2 congelato: `docs/PROTOCOL_MDI_TILT_PILOT_AMENDMENT_A2.md` (bozza rivista + sola intestazione di congelamento); ricevuta `docs/PROTOCOL_MDI_TILT_PILOT_AMENDMENT_A2_FREEZE.json` (SHA `c8340770…`, commit d94057f).
 - Nota congelata: `docs/MDI_PILOT_Q4_NOTE.md` (revisione 3.1 + intestazione di congelamento e riferimento ad A2 congelato); ricevuta `docs/MDI_PILOT_Q4_NOTE_FREEZE.json` (SHA `e13a3a72…`, commit 1674f57; semi, Z, impronte di input e codice riusato).
-- Poi: codice Q4 e selftest, revisione; nessuna corsa autorizzata.
+- Codice Q4 scritto: `scripts/mdi_q4_prospective.py` (selftest 31/31: prove sintetiche del §6.3, riproduzione di E0 su 36 righe e di `t3_var`, rese deterministiche 46 righe a 3,7e-16, conteggi preparatori, end-to-end sintetico). Nessuna corsa sui disegni MDI: si attende la revisione Codex del codice. `--run` richiede albero pulito, script uguale a HEAD e ricevute di congelamento concordi.
 
 ## MDI L2 — fase 6 chiusa: rapporto rivisto da Codex (chiusura positiva su 891521c)
 

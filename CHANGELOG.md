@@ -1,5 +1,9 @@
 # Cronologia
 
+## Codice della nota Q4 (non eseguito)
+
+- `scripts/mdi_q4_prospective.py`: disegni MS/MF/MS+H/MF+H, rese per cella e pool con Beta, donatori L-NN (A2), numeri casuali indicizzati, adattatore della matrice con rango incrementale, varianza generalizzata, criteri del §7; selftest 31/31 con le prove del §6. Nessuna corsa prima della revisione.
+
 ## Congelamento dell'emendamento A2 e della nota prospettica Q4
 
 - A2 congelato (d94057f, ricevuta acb8e33), poi la nota Q4 (1674f57, ricevuta `docs/MDI_PILOT_Q4_NOTE_FREEZE.json` con semi e impronte). Nessun calcolo prospettico autorizzato: seguono codice, selftest e revisione.
