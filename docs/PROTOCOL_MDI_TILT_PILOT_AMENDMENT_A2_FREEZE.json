@@ -1,0 +1,18 @@
+{
+  "protocol": "docs/PROTOCOL_MDI_TILT_PILOT_AMENDMENT_A2.md",
+  "sha256": "c834077011ff7e201d01eabc318de7e6fbfc547bbffcfca05a0091e87636203e",
+  "freeze_commit": "d94057fcdac42cea521de0ff1da0af4f6e15747a",
+  "frozen_utc": "2026-11-24T15:33:40.650348+00:00",
+  "reviewed_draft": "docs/PROTOCOL_MDI_TILT_PILOT_AMENDMENT_A2_DRAFT.md",
+  "reviewed_draft_sha256": "3457b90d03ada9a85a3e01521216317b8ef2ff76e5e417bed7c2275233b95fce",
+  "reviewed_draft_commit": "7faf89c",
+  "draft_to_frozen_changes": "freeze header (line 3) and section title 'Testo dell'emendamento (in vigore)' only",
+  "parent_protocol": "docs/PROTOCOL_MDI_TILT_PILOT.md",
+  "parent_sha256": "77367350e8f9a5f71933afdcc791429b307c95ec1875224c1f2d7486950d086f",
+  "amends": "section 7, requirement on flux assignment (area, latitude, activity)",
+  "prep_counts_rules_sha256": "9ce409fc1030e5d41ffac1d994887d8b540ccc711f25b488426e9c387ad8a77a",
+  "prep_counts_meta_sha256": "de2dde6fcde25e9a22c41e67a15d7570ee7b1f735df2e5aab3dc1d15391a2b2a",
+  "approved_by": "Codex documentary closure (MDI_Q4_NOTA_CHIUSURA_CODEX.txt, MWO delivery folder)",
+  "not_blind": true,
+  "status": "frozen before the Q4 note; no prospective calculation authorised"
+}
