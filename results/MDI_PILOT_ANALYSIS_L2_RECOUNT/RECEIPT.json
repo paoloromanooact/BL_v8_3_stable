@@ -1,0 +1,58 @@
+{
+  "passed": 10,
+  "total": 10,
+  "partial": false,
+  "checks": [
+    {
+      "name": "products: exact set and actual hashes before reading",
+      "ok": true,
+      "info": "[]"
+    },
+    {
+      "name": "protocol and A1 texts, linked to the run",
+      "ok": true,
+      "info": ""
+    },
+    {
+      "name": "selection, level 1, level-1 analysis, plan, level 2: fixed product sets with actual hashes, strict receipts",
+      "ok": true,
+      "info": ""
+    },
+    {
+      "name": "frozen protocol named by every stage, frozen A1 by the plan and level 2",
+      "ok": true,
+      "info": ""
+    },
+    {
+      "name": "links between stages: L1 -> selection and its receipt; level-1 analysis -> selection, L1, their receipts and the release; L2 -> selection, plan and the plan's metadata",
+      "ok": true,
+      "info": ""
+    },
+    {
+      "name": "run linked to every upstream META and receipt and to the CLASS_EDGES.json of the level-1 analysis",
+      "ok": true,
+      "info": ""
+    },
+    {
+      "name": "MWO release equal to the selection's, seed and replicates",
+      "ok": true,
+      "info": ""
+    },
+    {
+      "name": "separation edges: own recomputation equal to the product (and to the preserved level-1 analysis on the real path)",
+      "ok": true,
+      "info": ""
+    },
+    {
+      "name": "notes: every key and every text equal to the expected notes of the recount",
+      "ok": true,
+      "info": "[]"
+    },
+    {
+      "name": "every product rebuilt and equal: yields with causes and w2, quiet, pairs (Q2, REPEAT, Q3FD) and summaries with bootstrap, both rules and both thresholds",
+      "ok": true,
+      "info": "[]"
+    }
+  ],
+  "analysis_l2_meta_sha256": "69585017d84f92d632f24d7037975e104fa0b24691b69ade7156bbd45ae567a7"
+}
