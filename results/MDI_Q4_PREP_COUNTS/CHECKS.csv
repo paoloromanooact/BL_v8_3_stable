@@ -1,0 +1,22 @@
+check,ok,value
+C1 act_class from META edges.A_main,True,0
+C1 area_class from META edges.area,True,0
+C2 every L1 record matched in POPULATION,True,
+C2 N recomputed = N recorded (L1),True,0
+C2 N_ephemeris recomputed = recorded (L1),True,
+C2 map_missing records: required maps = recorded maps,True,8
+C2 other records: recorded maps within required maps,True,
+C2 L1 records flagged map_missing by the rule = status map_missing,True,0
+C2 no successful L1 record has a missing required map,True,
+C5 every L1 sample unit has a record,True,
+C5 CELLS.N = population count per cell,True,
+C5 sum N = 5401,True,
+"C5 n1 = 530, n2 = 90",True,
+C5 w1 = N/n1 per unit,True,
+"C5 unique (noaa, day) in SAMPLE",True,
+C5 L1 cell formula = unit formula (all),True,
+C5 L2 A1 image A: one record per level-2 unit,True,
+C5 w2 = N/n2 per unit,True,
+C5 every reproduced group has a published value,True,[]
+C5 all projected yields reproduced within 1e-12 relative,True,3.6811823430785564e-16
+C6 no successful L1 unit among map-missing units,True,

@@ -1,5 +1,10 @@
 # Cronologia
 
+## Nota prospettica Q4: revisioni 2–3.1, conteggi preparatori, bozza dell'emendamento A2
+
+- Conteggi preparatori non ciechi con regole fissate prima di contare (`docs/MDI_Q4_PREP_COUNTS_RULES.md`, `scripts/mdi_q4_prep_counts.py`, `results/MDI_Q4_PREP_COUNTS/`).
+- Nota Q4 revisione 3.1 e bozza A2 (`docs/PROTOCOL_MDI_TILT_PILOT_AMENDMENT_A2_DRAFT.md`), chiuse da Codex per il congelamento.
+
 ## Bozza della nota prospettica Q4 del pilota MDI
 
 - `docs/MDI_PILOT_Q4_NOTE_DRAFT.md` (revisione 1, non congelata): disegni, rese, flussi, scenari di rumore e lettura proposta per la precisione attesa di T3 con un catalogo MDI 1996–2010. Nessun calcolo eseguito; da rivedere con Codex.

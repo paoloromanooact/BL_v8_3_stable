@@ -1,0 +1,55 @@
+level,key,n2,ok,sum_N,projected,n_eff_kish,lt5
+cell,act_class=1|hemisphere=N|area_class=1|cohort=M1,3,3,9,1.0,3.0,1
+cell,act_class=1|hemisphere=N|area_class=1|cohort=U,2,0,287,0.0,2.0,1
+cell,act_class=1|hemisphere=N|area_class=2|cohort=M1,3,1,31,0.33333333333333337,2.9999999999999996,1
+cell,act_class=1|hemisphere=N|area_class=2|cohort=U,2,1,300,0.5,2.0,1
+cell,act_class=1|hemisphere=N|area_class=3|cohort=M1,3,3,54,1.0,3.0,1
+cell,act_class=1|hemisphere=N|area_class=3|cohort=U,2,1,132,0.5,2.0,1
+cell,act_class=1|hemisphere=S|area_class=1|cohort=M1,3,3,15,1.0,3.0,1
+cell,act_class=1|hemisphere=S|area_class=1|cohort=U,2,1,334,0.5,2.0,1
+cell,act_class=1|hemisphere=S|area_class=2|cohort=M1,3,3,31,1.0,2.9999999999999996,1
+cell,act_class=1|hemisphere=S|area_class=2|cohort=U,2,0,354,0.0,2.0,1
+cell,act_class=1|hemisphere=S|area_class=3|cohort=M1,3,3,92,1.0,2.9999999999999996,1
+cell,act_class=1|hemisphere=S|area_class=3|cohort=U,2,2,146,1.0,2.0,1
+cell,act_class=2|hemisphere=N|area_class=1|cohort=M1,3,3,18,1.0,3.0,1
+cell,act_class=2|hemisphere=N|area_class=1|cohort=U,2,1,176,0.5,2.0,1
+cell,act_class=2|hemisphere=N|area_class=2|cohort=M1,3,2,49,0.6666666666666666,3.000000000000001,1
+cell,act_class=2|hemisphere=N|area_class=2|cohort=U,2,1,208,0.5,2.0,1
+cell,act_class=2|hemisphere=N|area_class=3|cohort=M1,3,3,102,1.0,3.0,1
+cell,act_class=2|hemisphere=N|area_class=3|cohort=U,2,1,130,0.5,2.0,1
+cell,act_class=2|hemisphere=S|area_class=1|cohort=M1,3,3,28,1.0,2.9999999999999996,1
+cell,act_class=2|hemisphere=S|area_class=1|cohort=U,2,0,289,0.0,2.0,1
+cell,act_class=2|hemisphere=S|area_class=2|cohort=M1,3,2,74,0.6666666666666667,2.9999999999999996,1
+cell,act_class=2|hemisphere=S|area_class=2|cohort=U,2,1,320,0.5,2.0,1
+cell,act_class=2|hemisphere=S|area_class=3|cohort=M1,3,3,184,1.0,2.9999999999999996,1
+cell,act_class=2|hemisphere=S|area_class=3|cohort=U,2,1,224,0.5,2.0,1
+cell,act_class=3|hemisphere=N|area_class=1|cohort=M1,3,2,37,0.6666666666666667,2.9999999999999996,1
+cell,act_class=3|hemisphere=N|area_class=1|cohort=U,2,1,186,0.5,2.0,1
+cell,act_class=3|hemisphere=N|area_class=2|cohort=M1,3,3,116,1.0,3.000000000000001,1
+cell,act_class=3|hemisphere=N|area_class=2|cohort=U,2,0,275,0.0,2.0,1
+cell,act_class=3|hemisphere=N|area_class=3|cohort=M1,3,3,274,1.0,3.0,1
+cell,act_class=3|hemisphere=N|area_class=3|cohort=U,2,0,142,0.0,2.0,1
+cell,act_class=3|hemisphere=S|area_class=1|cohort=M1,3,3,11,1.0,3.0000000000000004,1
+cell,act_class=3|hemisphere=S|area_class=1|cohort=U,2,0,130,0.0,2.0,1
+cell,act_class=3|hemisphere=S|area_class=2|cohort=M1,3,3,75,1.0,3.0,1
+cell,act_class=3|hemisphere=S|area_class=2|cohort=U,2,0,242,0.0,2.0,1
+cell,act_class=3|hemisphere=S|area_class=3|cohort=M1,3,3,196,1.0,3.000000000000001,1
+cell,act_class=3|hemisphere=S|area_class=3|cohort=U,2,1,130,0.5,2.0,1
+cohort x area,cohort=M1|area_class=1,18,17,118,0.8954802259887006,14.384297520661159,0
+cohort x area,cohort=M1|area_class=2,18,14,376,0.8359929078014184,14.685872576177287,0
+cohort x area,cohort=M1|area_class=3,18,18,902,1.0,14.431402691388975,0
+cohort x area,cohort=U|area_class=1,12,3,1402,0.24821683309557774,10.922510127306776,0
+cohort x area,cohort=U|area_class=2,12,3,1699,0.24367274867569158,11.659053777599164,0
+cohort x area,cohort=U|area_class=3,12,6,904,0.5022123893805309,11.43919372900336,0
+cohort x activity,cohort=M1|act_class=1,18,16,232,0.910919540229885,11.865961199294533,0
+cohort x activity,cohort=M1|act_class=2,18,16,455,0.9098901098901099,11.664475537609164,0
+cohort x activity,cohort=M1|act_class=3,18,17,709,0.9826046074283029,11.248763640974765,0
+cohort x activity,cohort=U|act_class=1,12,5,1553,0.3406310367031552,10.767461120002856,0
+cohort x activity,cohort=U|act_class=2,12,5,1347,0.392724573125464,11.08926557815895,0
+cohort x activity,cohort=U|act_class=3,12,2,1105,0.1429864253393665,10.963236647527037,0
+cohort x hemisphere,cohort=M1|hemisphere=N,27,23,690,0.9285024154589372,13.350095337794894,0
+cohort x hemisphere,cohort=M1|hemisphere=S,27,26,706,0.9650613786591125,15.919725747380976,0
+cohort x hemisphere,cohort=U|hemisphere=N,18,6,1836,0.3082788671023965,16.39070500196928,0
+cohort x hemisphere,cohort=U|hemisphere=S,18,6,2169,0.29967727063162747,16.03875912172355,0
+cohort,cohort=M1,54,49,1396,0.9469914040114613,29.098966732365753,0
+cohort,cohort=U,36,12,4005,0.30362047440699125,32.14540160145576,0

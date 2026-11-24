@@ -1,0 +1,94 @@
+{
+ "rules_sha256": "9ce409fc1030e5d41ffac1d994887d8b540ccc711f25b488426e9c387ad8a77a",
+ "script_sha256": "cf221fb1580d720bef37287dea2984b0dd1e17bad28c7d6271d9d9181a1afc8a",
+ "git_head": "510274e08eb9eaa9e1ff996cee18030e939ba82c",
+ "dirty_paths": [
+  "M  docs/HANDOFF.md",
+  "A  docs/MDI_PILOT_Q4_NOTE_DRAFT.md",
+  "?? docs/MDI_Q4_PREP_COUNTS_RULES.md",
+  "?? scripts/mdi_q4_prep_counts.py"
+ ],
+ "inputs": {
+  "results/MDI_PILOT_SELECTION/META.json": "b7e3e7007069cabb01536abfa4d62f6a83a585118acb4425a35a677c8897177e",
+  "results/MDI_PILOT_SELECTION/POPULATION.csv": "9507cdaf00b5da6600a8718e9d0f13a565365afaf707204ef03d99c0c28d6c99",
+  "results/MDI_PILOT_SELECTION/SAMPLE.csv": "7210e1a33814dc56824819edadfa0c4c4538a872d7643d1e84df27ab039d893f",
+  "results/MDI_PILOT_SELECTION/CELLS.csv": "0b1f473b1c013a842162dcac8ffe09d5e0cdd814daa2edd2739d58261826b40c",
+  "results/MDI_PILOT_L1/L1_RECORDS.csv": "42c178a0498fcc9e2a9fd24dde32e38e38ef089bbc2df18accedaa9ed4a2151a",
+  "results/MDI_PILOT_L2/L2_RECORDS.csv": "ed6861a4b7a1e27e53465fcd3f55ebc28c408789174c36cbf7afe091c7d53882",
+  "results/MDI_PILOT_ANALYSIS_L1/Q1_YIELD_PROJECTED.csv": "78290c48a9d55148fd60569ac895c3c5a1ce84148161e792bcea43a59597616b",
+  "results/MDI_PILOT_ANALYSIS_L2/YIELD_A1.csv": "c7575d3bd7673f9f0725bf1b2604ed97da6f6ae68d59bc53528ea047ccd319a4",
+  "results/MDI_SYNOPTIC_AUDIT/FILES.csv": "29678a4f63851351ab6832cf4d37935e081948dae378432961099b81d569eeb5"
+ },
+ "columns_read": {
+  "L1": [
+   "noaa",
+   "day",
+   "N",
+   "N_ephemeris",
+   "maps",
+   "status",
+   "sens100_status"
+  ],
+  "L2": [
+   "rule",
+   "noaa",
+   "day",
+   "image",
+   "status"
+  ]
+ },
+ "C2": {
+  "missing_maps": [
+   1938,
+   1939,
+   1940
+  ],
+  "population_map_missing": 127,
+  "population_N_ambiguous": 2
+ },
+ "C3": {
+  "population": 5401,
+  "excl_date": 117,
+  "excl_cr_after_date": 4,
+  "MF": 5280,
+  "excl_MS_map_missing": 127,
+  "excl_MS_N_ambiguous": 2,
+  "MS": 5151,
+  "gap_1998_06_10_groups": 218,
+  "gap_1998_06_10_groups_in_MF": 218,
+  "last_t_MF": "2010-04-20 17:35:31",
+  "first_t_MF": "1996-05-07 14:17:18",
+  "last_CR_MF": 2095,
+  "first_CR_MF": 1909
+ },
+ "C7": {
+  "main": {
+   "lat_tercile_edges": [
+    11.456666666666665,
+    19.23
+   ],
+   "frac_targets_LT_ge5": 0.5857115123277034,
+   "LT_adopted": false,
+   "cells_with_targets_lt5_donors": [],
+   "nn_p90_max_dlat": 10.309999999999999,
+   "nn_median_max_dlat": 4.870000000000001,
+   "LNN_adopted": false,
+   "rule": "amendment"
+  },
+  "sens100": {
+   "lat_tercile_edges": [
+    11.456666666666665,
+    19.23
+   ],
+   "frac_targets_LT_ge5": 0.47951854008930306,
+   "LT_adopted": false,
+   "cells_with_targets_lt5_donors": [],
+   "nn_p90_max_dlat": 12.319999999999999,
+   "nn_median_max_dlat": 5.540000000000001,
+   "LNN_adopted": false,
+   "rule": "amendment"
+  }
+ },
+ "checks_passed": 21,
+ "checks_total": 21
+}
