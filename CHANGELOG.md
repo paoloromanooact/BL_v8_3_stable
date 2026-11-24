@@ -1,5 +1,11 @@
 # Cronologia
 
+## Analisi MDI L2 (fase 6) eseguita e rapporto descrittivo
+
+- Run su f089840, prodotti conservati prima della lettura (4249b72), riconteggio indipendente 10/10 (52849f0).
+- Rapporto `docs/MDI_PILOT_L2_RESULTS.md`: rese L2, quiete, Q2, ripetibilità A − B, Q3 full-disk e confronto appaiato con la sinottica.
+- Manifesto aggiornato con prodotti, ricevuta e rapporto.
+
 ## Correzioni alla fase 6 MDI L2 dopo la revisione Codex
 
 - Gate a monte: insiemi attesi fissi, protocollo e A1 per ogni stadio, legami AN1 → selezione/L1/ricevute/rilascio e L2 → metadati del piano; hash di CLASS_EDGES usato registrato nel run.

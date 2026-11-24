@@ -1,5 +1,16 @@
 # Cold restart — SHARP BL
 
+## MDI L2 — fase 6 eseguita; rapporto descrittivo da rivedere
+
+- Correzioni f089840 (chiusura Codex positiva, sonda 87/87); run su f089840, prodotti 4249b72, riconteggio 10/10 partial false 52849f0.
+- Rapporto: `docs/MDI_PILOT_L2_RESULTS.md` (descrittivo, intervalli non validati). In sintesi, regola A1:
+  - resa A 61/90, proiettata 47 % (coorte U fuori dominio μ); quiete 24/318 lati, mediana 20,6 G;
+  - Q2 sinottica − fd(A), 61 coppie: d_ax −0,2°, d_γ −0,6° [−1,2, −0,2] (−1,0° a 100 G), |d_ax| mediano 1,4°, flusso sin/fd 0,87, leading 100 %;
+  - A − B, 58 coppie a 1,6 h: d_ax 0,0°, |d_ax| mediano 0,7°, leading 98,3 %;
+  - Q3FD fd(A) − MWO, 49 coppie: d_ax +0,8°, |d_ax| mediano 6,8°, flusso 18,0; sugli stessi 49 gruppi sinottica − MWO dà 7,1° (Spearman 0,88): lo scarto con MWO non viene dalla composizione sinottica.
+- Calcoli in lettura (dispersioni per coppia, confronto appaiato con le coppie L1) dichiarati nel rapporto, con codice per riprodurli.
+- Prossimo: revisione Codex del rapporto; poi Q4 (nota separata), BARD-MDI e serie combinata restano rinviati.
+
 ## MDI L2 — fase 6: correzioni dopo la revisione Codex di 3c79d78, da chiudere prima del run
 
 - Revisione Codex (offline, 17/17 condizioni riprodotte): formule coerenti con Q2/Q3 e A1; due lacune del verificatore, nessuna nelle formule.
