@@ -1,6 +1,14 @@
 # Cold restart — SHARP BL
 
-## MDI L2 — fase 6 eseguita; rapporto descrittivo da rivedere
+## MDI L2 — fase 6 chiusa: rapporto rivisto da Codex (chiusura positiva su 891521c)
+
+- Chiusura della revisione del rapporto (24 novembre 2026): nessun rilievo residuo su `docs/MDI_PILOT_L2_RESULTS.md` né su `scripts/mdi_pilot_l2_report_numbers.py`.
+- Lo script concorda con la verifica indipendente di Codex in 84 confronti su 84 (riscontri numerici e di integrità, non validazione degli intervalli). Prodotti L2 e ricevuta 10/10 invariati.
+- Il rapporto vale come descrizione del pilota con i limiti esplicitati; dalla chiusura non derivano una validazione scientifica né la scelta del prodotto per il catalogo.
+- Parte descrittiva del pilota MDI completa (L1: Q1, Q3; L2: Q2, ripetibilità, Q3 full-disk). Rinviati e separati: nota prospettica Q4, BARD-MDI, serie BL combinata.
+- Rapporti di Codex nella cartella di consegna MWO: `MDI_L2_RAPPORTO_REVISIONE_CODEX.txt`, `MDI_L2_RAPPORTO_CHIUSURA_CODEX.txt`; prove in `reviews/MDI_L2_REPORT_6156144/` e `reviews/MDI_L2_REPORT_CLOSE_891521c/`.
+
+## MDI L2 — fase 6 eseguita; rapporto descrittivo
 
 - Correzioni f089840 (chiusura Codex positiva, sonda 87/87); run su f089840, prodotti 4249b72, riconteggio 10/10 partial false 52849f0.
 - Rapporto: `docs/MDI_PILOT_L2_RESULTS.md` (descrittivo, intervalli non validati). In sintesi, regola A1:

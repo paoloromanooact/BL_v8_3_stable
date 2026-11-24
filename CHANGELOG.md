@@ -1,5 +1,10 @@
 # Cronologia
 
+## Chiusura della revisione del rapporto MDI L2
+
+- Codex: chiusura positiva su 891521c; script dei calcoli in lettura concorde 84/84; prodotti e ricevuta invariati.
+- Parte descrittiva del pilota MDI completa; Q4, BARD-MDI e serie combinata rinviati.
+
 ## Rapporto MDI L2 corretto dopo la revisione Codex
 
 - Confronto appaiato con MWO descritto senza dedurre l'irrilevanza della composizione sinottica; resa distinta dalla quiete; stimatore della resa dichiarato.
