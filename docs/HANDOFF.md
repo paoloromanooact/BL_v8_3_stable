@@ -7,6 +7,7 @@
 - Bozza `docs/PROTOCOL_MDI_TILT_PILOT_AMENDMENT_A2_DRAFT.md` (`3457b90d…`): requisito flusso–latitudine del §7 attenuato, non soddisfatto (classi della cella di selezione, 5 donatori più vicini in |lat|).
 - Chiusura documentale Codex (`MDI_Q4_NOTA_CHIUSURA_CODEX.txt`): A2 e nota 3.1 pronte per il congelamento, A2 prima. Non è una validazione scientifica né un risultato prospettico.
 - A2 congelato: `docs/PROTOCOL_MDI_TILT_PILOT_AMENDMENT_A2.md` (bozza rivista + sola intestazione di congelamento); ricevuta `docs/PROTOCOL_MDI_TILT_PILOT_AMENDMENT_A2_FREEZE.json` (SHA `c8340770…`, commit d94057f).
+- Nota congelata: `docs/MDI_PILOT_Q4_NOTE.md` (revisione 3.1 + intestazione di congelamento e riferimento ad A2 congelato); ricevuta nel commit successivo.
 - Poi: codice Q4 e selftest, revisione; nessuna corsa autorizzata.
 
 ## MDI L2 — fase 6 chiusa: rapporto rivisto da Codex (chiusura positiva su 891521c)
