@@ -1,5 +1,13 @@
 # Cold restart — SHARP BL
 
+## MDI L2 — fase 6: correzioni dopo la revisione Codex di 3c79d78, da chiudere prima del run
+
+- Revisione Codex (offline, 17/17 condizioni riprodotte): formule coerenti con Q2/Q3 e A1; due lacune del verificatore, nessuna nelle formule.
+- Provenienza: insiemi attesi dei prodotti a monte fissati nel codice (non più dal manifesto sotto controllo, manifesto vuoto rifiutato); protocollo congelato verificato in SEL/L1/AN1/PLAN/L2, A1 in PLAN/L2; legami L1 → ricevuta della selezione, AN1 → META e ricevute di selezione e L1 e rilascio MWO, L2 → metadati del piano. Il run registra l'hash del CLASS_EDGES.json usato, confrontato col manifesto AN1; il riconteggio lo verifica. Stessi contratti, codice indipendente, nel gate del runner e nel riconteggio.
+- Note: il riconteggio definisce il testo atteso di NOTES.json e della nota della quiete (non importato dal runner) e confronta ogni chiave e valore.
+- Regressioni: struttura sintetica del gate (`gate_fixture`) con 20 controesempi (i cinque di Codex e i legami analoghi) più byte cambiati; runner 40/40, riconteggio con note invertite/pesi/regola originale/nota della quiete rifiutate.
+- Gate reale (solo META, ricevute e hash): nessun problema con i nuovi contratti. Analisi non eseguita: serve la revisione di chiusura.
+
 ## MDI L2 — misura eseguita; codice dell'analisi (fase 6) scritto, da rivedere prima del run
 
 - Misura L2: run su fcba552, prodotti 02aca76, riconteggio 12/12 (b0a38cf). Esiti A1: A ok 61, fuori mu 20, nessun magnetogramma 9; B ok 59; 58 coppie complete. Originale: A ok 8, B ok 5. Quiete: 24 immagini su 159 con un lato valido.

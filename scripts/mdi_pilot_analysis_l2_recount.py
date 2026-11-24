@@ -3,8 +3,12 @@
 Every product is rebuilt with own code (importing neither scripts/mdi_pilot_analysis_l2.py nor python/sharpbl/tilt_window.py):
 own per-group table built row by row from dictionaries, own yields with w2, own quiet counts, own pairs and angular
 differences, own time distances, own groups and bootstrap; the comparison is complete (exact product set, exact
-columns and order, every key and value, NaN = NaN, JSON documents equal). On the real path upstream products,
-receipts and links are verified before any computation, and the receipt is complete only there with 2000 replicates.
+columns and order, every key and value, NaN = NaN, JSON documents equal, NOTES.json and the quiet note equal to the
+texts written here). On the real path the upstream contracts are verified before any computation: fixed expected
+product sets with actual hashes, strict receipts, frozen protocol and A1 named by every stage that records them, the
+links between stages (L1 -> selection; level-1 analysis -> selection, L1, their receipts, release; L2 -> selection,
+plan, plan metadata) and the links of the run (every upstream META and receipt, the CLASS_EDGES.json used). The
+receipt is complete only there with 2000 replicates.
 
     .venv/bin/python scripts/mdi_pilot_analysis_l2_recount.py --selftest
     .venv/bin/python scripts/mdi_pilot_analysis_l2_recount.py --check
@@ -39,8 +43,27 @@ STAT = ["ok", "no_magnetogram", "no_image", "not_determined", "fits_missing", "w
 PRODUCTS = ({"CLASS_EDGES.json", "NOTES.json"} | {f"YIELD_{r}.csv" for r in RULES} | {f"QUIET_AVAILABILITY_{r}.csv" for r in RULES}
             | {f"QUIET_SUMMARY_{r}.json" for r in RULES}
             | {f"{k}_{x}_{r}_{t}.csv" for k in KINDS for x in ("PAIRS", "SUMMARY") for r in RULES for t in TAGS})
-NOTE_KEYS = {"comparisons", "order", "q2_time", "q3fd_time", "repeat_time", "repeat_interval", "quality_transitions",
-             "mwo_pixel_area_ratios", "quiet", "separation", "weights", "original_rule"}
+# Expected NOTES.json, written here (not imported from the runner): every key and every text is compared.
+NOTES_EXPECTED = {
+    "comparisons": "descriptive relative differences; no instrument or product is assumed correct",
+    "order": "Q2 = synoptic - fd(A); REPEAT = A - B; Q3FD = fd(A) - MWO; ratios = first / second member",
+    "q2_time": "T_OBS(A) - t_DPD; the synoptic instant per pixel is undetermined (CT_g and T_ROT kept)",
+    "q3fd_time": "MWO - t_DPD (protocol) and MWO - T_OBS(A); the summary median uses |MWO - T_OBS(A)|",
+    "repeat_time": "T_OBS(B) - T_OBS(A) from the plan; it includes real evolution and possibly correlated errors, not separated",
+    "repeat_interval": "pairs only with the same numeric INTERVAL; an unknown INTERVAL forms no pair",
+    "quality_transitions": "pairs with different QUALITY at the same INTERVAL are kept and reported as a group (A1)",
+    "mwo_pixel_area_ratios": "not computable: the MWO release has no pixel counts or areas per polarity",
+    "quiet": "scaled MAD = observed field dispersion (solar field, noise and processing), not instrumental noise; without a valid "
+             "side the value is 'non disponibile', never zero, and it does not invalidate a tilt",
+    "separation": "terciles of the successful main level-1 synoptic separations, applied to the MDI member of every comparison",
+    "weights": "yields projected with w2 = 1/pi2; comparisons unweighted",
+    "original_rule": "secondary table with the original A/B assignments (QUALITY {0}); not a filter of the A1 assignments"}
+# Expected upstream product sets (own constants, not read from the manifests under check).
+UP_PRODUCTS = {"SEL": {"POPULATION.csv", "SAMPLE.csv", "CELLS.csv"}, "L1": {"L1_RECORDS.csv", "CT_DIAGNOSTIC.csv"},
+               "AN1": {"Q1_YIELD_CELLS.csv", "Q1_YIELD_PROJECTED.csv", "Q1_QUIET_AVAILABILITY.csv", "Q1_QUIET_SUMMARY.json",
+                       "Q1_M_EXPLORATORY.json", "CLASS_EDGES.json", "NOTES.json", "Q3_PAIRS_main.csv", "Q3_SUMMARY_main.csv",
+                       "Q3_PAIRS_sens100.csv", "Q3_SUMMARY_sens100.csv"},
+               "PLAN": {"CHOICES_A1.csv", "CHOICES_ORIGINAL.csv", "PLAN.csv", "COVERAGE.csv"}, "L2": {"L2_RECORDS.csv"}}
 
 
 def _mod(name, rel):
@@ -122,7 +145,7 @@ def own_quiet(G):
     v = np.array(vals)
     q = lambda p: float(np.quantile(v, p)) if len(v) else "non disponibile"      # noqa: E731
     return av, {"images_measured": len(sides) // 2, "sides_total": len(sides), "sides_ok": sides.count("ok"), "images_with_value": len(v),
-                "median_g": q(0.5), "p10_g": q(0.1), "p90_g": q(0.9)}
+                "median_g": q(0.5), "p10_g": q(0.1), "p90_g": q(0.9), "note": NOTES_EXPECTED["quiet"]}
 
 
 def mem(r, tag):
@@ -268,27 +291,63 @@ def json_equal(a, b):
 
 
 def upstream(meta):
-    fr, fz = json.loads(FREEZE.read_text()), json.loads(A1_FREEZE.read_text())
-    m = lambda d: json.loads((d / "META.json").read_text())                # noqa: E731
-    prods = lambda d: all(sha(d / n) == h for n, h in m(d)["products_sha256"].items())   # noqa: E731
-    return {
-        "protocol and A1 texts, linked to the run": sha(PROTOCOL) == fr["sha256"] == fz["parent_sha256"] == meta.get("protocol_sha256")
-        and sha(A1) == fz["sha256"] == meta.get("a1_sha256"),
-        "selection, level 1, level-1 analysis, plan, level 2: products, strict receipts and links to the run":
-            all(prods(d) for d in (SEL, L1, AN1, PLAN, L2))
+    """Named upstream contracts, each True or False (an unreadable file or a missing key gives False)."""
+    def m(d):
+        return json.loads((d / "META.json").read_text())
+
+    def has(d, key, value):
+        v = m(d).get(key)
+        return isinstance(v, str) and v == value
+
+    def prods(d, names):
+        ps = m(d).get("products_sha256")
+        return isinstance(ps, dict) and len(names) > 0 and set(ps) == names and all(sha(d / n) == h for n, h in ps.items())
+
+    def protocol():
+        fr, fz = json.loads(FREEZE.read_text()), json.loads(A1_FREEZE.read_text())
+        return fr["sha256"], fz["sha256"], fz["parent_sha256"]
+
+    stages = {"SEL": SEL, "L1": L1, "AN1": AN1, "PLAN": PLAN, "L2": L2}
+    rec = {"SEL": SEL_REC, "L1": L1_REC, "AN1": AN1_REC, "PLAN": PLAN_REC, "L2": L2_REC}
+    ms = {k: (lambda d=d: sha(d / "META.json")) for k, d in stages.items()}
+    rs = {k: (lambda d=d: sha(d / "RECEIPT.json")) for k, d in rec.items()}
+    tests = {
+        "protocol and A1 texts, linked to the run": lambda: (lambda P, A, parent: sha(PROTOCOL) == P == parent == meta.get("protocol_sha256")
+                                                             and sha(A1) == A == meta.get("a1_sha256"))(*protocol()),
+        "selection, level 1, level-1 analysis, plan, level 2: fixed product sets with actual hashes, strict receipts":
+            lambda: all(prods(stages[k], UP_PRODUCTS[k]) for k in stages)
             and R1.strict(SEL_REC / "RECEIPT.json", "selection_meta_sha256", SEL / "META.json")
             and R1.strict(L1_REC / "RECEIPT.json", "l1_meta_sha256", L1 / "META.json")
             and R1.strict(AN1_REC / "RECEIPT.json", "analysis_meta_sha256", AN1 / "META.json")
             and R1.strict(PLAN_REC / "RECEIPT.json", "plan_meta_sha256", PLAN / "META.json")
-            and R1.strict(L2_REC / "RECEIPT.json", "l2_meta_sha256", L2 / "META.json")
-            and all(meta.get(k) == sha(d / "META.json") for k, d in (("selection_meta_sha256", SEL), ("l1_meta_sha256", L1),
-                                                                    ("analysis_l1_meta_sha256", AN1), ("plan_meta_sha256", PLAN), ("l2_meta_sha256", L2)))
-            and meta.get("receipts_sha256") == {n: sha(d / "RECEIPT.json") for n, d in (("selection", SEL_REC), ("l1", L1_REC),
-                                                                                        ("analysis_l1", AN1_REC), ("plan", PLAN_REC), ("l2", L2_REC))}
-            and m(L2)["plan_meta_sha256"] == sha(PLAN / "META.json") and m(L2)["selection_meta_sha256"] == sha(SEL / "META.json")
-            and m(L1)["selection_meta_sha256"] == sha(SEL / "META.json"),
-        "MWO release equal to the selection's, seed and replicates": meta.get("release_sha256") == sha(RELEASE) == m(SEL)["mwo_release_sha256"]
-        and meta.get("seed") == SEED and meta.get("reps") == REPS}
+            and R1.strict(L2_REC / "RECEIPT.json", "l2_meta_sha256", L2 / "META.json"),
+        "frozen protocol named by every stage, frozen A1 by the plan and level 2":
+            lambda: all(has(d, "protocol_sha256", protocol()[0]) for d in stages.values())
+            and has(PLAN, "a1_sha256", protocol()[1]) and has(L2, "a1_sha256", protocol()[1]),
+        "links between stages: L1 -> selection and its receipt; level-1 analysis -> selection, L1, their receipts and the "
+        "release; L2 -> selection, plan and the plan's metadata":
+            lambda: has(L1, "selection_meta_sha256", ms["SEL"]()) and has(L1, "selection_receipt_sha256", rs["SEL"]())
+            and has(AN1, "selection_meta_sha256", ms["SEL"]()) and has(AN1, "l1_meta_sha256", ms["L1"]())
+            and has(AN1, "selection_receipt_sha256", rs["SEL"]()) and has(AN1, "l1_receipt_sha256", rs["L1"]())
+            and has(AN1, "release_sha256", sha(RELEASE))
+            and has(L2, "selection_meta_sha256", ms["SEL"]()) and has(L2, "plan_meta_sha256", ms["PLAN"]())
+            and has(L2, "metadata_meta_sha256", m(PLAN).get("metadata_meta_sha256")),
+        "run linked to every upstream META and receipt and to the CLASS_EDGES.json of the level-1 analysis":
+            lambda: all(meta.get(f) == ms[k]() for f, k in (("selection_meta_sha256", "SEL"), ("l1_meta_sha256", "L1"),
+                                                            ("analysis_l1_meta_sha256", "AN1"), ("plan_meta_sha256", "PLAN"), ("l2_meta_sha256", "L2")))
+            and meta.get("receipts_sha256") == {n: rs[k]() for n, k in (("selection", "SEL"), ("l1", "L1"), ("analysis_l1", "AN1"),
+                                                                       ("plan", "PLAN"), ("l2", "L2"))}
+            and meta.get("analysis_l1_class_edges_sha256") == sha(AN1 / "CLASS_EDGES.json") == m(AN1)["products_sha256"]["CLASS_EDGES.json"],
+        "MWO release equal to the selection's, seed and replicates":
+            lambda: meta.get("release_sha256") == sha(RELEASE) == m(SEL).get("mwo_release_sha256")
+            and meta.get("seed") == SEED and meta.get("reps") == REPS}
+    out = {}
+    for name, f in tests.items():
+        try:
+            out[name] = bool(f())
+        except (OSError, ValueError, KeyError, TypeError, AttributeError):
+            out[name] = False
+    return out
 
 
 def check(out=OUT, write=True, rec_dir=REC, data=None, reps=REPS):
@@ -335,9 +394,9 @@ def check(out=OUT, write=True, rec_dir=REC, data=None, reps=REPS):
     ok("separation edges: own recomputation equal to the product (and to the preserved level-1 analysis on the real path)",
        json_equal(own["CLASS_EDGES"], json.loads((Path(out) / "CLASS_EDGES.json").read_text())) and (an1 is None or np.allclose(e, an1, rtol=0, atol=1e-12)))
     notes = json.loads((Path(out) / "NOTES.json").read_text())
-    ok("notes: exact key set, quiet 'non disponibile', MWO pixel/area not computable, A - B time not separated from evolution",
-       set(notes) == NOTE_KEYS and "non disponibile" in notes["quiet"] and "not computable" in notes["mwo_pixel_area_ratios"]
-       and "not separated" in notes["repeat_time"])
+    ok("notes: every key and every text equal to the expected notes of the recount",
+       isinstance(notes, dict) and list(notes) == list(NOTES_EXPECTED) and notes == NOTES_EXPECTED,
+       sorted(k for k in set(notes) | set(NOTES_EXPECTED) if notes.get(k) != NOTES_EXPECTED.get(k))[:4] if isinstance(notes, dict) else "")
     bad = []
     for k, v in own.items():
         if k == "CLASS_EDGES":
@@ -350,8 +409,7 @@ def check(out=OUT, write=True, rec_dir=REC, data=None, reps=REPS):
                 good, why = R1.frames_equal(theirs, v.astype({c: str for c in ("noaa",) if c in v}))
         else:
             theirs = json.loads((Path(out) / f"{k}.json").read_text())
-            mine = dict(v, note=theirs.get("note")) if "note" in theirs else v
-            good, why = json_equal(mine, theirs) and isinstance(theirs.get("note"), str), "json"
+            good, why = json_equal(v, theirs), "json"
         if not good:
             bad.append((k, why))
     ok("every product rebuilt and equal: yields with causes and w2, quiet, pairs (Q2, REPEAT, Q3FD) and summaries with "
@@ -419,6 +477,10 @@ def selftest():
         tamper("a quiet side count", "QUIET_AVAILABILITY_original.csv", lambda t: first(t, "n_sides", t.n_sides.iloc[0] + 1))
         tamper("a separation edge", "CLASS_EDGES.json", lambda j: {"separation_main_l1_ok": [j["separation_main_l1_ok"][0] + 0.1, j["separation_main_l1_ok"][1]]})
         tamper("a note removed", "NOTES.json", lambda j: {k: v for k, v in j.items() if k != "repeat_time"})
+        tamper("comparison order inverted in the notes", "NOTES.json", lambda j: dict(j, order="Q2 = fd(A) - synoptic; Q3FD = MWO - fd(A)"))
+        tamper("weights misdescribed in the notes", "NOTES.json", lambda j: dict(j, weights="comparisons weighted by flux"))
+        tamper("original rule described as a filter of A1", "NOTES.json", lambda j: dict(j, original_rule="original obtained by filtering A1"))
+        tamper("the quiet note in a quiet summary", "QUIET_SUMMARY_A1.json", lambda j: dict(j, note="scaled MAD = instrumental noise"))
         d = Path(td) / "extra_product"
         shutil.copytree(base, d)
         (d / "EXTRA.csv").write_text("x\n1\n")
@@ -460,6 +522,30 @@ def selftest():
            good and np.isfinite(theirs[theirs.group == "all"].d_ax_lo.iloc[0]), why)
         bad = theirs.assign(d_ax_lo=theirs.d_ax_lo.where(theirs.group != "all", theirs.d_ax_lo + 1e-9))
         ok("2000 replicates: a bound moved by 1e-9 is refused", not R1.frames_equal(bad, mine)[0])
+        # upstream contracts on synthetic trees made by the runner's fixture; the checks are this module's own code
+        names = [k for s in M.UPSTREAM for k in s[:2]] + ["PROTOCOL", "FREEZE", "A1", "A1_FREEZE", "RELEASE"]
+        saved = {k: globals()[k] for k in names}
+        try:
+            def gate(name, case=None, after=None, run_change=None):
+                P, rm = M.gate_fixture(Path(td) / "gate" / name.replace(" ", "_"), case)
+                if after:
+                    after(P)
+                if run_change:
+                    run_change(rm)
+                globals().update(P)
+                return upstream(rm)
+            base_gate = gate("base")
+            ok("upstream: synthetic tree accepted", all(base_gate.values()), [k for k, v in base_gate.items() if not v])
+            for name, stage, change in M.GATE_CASES:
+                ok(f"upstream refuses: {name}", not all(gate(name, (stage, change)).values()))
+            ok("upstream refuses: level-2 product bytes changed without updating the hash",
+               not all(gate("bytes", after=lambda P: (P["L2"] / "L2_RECORDS.csv").write_text("changed\n")).values()))
+            ok("upstream refuses: run names another CLASS_EDGES.json",
+               not all(gate("edges", run_change=lambda rm: rm.update(analysis_l1_class_edges_sha256="0" * 64)).values()))
+            ok("upstream refuses: run names a stale level-1 analysis receipt",
+               not all(gate("receipt", run_change=lambda rm: rm["receipts_sha256"].update(analysis_l1="0" * 64)).values()))
+        finally:
+            globals().update(saved)
     print(f"selftest: {sum(res)}/{len(res)} superati")
     return all(res)
 

@@ -1,5 +1,11 @@
 # Cronologia
 
+## Correzioni alla fase 6 MDI L2 dopo la revisione Codex
+
+- Gate a monte: insiemi attesi fissi, protocollo e A1 per ogni stadio, legami AN1 → selezione/L1/ricevute/rilascio e L2 → metadati del piano; hash di CLASS_EDGES usato registrato nel run.
+- Riconteggio: stessi contratti con codice proprio; NOTES.json e nota della quiete confrontati per intero con testi attesi propri.
+- Regressioni sintetiche sui controesempi; analisi ancora non eseguita sui dati reali.
+
 ## Codice dell'analisi MDI L2 (fase 6), non eseguito sui dati reali
 
 - Q2 sinottica − fd(A), ripetibilità A − B con Δt, Q3 fd(A) − MWO; soglie 50/100 G; regola A1 principale e originale secondaria.

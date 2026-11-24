@@ -95,13 +95,27 @@ def strict_receipt(path, key, meta):
             and r.get("partial") is False and r.get(key) == sha(meta))
 
 
+# Expected upstream product sets, fixed here and never taken from the manifests under check.
+SEL_PRODUCTS = frozenset({"POPULATION.csv", "SAMPLE.csv", "CELLS.csv"})
+L1_PRODUCTS = frozenset({"L1_RECORDS.csv", "CT_DIAGNOSTIC.csv"})
+AN1_PRODUCTS = frozenset({"CLASS_EDGES.json", "NOTES.json", "Q1_M_EXPLORATORY.json", "Q1_QUIET_AVAILABILITY.csv", "Q1_QUIET_SUMMARY.json",
+                          "Q1_YIELD_CELLS.csv", "Q1_YIELD_PROJECTED.csv", "Q3_PAIRS_main.csv", "Q3_PAIRS_sens100.csv",
+                          "Q3_SUMMARY_main.csv", "Q3_SUMMARY_sens100.csv"})
+PLAN_PRODUCTS = frozenset({"CHOICES_A1.csv", "CHOICES_ORIGINAL.csv", "PLAN.csv", "COVERAGE.csv"})
+L2_PRODUCTS = frozenset({"L2_RECORDS.csv"})
+
+
 def products_ok(folder, names):
     m = json.loads((Path(folder) / "META.json").read_text())
-    ps = m.get("products_sha256", {})
-    return set(ps) == set(names) and all(sha(Path(folder) / n) == h for n, h in ps.items()), m
+    ps = m["products_sha256"]
+    return isinstance(ps, dict) and set(ps) == set(names) and len(names) > 0 and all(sha(Path(folder) / n) == h for n, h in ps.items()), m
 
 
 def upstream_problems():
+    """Names of the failed upstream contracts: products (fixed expected sets and actual hashes), strict receipts,
+    frozen protocol and A1 named by every stage that records them, and the links between stages (L1 -> selection and
+    its receipt; level-1 analysis -> selection, L1, their receipts and the MWO release; L2 -> selection, plan and the
+    plan's metadata)."""
     probs = []
 
     def need(name, f):
@@ -113,22 +127,32 @@ def upstream_problems():
             probs.append(name)
 
     fr, fz = json.loads(FREEZE.read_text()), json.loads(A1_FREEZE.read_text())
-    need("protocol and A1 texts", lambda: sha(PROTOCOL) == fr["sha256"] == fz["parent_sha256"] and sha(A1) == fz["sha256"])
-    need("selection", lambda: products_ok(SEL, {"POPULATION.csv", "SAMPLE.csv", "CELLS.csv"})[0]
-         and strict_receipt(SEL_REC / "RECEIPT.json", "selection_meta_sha256", SEL / "META.json"))
-    need("level 1", lambda: products_ok(L1, {"L1_RECORDS.csv", "CT_DIAGNOSTIC.csv"})[0]
+    P, A = fr["sha256"], fz["sha256"]
+    meta = lambda d: json.loads((d / "META.json").read_text())             # noqa: E731
+    msha, rsha = (lambda d: sha(d / "META.json")), (lambda d: sha(d / "RECEIPT.json"))
+    need("protocol and A1 texts", lambda: sha(PROTOCOL) == P == fz["parent_sha256"] and sha(A1) == A)
+    need("selection", lambda: products_ok(SEL, SEL_PRODUCTS)[0]
+         and strict_receipt(SEL_REC / "RECEIPT.json", "selection_meta_sha256", SEL / "META.json")
+         and meta(SEL)["protocol_sha256"] == P)
+    need("level 1", lambda: products_ok(L1, L1_PRODUCTS)[0]
          and strict_receipt(L1_REC / "RECEIPT.json", "l1_meta_sha256", L1 / "META.json")
-         and json.loads((L1 / "META.json").read_text())["selection_meta_sha256"] == sha(SEL / "META.json"))
-    need("level-1 analysis (separation edges)", lambda: products_ok(AN1, set(json.loads((AN1 / "META.json").read_text())["products_sha256"]))[0]
-         and strict_receipt(AN1_REC / "RECEIPT.json", "analysis_meta_sha256", AN1 / "META.json"))
-    need("plan", lambda: products_ok(PLAN, {"CHOICES_A1.csv", "CHOICES_ORIGINAL.csv", "PLAN.csv", "COVERAGE.csv"})[0]
+         and meta(L1)["protocol_sha256"] == P
+         and meta(L1)["selection_meta_sha256"] == msha(SEL) and meta(L1)["selection_receipt_sha256"] == rsha(SEL_REC))
+    need("level-1 analysis (separation edges)", lambda: products_ok(AN1, AN1_PRODUCTS)[0]
+         and strict_receipt(AN1_REC / "RECEIPT.json", "analysis_meta_sha256", AN1 / "META.json")
+         and meta(AN1)["protocol_sha256"] == P
+         and meta(AN1)["selection_meta_sha256"] == msha(SEL) and meta(AN1)["l1_meta_sha256"] == msha(L1)
+         and meta(AN1)["selection_receipt_sha256"] == rsha(SEL_REC) and meta(AN1)["l1_receipt_sha256"] == rsha(L1_REC)
+         and meta(AN1)["release_sha256"] == sha(RELEASE))
+    need("plan", lambda: products_ok(PLAN, PLAN_PRODUCTS)[0]
          and strict_receipt(PLAN_REC / "RECEIPT.json", "plan_meta_sha256", PLAN / "META.json")
-         and json.loads((PLAN / "META.json").read_text())["a1_sha256"] == fz["sha256"])
-    need("level 2", lambda: products_ok(L2, {"L2_RECORDS.csv"})[0]
+         and meta(PLAN)["protocol_sha256"] == P and meta(PLAN)["a1_sha256"] == A)
+    need("level 2", lambda: products_ok(L2, L2_PRODUCTS)[0]
          and strict_receipt(L2_REC / "RECEIPT.json", "l2_meta_sha256", L2 / "META.json")
-         and json.loads((L2 / "META.json").read_text())["plan_meta_sha256"] == sha(PLAN / "META.json")
-         and json.loads((L2 / "META.json").read_text())["selection_meta_sha256"] == sha(SEL / "META.json"))
-    need("MWO release used by the selection", lambda: json.loads((SEL / "META.json").read_text())["mwo_release_sha256"] == sha(RELEASE))
+         and meta(L2)["protocol_sha256"] == P and meta(L2)["a1_sha256"] == A
+         and meta(L2)["plan_meta_sha256"] == msha(PLAN) and meta(L2)["selection_meta_sha256"] == msha(SEL)
+         and meta(L2)["metadata_meta_sha256"] == meta(PLAN)["metadata_meta_sha256"])
+    need("MWO release used by the selection", lambda: meta(SEL)["mwo_release_sha256"] == sha(RELEASE))
     return probs
 
 
@@ -377,7 +401,11 @@ def run(out=OUT):
         sys.exit("upstream not verified: " + "; ".join(probs))
     samp, l1, l2, choices, mwo = load_inputs()
     edges = separation_edges(l1)
-    an1 = json.loads((AN1 / "CLASS_EDGES.json").read_text())["separation_main_l1_ok"]
+    edges_bytes = (AN1 / "CLASS_EDGES.json").read_bytes()
+    edges_sha = hashlib.sha256(edges_bytes).hexdigest()
+    if edges_sha != json.loads((AN1 / "META.json").read_text())["products_sha256"]["CLASS_EDGES.json"]:
+        sys.exit("CLASS_EDGES.json differs from the preserved level-1 analysis manifest")
+    an1 = json.loads(edges_bytes)["separation_main_l1_ok"]
     if not np.allclose(edges, an1, rtol=0, atol=1e-12):
         sys.exit("separation edges differ from the preserved level-1 analysis")
     prods = build(samp, l1, l2, choices, mwo)
@@ -388,6 +416,7 @@ def run(out=OUT):
         meta = dict(protocol_sha256=fr["sha256"], a1_sha256=fz["sha256"], script_sha256=sha(__file__),
                     module_sha256=sha(ROOT / "python/sharpbl/tilt_window.py"), selection_meta_sha256=sha(SEL / "META.json"),
                     l1_meta_sha256=sha(L1 / "META.json"), analysis_l1_meta_sha256=sha(AN1 / "META.json"),
+                    analysis_l1_class_edges_sha256=edges_sha,
                     plan_meta_sha256=sha(PLAN / "META.json"), l2_meta_sha256=sha(L2 / "META.json"),
                     receipts_sha256={n: sha(d / "RECEIPT.json") for n, d in (("selection", SEL_REC), ("l1", L1_REC), ("analysis_l1", AN1_REC),
                                                                              ("plan", PLAN_REC), ("l2", L2_REC))},
@@ -492,12 +521,99 @@ def synthetic(n=90, seed=7):
     return samp, l1, l2, {"A1": ch, "original": orig}, mwo
 
 
+UPSTREAM = (("SEL", "SEL_REC", "selection_meta_sha256"), ("L1", "L1_REC", "l1_meta_sha256"), ("AN1", "AN1_REC", "analysis_meta_sha256"),
+            ("PLAN", "PLAN_REC", "plan_meta_sha256"), ("L2", "L2_REC", "l2_meta_sha256"))
+# Counterexamples of the upstream contract (Codex review of 3c79d78 and the analogous links): (name, stage, change of its META).
+GATE_CASES = (
+    ("level-1 analysis names a stale L1 META", "AN1", lambda m: m.update(l1_meta_sha256="0" * 64)),
+    ("level-1 analysis names a stale selection META", "AN1", lambda m: m.update(selection_meta_sha256="0" * 64)),
+    ("level-1 analysis names a stale selection receipt", "AN1", lambda m: m.update(selection_receipt_sha256="0" * 64)),
+    ("level-1 analysis names a stale L1 receipt", "AN1", lambda m: m.update(l1_receipt_sha256="0" * 64)),
+    ("level-1 analysis names another MWO release", "AN1", lambda m: m.update(release_sha256="0" * 64)),
+    ("level-1 analysis with an empty product manifest", "AN1", lambda m: m.update(products_sha256={})),
+    ("level-1 analysis manifest without CLASS_EDGES.json", "AN1", lambda m: m["products_sha256"].pop("CLASS_EDGES.json")),
+    ("selection names another protocol", "SEL", lambda m: m.update(protocol_sha256="0" * 64)),
+    ("level 1 names another protocol", "L1", lambda m: m.update(protocol_sha256="0" * 64)),
+    ("level-1 analysis names another protocol", "AN1", lambda m: m.update(protocol_sha256="0" * 64)),
+    ("plan names another protocol", "PLAN", lambda m: m.update(protocol_sha256="0" * 64)),
+    ("level 2 names another protocol", "L2", lambda m: m.update(protocol_sha256="0" * 64)),
+    ("plan names another A1", "PLAN", lambda m: m.update(a1_sha256="0" * 64)),
+    ("level 2 names another A1", "L2", lambda m: m.update(a1_sha256="0" * 64)),
+    ("level 1 names a stale selection META", "L1", lambda m: m.update(selection_meta_sha256="0" * 64)),
+    ("level 1 names a stale selection receipt", "L1", lambda m: m.update(selection_receipt_sha256="0" * 64)),
+    ("level 2 names a stale plan META", "L2", lambda m: m.update(plan_meta_sha256="0" * 64)),
+    ("level 2 names a stale selection META", "L2", lambda m: m.update(selection_meta_sha256="0" * 64)),
+    ("level 2 names other metadata than the plan", "L2", lambda m: m.update(metadata_meta_sha256="0" * 64)),
+    ("selection names another MWO release", "SEL", lambda m: m.update(mwo_release_sha256="0" * 64)))
+
+
+def gate_fixture(root, case=None):
+    """Synthetic upstream tree for the gate regressions (no real file is read): protocol, A1, release, the five stages
+    with products, META carrying every link of the contract, strict receipts, and the META of a run on it.
+    case = (stage, change) alters that stage's META before it is written; later stages link to the altered bytes, so
+    only the targeted link is wrong. Returns (paths by global name, run META)."""
+    root = Path(root)
+    P = {k: root / k for s in UPSTREAM for k in s[:2]}
+    for p in P.values():
+        p.mkdir(parents=True)
+    P.update(PROTOCOL=root / "protocol.md", FREEZE=root / "freeze.json", A1=root / "a1.md", A1_FREEZE=root / "a1_freeze.json",
+             RELEASE=root / "release.csv")
+    P["PROTOCOL"].write_text("synthetic protocol\n")
+    P["A1"].write_text("synthetic A1\n")
+    P["RELEASE"].write_text("noaa\n1\n")
+    ph, ah, rel = sha(P["PROTOCOL"]), sha(P["A1"]), sha(P["RELEASE"])
+    P["FREEZE"].write_text(json.dumps(dict(sha256=ph)))
+    P["A1_FREEZE"].write_text(json.dumps(dict(sha256=ah, parent_sha256=ph)))
+    names = dict(SEL=SEL_PRODUCTS, L1=L1_PRODUCTS, AN1=AN1_PRODUCTS, PLAN=PLAN_PRODUCTS, L2=L2_PRODUCTS)
+    ms, rs = (lambda k: sha(P[k] / "META.json")), (lambda k: sha(P[k + "_REC"] / "RECEIPT.json"))
+    links = dict(SEL=lambda: dict(mwo_release_sha256=rel),
+                 L1=lambda: dict(selection_meta_sha256=ms("SEL"), selection_receipt_sha256=rs("SEL")),
+                 AN1=lambda: dict(selection_meta_sha256=ms("SEL"), l1_meta_sha256=ms("L1"), selection_receipt_sha256=rs("SEL"),
+                                  l1_receipt_sha256=rs("L1"), release_sha256=rel),
+                 PLAN=lambda: dict(a1_sha256=ah, metadata_meta_sha256="m" * 64),
+                 L2=lambda: dict(a1_sha256=ah, plan_meta_sha256=ms("PLAN"), selection_meta_sha256=ms("SEL"), metadata_meta_sha256="m" * 64))
+    for k, rec, key in UPSTREAM:
+        for n in sorted(names[k]):
+            (P[k] / n).write_text('{"separation_main_l1_ok": [3.0, 6.0]}\n' if n == "CLASS_EDGES.json" else "{}\n" if n.endswith(".json") else "x\n1\n")
+        m = dict(protocol_sha256=ph, **links[k](), products_sha256={n: sha(P[k] / n) for n in sorted(names[k])})
+        if case is not None and case[0] == k:
+            case[1](m)
+        (P[k] / "META.json").write_text(json.dumps(m, indent=2) + "\n")
+        (P[rec] / "RECEIPT.json").write_text(json.dumps(dict(passed=1, total=1, partial=False, checks=[dict(name="synthetic", ok=True)],
+                                                             **{key: ms(k)})))
+    run_meta = dict(protocol_sha256=ph, a1_sha256=ah, release_sha256=rel, seed=SEED, reps=REPS,
+                    analysis_l1_class_edges_sha256=sha(P["AN1"] / "CLASS_EDGES.json"),
+                    receipts_sha256={n: rs(k) for n, k in (("selection", "SEL"), ("l1", "L1"), ("analysis_l1", "AN1"), ("plan", "PLAN"), ("l2", "L2"))},
+                    **{f: ms(k) for f, k in (("selection_meta_sha256", "SEL"), ("l1_meta_sha256", "L1"), ("analysis_l1_meta_sha256", "AN1"),
+                                             ("plan_meta_sha256", "PLAN"), ("l2_meta_sha256", "L2"))})
+    return P, run_meta
+
+
 def selftest():
     res = []
 
     def ok(name, cond, info=""):
         res.append(bool(cond))
         print(f"[{'OK' if cond else 'FALLITO'}] {name} {info}")
+
+    # upstream gate on synthetic trees: the module paths are rebound only inside this block
+    saved = {k: globals()[k] for s in UPSTREAM for k in s[:2]} | {k: globals()[k] for k in ("PROTOCOL", "FREEZE", "A1", "A1_FREEZE", "RELEASE")}
+    try:
+        with tempfile.TemporaryDirectory() as td:
+            def gate(name, case=None, after=None):
+                P, _ = gate_fixture(Path(td) / name.replace(" ", "_"), case)
+                if after:
+                    after(P)
+                globals().update(P)
+                return upstream_problems()
+            base = gate("base")
+            ok("gate: synthetic upstream accepted", base == [], base)
+            for name, stage, change in GATE_CASES:
+                ok(f"gate refuses: {name}", gate(name, (stage, change)) != [])
+            ok("gate refuses: level-2 product bytes changed without updating the hash",
+               gate("bytes", after=lambda P: (P["L2"] / "L2_RECORDS.csv").write_text("changed\n")) != [])
+    finally:
+        globals().update(saved)
 
     samp, l1, l2, choices, mwo = synthetic()
     pr = build(samp, l1, l2, choices, mwo, reps=200)
