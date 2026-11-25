@@ -1385,6 +1385,7 @@ scripts/sft_observed_draft_review_probe.py
 scripts/sft_observed_feasibility.py
 scripts/sft_observed_geometry_review_probe.py
 scripts/sft_observed_header_review_audit.py
+scripts/sft_observed_pilot.py
 scripts/sft_prep_code_review_probe.py
 scripts/sft_prep_selftest.py
 scripts/t3_dpd_feasibility.py
