@@ -72,3 +72,32 @@ Codex accoglie o respinge. Io preparo, solo dai metadati del disegno e senza la 
 
 più il benchmark Woodbury contro denso su sintetici. Poi rev. 4, congelamento, codice e prove sintetiche prima di
 qualunque fit reale.
+
+## Conteggi del disegno (fatti, solo metadati)
+
+Script `scripts/bq_design_counts.py`. Prodotti in `reviews/BQ_DESIGN_COUNTS_20261125/` (COUNTS.json, CV_BLOCKS.csv).
+Nessuna risposta letta: `build_design` lo asserisce, e family_id è letto a parte.
+
+**Disegno.**
+- 2485 regioni = 2485 HARP.
+- CR 2096–2316: 221 CR, di cui 210 con regioni.
+- 394 celle, 42 singleton.
+- Per ciclo ed emisfero: 24N 677, 24S 581, 25N 609, 25S 618.
+
+**Famiglie.**
+- 2149 in tutto: 1862 singleton e 287 replicate, con 623 regioni (massimo 5 membri).
+- Dimensione dei latenti per Woodbury: **729** con u (2·221 + 287) e **1171** con u e v, contro 2485 della forma densa.
+  Il guadagno è dell'ordine di (2485/729)³ ≈ 40 volte per la sola fattorizzazione. Va misurato col benchmark; non
+  prometto i millisecondi.
+
+**Blocchi della validazione incrociata** (10 blocchi da 22–23 CR).
+- La rimozione delle famiglie di verifica **fuori** dal buffer non toglie nessun record né con buffer 11 né con 22:
+  i membri delle famiglie cadono tutti entro ±11 CR. Le due regole coincidono su questo disegno.
+- Blocco 5 (CR 2207–2228, minimo fra i cicli): solo 22 regioni di verifica.
+- Blocco 8 (CR 2273–2294):
+  - contiene l'attività massima del periodo (A = 4,05), mentre il training arriva a 3,35: il blocco richiede
+    un'estrapolazione in attività;
+  - con buffer 22 il training del ciclo 25 si riduce a 45 (N) e 61 (S) regioni, quindi k_(25,h) è poco sostenuto.
+
+  Va dichiarato nel rapporto per blocco.
+- Le perdite per buffer vanno da 49 a 417 regioni (buffer 11) e da 174 a 726 (buffer 22).

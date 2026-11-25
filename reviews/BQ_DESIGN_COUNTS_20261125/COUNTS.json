@@ -1,0 +1,25 @@
+{
+  "records": 2485,
+  "harps": 2485,
+  "cr_first": 2096,
+  "cr_last": 2316,
+  "n_cr_span": 221,
+  "cr_with_records": 210,
+  "cells": 394,
+  "singleton_cells": 42,
+  "families": 2149,
+  "singleton_families": 1862,
+  "replicated_families": 287,
+  "records_in_replicated_families": 623,
+  "max_family_size": 5,
+  "latent_dim_u": 729,
+  "latent_dim_u_v": 1171,
+  "records_by_cycle_hemisphere": {
+    "24N": 677,
+    "24S": 581,
+    "25N": 609,
+    "25S": 618
+  },
+  "catalogue_sha256": "67dc6a74a27b44f9ddd958f5a5dcc972a564300af89444c781665926ca0488af",
+  "script_sha256": "079cbb68d6cca18f860edd4980bf125c82b52bc4f8fa8b96370ea166d76536cb"
+}
