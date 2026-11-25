@@ -204,6 +204,21 @@ coefficiente di Joy?
 - **latitudine e fase**: termine separato dal quenching di latitudine (T4), da non confondere;
 - **attività locale** (regioni vicine, complessi; più avanti nests): solo quando i raggruppamenti saranno definiti.
 
+**Forme funzionali candidate** (proposta da completare nella specifica; altre forme e termini si possono aggiungere,
+ma solo prima del congelamento):
+- **lineare** nel termine X: k_eff = k₀ + β X (forma di T3 e BQ-HMI);
+- **saturante algebrica:** k_eff = k₀ / (1 + (X/X_q)²). È la forma usata nei modelli BL, ed è la stessa famiglia della
+  saturazione discussa nel progetto MWO/SINDy separato. Di là si prende solo la FORMA, mai coefficienti, prior o la
+  serie SIGNED: lo vietano le regole di separazione;
+- **esponenziale:** k_eff = k₀ exp(−X/X_q);
+- **legge di potenza o a soglia,** se motivate da letteratura o teoria e fissate prima;
+- **combinazioni** di due termini (per esempio attività globale più flusso della regione) solo se elencate nella
+  specifica, con una prova sintetica che mostri se i due termini si separano.
+
+Per ogni forma: prior propria sui parametri (X_q > 0, scale dichiarate), stessa base del modello. Nel limite di
+attività piccola la forma lineare e quelle saturanti coincidono: la differenza è informata solo dalle regioni ad alta
+attività (blocco 8 di BQ-HMI, picchi dei cicli in BQ-M), e la potenza va stimata sui sintetici prima dei dati.
+
 **Regole.**
 - I candidati sono pochi, elencati nella specifica prima di qualunque fit, ciascuno con la propria prior e la stessa
   base (k_(c,h), u, famiglie). Si confrontano anche le combinazioni previste, non tutte quelle possibili. Niente

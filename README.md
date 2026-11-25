@@ -5,7 +5,8 @@
 > **Sorgente BL:** mappa HMI contro bipolo nello stesso SFT, poi confronto con osservazioni successive separate dallo sviluppo.
 > **Nests HMI:** pianificati ma sospesi per ora; inventario e note Finley gia conservati.
 > **Quenching e sue dipendenze (BQ-D):** dopo BQ-HMI, confronto bayesiano fra poche dipendenze fissate prima:
-> attività globale, forza del ciclo, flusso della regione, latitudine e fase, attività locale. Piano §3ter.
+> attività globale, forza del ciclo, flusso della regione, latitudine e fase, attività locale. Forme lineare,
+> saturante 1/(1+(X/X_q)²), esponenziale e altre fissate prima del congelamento. Piano §3ter.
 > **Voce futura P, dopo BQ/BT:** dalla sorgente BL delle regioni al campo polare. La domanda: le regioni misurate
 > costruiscono il campo polare osservato, ciclo per ciclo ed emisfero per emisfero, ed entro quale errore? Serve un
 > protocollo proprio; la serie polare del progetto MWO separato entra solo come dato esterno. Piano §4bis;
