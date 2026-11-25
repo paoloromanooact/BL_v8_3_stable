@@ -30,6 +30,7 @@ DOPO tutto.** Ordine complessivo:
 3. prerequisiti di BT: chiusura del pilota mappa–bipolo (A1 in revisione), ripetibilita (§7) e pilota
    dell'evoluzione osservata. Servono perche BT ne usa la macchina e la verifica;
 4. BT (§4);
+4bis. voce futura P (§4bis): dalla sorgente BL al campo polare, con un protocollo proprio;
 5. **nests (§5) alla fine di tutto**: identificazione, poi effetto di gruppo in BQ/BT. Fino ad allora BQ e BT
    dichiarano non modellata la dipendenza fra membri di uno stesso nest.
 
@@ -278,6 +279,32 @@ identificate separatamente dalle varianti del trasporto.
 **Uscita:** graduatoria relativa e incertezza sull'evoluzione locale a pochi
 giorni. Non identifica da sola la causa dei residui, non misura soltanto nuova
 emersione e non valida il contributo finale al campo polare globale.
+
+## 4bis. P — dalla sorgente BL al campo polare (voce FUTURA, dopo BQ/BT; nessun lavoro ora)
+
+**Aggiunta dall'utente il 25 novembre 2026 come voce futura.** Obiettivo servito: sorgente BL.
+
+**Domanda.** La somma delle sorgenti BL misurate regione per regione (P1, eventualmente con il trasporto SFT dei
+piloti) riproduce la variazione del campo polare osservato ciclo per ciclo ed emisfero per emisfero?
+
+**Perché dopo BQ/BT.** Il passaggio dalla sorgente al dipolo richiede il modello di trasporto e il suo errore. Il
+pilota mappa–bipolo, il pilota osservativo e BT servono prima.
+
+**Regole di separazione fra progetti** (questo piano, «Due obiettivi»):
+- la serie polare viene dal progetto distinto MWO-HMI-MDI (POLOIDAL_SERIES, scala HMI). Si usa come dato esterno con
+  versione e SHA dichiarati, senza modificarla né ricalibrarla da qui;
+- nessun trasferimento automatico di risultati o interpretazioni, in nessuna delle due direzioni. Nessun uso della
+  serie toroidale SIGNED di quel progetto per scegliere o adattare qualcosa;
+- non cieco: entrambe le serie sono note. Serve un protocollo proprio, rivisto e congelato prima del confronto, con
+  le scelte (finestre per ciclo, normalizzazioni, trattamento delle regioni non misurate e del flusso fuori dalle
+  HARP) fissate prima.
+
+**Limiti già noti da dichiarare:**
+- P1 misura vicino al meridiano centrale e copre solo le regioni HARP selezionate;
+- l'ampiezza della sorgente non ha una calibrazione esterna (rapporto con BARD-HMI circa 1,67);
+- HMI copre circa un ciclo e mezzo; un confronto su più cicli richiede MWO e MDI (cataloghi di BQ-M).
+
+**Assegnazione:** da decidere quando BQ/BT saranno chiusi.
 
 ## 5. N — active-region nests HMI, poi confronto bayesiano
 
