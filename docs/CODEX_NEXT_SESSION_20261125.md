@@ -82,9 +82,10 @@ Attendere commit/SHA ed esiti definitivi; non dichiarare test conclusi dai messa
    dati HMI reali soltanto dopo approvazione e diagnostica sufficiente.
 4. C: correggere i cinque rilievi; completare runner operativo e **riconteggio indipendente**; review/freeze
    prima della misura, quindi prodotti conservati e ricontati. I 82 sono disponibilita metadata, non campione finale.
-5. BT: **la bozza e stata proposta nell'ultimo messaggio ma non e stata scritta**. Se i pacchetti non sono
-   pronti, si puo prepararne la specifica senza calcoli: persistenza/rotazione/SFT, errore iniziale e finale,
-   correlazioni, discrepanza, sviluppo/verifica e supporto comune. Non duplicare il lavoro di Claude.
+5. BT: **bozza rev.1 ora scritta**, `docs/PROTOCOL_BT_HMI_DRAFT.md`, non congelata. Contiene candidati,
+   errore iniziale/finale, discrepanza, supporti, selezione e sei decisioni aperte. Rivederla dopo i prerequisiti;
+   non scrivere una seconda bozza duplicata. Nessun codice o fit BT. La verifica del pilota gia letta non
+   puo essere chiamata cieca quando viene riusata per BT: strategia da dichiarare prima del congelamento.
 6. BQ-D successivo con specifica propria. Nessun nuovo lavoro su MDI, nests o SINDy.
 
 Conservare i risultati storici: T3 HMI non deciso; T3 MWO descrittivo. Il nuovo ranking non li modifica

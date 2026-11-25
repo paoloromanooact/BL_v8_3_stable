@@ -1,8 +1,13 @@
 # Cold restart — SHARP BL
 
+## BT: prima bozza di specifica, sola documentazione
+
+[BT-HMI rev.1](PROTOCOL_BT_HMI_DRAFT.md): persistenza, rotazione e SFT; dipolo/posizioni come osservabili da finalizzare, errore delle due mappe e discrepanza separati, selezione del controllo al massimo USFLUX e non cecita esplicite. Se la verifica del pilota viene gia letta, non puo diventare nuovamente cieca per BT. Sei scelte ancora aperte; nessun congelamento, codice o fit. Codex ha preparato il testo senza calcoli; Claude resta sui test BQ/A1/C. Riepilogo della prossima sessione aggiornato.
+
+
 ## Ripresa della prossima sessione
 
-Leggere prima [il riepilogo operativo Codex](CODEX_NEXT_SESSION_20261125.md): contiene obiettivi fissi, stato delle prove da confermare, rilievi C, decisioni BQ e sequenza da seguire. La bozza BT proposta non e ancora scritta. Verificare Git e la consegna finale di Claude prima di dichiarare approvati test o corse.
+Leggere prima [il riepilogo operativo Codex](CODEX_NEXT_SESSION_20261125.md): contiene obiettivi fissi, stato delle prove da confermare, rilievi C, decisioni BQ e sequenza da seguire. La bozza BT rev.1 e ora disponibile, non congelata: vedi PROTOCOL_BT_HMI_DRAFT.md. Verificare Git e la consegna finale di Claude prima di dichiarare approvati test o corse.
 
 
 ## C: revisione preliminare del runner di lavoro (Codex)

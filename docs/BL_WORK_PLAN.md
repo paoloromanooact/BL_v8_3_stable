@@ -342,6 +342,8 @@ dopo il congelamento, con revisione incrociata.
 
 ## 4. BT — ranking bayesiano del trasporto superficiale su HMI
 
+[Bozza BT rev.1](PROTOCOL_BT_HMI_DRAFT.md) preparata da Codex: domanda, candidati, errore iniziale/finale, discrepanza, separazione sviluppo/verifica e scelte ancora aperte. Non congelata; nessun codice o fit. Non cambia la priorita BQ o le corse dei piloti.
+
 **Obiettivo servito:** sorgente BL. **Domanda:** quali modelli descrivono meglio
 le osservazioni successive delle stesse regioni, agli stessi istanti e sullo
 stesso dominio? Candidati iniziali: persistenza, sola rotazione differenziale,
