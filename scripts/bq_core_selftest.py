@@ -11,7 +11,8 @@ Checks:
     the sampled Savage-Dickey estimate within Monte Carlo error;
  6. recovery of beta = -8, 0, +8 with short chains on a moderate synthetic design;
  7. timing on the real design structure (metadata only, synthetic y);
- 8-11. blocked cross-validation: blocks, masks (buffer and families), exact conditional density vs dense, end to end.
+ 8-11. blocked cross-validation: blocks, masks (buffer and families), exact conditional density vs dense, end to end;
+ 12. joint latent draw vs dense posterior; 13-14. L3 folded density and branch draw; 15-16. L2 and L3 Gibbs recovery.
 
     OMP_NUM_THREADS=1 .venv/bin/python scripts/bq_core_selftest.py
 """
@@ -27,7 +28,7 @@ from scipy.linalg import cho_factor, cho_solve
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "python"))
-from sharpbl import bq_core as B, bq_cv as CV  # noqa: E402
+from sharpbl import bq_core as B, bq_cv as CV, bq_robust as RB  # noqa: E402
 
 SEED = 36_400_101
 res = []
@@ -214,6 +215,63 @@ def main():
         tot[name] = (sum(f["score"] for f in sc), math.sqrt(sum(f["mc_se"] ** 2 for f in sc)))
     ok("11. end to end, beta = -15 (strong): MQ total block score > M0 (5 blocks, buffer 5, short chains)", tot["MQ"][0] > tot["M0"][0],
        f"MQ {tot['MQ'][0]:.1f} +- {tot['MQ'][1]:.2f}, M0 {tot['M0'][0]:.1f} +- {tot['M0'][1]:.2f}")
+    # 12: joint latent draw = dense posterior (theta moments, and the shared part E[y - eps | y])
+    d12 = synth_design(np.random.default_rng(SEED + 50), n_t=30, n=150, with_v=True)
+    x12 = random_x(d12, np.random.default_rng(SEED + 51))
+    y12 = np.random.default_rng(SEED + 52).normal(0, 20, d12.n)
+    r12 = np.random.default_rng(SEED + 53)
+    dr = [B.draw_latents(d12, x12, y12, r12) for _ in range(3000)]
+    th = np.array([z[0] for z in dr])
+    sh = np.array([z[4] for z in dr])
+    mu_d, cov_d = dense_post(d12, x12, y12)
+    p12 = B.unpack(d12, x12)
+    C12 = dense_cov(d12, p12) + d12.X @ np.diag(d12.vprior) @ d12.X.T
+    sig2 = (p12["sigma0"] * np.exp(p12["q"] * d12.lphi)) ** 2
+    e_sh = y12 - sig2 * np.linalg.solve(C12, y12)
+    se_th = np.sqrt(np.diag(cov_d) / len(th))
+    se_sh = sh.std(0) / math.sqrt(len(sh))
+    ok("12. joint latent draw (u+v, families): coefficient mean/cov and shared part = dense posterior (within 4.5 MC SE)",
+       np.all(np.abs(th.mean(0) - mu_d) < 4.5 * se_th)
+       and np.all(np.abs(np.cov(th.T) - cov_d) <= 0.1 * np.sqrt(np.outer(np.diag(cov_d), np.diag(cov_d))))
+       and np.mean(np.abs(sh.mean(0) - e_sh) < 4.5 * se_sh) > 0.99,
+       f"max |z| coeff {np.max(np.abs(th.mean(0) - mu_d) / se_th):.2f}")
+    # 13: folded density normalised on (-90, 90) for sigma 12, 30, 150, 400 and several mu (incl. aliases)
+    gg = np.linspace(-90, 90, 200001)                 # the density is finite at the end points: keep them in the rule
+    errs = []
+    for sg in (12.0, 30.0, 150.0, 400.0):
+        for mu in (0.0, 75.0, -170.0, 400.0):
+            f = np.exp(RB.folded_logpdf(gg, mu, sg))
+            errs.append(abs(np.trapezoid(f, gg) - 1.0))
+    ok("13. L3 folded density integrates to one on (-90, 90) (sigma 12/30/150/400, mu incl. 400)", max(errs) < 1e-6, f"max error {max(errs):.1e}")
+    # 14: branch sampler = exact discrete conditional (frequencies)
+    rb = np.random.default_rng(SEED + 60)
+    gv, mv, sv = np.full(40000, 80.0), np.full(40000, 95.0), np.full(40000, 20.0)
+    th14 = RB.draw_branches(gv, mv, sv, rb)
+    w80, w100 = math.exp(-0.5 * (15 / 20) ** 2), math.exp(-0.5 * (5 / 20) ** 2)
+    pf = np.mean(np.isclose(th14, 100.0))
+    ok("14. L3 branch draw: frequencies of the preimages 80 / 100 match the discrete conditional", abs(pf - w100 / (w80 + w100)) < 0.01,
+       f"P(100) {pf:.4f} vs {w100 / (w80 + w100):.4f}")
+    # 15-16: L2 and L3 recover beta on synthetic data of their own kind
+    for kind in ("L2", "L3"):
+        rr = np.random.default_rng(SEED + 70 + (kind == "L3"))
+        dk = synth_design(rr, n_t=50, n=400)
+        sg0 = 12.0 if kind == "L2" else 35.0
+        xk = np.array([math.log(sg0), -0.2, math.log(2.0), 0.6, -0.2, math.log(2.0)])
+        pk = B.unpack(dk, xk)
+        mean = dk.X[:, :4] @ np.array([22, 24, 18, 20.0]) - 8.0 * dk.a * dk.s
+        Cs = dense_cov(dk, pk) - np.diag((pk["sigma0"] * np.exp(pk["q"] * dk.lphi)) ** 2)
+        shared = mean + rr.multivariate_normal(np.zeros(dk.n), Cs)
+        sdi = pk["sigma0"] * np.exp(pk["q"] * dk.lphi)
+        if kind == "L2":
+            eps = sdi * math.sqrt(0.5) * rr.standard_t(4, dk.n)
+            yk = shared + eps
+        else:
+            yk = np.degrees(np.arcsin(np.sin(np.radians(shared + sdi * rr.standard_normal(dk.n)))))
+        g = RB.gibbs(dk, yk, xk, 150, 300, rr, kind=kind)
+        bb = g["theta"][:, -1]
+        extra = f"mean lam {np.mean(g['summary']):.3f}" if kind == "L2" else f"share folded {np.mean(g['summary']):.3f}"
+        ok(f"{15 if kind == 'L2' else 16}. {kind} Gibbs recovers beta = -8 on its own synthetic data (within 3 posterior SD)",
+           abs(bb.mean() + 8.0) < 3 * bb.std(), f"mean {bb.mean():.2f}, SD {bb.std():.2f}; sigma0 {np.exp(g['psi'][:, 0]).mean():.1f} (true {sg0}); {extra}")
     # 7: timing on the real design structure (design columns only)
     try:
         sys.path.insert(0, str(ROOT / "scripts"))

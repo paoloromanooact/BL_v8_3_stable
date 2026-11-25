@@ -25,7 +25,7 @@ import math
 from dataclasses import dataclass, field
 
 import numpy as np
-from scipy.linalg import cho_factor, cho_solve, cholesky_banded, cho_solve_banded
+from scipy.linalg import cho_factor, cho_solve, cholesky_banded, cho_solve_banded, solve_banded, solve_triangular
 
 LOG2PI = math.log(2.0 * math.pi)
 PRIOR = dict(k_sd=40.0, beta_sd=10.0, sigma0_hn=30.0, sigma_x_hn=10.0, sigma_f_hn=5.0, q_sd=1.0, sigma_v_hn=20.0)
@@ -148,13 +148,15 @@ def _band(A, bw):
     return ab
 
 
-def loglik(d: Design, x, y, return_post=False):
-    """log N(y; 0, D + L K L^T) with the coefficients integrated; optionally the Gaussian conditional of theta."""
+def _system(d: Design, x, y, lam=None, scale=1.0):
+    """Linear system of the latents (x states, replicated families eliminated, theta) for parameters x.
+    lam: per-record precision multipliers of the individual residual (L2), scale: (nu-2)/nu for L2."""
     p = unpack(d, x)
-    sig2 = (p["sigma0"] * np.exp(p["q"] * d.lphi)) ** 2
+    sig2 = (p["sigma0"] * np.exp(p["q"] * d.lphi)) ** 2 * scale
+    if lam is not None:
+        sig2 = sig2 / lam
     D = sig2 + np.where(d.single, p["sigma_f"] ** 2, 0.0)
     w = 1.0 / D
-    # latent x block: prior precision + Z^T D^-1 Z (u loads 1, v loads s)
     Axx, ldK = _prec_x(d, p)
     np.add.at(Axx, (d.iu, d.iu), w)
     if d.with_v:
@@ -172,52 +174,80 @@ def loglik(d: Design, x, y, return_post=False):
     if d.with_v:
         np.add.at(bx, d.iv, w * y * d.s)
     bt = d.X.T @ (w * y)
-    # exact elimination of the replicated-family latents (diagonal block a_f)
-    ldf = 0.0
+    sy = dict(p=p, sig2=sig2, D=D, w=w, ldK=ldK, ldf=0.0, quad_f=0.0, a=None, bf=None, gx=None, Gt=None)
     if d.n_f:
         sf2 = p["sigma_f"] ** 2
+        rf = d.fidx >= 0
         a = np.full(d.n_f, 1.0 / sf2)
-        np.add.at(a, d.fidx[d.fidx >= 0], w[d.fidx >= 0])
-        ldf = d.n_f * math.log(sf2) + float(np.log(a).sum())   # log det K_f + log det A_ff
+        np.add.at(a, d.fidx[rf], w[rf])
         bf = np.zeros(d.n_f)
-        np.add.at(bf, d.fidx[d.fidx >= 0], (w * y)[d.fidx >= 0])
+        np.add.at(bf, d.fidx[rf], (w * y)[rf])
         cpair = w[d.pair_i] * w[d.pair_j] / a[d.pair_f]
         np.add.at(Axx, (d.iu[d.pair_i], d.iu[d.pair_j]), -cpair)
         if d.with_v:
             np.add.at(Axx, (d.iv[d.pair_i], d.iv[d.pair_j]), -cpair * d.s[d.pair_i] * d.s[d.pair_j])
             np.add.at(Axx, (d.iu[d.pair_i], d.iv[d.pair_j]), -cpair * d.s[d.pair_j])
             np.add.at(Axx, (d.iv[d.pair_i], d.iu[d.pair_j]), -cpair * d.s[d.pair_i])
-        Gt = np.zeros((d.n_f, d.m))                           # per family: sum X_i w_i
-        rf = d.fidx >= 0
+        Gt = np.zeros((d.n_f, d.m))
         np.add.at(Gt, d.fidx[rf], Xw[rf])
-        gx_u = np.zeros((d.nx, d.n_f))
-        np.add.at(gx_u, (d.iu[rf], d.fidx[rf]), w[rf])
+        gx = np.zeros((d.nx, d.n_f))
+        np.add.at(gx, (d.iu[rf], d.fidx[rf]), w[rf])
         if d.with_v:
-            np.add.at(gx_u, (d.iv[rf], d.fidx[rf]), w[rf] * d.s[rf])
-        Axt -= (gx_u / a) @ Gt
+            np.add.at(gx, (d.iv[rf], d.fidx[rf]), w[rf] * d.s[rf])
+        Axt -= (gx / a) @ Gt
         Att -= (Gt.T / a) @ Gt
-        bx -= gx_u @ (bf / a)
+        bx -= gx @ (bf / a)
         bt -= Gt.T @ (bf / a)
-        quad_f = float((bf * bf / a).sum())
-    else:
-        quad_f = 0.0
-    # banded Cholesky of the AR(1)-latent block
+        sy.update(a=a, bf=bf, gx=gx, Gt=Gt, ldf=d.n_f * math.log(sf2) + float(np.log(a).sum()), quad_f=float((bf * bf / a).sum()))
     cb = cholesky_banded(_band(Axx, d.bw), lower=False)
-    ldx = 2.0 * float(np.log(cb[-1]).sum())
     Sx_b = cho_solve_banded((cb, False), bx)
     Sx_T = cho_solve_banded((cb, False), Axt)
     S = Att - Axt.T @ Sx_T
     r = bt - Axt.T @ Sx_b
     cs = cho_factor(S, lower=True)
-    ldt = 2.0 * float(np.log(np.diag(cs[0])).sum())
-    st = cho_solve(cs, r)
-    quad = float(y @ (w * y)) - quad_f - float(bx @ Sx_b) - float(r @ st)
-    logdet = float(np.log(D).sum()) + ldK + float(np.log(d.vprior).sum()) + ldf + ldx + ldt
+    sy.update(cb=cb, Axt=Axt, bx=bx, Sx_b=Sx_b, Sx_T=Sx_T, cs=cs, r=r, st=cho_solve(cs, r))
+    return sy
+
+
+def loglik(d: Design, x, y, return_post=False, lam=None, scale=1.0):
+    """log N(y; 0, D + L K L^T) with the coefficients integrated; optionally the Gaussian conditional of theta."""
+    sy = _system(d, x, y, lam, scale)
+    ldx = 2.0 * float(np.log(sy["cb"][-1]).sum())
+    ldt = 2.0 * float(np.log(np.diag(sy["cs"][0])).sum())
+    quad = float(y @ (sy["w"] * y)) - sy["quad_f"] - float(sy["bx"] @ sy["Sx_b"]) - float(sy["r"] @ sy["st"])
+    logdet = float(np.log(sy["D"]).sum()) + sy["ldK"] + float(np.log(d.vprior).sum()) + sy["ldf"] + ldx + ldt
     ll = -0.5 * (d.n * LOG2PI + logdet + quad)
     if not return_post:
         return ll
-    cov = cho_solve(cs, np.eye(d.m))
-    return ll, st, cov
+    return ll, sy["st"], cho_solve(sy["cs"], np.eye(d.m))
+
+
+def draw_latents(d: Design, x, y, rng, lam=None, scale=1.0):
+    """One joint Gaussian draw of all latents given psi (and lam): theta, then the AR(1) states given theta, then the
+    replicated families given both, then the singleton family effects. Returns (theta, states, f, b_record, mean_i)
+    with mean_i = X theta + Z states + b (the full shared part of record i, without the individual residual)."""
+    sy = _system(d, x, y, lam, scale)
+    L = sy["cs"][0]
+    theta = sy["st"] + solve_triangular(L, rng.standard_normal(d.m), lower=True, trans="T")
+    xs = cho_solve_banded((sy["cb"], False), sy["bx"] - sy["Axt"] @ theta) \
+        + solve_banded((0, d.bw), sy["cb"], rng.standard_normal(d.nx))
+    zx = xs[d.iu] + (xs[d.iv] * d.s if d.with_v else 0.0)
+    shared = d.X @ theta + zx
+    b = np.zeros(d.n)
+    f = np.zeros(d.n_f)
+    w = sy["w"]
+    if d.n_f:
+        rf = d.fidx >= 0
+        lin = np.zeros(d.n_f)
+        np.add.at(lin, d.fidx[rf], (w * (y - shared))[rf])
+        f = lin / sy["a"] + rng.standard_normal(d.n_f) / np.sqrt(sy["a"])
+        b[rf] = f[d.fidx[rf]]
+    sg = d.single
+    if sg.any():
+        sf2, s2 = sy["p"]["sigma_f"] ** 2, sy["sig2"][sg]
+        prec = 1.0 / sf2 + 1.0 / s2
+        b[sg] = ((y - shared)[sg] / s2) / prec + rng.standard_normal(int(sg.sum())) / np.sqrt(prec)
+    return theta, xs, f, b, shared + b
 
 
 def log_post(d: Design, x, y):
@@ -232,65 +262,86 @@ def log_post(d: Design, x, y):
 
 # ---------------------------------------------------------------- slice sampler (Neal 2003, stepping out + shrinkage)
 
+def slice_sweep(logf, x, fx, w, rng, max_steps=50):
+    """One sweep of coordinate-wise slice updates (stepping out + shrinkage). Returns (x, fx, stepping-limit hits)."""
+    x = np.array(x, float)
+    hits = 0
+    for j in range(len(x)):
+        logy = fx + math.log(rng.uniform())
+        lo = x[j] - w[j] * rng.uniform()
+        hi = lo + w[j]
+        jl = int(math.floor(max_steps * rng.uniform()))
+        jr = max_steps - 1 - jl
+        xt = x.copy()
+        while True:
+            xt[j] = lo
+            if logf(xt) <= logy:
+                break
+            if jl == 0:
+                hits += 1
+                break
+            lo -= w[j]
+            jl -= 1
+        while True:
+            xt[j] = hi
+            if logf(xt) <= logy:
+                break
+            if jr == 0:
+                hits += 1
+                break
+            hi += w[j]
+            jr -= 1
+        while True:
+            xt[j] = rng.uniform(lo, hi)
+            ft = logf(xt)
+            if ft > logy:
+                x, fx = xt.copy(), ft
+                break
+            if xt[j] < x[j]:
+                lo = xt[j]
+            else:
+                hi = xt[j]
+    return x, fx, hits
+
+
+class Widths:
+    """Warm-up-only width rule: w0 in the first half of the warm-up, 2 x SD of that half in the second half, 2 x SD
+    of the second half for the saved phase (fixed kernel)."""
+
+    def __init__(self, dim, n_warm, w0=1.0):
+        self.w, self.n_warm, self.buf = np.full(dim, float(w0)), n_warm, []
+
+    def update(self, it, x):
+        if it == self.n_warm // 2 and self.buf:
+            self.w = np.clip(2.0 * np.std(np.array(self.buf), axis=0), 1e-3, 10.0)
+            self.buf = []
+        if it == self.n_warm and self.buf:
+            self.w = np.clip(2.0 * np.std(np.array(self.buf), axis=0), 1e-3, 10.0)
+            self.buf = []
+
+    def record(self, it, x):
+        if it < self.n_warm:
+            self.buf.append(np.array(x, float))
+
+
 def slice_chain(logf, x0, n_warm, n_keep, rng, w0=1.0, max_steps=50):
-    """Coordinate-wise slice sampling. Widths: w0 in the first half of the warm-up, then 2 x the SD of that half,
-    then 2 x the SD of the second half for the saved phase (fixed kernel after the warm-up). Returns
-    (saved draws, saved log densities, widths, count of stepping-out limits hit)."""
+    """Coordinate-wise slice sampling with the warm-up-only width rule (Widths). Returns (saved draws, saved log
+    densities, final widths, count of stepping-out limits hit)."""
     x = np.array(x0, float)
     fx = logf(x)
     if not np.isfinite(fx):
         raise ValueError("initial point has zero density")
-    dim = len(x)
-    w = np.full(dim, float(w0))
-    keep, lk, hits, warm = [], [], 0, []
-    total = n_warm + n_keep
-    for it in range(total):
-        if it == n_warm // 2 and warm:
-            w = np.clip(2.0 * np.std(np.array(warm), axis=0), 1e-3, 10.0)
-            warm = []
-        if it == n_warm and warm:
-            w = np.clip(2.0 * np.std(np.array(warm), axis=0), 1e-3, 10.0)
-        for j in range(dim):
-            logy = fx + math.log(rng.uniform())
-            lo = x[j] - w[j] * rng.uniform()
-            hi = lo + w[j]
-            jl = int(math.floor(max_steps * rng.uniform()))
-            jr = max_steps - 1 - jl
-            xt = x.copy()
-            while True:
-                xt[j] = lo
-                if logf(xt) <= logy:
-                    break
-                if jl == 0:
-                    hits += 1
-                    break
-                lo -= w[j]
-                jl -= 1
-            while True:
-                xt[j] = hi
-                if logf(xt) <= logy:
-                    break
-                if jr == 0:
-                    hits += 1
-                    break
-                hi += w[j]
-                jr -= 1
-            while True:
-                xt[j] = rng.uniform(lo, hi)
-                ft = logf(xt)
-                if ft > logy:
-                    x, fx = xt, ft
-                    break
-                if xt[j] < x[j]:
-                    lo = xt[j]
-                else:
-                    hi = xt[j]
-        if it < n_warm:
-            warm.append(x.copy())
-        else:
+    W = Widths(len(x), n_warm, w0)
+    keep, lk, hits = [], [], 0
+    for it in range(n_warm + n_keep):
+        W.update(it, x)
+        x, fx, h = slice_sweep(logf, x, fx, W.w, rng, max_steps)
+        hits += h
+        W.record(it, x)
+        if it >= n_warm:
             keep.append(x.copy())
             lk.append(fx)
-    return np.array(keep), np.array(lk), w, hits
+    return np.array(keep), np.array(lk), W.w, hits
 
 
 # ---------------------------------------------------------------- beta: conditional posterior and Savage-Dickey
