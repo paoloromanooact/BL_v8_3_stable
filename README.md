@@ -4,6 +4,10 @@
 > **Attuale:** BQ-HMI prima; BQ-M successivo. Ripetibilita C attiva; SFT prosegue come base di BT.
 > **Sorgente BL:** mappa HMI contro bipolo nello stesso SFT, poi confronto con osservazioni successive separate dallo sviluppo.
 > **Nests HMI:** pianificati ma sospesi per ora; inventario e note Finley gia conservati.
+> **Voce futura P, dopo BQ/BT:** dalla sorgente BL delle regioni al campo polare. La domanda: le regioni misurate
+> costruiscono il campo polare osservato, ciclo per ciclo ed emisfero per emisfero, ed entro quale errore? Serve un
+> protocollo proprio; la serie polare del progetto MWO separato entra solo come dato esterno. Piano §4bis;
+> [nota bibliografica](docs/LITERATURE_BL_SOURCE_TO_POLAR_FIELD_20261125.md).
 > Stato delle altre linee e prossimi passi: [HANDOFF](docs/HANDOFF.md).
 
 > Branch `v8.4-python-gianluca`: porting in Python con correzioni e serie
