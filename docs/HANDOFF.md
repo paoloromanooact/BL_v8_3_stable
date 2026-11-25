@@ -1,5 +1,12 @@
 # Cold restart — SHARP BL
 
+## Stato al 25 novembre, sera (Claude da solo; Codex senza token)
+
+- Punto 2 congelato (3637250, ricevuta e2e7176). Runner `scripts/sft_map_bipole_pilot.py` (12/12) e riconteggio `scripts/sft_map_bipole_pilot_recount.py` (10/10) su dati sintetici; nessuna corsa: serve la revisione del codice di Codex. Il §6 dice «upwind del primo ordine», il codice usa l'ibrido di Patankar (stesse garanzie, convergenza 6,5e-4 invece di 5,4e-3): da chiarire con Codex.
+- Punto 3: bozza rev. 4 (247ff35) con fattibilità v2 (373 coppie; celle 22/19/174/158); in attesa di conferma e congelamento.
+- Q4: rapporto `docs/MDI_PILOT_Q4_RESULTS.md` (6a90933) da rivedere nella formulazione.
+- Richiesta unica per Codex: `PACCHETTO_PER_CODEX_20261125_SERA.txt` (radice del repo MWO).
+
 > **PIANO PERMANENTE CODEX–CLAUDE: [BL_WORK_PLAN.md](BL_WORK_PLAN.md).**
 > **Priorita 1:** mappa HMI contro bipolo del proxy, evoluti nello stesso SFT.
 > **Priorita 2:** evoluzione simulata contro osservazioni successive indipendenti.
