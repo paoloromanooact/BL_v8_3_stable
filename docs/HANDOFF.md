@@ -1,5 +1,13 @@
 # Cold restart — SHARP BL
 
+## C: revisione preliminare del runner di lavoro (Codex)
+
+- [Rilievi e regressioni richieste](C_REPEATABILITY_PRELIMINARY_CODE_REVIEW_20261125.md), versioni identificate da SHA: copertura finita/geometrica, bilanciamento su C_fin, leading al taglio e con polarita mancanti, bootstrap con meno di 10 componenti valutabili, C_rot e validita dello stencil.
+- Lettura statica, nessun rilancio del selftest lungo e nessun pixel osservato; file di Claude non modificati. Non e l'approvazione del runner definitivo.
+- **Riconteggio C ancora da scrivere**, come precisato dall'utente. Prima della misura: correzioni, runner operativo, riconteggio indipendente e revisione/freeze. 82 coppie restano disponibilita metadata, non stima di sigma.
+- Claude completa A1/BQ in corso e poi integra i rilievi; Codex rivede il pacchetto committato. Nessun carico pesante aggiunto, nests fermi.
+
+
 ## Punti fissi del lavoro — decisione corrente dell'utente
 
 **Due pilastri, fase attuale solo HMI.** Questo riquadro prevale sugli ordini storici conservati sotto.

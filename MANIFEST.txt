@@ -31,6 +31,7 @@ docs/CATALOGUE_DICTIONARY.md
 docs/CODEX_REVIEW_ARTEFACTS_REMOVED_2026-11-16.csv
 docs/CROSS_REVIEW_2026-11-14.md
 docs/C_REPEATABILITY_METADATA_CLOSURE_20261125.md
+docs/C_REPEATABILITY_PRELIMINARY_CODE_REVIEW_20261125.md
 docs/DIAGNOSTIC_A_PLAN.md
 docs/DIAGNOSTIC_A_RESULTS.md
 docs/DIAGNOSTIC_B_PLAN.md
@@ -56,6 +57,7 @@ docs/HMI_MEASUREMENT_ASSESSMENT.md
 docs/HMI_NESTS_FEASIBILITY.md
 docs/HMI_NESTS_FINLEY_METHOD_NOTES.md
 docs/HMI_QUENCHING_SYNTHESIS.md
+docs/LITERATURE_BL_SOURCE_TO_POLAR_FIELD_20261125.md
 docs/MDI_FD_GEOMETRY_ORACLE.md
 docs/MDI_HMI_PREPARATION_REVIEW.md
 docs/MDI_HMI_SECOND_SAMPLE_RESULTS.md
@@ -632,6 +634,9 @@ output/.gitkeep
 patches/T3_MWO_STABILITY_WIRING.patch
 python/download_sharp_day.py
 python/sharpbl/__init__.py
+python/sharpbl/bq_core.py
+python/sharpbl/bq_cv.py
+python/sharpbl/bq_robust.py
 python/sharpbl/compare_test_case.py
 python/sharpbl/cycle.py
 python/sharpbl/cycle_boundary.py
@@ -1305,6 +1310,8 @@ reviews/BQ_A1_CROSS_REVIEW_20261125/MATH_CHECKS.json
 reviews/BQ_A1_CROSS_REVIEW_20261125/math_probe.py
 reviews/BQ_DESIGN_COUNTS_20261125/COUNTS.json
 reviews/BQ_DESIGN_COUNTS_20261125/CV_BLOCKS.csv
+reviews/BQ_PRIOR_PREDICTIVE_20261125/META.json
+reviews/BQ_PRIOR_PREDICTIVE_20261125/PRIOR_PREDICTIVE.csv
 reviews/BQ_REV4_MATH_ORACLE_20261125/CHECKS.json
 reviews/BQ_WOODBURY_BENCHMARK_20261125/BENCHMARK.csv
 reviews/BQ_WOODBURY_BENCHMARK_20261125/META.json
@@ -1341,8 +1348,10 @@ reviews/SFT_INDEPENDENT_ORACLES_V1/UNIFORM_DECAY.csv
 reviews/SFT_OBSERVED_GEOMETRY_690ded3/HEADERS.json
 scripts/bl_sft_local_inventory.py
 scripts/bq_c_math_reference.py
+scripts/bq_core_selftest.py
 scripts/bq_design_counts.py
 scripts/bq_gaussian_math_oracle.py
+scripts/bq_prior_predictive.py
 scripts/bq_woodbury_benchmark.py
 scripts/check_repo.sh
 scripts/download_test_20240508.sh
