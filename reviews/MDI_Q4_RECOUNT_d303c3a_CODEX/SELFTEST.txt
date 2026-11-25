@@ -1,0 +1,157 @@
+/home/gianluca/BL_v8_3_stable/scripts/mdi_q4_recount.py:773: RuntimeWarning: invalid value encountered in subtract
+  okv = both_nan | same_inf | (fin & (np.abs(xn - yn) <= tol * np.maximum(np.abs(xn), np.abs(yn)) + 1e-12 * scale))
+/home/gianluca/BL_v8_3_stable/scripts/mdi_q4_recount.py:773: RuntimeWarning: invalid value encountered in subtract
+  okv = both_nan | same_inf | (fin & (np.abs(xn - yn) <= tol * np.maximum(np.abs(xn), np.abs(yn)) + 1e-12 * scale))
+/home/gianluca/BL_v8_3_stable/scripts/mdi_q4_recount.py:773: RuntimeWarning: invalid value encountered in subtract
+  okv = both_nan | same_inf | (fin & (np.abs(xn - yn) <= tol * np.maximum(np.abs(xn), np.abs(yn)) + 1e-12 * scale))
+/home/gianluca/BL_v8_3_stable/scripts/mdi_q4_recount.py:773: RuntimeWarning: invalid value encountered in subtract
+  okv = both_nan | same_inf | (fin & (np.abs(xn - yn) <= tol * np.maximum(np.abs(xn), np.abs(yn)) + 1e-12 * scale))
+/home/gianluca/BL_v8_3_stable/scripts/mdi_q4_recount.py:773: RuntimeWarning: invalid value encountered in subtract
+  okv = both_nan | same_inf | (fin & (np.abs(xn - yn) <= tol * np.maximum(np.abs(xn), np.abs(yn)) + 1e-12 * scale))
+/home/gianluca/BL_v8_3_stable/scripts/mdi_q4_recount.py:773: RuntimeWarning: invalid value encountered in subtract
+  okv = both_nan | same_inf | (fin & (np.abs(xn - yn) <= tol * np.maximum(np.abs(xn), np.abs(yn)) + 1e-12 * scale))
+/home/gianluca/BL_v8_3_stable/scripts/mdi_q4_recount.py:773: RuntimeWarning: invalid value encountered in subtract
+  okv = both_nan | same_inf | (fin & (np.abs(xn - yn) <= tol * np.maximum(np.abs(xn), np.abs(yn)) + 1e-12 * scale))
+/home/gianluca/BL_v8_3_stable/scripts/mdi_q4_recount.py:773: RuntimeWarning: invalid value encountered in subtract
+  okv = both_nan | same_inf | (fin & (np.abs(xn - yn) <= tol * np.maximum(np.abs(xn), np.abs(yn)) + 1e-12 * scale))
+/home/gianluca/BL_v8_3_stable/scripts/mdi_q4_recount.py:773: RuntimeWarning: invalid value encountered in subtract
+  okv = both_nan | same_inf | (fin & (np.abs(xn - yn) <= tol * np.maximum(np.abs(xn), np.abs(yn)) + 1e-12 * scale))
+/home/gianluca/BL_v8_3_stable/scripts/mdi_q4_recount.py:773: RuntimeWarning: invalid value encountered in subtract
+  okv = both_nan | same_inf | (fin & (np.abs(xn - yn) <= tol * np.maximum(np.abs(xn), np.abs(yn)) + 1e-12 * scale))
+/home/gianluca/BL_v8_3_stable/scripts/mdi_q4_recount.py:773: RuntimeWarning: invalid value encountered in subtract
+  okv = both_nan | same_inf | (fin & (np.abs(xn - yn) <= tol * np.maximum(np.abs(xn), np.abs(yn)) + 1e-12 * scale))
+/home/gianluca/BL_v8_3_stable/scripts/mdi_q4_recount.py:773: RuntimeWarning: invalid value encountered in subtract
+  okv = both_nan | same_inf | (fin & (np.abs(xn - yn) <= tol * np.maximum(np.abs(xn), np.abs(yn)) + 1e-12 * scale))
+/home/gianluca/BL_v8_3_stable/scripts/mdi_q4_recount.py:773: RuntimeWarning: invalid value encountered in subtract
+  okv = both_nan | same_inf | (fin & (np.abs(xn - yn) <= tol * np.maximum(np.abs(xn), np.abs(yn)) + 1e-12 * scale))
+/home/gianluca/BL_v8_3_stable/scripts/mdi_q4_recount.py:773: RuntimeWarning: invalid value encountered in subtract
+  okv = both_nan | same_inf | (fin & (np.abs(xn - yn) <= tol * np.maximum(np.abs(xn), np.abs(yn)) + 1e-12 * scale))
+/home/gianluca/BL_v8_3_stable/scripts/mdi_q4_recount.py:773: RuntimeWarning: invalid value encountered in subtract
+  okv = both_nan | same_inf | (fin & (np.abs(xn - yn) <= tol * np.maximum(np.abs(xn), np.abs(yn)) + 1e-12 * scale))
+/home/gianluca/BL_v8_3_stable/scripts/mdi_q4_recount.py:773: RuntimeWarning: invalid value encountered in subtract
+  okv = both_nan | same_inf | (fin & (np.abs(xn - yn) <= tol * np.maximum(np.abs(xn), np.abs(yn)) + 1e-12 * scale))
+/home/gianluca/BL_v8_3_stable/scripts/mdi_q4_recount.py:773: RuntimeWarning: invalid value encountered in subtract
+  okv = both_nan | same_inf | (fin & (np.abs(xn - yn) <= tol * np.maximum(np.abs(xn), np.abs(yn)) + 1e-12 * scale))
+/home/gianluca/BL_v8_3_stable/scripts/mdi_q4_recount.py:773: RuntimeWarning: invalid value encountered in subtract
+  okv = both_nan | same_inf | (fin & (np.abs(xn - yn) <= tol * np.maximum(np.abs(xn), np.abs(yn)) + 1e-12 * scale))
+/home/gianluca/BL_v8_3_stable/scripts/mdi_q4_recount.py:773: RuntimeWarning: invalid value encountered in subtract
+  okv = both_nan | same_inf | (fin & (np.abs(xn - yn) <= tol * np.maximum(np.abs(xn), np.abs(yn)) + 1e-12 * scale))
+/home/gianluca/BL_v8_3_stable/scripts/mdi_q4_recount.py:773: RuntimeWarning: invalid value encountered in subtract
+  okv = both_nan | same_inf | (fin & (np.abs(xn - yn) <= tol * np.maximum(np.abs(xn), np.abs(yn)) + 1e-12 * scale))
+/home/gianluca/BL_v8_3_stable/scripts/mdi_q4_recount.py:773: RuntimeWarning: invalid value encountered in subtract
+  okv = both_nan | same_inf | (fin & (np.abs(xn - yn) <= tol * np.maximum(np.abs(xn), np.abs(yn)) + 1e-12 * scale))
+/home/gianluca/BL_v8_3_stable/scripts/mdi_q4_recount.py:773: RuntimeWarning: invalid value encountered in subtract
+  okv = both_nan | same_inf | (fin & (np.abs(xn - yn) <= tol * np.maximum(np.abs(xn), np.abs(yn)) + 1e-12 * scale))
+/home/gianluca/BL_v8_3_stable/scripts/mdi_q4_recount.py:773: RuntimeWarning: invalid value encountered in subtract
+  okv = both_nan | same_inf | (fin & (np.abs(xn - yn) <= tol * np.maximum(np.abs(xn), np.abs(yn)) + 1e-12 * scale))
+/home/gianluca/BL_v8_3_stable/scripts/mdi_q4_recount.py:773: RuntimeWarning: invalid value encountered in subtract
+  okv = both_nan | same_inf | (fin & (np.abs(xn - yn) <= tol * np.maximum(np.abs(xn), np.abs(yn)) + 1e-12 * scale))
+/home/gianluca/BL_v8_3_stable/scripts/mdi_q4_recount.py:773: RuntimeWarning: invalid value encountered in subtract
+  okv = both_nan | same_inf | (fin & (np.abs(xn - yn) <= tol * np.maximum(np.abs(xn), np.abs(yn)) + 1e-12 * scale))
+/home/gianluca/BL_v8_3_stable/scripts/mdi_q4_recount.py:773: RuntimeWarning: invalid value encountered in subtract
+  okv = both_nan | same_inf | (fin & (np.abs(xn - yn) <= tol * np.maximum(np.abs(xn), np.abs(yn)) + 1e-12 * scale))
+/home/gianluca/BL_v8_3_stable/scripts/mdi_q4_recount.py:773: RuntimeWarning: invalid value encountered in subtract
+  okv = both_nan | same_inf | (fin & (np.abs(xn - yn) <= tol * np.maximum(np.abs(xn), np.abs(yn)) + 1e-12 * scale))
+/home/gianluca/BL_v8_3_stable/scripts/mdi_q4_recount.py:773: RuntimeWarning: invalid value encountered in subtract
+  okv = both_nan | same_inf | (fin & (np.abs(xn - yn) <= tol * np.maximum(np.abs(xn), np.abs(yn)) + 1e-12 * scale))
+/home/gianluca/BL_v8_3_stable/scripts/mdi_q4_recount.py:773: RuntimeWarning: invalid value encountered in subtract
+  okv = both_nan | same_inf | (fin & (np.abs(xn - yn) <= tol * np.maximum(np.abs(xn), np.abs(yn)) + 1e-12 * scale))
+/home/gianluca/BL_v8_3_stable/scripts/mdi_q4_recount.py:773: RuntimeWarning: invalid value encountered in subtract
+  okv = both_nan | same_inf | (fin & (np.abs(xn - yn) <= tol * np.maximum(np.abs(xn), np.abs(yn)) + 1e-12 * scale))
+/home/gianluca/BL_v8_3_stable/scripts/mdi_q4_recount.py:773: RuntimeWarning: invalid value encountered in subtract
+  okv = both_nan | same_inf | (fin & (np.abs(xn - yn) <= tol * np.maximum(np.abs(xn), np.abs(yn)) + 1e-12 * scale))
+/home/gianluca/BL_v8_3_stable/scripts/mdi_q4_recount.py:773: RuntimeWarning: invalid value encountered in subtract
+  okv = both_nan | same_inf | (fin & (np.abs(xn - yn) <= tol * np.maximum(np.abs(xn), np.abs(yn)) + 1e-12 * scale))
+/home/gianluca/BL_v8_3_stable/scripts/mdi_q4_recount.py:773: RuntimeWarning: invalid value encountered in subtract
+  okv = both_nan | same_inf | (fin & (np.abs(xn - yn) <= tol * np.maximum(np.abs(xn), np.abs(yn)) + 1e-12 * scale))
+/home/gianluca/BL_v8_3_stable/scripts/mdi_q4_recount.py:773: RuntimeWarning: invalid value encountered in subtract
+  okv = both_nan | same_inf | (fin & (np.abs(xn - yn) <= tol * np.maximum(np.abs(xn), np.abs(yn)) + 1e-12 * scale))
+/home/gianluca/BL_v8_3_stable/scripts/mdi_q4_recount.py:773: RuntimeWarning: invalid value encountered in subtract
+  okv = both_nan | same_inf | (fin & (np.abs(xn - yn) <= tol * np.maximum(np.abs(xn), np.abs(yn)) + 1e-12 * scale))
+/home/gianluca/BL_v8_3_stable/scripts/mdi_q4_recount.py:773: RuntimeWarning: invalid value encountered in subtract
+  okv = both_nan | same_inf | (fin & (np.abs(xn - yn) <= tol * np.maximum(np.abs(xn), np.abs(yn)) + 1e-12 * scale))
+/home/gianluca/BL_v8_3_stable/scripts/mdi_q4_recount.py:773: RuntimeWarning: invalid value encountered in subtract
+  okv = both_nan | same_inf | (fin & (np.abs(xn - yn) <= tol * np.maximum(np.abs(xn), np.abs(yn)) + 1e-12 * scale))
+/home/gianluca/BL_v8_3_stable/scripts/mdi_q4_recount.py:773: RuntimeWarning: invalid value encountered in subtract
+  okv = both_nan | same_inf | (fin & (np.abs(xn - yn) <= tol * np.maximum(np.abs(xn), np.abs(yn)) + 1e-12 * scale))
+/home/gianluca/BL_v8_3_stable/scripts/mdi_q4_recount.py:773: RuntimeWarning: invalid value encountered in subtract
+  okv = both_nan | same_inf | (fin & (np.abs(xn - yn) <= tol * np.maximum(np.abs(xn), np.abs(yn)) + 1e-12 * scale))
+/home/gianluca/BL_v8_3_stable/scripts/mdi_q4_recount.py:773: RuntimeWarning: invalid value encountered in subtract
+  okv = both_nan | same_inf | (fin & (np.abs(xn - yn) <= tol * np.maximum(np.abs(xn), np.abs(yn)) + 1e-12 * scale))
+/home/gianluca/BL_v8_3_stable/scripts/mdi_q4_recount.py:773: RuntimeWarning: invalid value encountered in subtract
+  okv = both_nan | same_inf | (fin & (np.abs(xn - yn) <= tol * np.maximum(np.abs(xn), np.abs(yn)) + 1e-12 * scale))
+/home/gianluca/BL_v8_3_stable/scripts/mdi_q4_recount.py:773: RuntimeWarning: invalid value encountered in subtract
+  okv = both_nan | same_inf | (fin & (np.abs(xn - yn) <= tol * np.maximum(np.abs(xn), np.abs(yn)) + 1e-12 * scale))
+/home/gianluca/BL_v8_3_stable/scripts/mdi_q4_recount.py:773: RuntimeWarning: invalid value encountered in subtract
+  okv = both_nan | same_inf | (fin & (np.abs(xn - yn) <= tol * np.maximum(np.abs(xn), np.abs(yn)) + 1e-12 * scale))
+/home/gianluca/BL_v8_3_stable/scripts/mdi_q4_recount.py:773: RuntimeWarning: invalid value encountered in subtract
+  okv = both_nan | same_inf | (fin & (np.abs(xn - yn) <= tol * np.maximum(np.abs(xn), np.abs(yn)) + 1e-12 * scale))
+/home/gianluca/BL_v8_3_stable/scripts/mdi_q4_recount.py:773: RuntimeWarning: invalid value encountered in subtract
+  okv = both_nan | same_inf | (fin & (np.abs(xn - yn) <= tol * np.maximum(np.abs(xn), np.abs(yn)) + 1e-12 * scale))
+/home/gianluca/BL_v8_3_stable/scripts/mdi_q4_recount.py:773: RuntimeWarning: invalid value encountered in subtract
+  okv = both_nan | same_inf | (fin & (np.abs(xn - yn) <= tol * np.maximum(np.abs(xn), np.abs(yn)) + 1e-12 * scale))
+/home/gianluca/BL_v8_3_stable/scripts/mdi_q4_recount.py:773: RuntimeWarning: invalid value encountered in subtract
+  okv = both_nan | same_inf | (fin & (np.abs(xn - yn) <= tol * np.maximum(np.abs(xn), np.abs(yn)) + 1e-12 * scale))
+/home/gianluca/BL_v8_3_stable/scripts/mdi_q4_recount.py:773: RuntimeWarning: invalid value encountered in subtract
+  okv = both_nan | same_inf | (fin & (np.abs(xn - yn) <= tol * np.maximum(np.abs(xn), np.abs(yn)) + 1e-12 * scale))
+/home/gianluca/BL_v8_3_stable/scripts/mdi_q4_recount.py:773: RuntimeWarning: invalid value encountered in subtract
+  okv = both_nan | same_inf | (fin & (np.abs(xn - yn) <= tol * np.maximum(np.abs(xn), np.abs(yn)) + 1e-12 * scale))
+/home/gianluca/BL_v8_3_stable/scripts/mdi_q4_recount.py:773: RuntimeWarning: invalid value encountered in subtract
+  okv = both_nan | same_inf | (fin & (np.abs(xn - yn) <= tol * np.maximum(np.abs(xn), np.abs(yn)) + 1e-12 * scale))
+/home/gianluca/BL_v8_3_stable/scripts/mdi_q4_recount.py:773: RuntimeWarning: invalid value encountered in subtract
+  okv = both_nan | same_inf | (fin & (np.abs(xn - yn) <= tol * np.maximum(np.abs(xn), np.abs(yn)) + 1e-12 * scale))
+/home/gianluca/BL_v8_3_stable/scripts/mdi_q4_recount.py:773: RuntimeWarning: invalid value encountered in subtract
+  okv = both_nan | same_inf | (fin & (np.abs(xn - yn) <= tol * np.maximum(np.abs(xn), np.abs(yn)) + 1e-12 * scale))
+/home/gianluca/BL_v8_3_stable/scripts/mdi_q4_recount.py:773: RuntimeWarning: invalid value encountered in subtract
+  okv = both_nan | same_inf | (fin & (np.abs(xn - yn) <= tol * np.maximum(np.abs(xn), np.abs(yn)) + 1e-12 * scale))
+/home/gianluca/BL_v8_3_stable/scripts/mdi_q4_recount.py:773: RuntimeWarning: invalid value encountered in subtract
+  okv = both_nan | same_inf | (fin & (np.abs(xn - yn) <= tol * np.maximum(np.abs(xn), np.abs(yn)) + 1e-12 * scale))
+/home/gianluca/BL_v8_3_stable/scripts/mdi_q4_recount.py:773: RuntimeWarning: invalid value encountered in subtract
+  okv = both_nan | same_inf | (fin & (np.abs(xn - yn) <= tol * np.maximum(np.abs(xn), np.abs(yn)) + 1e-12 * scale))
+[OK] own Z equal to the frozen z 
+[OK] own cr_start, CR(t), cycle and years equal to phase A on a range of dates 
+[OK] own SILSO monthly normalisation equal to run_p2 
+[OK] WLS row by QR equal to p2d.wls_row 
+[OK] own temporal covariances equal to diag_t5_oracle.k_true (scenarios 1, 2, 3, 4, 7) 
+[OK] synthetic run (2 realisations, CSV round trip) recounted in full 
+[OK] refused: a SE moved by 1e-6 relative
+[OK] refused: a recognition probability
+[OK] refused: a dropped column name
+[OK] refused: a worst case of family J
+[OK] refused: a status
+[OK] refused: a RAW row dropped
+[OK] refused: an h/h_H
+[OK] refused: a SUMMARY median
+[OK] refused: a SUMMARY n_fail
+[OK] refused: a verdict
+[OK] refused: a paired median in a criterion detail
+[OK] refused: a design inclusion count
+[OK] refused: an expected yield
+[OK] refused: a yield step
+[OK] refused: a cell count
+[OK] refused: a Kish n_eff
+[OK] refused: META units
+[OK] refused: protected SUMMARY tolerance set to zero
+[OK] refused: protected RAW tolerance negative (-1e30)
+[OK] refused: protected RAW tolerance -inf
+[OK] refused: YIELD_EFFECTS duplicated key and missing step
+[OK] refused: YIELD_EFFECTS step label
+[OK] refused: YIELD_EFFECTS fractional step_order
+[OK] refused: META implementation choices replaced
+[OK] refused: META implementation choices reordered
+[OK] refused: CELL_COUNTS non-integer count (+1e-9)
+[OK] refused: DESIGNS negative count
+[OK] refused: RAW flag not boolean
+[OK] refused: CRITERIA extra column
+[OK] JSON criteria counts: 2.000000001 and True refused, 2 accepted 
+[OK] SUMMARY count statistics: min +1e-9 refused, half-integer median accepted, median +1e-9 refused, boolean count refused 
+[OK] null target: +inf accepted, 1e30 refused; non-null target: 1e30 accepted, 0 refused 
+[OK] provenance on the real files: every check matched []
+[OK] provenance on the fixture of links: every check matched 
+[OK] a reused code file altered -> refused by its check only ['reused code (9): exact set and current hashes']
+[OK] the note text altered -> refused ['note text', 'reused code (9): exact set and current hashes']
+[OK] a reused code entry missing in the receipt -> refused 
+[OK] receipt file SHA different from the pin -> refused 
+[OK] check() on the real path with an altered fixture: refused before reading outputs, importing or computing 
+[OK] failed realisation (MF ref, r = 1): failures expanded, n_fail, NOT_COMPUTABLE and no classification recounted 
+selftest: 46/46 superati

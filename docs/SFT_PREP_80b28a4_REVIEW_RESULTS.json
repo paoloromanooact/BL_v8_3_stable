@@ -1,0 +1,64 @@
+{
+  "source_sha256": {
+    "python/sharpbl/sft_core.py": "74b93a20467bbd002b8169ed389d570f776eb7a2c4bb729fb28547e92d2d81b7",
+    "python/sharpbl/sft_local.py": "d0b6daae550ac30daa5c7609f9b16943f2e9e9c2292ad87e5cfa57f185dfec40",
+    "scripts/sft_prep_selftest.py": "2e1ca0786213b5d6c39e7d8fee2962a483988b9860f892e465fab536aa47c0db"
+  },
+  "one_dimensional_diffusion": {
+    "minimum": -0.27739129943830676,
+    "mass_over_initial": 0.9999999999999999
+  },
+  "one_dimensional_advection": {
+    "minimum": -0.0004913612498517277,
+    "mass_over_initial": 1.0
+  },
+  "two_dimensional_advection": {
+    "minimum": -0.011921618567865552,
+    "mass_over_initial": 1.0
+  },
+  "two_dimensional_diffusion": {
+    "minimum": -0.3045355448227398,
+    "mass_over_initial": 0.9999999999999992
+  },
+  "mixed_polarity_deposit": {
+    "outside": 0,
+    "original_phi_pos": 1.0,
+    "original_phi_neg": 1.0,
+    "mapped_phi_pos": 0.5000000171347305,
+    "mapped_phi_neg": 0.5000000171347305,
+    "D_ratio": 1.0000000000000002,
+    "original_lat_pos": -0.015,
+    "mapped_lat_pos": -0.03000000411233488
+  },
+  "gaussian_requested_grid": {
+    "lat_range": [
+      8.0,
+      22.0
+    ],
+    "lon_range": [
+      -186.0,
+      186.0
+    ],
+    "step": 0.05,
+    "longitude_width": 372.0,
+    "allowed_step_from_smallest_sigma": 0.02
+  },
+  "elapsed_seconds_601": {
+    "accepted": false,
+    "error_type": "ValueError",
+    "error": "t must be a multiple of dt"
+  },
+  "elapsed_seconds_-600": {
+    "accepted": true,
+    "unchanged": true
+  },
+  "invalid_latitude_grid": {
+    "negative_areas": 200,
+    "area_min": -244655077159066.44
+  },
+  "one_polarity_centroid": {
+    "positive_flux": 1.0,
+    "lon_pos": NaN,
+    "lat_pos": NaN
+  }
+}

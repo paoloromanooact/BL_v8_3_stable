@@ -1,0 +1,16 @@
+[
+  [
+    "point 2: rescaled map deposited in s gives D = d_axial_bal_g of measure_v84 (rel 1e-12)",
+    true,
+    "1.5e-15"
+  ],
+  [
+    "point 3: pixels deposited on the local box give D = d_axial_g of measure_v84 (rel 1e-12)",
+    true,
+    "1.9e-16"
+  ],
+  [
+    "point 3: fluxes on the grid = phi_pos/phi_neg of measure_v84 (rel 1e-12)",
+    true
+  ]
+]

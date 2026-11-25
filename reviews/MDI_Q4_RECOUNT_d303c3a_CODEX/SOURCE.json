@@ -1,0 +1,10 @@
+{
+  "source_directory": "/home/gianluca/MWO-HMI-MDI-Polar-Flux-Signed-Sunspots/reviews/MDI_Q4_RECOUNT_d303c3a",
+  "commit": "d303c3a",
+  "script_sha256": "a6c0a72d227c26d15f5ca584f22bdf12e63c3222028ffe4eaab3f33aa0233398",
+  "selftest_log_sha256": "aed0dfa227bf5fb6a2a0af778d104ee6c523f4828fbddb3f505f1a3553cb5b6a",
+  "test_result": "46/46",
+  "independently_rerun_full_selftest": false,
+  "own_prior_regressions_and_domain_probes": "docs/SFT_790cad1_Q4_REVIEW_RESULTS.json",
+  "scientific_Q4_results_read": false
+}

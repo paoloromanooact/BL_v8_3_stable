@@ -7,6 +7,14 @@
 > dall'utente, non i passi del pilota MDI.
 
 
+## SFT preparatorio: revisione Codex di b3f1745/e317200/80b28a4 (25 novembre)
+
+- [Revisione del codice](SFT_PREP_80b28a4_CODE_REVIEW.md): tre coerenze P1 riprodotte nel caso sintetico; non ancora via alle mappe osservate. Positivita, gaussiane/cuciture, tempi T_OBS e contratto delle misure da completare.
+- Controprove con massa conservata ma polarita artificiali: 1D CN -0,277; 2D avvezione -0,012; 2D diffusione -0,305, da campi iniziali non negativi. Non riparare con clipping.
+- Deposito misto: D esatto ma Phi per polarita scende da 1 a 0,5 e il centroide si sposta. L'identita P1 dei flussi non e generale: registrare/rifinire gli scarti di rimappatura, non forzare una riscalatura.
+- Q4 **chiuso il via tecnico su d303c3a**, SHA a6c0a72d…: verificati codice corrispondente e log completo dell'autore 46/46, preservato con provenienza in reviews/MDI_Q4_RECOUNT_d303c3a_CODEX. Puo procedere il solo riconteggio reale, poi ricevuta prima della lettura; niente rilancio Q4. Nessun risultato scientifico Q4 letto da Codex.
+- Bozze SFT da completare/congelare secondo e87fff7, poi revisione dei runner e riconteggi prima dei piloti. Nessun pixel osservato letto o download fatto nella revisione.
+
 ## SFT 790cad1: controllo finale e Q4 a6c0a72d… (25 novembre)
 
 - [Revisione finale](SFT_790cad1_FINAL_REVIEW.md): correzioni scientifiche principali recepite; prima del congelamento fissare positività del solutore, dominio comune a tutta la griglia e split per componenti con sovrapposizione spazio-temporale.

@@ -1,5 +1,11 @@
 # Cronologia
 
+## 2026-11-25 — revisione del codice SFT preparatorio e chiusura del gate Q4
+
+- Riprodotte tre coerenze P1 sui sintetici e conservate controprove numeriche su positivita, rimappatura, cuciture e durate; nessuna mappa osservata letta.
+- d303c3a coincide con lo SHA Q4 approvato: verificato e conservato il log 46/46 dell'autore; via al solo riconteggio reale e conservazione della ricevuta, senza rilanciare la corsa.
+
+
 ## 2026-11-25 — controllo finale SFT 790cad1 e correzioni Q4
 
 - Verificate le revisioni dei due protocolli; documentato controesempio di positività CN, margine comune e regola spazio-temporale dello split prima del congelamento.
