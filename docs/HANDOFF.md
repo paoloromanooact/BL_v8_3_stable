@@ -1,5 +1,16 @@
 # Cold restart — SHARP BL
 
+## MDI Q4 — codice corretto dopo la revisione Codex di bb39a23 (25 novembre 2026)
+
+- `scripts/mdi_q4_prospective.py` (SHA `033b233b…`): selftest 55/55 (era 31/31), nessuna corsa sui disegni MDI; nota e A2 congelati intatti.
+- Correzioni, punto per punto:
+  1. `receipts_ok` ancorata: SHA delle due ricevute fissati; insiemi attesi (17 input, 9 codici) e hash; parent; ricevuta A2 citata dalla nota; regole e META dei conteggi; seed_zone; blob di nota e A2 ai commit di congelamento, antenati di HEAD. 13 controprove in memoria, una alterazione per caso.
+  2. Bersaglio nullo: SE, h e riconoscimento conservati; rapporti al bersaglio NaN con flag `target_null_*`; nessun epsilon.
+  3. Disegno vuoto: stato `empty_design`. I fallimenti sono espansi sulla griglia prevista (anche varianti di peso e covarianza dei combinati). SUMMARY ha tutte le chiavi, con n_ok e n_fail. Provati zero successi e un fallimento; i criteri non classificano.
+  4. Prodotti dipendenti dal bersaglio per `020`, `010`, `qd_020`, `qd_010`; A_lo_design e A_hi_design in RAW.
+  5. `CELL_COUNTS.csv` (N originarie e dopo ogni filtro per cella, domini MS/MF; reale 5401/5151/5062). YIELD_EFFECTS a un cambiamento per passo. Le 7 scelte più due regole di gestione in `IMPLEMENTATION_CHOICES`, registrate nel META.
+- La sonda di Codex (`reviews/MDI_Q4_CODE_bb39a23/`, cartella MWO) non riproduce più i difetti. Prossimo passo: chiusura di Codex, poi decisione dell'utente sulla corsa.
+
 ## MDI — nota prospettica Q4 ed emendamento A2 congelati (24 novembre 2026)
 
 - Bozza `docs/MDI_PILOT_Q4_NOTE_DRAFT.md`: revisione 1 in b856beb (rivista, non pronta); revisione 2 (SHA `7fe6cc76…`) rivista ma non conservata (lacuna dichiarata); revisione 3 (`d0574435…`) e 3.1 (`f77c0310…`) conservate anche in `reviews/` della cartella di consegna MWO.

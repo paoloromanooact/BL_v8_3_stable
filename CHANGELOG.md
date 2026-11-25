@@ -1,5 +1,10 @@
 # Cronologia
 
+## Codice Q4 corretto dopo la revisione di bb39a23
+
+- Ricevute ancorate, bersaglio nullo, disegni vuoti e fallimenti espansi, prodotti per tutti i bersagli, conteggi per cella e scelte nel META.
+- Selftest 55/55; nessuna corsa sui disegni MDI.
+
 ## Codice della nota Q4 (non eseguito)
 
 - `scripts/mdi_q4_prospective.py`: disegni MS/MF/MS+H/MF+H, rese per cella e pool con Beta, donatori L-NN (A2), numeri casuali indicizzati, adattatore della matrice con rango incrementale, varianza generalizzata, criteri del §7; selftest 31/31 con le prove del §6. Nessuna corsa prima della revisione.

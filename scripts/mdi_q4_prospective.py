@@ -13,14 +13,7 @@ computes no precision on MDI designs. --run repeats all of them and stops on the
 
 No MDI tilt column is read: L1/L2/Q2 files are read with explicit column whitelists (COLS_*), checked by the selftest.
 
-Implementation choices kept apart from the frozen rules (declared here and in META.json):
-- "quantili ricalcolati sul disegno" (note §4, §6): 5-95 % numpy-linear quantiles of the cell activity replicated on
-  the records of the T3 design itself (phase A used the T5 records, which Q4 does not build). They are reported as
-  extra columns target_qd_* on every row instead of separate rows.
-- covariance check (note §5): min eigenvalue >= -1e-10 * max eigenvalue, cached per (cell set, scenario, variant).
-- ratios h/h_H use H with model (a) and the same sigma_int and noise row (H has sigma_m = 0 and does not depend on
-  the realisation, threshold or MDI sensitivity).
-- the A_main sensitivity (MDI alone) keeps the E0 quantiles for target_* and also reports target_qd_*.
+Implementation choices kept apart from the frozen rules: IMPLEMENTATION_CHOICES (nine items, also in META.json).
 """
 from __future__ import annotations
 
@@ -458,7 +451,10 @@ def k_matrix(cell_cr, cell_h, scen, cross_zero):
 
 
 def analyse(R, models, combined, cross_variants=(False,), d_prod=None, u=None):
-    """Per model: reduced columns, WLS row, targets (E0 and design quantiles), variance pieces, bias bases."""
+    """Per model: reduced columns, WLS row, targets (E0 and design quantiles), variance pieces, bias bases.
+    A design without records gives status 'empty_design' for every model, before cells, quantiles or covariances."""
+    if len(R) == 0:
+        return {m: dict(status="empty_design", columns="", dropped="", n_records=0, n_mdi=0, n_cells=0, n_cr=0) for m in models}
     w = R.phi.to_numpy(float)
     codes, cell_cr, cell_h = cells_of(R)
     A = R.A.to_numpy(float)
@@ -496,6 +492,17 @@ def analyse(R, models, combined, cross_variants=(False,), d_prod=None, u=None):
     return out
 
 
+TARGETS = ("020", "010", "qd_020", "qd_010")
+KEEP = ("columns", "dropped", "n_records", "n_mdi", "n_cells", "n_cr", "target_020", "target_010", "target_qd_020", "target_qd_010",
+        "A_lo_design", "A_hi_design")
+
+
+def grid(noise_set, sig_set):
+    """The configurations (sigma_int, sigma_m, noise) of one design row, in the order of noise_rows."""
+    return [dict(sigma_int=si, sigma_m=sm, noise=n, form=NOISE[n][0], scen=NOISE[n][1], x_scale=NOISE[n][2])
+            for si, sm in sig_set for n in noise_set]
+
+
 def noise_rows(res, noise_set, sig_set, cross_zero=False, u=None):
     """Expand one analysed model into rows (sigma_int, sigma_m, noise)."""
     rows = []
@@ -509,22 +516,26 @@ def noise_rows(res, noise_set, sig_set, cross_zero=False, u=None):
             se = float(np.sqrt(var))
             row = dict(sigma_int=si, sigma_m=sm, noise=n, form=form, scen=scen, x_scale=xs, se=se,
                        h_gamma0=PA.Z * se / PA.GAMMA0, var_temporal_share=temporal / var)
-            for tag in ("020", "010"):
+            null = {tag: not (np.isfinite(res[f"target_{tag}"]) and res[f"target_{tag}"] != 0) for tag in TARGETS}
+            for tag in TARGETS:
                 tg = res[f"target_{tag}"]
-                row[f"se_over_target_{tag}"] = se / abs(tg)
-                row[f"recognition_{tag}"] = float(PA.freqs(tg, 0.0, se)["sup"])
+                row[f"target_null_{tag}"] = null[tag]          # zero ramp: ratios to the target are not defined (NaN)
+                row[f"se_over_target_{tag}"] = np.nan if null[tag] else se / abs(tg)
+                row[f"recognition_{tag}"] = float(PA.freqs(tg, 0.0, se)["sup"]) if np.isfinite(tg) else np.nan
             if "m_prod" in res:
                 row["m_prod"] = res["m_prod"]
-                row["m_prod_over_target_020"] = res["m_prod"] / abs(res["target_020"])
+                for tag in TARGETS:
+                    row[f"m_prod_over_target_{tag}"] = np.nan if null[tag] else res["m_prod"] / abs(res[f"target_{tag}"])
             if "bias" in res and u is not None:
                 for fam, B in res["bias"].items():
                     un = PA.family_units(fam, u)
                     row[f"B1_{fam}"] = B[1]
                     for C in PA.C_LIMITS:
-                        wc = PA.worst_case(res["target_020"], B[1], un[1], C, se)
-                        row[f"tol_units_{fam}"] = wc["tolerance_units"]
-                        row[f"sup_scen_worst_{fam}_C{C}"] = wc["sup_scen_worst"]
-                        row[f"sup_null_worst_{fam}_C{C}"] = wc["sup_null_worst"]
+                        for tag in TARGETS:
+                            wc = PA.worst_case(res[f"target_{tag}"], B[1], un[1], C, se)
+                            row[f"tol_units_{fam}_{tag}"] = wc["tolerance_units"]      # same for both C
+                            row[f"sup_scen_worst_{fam}_C{C}_{tag}"] = wc["sup_scen_worst"]
+                        row[f"sup_null_worst_{fam}_C{C}"] = wc["sup_null_worst"]      # does not depend on the target
             rows.append(row)
     return rows
 
@@ -557,8 +568,7 @@ def compute(I, n_real=N_REAL, log=print):
     for model in ("a",):
         for row in noise_rows(hres[model], FULL_NOISE, tuple((si, 0.0) for si in SIG_INT)):
             rows.append(dict(design="H", threshold="-", variant="ref", r=-1, model=model, status="ok",
-                             **{k: hres[model][k] for k in ("columns", "dropped", "n_records", "n_mdi", "n_cells", "n_cr",
-                                                            "target_020", "target_010", "target_qd_020", "target_qd_010")},
+                             **{k: hres[model][k] for k in KEEP},
                              **row))
     for r in range(n_real):
         for th in THR:
@@ -569,54 +579,48 @@ def compute(I, n_real=N_REAL, log=print):
                     sig = FULL_SIG if variant == "ref" else REF_SIG
                     nset = FULL_NOISE if variant == "ref" else SENS_NOISE
                     dprod = I["d_gamma"][th] if design == "MS" else None
+                    entries = []                    # (design name, model, analysed model or None, status, variant, cross zero)
                     # MDI alone
-                    alone = []
                     if Rm is not None:
                         c23 = Rm[Rm.cyc == 23].hem.value_counts()
                         sep_ok = all(c23.get(h, 0) >= CRIT["cyc23_min"] for h in ("N", "S"))
-                        res = analyse(Rm[common_cols], MODELS_ALONE, combined=False, d_prod=dprod)
-                        for model, rs in res.items():
+                        for model, rs in analyse(Rm[common_cols], MODELS_ALONE, combined=False, d_prod=dprod).items():
                             st = rs["status"] if rs["status"] != "ok" or sep_ok else "not_separate_measure"
-                            alone.append((design, model, rs, st))
+                            entries.append((design, model, rs, st, variant, False))
                     else:
-                        alone.append((design, "a", None, info["status"]))
-                    # combined
-                    comb = []
+                        entries += [(design, model, None, info["status"], variant, False) for model in MODELS_ALONE]
+                    # combined: every expected variant name, also when the MDI design is not computable
                     if variant != "act_amain":
-                        if Rm is not None:
-                            RC = pd.concat([H[common_cols], Rm[common_cols]], ignore_index=True)
-                            wvars = [("ref" if variant == "ref" else variant, RC)]
-                            if variant == "ref":
-                                for wsc in W_SCALES:
-                                    x = RC.copy()
-                                    x.loc[x.M == 1, "phi"] *= wsc
-                                    wvars.append((f"w_x{wsc:g}", x))
-                                x = RC.copy()
-                                for m_ in (0, 1):
-                                    x.loc[x.M == m_, "phi"] /= x.loc[x.M == m_, "phi"].mean()
-                                wvars.append(("w_norm", x))
-                            for vname, x in wvars:
-                                cz = (False, True) if vname == "ref" else (False,)
-                                res = analyse(x, MODELS_COMB, combined=True, cross_variants=cz, d_prod=dprod, u=u)
-                                for model, rs in res.items():
-                                    comb.append((f"{design}+H", model, rs, rs["status"], vname, False))
-                                    if vname == "ref":
-                                        comb.append((f"{design}+H", model, rs, rs["status"], "cov_zero_cross", True))
+                        names = ["ref", "w_x0.5", "w_x2", "w_norm"] if variant == "ref" else [variant]
+                        if Rm is None:
+                            for vname in names + (["cov_zero_cross"] if variant == "ref" else []):
+                                entries += [(f"{design}+H", model, None, info["status"], vname, vname == "cov_zero_cross")
+                                            for model in MODELS_COMB]
                         else:
-                            for model in MODELS_COMB:
-                                comb.append((f"{design}+H", model, None, info["status"], variant, False))
-                    for dname, model, rs, st, *rest in [(a[0], a[1], a[2], a[3], variant, False) for a in alone] + comb:
-                        vname, cz = rest
+                            RC = pd.concat([H[common_cols], Rm[common_cols]], ignore_index=True)
+                            for vname in names:
+                                x = RC.copy()
+                                if vname.startswith("w_x"):
+                                    x.loc[x.M == 1, "phi"] *= float(vname[3:])
+                                elif vname == "w_norm":
+                                    for m_ in (0, 1):
+                                        x.loc[x.M == m_, "phi"] /= x.loc[x.M == m_, "phi"].mean()
+                                cz = (False, True) if vname == "ref" else (False,)
+                                for model, rs in analyse(x, MODELS_COMB, combined=True, cross_variants=cz, d_prod=dprod, u=u).items():
+                                    entries.append((f"{design}+H", model, rs, rs["status"], vname, False))
+                                    if vname == "ref":
+                                        entries.append((f"{design}+H", model, rs, rs["status"], "cov_zero_cross", True))
+                    for dname, model, rs, st, vname, cz in entries:
                         sg = sig if vname == variant else REF_SIG
                         ns = nset if vname == variant else SENS_NOISE
                         base = dict(design=dname, threshold=th, variant=vname, r=r, model=model, status=st)
                         if rs is None or rs["status"] != "ok":
-                            rows.append(base)
+                            # not computable: one row per expected configuration, so that SUMMARY keeps every key
+                            known = {k: rs[k] for k in KEEP if rs is not None and k in rs}
+                            rows += [dict(base, **known, **gc) for gc in grid(ns, sg)]
                             continue
-                        keep = {k: rs[k] for k in ("columns", "dropped", "n_records", "n_mdi", "n_cells", "n_cr",
-                                                   "target_020", "target_010", "target_qd_020", "target_qd_010")}
-                        for row in noise_rows(rs, ns, sg, cross_zero=cz, u=u):
-                            rows.append(dict(base, **keep, **row))
+                        keep = {k: rs[k] for k in KEEP}
+                        rows += [dict(base, **keep, **row) for row in noise_rows(rs, ns, sg, cross_zero=cz, u=u)]
         log(f"realisation {r}: {len(rows)} rows")
     raw = pd.DataFrame(rows)
     hh = raw[raw.design == "H"].set_index(["sigma_int", "noise"]).h_gamma0
@@ -628,17 +632,26 @@ def compute(I, n_real=N_REAL, log=print):
 KEYCOLS = ["design", "threshold", "variant", "model", "sigma_int", "sigma_m", "noise", "form", "scen", "x_scale"]
 
 
-def summarise(raw):
+def summarise(raw, n_real=N_REAL):
+    """Median, min, max over the computable realisations of every configuration that appears in RAW (failures are
+    expanded on the expected grid by compute), with n_ok and n_fail = n_real - n_ok; NOT_COMPUTABLE lists the causes."""
+    mdi = raw[raw.design != "H"]
+    if mdi.duplicated(KEYCOLS + ["r"]).any():
+        raise TechnicalError("a configuration appears twice in the same realisation")
+    keys = raw[KEYCOLS].drop_duplicates().reset_index(drop=True)
     ok = raw[raw.status == "ok"]
     vals = [c for c in ok.columns if c not in KEYCOLS + ["r", "status", "columns", "dropped"]
-            and pd.api.types.is_numeric_dtype(ok[c])]
+            and pd.api.types.is_numeric_dtype(ok[c]) and not pd.api.types.is_bool_dtype(ok[c])]
     agg = ok.groupby(KEYCOLS, dropna=False)[vals].agg(["median", "min", "max"])
     agg.columns = [f"{a}_{b}" for a, b in agg.columns]
+    flags = [c for c in ok.columns if c.startswith("target_null_")]
+    agg = agg.join(ok.groupby(KEYCOLS, dropna=False)[flags].sum().astype(int).add_suffix("_n"))
     agg = agg.join(ok.groupby(KEYCOLS, dropna=False).r.nunique().rename("n_ok")).reset_index()
-    nreal = raw[raw.design != "H"].r.nunique() if (raw.design != "H").any() else 1
-    agg["n_fail"] = np.where(agg.design == "H", 0, nreal - agg.n_ok)
+    out = keys.merge(agg, on=KEYCOLS, how="left")
+    out["n_ok"] = out.n_ok.fillna(0).astype(int)
+    out["n_fail"] = np.where(out.design == "H", 0, n_real - out.n_ok)
     fails = raw[raw.status != "ok"].groupby(["design", "threshold", "variant", "model", "status"]).r.nunique()
-    return agg, fails.rename("n_realisations").reset_index()
+    return out, fails.rename("n_realisations").reset_index()
 
 
 def paired_ratio(raw, num, den, variant_num="ref", variant_den="ref", th="main", sig=(15.0, 2.0), model="a"):
@@ -700,34 +713,86 @@ def criteria(raw, th="main"):
     return pd.DataFrame(rows)
 
 
+def cell_counts(I):
+    """Note §3.1: per selection cell, original N and N after each filter, in the order of the note, and the final
+    MS and MF domains; MS yield units (n, r) per threshold (§3.2). Deterministic, not per realisation."""
+    pop, cells = I["pop"], I["cells"]
+    ci = pop.cell_idx.to_numpy()
+    cnt = lambda m: np.bincount(ci[np.asarray(m, bool)], minlength=len(cells))          # noqa: E731
+    f12 = pop.f1 & pop.f2
+    out = cells[KEYS].copy()
+    out["N_selection"] = cells.N.to_numpy()
+    out["N_orig"] = cnt(np.ones(len(pop), bool))
+    out["N_f1_date"] = cnt(pop.f1)
+    out["N_f2_cr"] = cnt(f12)
+    out["MS_f3_maps"] = cnt(f12 & ~pop.map_missing)
+    out["MS_f3_N_ambiguous"] = cnt(pop.in_MS)
+    out["MF_f4_gap"] = cnt(pop.in_MF)
+    out["N_MS"], out["N_MF"] = out.MS_f3_N_ambiguous, out.MF_f4_gap
+    for th in THR:
+        n, r = I["ms_counts"][th]
+        out[f"ms_units_n_{th}"], out[f"ms_units_r_{th}"] = n.astype(int), r.astype(int)
+    return out
+
+
 def yield_effects(I):
-    """Note §3.2, §6.2: expected yield of the design under successive changes (no identity required)."""
+    """Note §3.2, §6.2: expected yield of the design under successive changes, one change per step (no identity
+    required, no Beta identity imposed). MS: published r/n -> map-missing units removed -> Q4 domain -> Beta mean.
+    MF: published ratio estimate -> gap units removed -> pool p_hat on the whole population -> Q4 domain -> Beta mean."""
     pop, rows = I["pop"], []
     cells = I["cells"]
+    ci = pop.cell_idx.to_numpy()
+    N = cells.N.to_numpy(float)
+
+    def add(th, design, k, step, change, value):
+        rows.append(dict(threshold=th, design=design, step_order=k, step=step, change=change, value=float(value)))
+
     for th in THR:
         n, r = I["ms_counts"][th]
         n0, r0 = I["ms_counts_all"][th]
-        N = cells.N.to_numpy(float)
-        rows.append(dict(threshold=th, design="MS", step="r/n, no Q4 filter (published)", value=float((N * r0 / n0).sum() / N.sum())))
         dom = pop.in_MS.to_numpy()
-        ci = pop.cell_idx.to_numpy()
-        rows.append(dict(threshold=th, design="MS", step="r/n, map-missing units removed, Q4 domain",
-                         value=float(np.mean((r / n)[ci][dom]))))
-        rows.append(dict(threshold=th, design="MS", step="Beta mean, Q4 domain",
-                         value=float(np.mean(((r + 0.5) / (n + 1))[ci][dom]))))
-        u = I["mf_units_all"]
-        ok = u[f"ok_{th}"]
-        rows.append(dict(threshold=th, design="MF", step="ratio estimate, no Q4 filter (published)",
-                         value=float((u.w * ok).sum() / u.w.sum())))
-        for kind in ("cohort", "cohort_act", "cohort_area"):
-            pools = I["mf_pools"][th]
+        add(th, "MS", 1, "r/n, all L1 units, eligible population (published)", "-", (N * r0 / n0).sum() / N.sum())
+        add(th, "MS", 2, "r/n, map-missing units removed, eligible population", "units", (N * r / n).sum() / N.sum())
+        add(th, "MS", 3, "r/n, map-missing units removed, Q4 domain", "domain", np.mean((r / n)[ci][dom]))
+        add(th, "MS", 4, "Beta mean, Q4 domain", "Beta", np.mean(((r + 0.5) / (n + 1))[ci][dom]))
+        ua, uf = I["mf_units_all"], I["mf_units"]
+        dm = pop.in_MF.to_numpy()
+        add(th, "MF", 1, "ratio estimate, all level-2 units, eligible population (published)", "-",
+            (ua.w * ua[f"ok_{th}"]).sum() / ua.w.sum())
+        add(th, "MF", 2, "ratio estimate, gap units removed, eligible population", "units", (uf.w * uf[f"ok_{th}"]).sum() / uf.w.sum())
+        pools = I["mf_pools"][th]
+        for k, kind in enumerate(("cohort", "cohort_act", "cohort_area")):
             idx = pool_index(pop, kind)
-            dm = pop.in_MF.to_numpy()
-            rows.append(dict(threshold=th, design="MF", step=f"pool {kind} p_hat, Q4 domain",
-                             value=float(np.mean(pools.p_hat.to_numpy()[idx][dm]))))
-            rows.append(dict(threshold=th, design="MF", step=f"pool {kind} Beta mean, Q4 domain",
-                             value=float(np.mean(((pools.r_eff + 0.5) / (pools.n_eff + 1)).to_numpy()[idx][dm]))))
+            ph = pools.p_hat.to_numpy()[idx]
+            be = ((pools.r_eff + 0.5) / (pools.n_eff + 1)).to_numpy()[idx]
+            add(th, "MF", 3 + 3 * k, f"pool {kind} p_hat, eligible population", "pool", np.mean(ph))
+            add(th, "MF", 4 + 3 * k, f"pool {kind} p_hat, Q4 domain", "domain", np.mean(ph[dm]))
+            add(th, "MF", 5 + 3 * k, f"pool {kind} Beta mean, Q4 domain", "Beta", np.mean(be[dm]))
     return pd.DataFrame(rows)
+
+
+IMPLEMENTATION_CHOICES = [
+    "1. 'quantili ricalcolati sul disegno' (note §4, §6): 5-95 % numpy-linear quantiles of the cell activity replicated "
+    "on the records of the T3 design itself (phase A used T5 records, which Q4 does not build); a different set from "
+    "T5. Reported as columns target_qd_* with every target-dependent product, and the quantiles A_lo_design, A_hi_design.",
+    "2. covariance check (note §5): min eigenvalue >= -1e-10 * max eigenvalue, cached per (cell CR, cell hemisphere, "
+    "scenario, cross-zero variant); the key keeps the order of the cells.",
+    "3. ratios h/h_H use H with model (a), the same sigma_int and the same noise row; H has sigma_m,HMI = 0 and does "
+    "not depend on the realisation, the threshold or the MDI sensitivity.",
+    "4. A_main sensitivity (MDI alone only): a declared numeric scenario. target_* keep the E0 SILSO quantiles (units "
+    "differ from SILSO: not the same activity range nor the same physical slope; no direct physical comparison of "
+    "the betas), target_qd_* report the design's own quantiles; not used by the criteria.",
+    "5. flux donors: a target group may receive itself as donor when it is a successful L1 unit (L-NN and no-latitude "
+    "sensitivity); donors are reused with replacement. This is not an independent verification of that group's flux.",
+    "6. domains: MF excludes the 1998 gap but not the missing synoptic maps; MS also excludes N ambiguous (as the "
+    "note); MS/MF population differences are not compensated by choosing other groups.",
+    "7. one-at-a-time sensitivities are also computed for combinations the note does not require (for example MS "
+    "alone with flux_nolat): a superset of §6, same rule, labelled; no new criterion and no crossing of sensitivities.",
+    "null target: a zero ramp makes the ratios to the target (se_over_target, m_prod_over_target) not defined (NaN, "
+    "flag target_null_*); SE, h and recognition are kept; no epsilon is added.",
+    "not computable designs: failures are expanded on the expected grid of configurations, so that SUMMARY has every "
+    "key with n_ok and n_fail; criteria do not classify when a used realisation failed.",
+]
 
 
 # ---------------------------------------------------------------- proofs on real data (note §6.1, §6.2)
@@ -992,8 +1057,111 @@ def selftest(real=True):
     ok("synthetic: inclusion = (U_g < p) with the shared U_g of POPULATION rows; same Phi in MS and MF",
        np.array_equal(Rs.row, exp_ms) and np.array_equal(Rf.row, exp_mf) and len(both) > 0
        and np.array_equal(Rs.set_index("row").phi.loc[both], Rf.set_index("row").phi.loc[both]), f"{len(both)} shared")
+    # --- review bb39a23, point 2: null target (identifiable design, every cell activity below A_lo of E0)
+    Rn = Rb.assign(A=rng.uniform(0.1, 0.45, len(Rb)))
+    rn = analyse(Rn, ("a",), combined=False, d_prod=(-0.5, -0.8, -1.2))["a"]
+    rows_n = noise_rows(rn, SENS_NOISE, REF_SIG)
+    ok("null target: status ok, target_020 = target_010 = 0, SE finite, ratios NaN with flag, design-quantile target defined",
+       rn["status"] == "ok" and rn["target_020"] == 0 and rn["target_010"] == 0 and rn["target_qd_020"] != 0
+       and all(np.isfinite(x["se"]) and np.isnan(x["se_over_target_020"]) and x["target_null_020"] and np.isnan(x["m_prod_over_target_010"])
+               and np.isfinite(x["se_over_target_qd_020"]) and not x["target_null_qd_020"] for x in rows_n))
+    Rnc = Rn.assign(M=np.r_[np.zeros(20), np.ones(20)])
+    rc_ = analyse(Rnc, ("a",), combined=True, u=dict(d3=1.6, sbar=0.3))["a"]
+    xr = noise_rows(rc_, SENS_NOISE[:1], REF_SIG[:1], u=dict(d3=1.6, sbar=0.3))[0]
+    ok("null target, combined: bias and tolerance columns for every target, no division error",
+       all(f"tol_units_{f}_{t}" in xr and f"sup_scen_worst_{f}_C0.25_{t}" in xr for f in ("A", "J") for t in TARGETS)
+       and xr["target_null_020"])
+    # --- point 3: empty design
+    em = analyse(Rb.iloc[:0], MODELS_COMB, combined=True)
+    ok("empty design: status 'empty_design' for every model, no exception", all(v["status"] == "empty_design" and v["n_records"] == 0
+                                                                                for v in em.values()))
+    # --- point 4: target-dependent products for E0 and design quantiles, both widths; quantiles in RAW
+    okr = raw[raw.status == "ok"]
+    msr = okr[okr.design == "MS"]
+    cbr = okr[(okr.design == "MS+H") & (okr.model == "a")]               # model a carries both offset families
+    ok("products for target_020/010/qd_020/qd_010: SE/target, recognition, m_prod/target, tolerance, worst cases; A_lo/hi_design in RAW",
+       all(f"{c}_{t}" in raw for t in TARGETS for c in ("se_over_target", "recognition", "target_null"))
+       and all(msr[f"m_prod_over_target_{t}"].notna().all() for t in TARGETS)
+       and all(cbr[f"tol_units_A_{t}"].notna().all() and cbr[f"sup_scen_worst_J_C0.5_{t}"].notna().all() for t in TARGETS)
+       and okr.A_lo_design.notna().all() and okr.A_hi_design.notna().all()
+       and np.allclose(okr.target_qd_020, 2 * okr.target_qd_010, rtol=1e-12))
+    # --- point 3: failures expanded on the grid; zero successes, one failure; criteria do not classify
+    real_mdi = mdi_records
+
+    def failing(I_, design, th, r, variant):
+        if design == "MF" and (variant == "avail_0.6" or (variant == "ref" and r == 1)):
+            return None, dict(n_domain=0, status="empty_yield_stratum")
+        return real_mdi(I_, design, th, r, variant)
+    globals()["mdi_records"] = failing
+    try:
+        rawf, _, _ = compute(Ifk, n_real=2, log=lambda *a: None)
+    finally:
+        globals()["mdi_records"] = real_mdi
+    sm0, _ = summarise(raw, 2)
+    smf, nc = summarise(rawf, 2)
+    kk = lambda d: set(map(tuple, d[KEYCOLS].astype(str).to_numpy()))           # noqa: E731
+    z = smf[(smf.design.isin(["MF", "MF+H"])) & (smf.variant == "avail_0.6")]
+    one = smf[(smf.design == "MF") & (smf.variant == "ref")]
+    onec = smf[(smf.design == "MF+H") & (smf.variant.isin(["ref", "w_x0.5", "w_x2", "w_norm", "cov_zero_cross"]))]
+    ok("failures expanded: SUMMARY has the same configurations as without failures; zero successes -> n_ok 0, n_fail 2; "
+       "one failure -> n_ok 1, n_fail 1 (also every combined weight and covariance variant)",
+       kk(smf) == kk(sm0) and len(z) > 0 and (z.n_ok == 0).all() and (z.n_fail == 2).all()
+       and (one.n_ok == 1).all() and (one.n_fail == 1).all() and len(onec) == len(sm0[(sm0.design == "MF+H") & sm0.variant.isin(onec.variant.unique())])
+       and (onec.n_fail == 1).all() and (nc.status == "empty_yield_stratum").any(), f"{len(smf)} vs {len(sm0)} keys")
+    cf = criteria(rawf)
+    ok("criteria with a failed realisation: no classification for MF alone and MF+H vs MS+H; MS unaffected",
+       cf[cf.criterion == "MF da solo vs H"].verdict.iloc[0].startswith("nessuna classificazione")
+       and cf[cf.criterion == "prodotto MF+H vs MS+H"].verdict.iloc[0].startswith("nessuna classificazione")
+       and cf[cf.criterion == "MS da solo vs H"].verdict.iloc[0] == criteria(raw)[lambda d: d.criterion == "MS da solo vs H"].verdict.iloc[0])
+    # --- point 5: cell counts, yield steps, implementation choices
+    cc = cell_counts(Ifk)
+    pf = Ifk["pop"]
+    ok("cell counts: 36 cells, filters monotone, sums = population, MS and MF domains",
+       len(cc) == 36 and cc.N_orig.sum() == len(pf) and cc.N_MS.sum() == int(pf.in_MS.sum()) and cc.N_MF.sum() == int(pf.in_MF.sum())
+       and (cc.N_orig >= cc.N_f1_date).all() and (cc.N_f1_date >= cc.N_f2_cr).all() and (cc.N_f2_cr >= cc.MS_f3_maps).all()
+       and (cc.MS_f3_maps >= cc.MS_f3_N_ambiguous).all() and (cc.N_f2_cr >= cc.MF_f4_gap).all() and (cc.N_orig == cc.N_selection).all())
+    ye = yield_effects(Ifk)
+    uf = Ifk["mf_units"]
+    ok("yield effects: one change per step, MF gap step = ratio on the filtered units, published step on all units",
+       not ye.duplicated(["threshold", "design", "step_order"]).any() and set(ye.change) == {"-", "units", "domain", "Beta", "pool"}
+       and abs(ye[(ye.design == "MF") & (ye.step_order == 2) & (ye.threshold == "main")].value.iloc[0]
+               - (uf.w * uf.ok_main).sum() / uf.w.sum()) < 1e-15)
+    ok("implementation choices: the seven declared choices and the two handling rules recorded for META",
+       [c[:2] for c in IMPLEMENTATION_CHOICES[:7]] == [f"{k}." for k in range(1, 8)] and len(IMPLEMENTATION_CHOICES) == 9)
     if real:
         t0 = time.time()
+        # --- point 1: receipts anchored; each alteration (in memory, one per case) is reported by its own check
+        ok("freeze receipts: every anchored check matched", receipts_ok() == [], receipts_ok())
+        nf0, af0 = json.loads(NOTE_FREEZE.read_text()), json.loads(A2_FREEZE.read_text())
+        fs = (sha(NOTE_FREEZE), sha(A2_FREEZE))
+
+        def alt(fn, on="nf"):
+            nf, af = json.loads(json.dumps(nf0)), json.loads(json.dumps(af0))
+            fn(nf if on == "nf" else af)
+            return receipts_ok(nf, af, *fs)
+        one_in = sorted(EXPECTED_INPUTS)[0]
+        cases = [
+            ("empty input list", lambda d: d.update(inputs_sha256={}), "nf", "input set (17) and hashes"),
+            ("one input missing", lambda d: d["inputs_sha256"].pop(one_in), "nf", "input set (17) and hashes"),
+            ("one input hash changed", lambda d: d["inputs_sha256"].update({one_in: "0" * 64}), "nf", "input set (17) and hashes"),
+            ("empty code list", lambda d: d.update(reused_code_sha256={}), "nf", "reused-code set (9) and hashes"),
+            ("one extra code file", lambda d: d["reused_code_sha256"].update({"scripts/mdi_q4_prospective.py": "0" * 64}), "nf",
+             "reused-code set (9) and hashes"),
+            ("parent SHA in the note receipt", lambda d: d.update(parent_sha256="0" * 64), "nf", "parent protocol"),
+            ("A2 receipt SHA named by the note", lambda d: d.update(amendment_A2_receipt_sha256="0" * 64), "nf", "A2 receipt named by the note receipt"),
+            ("note freeze commit not existing", lambda d: d.update(freeze_commit="0" * 40), "nf", "note blob at its freeze commit, ancestor of HEAD"),
+            ("note freeze commit before the note existed", lambda d: d.update(freeze_commit="510274e"), "nf",
+             "note blob at its freeze commit, ancestor of HEAD"),
+            ("seed zone [0, 0]", lambda d: d.update(seed_zone=[0, 0]), "nf", "seed0, seed zone, realisations, z"),
+            ("A2 freeze commit in the A2 receipt", lambda d: d.update(freeze_commit="1674f57267da350fa40169378ce568f3b13401b6"), "af",
+             "A2 blob at its freeze commit, same commit in both receipts"),
+            ("prep META SHA in the A2 receipt", lambda d: d.update(prep_counts_meta_sha256="0" * 64), "af", "preparatory-count rules and META"),
+        ]
+        for name, fn, on, expect in cases:
+            pr_ = alt(fn, on)
+            ok(f"receipt altered in memory ({name}) -> '{expect}' only", pr_ == [expect], pr_)
+        pr_ = receipts_ok(nf0, af0, "0" * 64, fs[1])
+        ok("note receipt file SHA different from the pinned one -> refused", pr_ == ["note receipt pinned"], pr_)
         I = load_inputs()
         pe = proof_e0(I)
         ok("§6.1 E0 reproduction: columns, dropped, targets, 9 SE and shares of every model (rel 1e-12)",
@@ -1012,6 +1180,9 @@ def selftest(real=True):
         ok("every cell has >= 5 donors at 50 and 100 G",
            all((I["nn"][t][0][I["pop"].in_MS.to_numpy() | I["pop"].in_MF.to_numpy()] >= 0).all() for t in THR))
         ok("no SILSO month missing in the MDI domain", I["pop"][I["pop"].in_MS | I["pop"].in_MF].A_silso.notna().all())
+        cr_ = cell_counts(I)
+        ok("cell counts on real data: N_orig = selection N (5401), MS 5151, MF 5062",
+           (cr_.N_orig == cr_.N_selection).all() and cr_.N_orig.sum() == 5401 and cr_.N_MS.sum() == 5151 and cr_.N_MF.sum() == 5062)
         print(f"real-data proofs: {time.time() - t0:.0f} s")
     n_ok = sum(r[1] for r in res)
     print(f"selftest {n_ok}/{len(res)}")
@@ -1020,18 +1191,79 @@ def selftest(real=True):
 
 # ---------------------------------------------------------------- run
 
-def receipts_ok():
-    nf, af = json.loads(NOTE_FREEZE.read_text()), json.loads(A2_FREEZE.read_text())
+# Frozen versions, verified by Codex (90/90) after the freeze: the receipts are anchored to their own SHA-256 and to the
+# expected input and code sets; everything else is checked against the receipts, the files and the commits.
+PIN = dict(note_receipt="0f9b3acc01e6a58a182685259350f71a8caf82edc2381c209f210d89b5b2410d",
+           a2_receipt="76a26f061ab99c659f312d84a599a9b3e540b77b321529bd2c99ae83b5a23326",
+           note="e13a3a72875e15bed296414cfcf9423b7f4d032c3d3a8efaeb67e9ad7882ade9",
+           a2="c834077011ff7e201d01eabc318de7e6fbfc547bbffcfca05a0091e87636203e",
+           parent="77367350e8f9a5f71933afdcc791429b307c95ec1875224c1f2d7486950d086f",
+           rules="9ce409fc1030e5d41ffac1d994887d8b540ccc711f25b488426e9c387ad8a77a")
+PARENT = ROOT / "docs/PROTOCOL_MDI_TILT_PILOT.md"
+RULES = ROOT / "docs/MDI_Q4_PREP_COUNTS_RULES.md"
+EXPECTED_INPUTS = frozenset({
+    "results/MDI_PILOT_SELECTION/POPULATION.csv", "results/MDI_PILOT_SELECTION/SAMPLE.csv", "results/MDI_PILOT_SELECTION/CELLS.csv",
+    "results/MDI_PILOT_SELECTION/META.json", "results/MDI_PILOT_L1/L1_RECORDS.csv", "results/MDI_PILOT_L2/L2_RECORDS.csv",
+    "results/MDI_SYNOPTIC_AUDIT/FILES.csv", "results/MDI_PILOT_ANALYSIS_L1/Q1_YIELD_PROJECTED.csv",
+    "results/MDI_PILOT_ANALYSIS_L2/YIELD_A1.csv", "results/MDI_PILOT_ANALYSIS_L2/Q2_PAIRS_A1_main.csv",
+    "results/MDI_PILOT_ANALYSIS_L2/Q2_PAIRS_A1_sens100.csv", "results/MDI_PILOT_ANALYSIS_L2/Q2_SUMMARY_A1_main.csv",
+    "results/MDI_PILOT_ANALYSIS_L2/Q2_SUMMARY_A1_sens100.csv", "results/PROSPECTIVE_PHASE_A/RAW.csv.gz",
+    "results/P1/P1_SBL_CATALOG_BY_HARP.csv", "ancillary/SILSO_HEMI/SN_m_hem_V2.0.csv", "results/MDI_Q4_PREP_COUNTS/META.json"})
+EXPECTED_CODE = frozenset({
+    "scripts/prospective_phase_a.py", "scripts/t5_proxy_sensitivity.py", "python/sharpbl/diag_t5_oracle.py", "python/sharpbl/p2d.py",
+    "python/sharpbl/run_p2.py", "python/sharpbl/p2f_validation.py", "python/sharpbl/p2f_pilot.py", "scripts/mdi_synoptic_adapter.py",
+    "scripts/mdi_q4_prep_counts.py"})
+NOTE_REL, A2_REL, PARENT_REL = "docs/MDI_PILOT_Q4_NOTE.md", "docs/PROTOCOL_MDI_TILT_PILOT_AMENDMENT_A2.md", "docs/PROTOCOL_MDI_TILT_PILOT.md"
+
+
+def blob_sha(commit, path):
+    """SHA-256 of a file as committed in `commit`, or None if the commit or the path does not exist."""
+    r = subprocess.run(["git", "show", f"{commit}:{path}"], cwd=ROOT, capture_output=True)
+    return hashlib.sha256(r.stdout).hexdigest() if r.returncode == 0 else None
+
+
+def is_ancestor(commit):
+    return subprocess.run(["git", "merge-base", "--is-ancestor", str(commit), "HEAD"], cwd=ROOT, capture_output=True).returncode == 0
+
+
+def receipts_ok(nf=None, af=None, nf_file_sha=None, af_file_sha=None):
+    """Names of the failed checks ([] = all matched). Arguments default to the files on disk; the selftest passes
+    altered copies in memory with the file SHAs, to prove each check on its own."""
+    nf = json.loads(NOTE_FREEZE.read_text()) if nf is None else nf
+    af = json.loads(A2_FREEZE.read_text()) if af is None else af
+    nf_file_sha = sha(NOTE_FREEZE) if nf_file_sha is None else nf_file_sha
+    af_file_sha = sha(A2_FREEZE) if af_file_sha is None else af_file_sha
     probs = []
-    if sha(NOTE) != nf["sha256"]:
-        probs.append("note sha")
-    if sha(A2) != af["sha256"] or nf["amendment_A2_sha256"] != af["sha256"]:
-        probs.append("A2 sha")
-    for p, h in list(nf["inputs_sha256"].items()) + list(nf["reused_code_sha256"].items()):
-        if sha(ROOT / p) != h:
-            probs.append(p)
-    if nf["seed0"] != SEED0 or nf["n_realisations"] != N_REAL or nf["z"] != PA.Z:
-        probs.append("seed0/n_real/z")
+
+    def need(name, f):
+        try:
+            good = bool(f())
+        except (KeyError, TypeError, ValueError, AttributeError, OSError):
+            good = False
+        if not good:
+            probs.append(name)
+
+    def files_match(d, expected):
+        return isinstance(d, dict) and set(d) == set(expected) and all(isinstance(h, str) and sha(ROOT / p) == h for p, h in d.items())
+
+    need("note receipt pinned", lambda: nf_file_sha == PIN["note_receipt"])
+    need("A2 receipt pinned", lambda: af_file_sha == PIN["a2_receipt"])
+    need("receipt paths", lambda: nf["protocol"] == NOTE_REL and af["protocol"] == A2_REL and nf["amendment_A2"] == A2_REL
+         and nf["parent_protocol"] == af["parent_protocol"] == PARENT_REL)
+    need("note text", lambda: sha(NOTE) == nf["sha256"] == PIN["note"])
+    need("note blob at its freeze commit, ancestor of HEAD", lambda: blob_sha(nf["freeze_commit"], NOTE_REL) == nf["sha256"]
+         and is_ancestor(nf["freeze_commit"]))
+    need("A2 text", lambda: sha(A2) == af["sha256"] == nf["amendment_A2_sha256"] == PIN["a2"])
+    need("A2 blob at its freeze commit, same commit in both receipts", lambda: blob_sha(af["freeze_commit"], A2_REL) == af["sha256"]
+         and nf["amendment_A2_freeze_commit"] == af["freeze_commit"] and is_ancestor(af["freeze_commit"]))
+    need("A2 receipt named by the note receipt", lambda: nf["amendment_A2_receipt_sha256"] == af_file_sha)
+    need("parent protocol", lambda: sha(PARENT) == nf["parent_sha256"] == af["parent_sha256"] == PIN["parent"])
+    need("preparatory-count rules and META", lambda: sha(RULES) == nf["prep_counts_rules_sha256"] == af["prep_counts_rules_sha256"] == PIN["rules"]
+         and af["prep_counts_meta_sha256"] == sha(PREP_META))      # the note's copy is checked with the input set
+    need("input set (17) and hashes", lambda: files_match(nf["inputs_sha256"], EXPECTED_INPUTS))
+    need("reused-code set (9) and hashes", lambda: files_match(nf["reused_code_sha256"], EXPECTED_CODE))
+    need("seed0, seed zone, realisations, z", lambda: nf["seed0"] == SEED0 and nf["n_realisations"] == N_REAL and nf["z"] == PA.Z
+         and list(nf["seed_zone"]) == [SEED0, SEED0 + 1000 * (K_COMPONENTS - 1) + N_REAL - 1])
     return probs
 
 
@@ -1052,7 +1284,7 @@ def run():
     t0 = time.time()
     I = load_inputs()
     raw, des, u = compute(I)
-    summ, fails = summarise(raw)
+    summ, fails = summarise(raw, N_REAL)
     crit = pd.concat([criteria(raw, "main"), criteria(raw, "sens100")], ignore_index=True)
     OUT.mkdir(parents=True)
     raw.to_csv(OUT / "RAW.csv.gz", index=False)
@@ -1061,6 +1293,7 @@ def run():
     crit.to_csv(OUT / "CRITERIA.csv", index=False)
     des.to_csv(OUT / "DESIGNS.csv", index=False)
     yield_effects(I).to_csv(OUT / "YIELD_EFFECTS.csv", index=False)
+    cell_counts(I).to_csv(OUT / "CELL_COUNTS.csv", index=False)
     pd.concat([I["mf_pools"][t].assign(threshold=t) for t in THR]).to_csv(OUT / "MF_POOLS.csv", index=False)
     pd.DataFrame(st, columns=["check", "ok", "value"]).to_csv(OUT / "PROOFS.csv", index=False)
     meta = dict(script_sha256=sha(__file__), git_head=git("rev-parse", "HEAD"), note_sha256=sha(NOTE), a2_sha256=sha(A2),
@@ -1074,7 +1307,7 @@ def run():
                              MS=int(I["pop"].in_MS.sum()), MF=int(I["pop"].in_MF.sum())),
                 runtime_s=round(time.time() - t0, 1), python=platform.python_version(), numpy=np.__version__,
                 pandas=pd.__version__, omp=os.environ.get("OMP_NUM_THREADS"),
-                implementation_choices=__doc__.split("Implementation choices")[1].strip())
+                receipts_problems=probs, implementation_choices=IMPLEMENTATION_CHOICES)
     (OUT / "META.json").write_text(json.dumps(meta, indent=1, default=str) + "\n")
     print(crit.to_string())
 
