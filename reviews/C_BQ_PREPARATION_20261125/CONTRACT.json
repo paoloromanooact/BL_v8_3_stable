@@ -1,0 +1,144 @@
+{
+  "scope": "algebraic checks and counterexamples, not SFT convergence or observed-error validation",
+  "passed": 18,
+  "total": 18,
+  "checks": [
+    {
+      "name": "known correlated errors rho=0.0",
+      "ok": true,
+      "variance_difference": 2.0,
+      "expected": 2.0
+    },
+    {
+      "name": "known correlated errors rho=0.5",
+      "ok": true,
+      "variance_difference": 0.9999999999999999,
+      "expected": 1.0
+    },
+    {
+      "name": "known correlated errors rho=0.9",
+      "ok": true,
+      "variance_difference": 0.19999999999999998,
+      "expected": 0.19999999999999996
+    },
+    {
+      "name": "known correlated errors rho=-0.5",
+      "ok": true,
+      "variance_difference": 2.999999999999999,
+      "expected": 3.0
+    },
+    {
+      "name": "independent evolution adds variance",
+      "ok": true,
+      "variance_difference": 3.25
+    },
+    {
+      "name": "sqrt(2) conversion fails when errors correlated",
+      "ok": true,
+      "naive_single_sigma": 0.7071067811865475,
+      "true_single_sigma": 1.0
+    },
+    {
+      "name": "each group has same total weight",
+      "ok": true,
+      "weighted_mean": 3.0,
+      "pair_mean": 1.3636363636363635
+    },
+    {
+      "name": "duplicating within one group leaves group target unchanged",
+      "ok": true
+    },
+    {
+      "name": "axial seam",
+      "ok": true
+    },
+    {
+      "name": "longitude seam",
+      "ok": true
+    },
+    {
+      "name": "axial concentration near seam not linear spread",
+      "ok": true,
+      "circular_sigma_deg": 1.000101566986815,
+      "linear_rms_deg": 89.0
+    },
+    {
+      "name": "protected component excludes indirect connections",
+      "ok": true
+    },
+    {
+      "name": "proper prior integrates to known marginal variance",
+      "ok": true
+    },
+    {
+      "name": "null versus proper alternative prior scale 1.0",
+      "ok": true,
+      "BF01_at_zero": 1.4142135623730951
+    },
+    {
+      "name": "null versus proper alternative prior scale 10.0",
+      "ok": true,
+      "BF01_at_zero": 10.049875621120892
+    },
+    {
+      "name": "correlated measurements are not independent copies",
+      "ok": true,
+      "posterior_variance_correlated": 0.4871794871794872,
+      "posterior_variance_independent": 0.3333333333333333
+    },
+    {
+      "name": "floor 0.01 can pass while ratio changes substantially",
+      "ok": true,
+      "floor": 0.01,
+      "D_scale": 1.0,
+      "m_t": 0.0001,
+      "D_M": 2e-05,
+      "D_B_coarse": 2e-05,
+      "D_B_fine": 2.9e-05,
+      "criterion": 0.0008999999999999999,
+      "passes": true,
+      "ratio_defined": true,
+      "ratio_change": 0.4499999999999999
+    },
+    {
+      "name": "floor 0.1 can pass while ratio changes substantially",
+      "ok": true,
+      "floor": 0.1,
+      "D_scale": 1.0,
+      "m_t": 0.0001,
+      "D_M": 2e-05,
+      "D_B_coarse": 2e-05,
+      "D_B_fine": 0.00011,
+      "criterion": 0.0009,
+      "passes": true,
+      "ratio_defined": true,
+      "ratio_change": 4.5
+    }
+  ],
+  "ratio_counterexamples": [
+    {
+      "floor": 0.01,
+      "D_scale": 1.0,
+      "m_t": 0.0001,
+      "D_M": 2e-05,
+      "D_B_coarse": 2e-05,
+      "D_B_fine": 2.9e-05,
+      "criterion": 0.0008999999999999999,
+      "passes": true,
+      "ratio_defined": true,
+      "ratio_change": 0.4499999999999999
+    },
+    {
+      "floor": 0.1,
+      "D_scale": 1.0,
+      "m_t": 0.0001,
+      "D_M": 2e-05,
+      "D_B_coarse": 2e-05,
+      "D_B_fine": 0.00011,
+      "criterion": 0.0009,
+      "passes": true,
+      "ratio_defined": true,
+      "ratio_change": 4.5
+    }
+  ]
+}

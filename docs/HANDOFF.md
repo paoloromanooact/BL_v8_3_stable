@@ -1,5 +1,19 @@
 # Cold restart — SHARP BL
 
+## Consegna Codex: BQ-HMI, specifica C e nests sospesi
+
+**Decisioni correnti dell'utente:** BQ-HMI al primo posto, BQ-M dopo; C attivo e SFT continua a preparare BT.
+**Nests in lista ma fermi:** nessuna identificazione, analisi o acquisizione AIA/Solar Orbiter finche l'utente
+non riattiva questa voce. Non leggere «alla fine del piano» come avvio automatico.
+
+- [BQ-HMI, bozza rev.1](PROTOCOL_BQ_HMI_DRAFT.md): stesso campione T3, risposta P2 esatta, M0/MQ, dipendenze temporali/famiglie, prior proprie proposte, bersaglio e verifica predittiva. Prima del congelamento chiudere likelihood angolare, prior/diagnostica, ambiente e semi. Nessun fit reale.
+- [C, specifica rev.2](SFT_HMI_REPEATABILITY_PLAN_DRAFT.md): selezione, grafo transitivo di separazione dal bacino osservativo, dominio finito, misure, statistiche angolari e ricampionamento per gruppi. La riserva 86/84 e disponibilita, non numerosita finale. Da rivedere e congelare; runner/riconteggio di misura ancora da scrivere. **Nessuna sigma osservativa ancora misurata.**
+- [A1, nota numerica preliminare](SFT_A1_WORKING_TOLERANCE_REVIEW_20261125.md): f=1e-2 non garantisce accuratezza dei rapporti vicino a zero; controesempio 0→0,45 pur passando il criterio. Non approvato automaticamente f=1e-1; precisare requisito per le quantita derivate e attendere il commit definitivo per la chiusura.
+- `scripts/bq_c_math_reference.py`: 18/18 controlli algebrici su sintetici deterministici, conservati in `reviews/C_BQ_PREPARATION_20261125/`. Sono riferimenti/casi avversi, non validazione di un fit o di una misura osservata.
+- BQ-M: DPD e un ponte relativo, non identifica automaticamente la deriva assoluta di MWO. Ore/prodotti diversi richiedono un modello della misura e dell'evoluzione; dettagli nella bozza BQ §8. L'inventario delle sovrapposizioni resta affidato a Claude.
+- `BL_WORK_PLAN.md` era in modifica da Claude: Codex non l'ha toccato o incluso nel commit. Allineare l'ordine corrente, lo stato sospeso N e queste consegne quando si chiude quella modifica. Codex non ha toccato i due script SFT in lavorazione.
+
+
 ## Consegna Codex: nests HMI, Finley e bozza bayesiana
 
 - [Inventario](HMI_NESTS_FEASIBILITY.md) concluso: 197 CSV, 1300060 record canonici, 8296 HARP; 7133 con primario P1. 1800 righe ai confini mensili rendicontate; nessun nuovo tilt/flusso misurato letto o nest classificato. Script e input con SHA; selftest 7/7.

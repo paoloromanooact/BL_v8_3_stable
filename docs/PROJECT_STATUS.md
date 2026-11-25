@@ -4,10 +4,11 @@
 
 [Piano comune Codex–Claude](BL_WORK_PLAN.md), da leggere a ogni ripresa:
 
-1. **Controllo della sorgente BL nel modello:** piccolo pilota HMI che confronti
-   la mappa magnetica osservata e il bipolo del proxy, con lo stesso trasporto SFT.
-2. **Controllo contro il Sole:** confronto dell'evoluzione simulata con
-   magnetogrammi successivi esclusi dalla scelta dei parametri.
+1. **BQ-HMI:** confronto bayesiano del quenching, [bozza rev.1](PROTOCOL_BQ_HMI_DRAFT.md) pronta per revisione.
+2. **BQ-M:** estensione multi-strumento successiva a BQ-HMI, con identificabilita e confrontabilita da verificare.
+3. **C e SFT in parallelo:** [specifica C rev.2](SFT_HMI_REPEATABILITY_PLAN_DRAFT.md) per la ripetibilita e chiusura
+   del pilota mappa-bipolo; poi BT contro osservazioni successive. Nessuna sigma o posteriori reali gia stimati.
+4. **Nests:** conservati nel piano, ma lavoro sospeso su esplicita istruzione dell'utente.
 
 Inventario completato: [consegna SFT/HMI](BL_SFT_HMI_INVENTORY.md).
 Punto 1: protocollo congelato, emendamento numerico e correzioni del runner e

@@ -4,11 +4,12 @@ Prima di lavorare leggere `docs/BL_WORK_PLAN.md` (priorita comuni Codex–Claude
 poi `docs/HANDOFF.md`, `README.md` e `docs/PROJECT_STATUS.md`. Questi documenti descrivono lo stato registrato:
 verificare sempre lo stato effettivo con Git prima di agire.
 
-Le priorita permanenti 1 e 2 sono il confronto evolutivo HMI mappa–bipolo
-nello stesso modello SFT e il controllo contro osservazioni successive.
-Mantenere il richiamo al piano sopra la cronologia di HANDOFF anche quando
-si aggiornano altre linee. Verificare le assegnazioni Codex/Claude per non
-duplicare lavoro. Il piano non sostituisce i protocolli congelati.
+L'ordine operativo segue l'ultima decisione dell'utente riportata in piano e
+HANDOFF, non i riepiloghi storici: al 25 novembre BQ-HMI e prioritario, C e
+attivo, SFT prepara BT e i nests sono pianificati ma sospesi. I due controlli
+SFT restano obiettivi della sorgente BL. Mantenere il richiamo al piano sopra
+la cronologia e verificare le assegnazioni Codex/Claude per non duplicare
+lavoro. Il piano non sostituisce i protocolli congelati. SINDy e separato.
 
 Sul branch `v8.4-python-gianluca` leggere prima `README_V84.md` e i protocolli
 `docs/PROTOCOL_P1_SBL_SERIES.md` e `docs/PROTOCOL_P2_QUENCHING.md`: sono
