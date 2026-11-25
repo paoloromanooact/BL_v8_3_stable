@@ -1,4 +1,4 @@
-# BQ-HMI — confronto bayesiano della dipendenza del tilt dall'attività: BOZZA rev. 1
+# BQ-HMI — confronto bayesiano della dipendenza del tilt dall'attività: BOZZA rev. 2
 
 25 novembre 2026, Codex. **Non congelata; nessun fit reale o lettura di risultati bayesiani.**
 Priorita operativa aggiornata dall'utente: BQ-HMI, poi BQ-M; C prosegue come preparazione di BT e i piloti SFT
@@ -110,6 +110,63 @@ propria V_theta, l'integrazione dei coefficienti dà y~N(0,C_psi+X V_theta X^T),
 Questa identità fornisce un riferimento indipendente per i casi sintetici; la massa a beta=0 resta distinta
 dalla probabilità del segno nel modello continuo.
 
+## 6bis. BIC: controllo secondario, con condizioni di applicabilita
+
+Aggiunto su richiesta dell'utente prima di qualsiasi fit BQ. Nel caso regolare classico:
+
+BIC = -2 ell_ML(theta_hat; y) + k log n. BIC piu basso e preferito.
+Definizione del contrasto: Delta BIC = BIC_MQ - BIC_M0; negativo favorisce MQ.
+Sotto le condizioni dell'approssimazione, log BF_Q0 e circa -Delta BIC/2, non un'identita o una probabilita
+che il quenching sia fisicamente vero. Le etichette convenzionali 2/6/10 non sono soglie calibrate per questi
+cataloghi e non diventano una regola di verdetto. Le ipotesi del BIC non si riducono a una generica prior larga.
+
+**Likelihood:** stimare per ML la densita dei medesimi record, con tutte le normalizzazioni e la covarianza
+specificata, integrando gli effetti casuali u e b secondo la loro distribuzione. I coefficienti fissi si
+massimizzano, non si integrano con la loro prior nel calcolo ML. Questa likelihood marginale rispetto agli
+effetti casuali non e l'evidenza bayesiana, che integra anche coefficienti e iperparametri con le prior.
+Non usare REML per il confronto di effetti fissi diversi, MAP, picchi posteriori, BLUP condizionati agli
+stessi dati come se fossero fissi, o la log-likelihood di regioni assunte indipendenti.
+
+**k:** dimensione nominale dei parametri stimati della likelihood marginale, non numero di latenti e non
+numero effettivo della complessita predittiva. Per la proposta gaussiana attuale, se tutti sono identificabili:
+4 coefficienti ciclo-emisfero + 6 parametri di covarianza/dispersione (sigma0,q,sigma_x,phi,kappa,sigma_f),
+quindi k0=10 e kQ=11. Registrare l'elenco effettivo; una likelihood o una struttura diversa cambia il conteggio.
+Non aggiungere un parametro per ogni stato CR o famiglia dopo averli gia integrati.
+
+**n e asintotica:** non scegliere arbitrariamente regioni, CR o blocchi per ottenere la classifica voluta.
+La dipendenza non vieta ogni BIC, ma richiede una giustificazione del regime di crescita dell'informazione.
+Nei modelli misti i parametri possono richiedere penalita differenti; i blocchi temporali non sono
+indipendenti solo perche li si chiama blocchi. Prima del congelamento della regola BIC documentare quale
+approssimazione si applica al modello con CR/famiglie e perche; non trasferire automaticamente al nostro
+modello incrociato una formula derivata per gruppi indipendenti.
+
+Se tale giustificazione manca, marcare il BIC come **non stabilito per il modello**. Si possono riportare
+-2 ell_ML + k log(N_regioni) e l'analogo con N_CR solo come **sensibilita euristica della penalizzazione**,
+con quei nomi: non due Bayes factor o due BIC entrambi giustificati. Lasciare invariati likelihood, dati e k;
+non aggregare i dati in un solo ramo fingendo di confrontare la stessa likelihood.
+
+**Cancellazione delle condizioni regolari:** varianze al bordo, parametri non identificati, correlazioni
+quasi unitarie e ottimi non verificati richiedono uno stato esplicito. Per esempio, sigma_x=0 rende phi/kappa
+non identificati; sigma_f e sigma0 possono essere poco separabili con molte famiglie singleton. Il solo
+conteggio k=10/11 non sana questi problemi. Verificare ML, curvature/identificabilita e precisione numerica;
+non convertire meccanicamente Delta BIC in probabilita di modello quando l'approssimazione non e giustificata.
+
+**Prodotto:** tabella con modello, hash del campione, tipo di likelihood, ell_ML, elenco dei parametri/k,
+regola di penalizzazione e suo razionale, n/growth regime, BIC se applicabile, stato ML/bordi/identificabilita,
+Delta BIC e motivo di eventuale mancato calcolo. Verifica indipendente su casi gaussiani noti prima dei dati.
+Non e previsto alcun calcolo reale di BIC finche likelihood e regola non sono congelate.
+
+Riportare separatamente confronto predittivo, evidenze con prior proprie (se calcolabili) e BIC diagnostico.
+I primi due restano quelli del §6. Le discordanze possono riflettere obiettivi diversi, prior, asintotica,
+specificazione o errori numerici: non dimostrano automaticamente che i dati non distinguano i modelli.
+Le conclusioni fisiche restano condizionate anche all'adeguatezza dei candidati.
+
+Riferimenti metodologici primari consultati:
+- Schwarz (1978), *Estimating the Dimension of a Model*, Ann. Stat. 6, 461–464:
+  https://www.andrew.cmu.edu/user/kk3n/simplicity/schwarzbic.pdf
+- Delattre e Poursat, *An iterative algorithm for joint covariate and random effect selection in mixed effects
+  models*, §2.2: https://arxiv.org/html/1612.02405 (consultato il 25 novembre 2026).
+
 ## 7. Prove, diagnostica e catena
 
 Prima dei dati: casi con beta noto nullo/negativo/positivo, famiglie note, AR(1) forte, salti di livello,
@@ -150,4 +207,5 @@ BQ-M richiede una specifica e validazione del calcolo proprie dopo BQ-HMI; non r
 
 Claude rivede: campione/risposta e identificabilità; famiglia della likelihood angolare e significato di beta;
 prior proposte e loro predizione; trattamento delle famiglie; schema della verifica temporale ed evidenze;
-ambiente/semi/costi. Poi si congela il testo prima del fit. Nests e nuovi dati complementari restano sospesi.
+ambiente/semi/costi; likelihood ML, conteggio dei parametri e applicabilita della penalita BIC (§6bis).
+Poi si congela il testo prima del fit. Nests e nuovi dati complementari restano sospesi.

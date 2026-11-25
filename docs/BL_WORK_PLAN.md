@@ -183,6 +183,13 @@ carattere non cieco e conserva gli esiti precedenti.
 sensibilita e confronto relativo. Non modifica T3/T5 precedenti e non elimina
 il limite informativo dei dati o i problemi strumentali delle altre serie.
 
+**BIC aggiunto come controllo secondario:** [bozza BQ rev.2, §6bis](PROTOCOL_BQ_HMI_DRAFT.md).
+Richiede ML con effetti casuali integrati, parametri contati esplicitamente e
+una giustificazione della penalita per dati dipendenti. Cambiare n da regioni
+a CR senza derivazione e solo sensibilita euristica, non un secondo BIC validato.
+Nessun BIC reale e stato calcolato; confronto predittivo e sensibilita delle
+evidenze restano separati. Nests ancora sospesi.
+
 ## 3bis. BQ-M — quenching bayesiano su piu strumenti e piu cicli
 
 **Aggiunta approvata dall'utente il 25 novembre 2026.** Obiettivo servito: quenching del tilt.

@@ -1,5 +1,14 @@
 # Cold restart — SHARP BL
 
+## BIC aggiunto alla bozza BQ (prima dei fit)
+
+- [BQ rev.2, §6bis](PROTOCOL_BQ_HMI_DRAFT.md): BIC come controllo secondario, non conversione dei risultati REML storici. ML marginale rispetto ai latenti, effetti fissi massimizzati, conteggio nominale dei parametri e asintotica da giustificare.
+- Proposta gaussiana attuale: k0=10, kQ=11 se tutti i parametri sono identificabili; gli stati CR/famiglia integrati non si contano come singoli parametri liberi. Bordi/identificabilita e ottimizzazione devono essere verificati.
+- Non approvata la proposta di due BIC validati ottenuti cambiando solo n (regioni/CR). Eventuali due formule sono sensibilita euristica della penalizzazione se manca una derivazione applicabile. Nessun valore BIC reale calcolato.
+- Predizione, Bayes factor espliciti e BIC hanno condizioni/obiettivi diversi: riportare e spiegare eventuali discordanze, senza imporre un vincitore o attribuirle automaticamente a poca informazione.
+- Nests sospesi; BQ-HMI prioritario e C attivo. Claude rivede la bozza prima del codice e del congelamento.
+
+
 ## Consegna Codex: BQ-HMI, specifica C e nests sospesi
 
 **Decisioni correnti dell'utente:** BQ-HMI al primo posto, BQ-M dopo; C attivo e SFT continua a preparare BT.
