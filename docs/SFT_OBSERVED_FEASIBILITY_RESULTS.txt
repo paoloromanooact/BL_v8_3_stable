@@ -1,30 +1,18 @@
-current (isotropic, sqrt(4 eta t), 25) total 207
+Version 2 (Codex review f4ad0a7 applied): common branch, C = erode(P0) & P1, metric margin, effective coverage from pixel centres. Header keywords only, no pixel value read.
+pool 1023; CRVAL1 on different branches (put on a common branch): 137
+margins: m_lat 1.65-3.19 deg, m_lon 1.81-6.99 deg
+feasible (C >= 25.0 deg2): 373
+per cell (feasible / pool):
+                       feasible  pool
+dt_class cx                          
+1-3      altro/ignoto        19   147
+         un NOAA             22   150
+3-4.5    altro/ignoto       158   279
+         un NOAA            174   447
+per 1-day class (feasible):
 cx     altro/ignoto  un NOAA
-dtc                         
-1-2               6        5
-2-3               8        8
-3-4.5           103       77
-A anisotropic, sqrt(4 eta t), 25 total 336
-cx     altro/ignoto  un NOAA
-dtc                         
-1-2               9        7
-2-3              12       17
-3-4.5           131      160
-B anisotropic, sqrt(2 eta t) = 1 sigma, 25 total 420
-cx     altro/ignoto  un NOAA
-dtc                         
-1-2              10       11
-2-3              16       26
-3-4.5           141      216
-C anisotropic, sqrt(4 eta t), 10 total 458
-cx     altro/ignoto  un NOAA
-dtc                         
-1-2              14       21
-2-3              17       28
-3-4.5           143      235
-D anisotropic, 1 sigma, 10 total 558
-cx     altro/ignoto  un NOAA
-dtc                         
-1-2              16       30
-2-3              23       38
-3-4.5           153      298
+row_0                       
+1-2               7        7
+2-3              12       15
+3-4.5           158      174
+area of C: median 8.9, quartiles 0.0 51.6 deg2

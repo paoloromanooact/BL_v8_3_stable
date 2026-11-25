@@ -1,9 +1,10 @@
-# Confronto SFT con l'evoluzione osservata — BOZZA di protocollo (revisione 3, non congelata)
+# Confronto SFT con l'evoluzione osservata — BOZZA di protocollo (revisione 4, non congelata)
 
 Stato: **bozza per il congelamento, con una revisione del disegno da confermare (§12)**, 25 novembre 2026 (Claude).
 Non autorizza simulazioni né download. Recepisce le revisioni di Codex 7f5d703 (`docs/SFT_OBSERVED_DRAFT_REVIEW_e0bba64.md`)
-ed e87fff7 (`docs/SFT_790cad1_FINAL_REVIEW.md`). Modifiche al §13. Piano: `docs/BL_WORK_PLAN.md`, priorità 2; lista
-dell'utente, punto 3. Collegato alla bozza del punto 2 (`docs/PROTOCOL_SFT_MAP_BIPOLE_PILOT_DRAFT.md`, revisione 4), con
+ed e87fff7 (`docs/SFT_790cad1_FINAL_REVIEW.md`), e le correzioni geometriche della nota f4ad0a7
+(`docs/SFT_INDEPENDENT_CHECKS_20261125.md`). Modifiche al §13. Piano: `docs/BL_WORK_PLAN.md`, priorità 2; lista
+dell'utente, punto 3. Collegato alla bozza del punto 2 (`docs/PROTOCOL_SFT_MAP_BIPOLE_PILOT.md`, revisione 4, congelato), con
 gli stessi parametri di trasporto.
 
 ## 0. Obiettivo servito e che cosa aggiunge
@@ -40,14 +41,18 @@ gli stessi parametri di trasporto.
   Le celle «variazione ≤ 20 %» contengono in tutto 29 regioni: per questo l'andamento del flusso non stratifica (§4).
   Per molteplicità × Δt il bacino conta 66, 72, 84, 75, 447, 279 HARP (somma 1023, minimo 66; un NOAA / altro, per
   1–2, 2–3, 3–4,5 giorni). Conteggi preliminari su T_REC; l'estrazione usa T_OBS.
-- **Fattibilità geometrica dai soli `keys.json` (25 novembre; nessun pixel letto).** Impronte in Carrington dai bordi
-  della griglia CEA, con la WCS dell'adattatore P1; intersezione primario–controllo; erosione con il margine del §3
-  calcolato sul massimo della griglia dei parametri. Le patch hanno una mediana di 16,3° × 7,2° (longitudine ×
-  latitudine). Con il margine della revisione 2 (isotropo) e 25 deg², solo **207** coppie su 1023 hanno un interno
-  utilizzabile, e le celle a 1–3 giorni ne avrebbero 5–8, sotto le 18 previste. Con il **margine direzionale** del §3
-  (rotazione solo in longitudine, flusso meridiano solo in latitudine), sempre con √(4ηΔt) e 25 deg², le coppie
-  utilizzabili sono **336**: 1–2 giorni 7/9, 2–3 giorni 17/12, 3–4,5 giorni 160/131 (un NOAA / altro). Da qui la revisione
-  degli strati del §4. È una scelta di disegno su soli metadati e geometria, prima di qualunque pixel o esito.
+- **Fattibilità geometrica dai soli header (25 novembre; nessun valore di pixel letto),**
+  `scripts/sft_observed_feasibility.py` versione 2, esito in `docs/SFT_OBSERVED_FEASIBILITY_RESULTS.txt`. Regole:
+  - copertura effettiva: celle di una griglia di Carrington a 0,06° che contengono almeno un centro di pixel della
+    griglia CEA (WCS dell'header; NAXIS = 2·CRPIX − 1, verificato da Codex su tutti i 2046 header);
+  - ramo comune di longitudine: il controllo si riporta sul ramo del primario. 137 coppie su 1023 avevano CRVAL1 su
+    rami diversi (per esempio HARP 116: 15,66° e 376,01°);
+  - C = erosione(P0) ∩ P1, con il margine del §3;
+  - area di C come angolo solido.
+  Le patch hanno in mediana 16,3° × 7,2° (longitudine × latitudine). Con le regole del §3, **373** coppie su 1023 hanno
+  area di C ≥ 25 deg²: 1–3 giorni 22 / 19, 3–4,5 giorni 174 / 158 (un NOAA / altro o ignoto). La prima versione della
+  verifica, su riquadri e senza ramo comune, dava 336; con il margine isotropo della revisione 2, 207. È una scelta di
+  disegno su soli metadati e geometria, prima di qualunque pixel o esito.
 - **Scale attese del modello.** In tre giorni la diffusione sposta il flusso di circa √(4ηt) ≈ 2° (η = 466,8 km²/s),
   il flusso meridiano di circa 0,2°; la rotazione differenziale stira la regione in longitudine. Nei primi giorni le
   variazioni osservate possono essere dominate da processi che l'SFT non contiene (Gottschling et al. 2021,
@@ -81,14 +86,17 @@ preparato** a t₀, e l'osservazione a t₁ si prepara con lo stesso operatore.
 con aree R²·Δφ·(sin λ_nord − sin λ_sud). Il dominio comune C è l'insieme delle celle coperte da pixel finiti **sia**
 nella patch a t₀ **sia** in quella a t₁, erose dal bordo della patch a t₀ con un margine **direzionale**, perché il campo
 che entra da fuori non è nel modello:
-- in longitudine: m_φ = √(4η_max Δt)/R + max_λ |ω(λ) − ω_C|·Δt + 0,5°;
+- in longitudine, come scostamento in gradi di longitudine: m_φ = (√(4η_max Δt)/R + 0,5°)/cos λ_max + max_λ |ω(λ) − ω_C|·Δt,
+  con λ_max la massima |λ| della patch iniziale (la distanza lungo il parallelo si converte in gradi di longitudine);
 - in latitudine: m_λ = √(4η_max Δt)/R + v_max·Δt/R + 0,5°;
 - η_max e v_max sono i massimi sulla griglia dei parametri (η = 466,8 km²/s; D_u = 0,041 km/s, v_max = D_u·max_λ sin λ
   cos^p λ); il massimo di |ω − ω_C| è sulle latitudini della patch. Conversioni: η in km²/s → cm²/s (× 10¹⁰), distanze
   divise per R in cm → radianti → gradi (× 180/π); Δt in secondi (TAI).
-- Erosione: una cella resta in C se la distanza in latitudine dal bordo nord e sud della patch iniziale è almeno m_λ e
-  quella in longitudine, misurata lungo il parallelo come differenza circolare in gradi, dai bordi est e ovest è almeno
-  m_φ. Bordi della patch dall'impronta in Carrington della griglia CEA (WCS completa).
+- Erosione: copertura effettiva delle due patch su una griglia di Carrington a 0,06° (celle con almeno un centro di
+  pixel della griglia CEA, WCS completa), sullo stesso ramo di longitudine del primario. C = erosione(P0) ∩ P1, con
+  un'erosione binaria a elemento rettangolare di semiampiezze m_λ e m_φ in celle, arrotondate per eccesso; fuori dalla
+  griglia si considera non coperto. Sui pixel finiti si verifica poi la copertura effettiva, con lo stato «non
+  valutabile».
 - **Un solo C per caso**, comune a tutti i modelli (SFT, persistenza, sola rotazione) e a tutti i trasporti. Il dominio
   di simulazione e la prova di bordo coprono il caso del margine massimo.
 - Il margine è **operativo**, non un limite rigoroso del contributo del campo fuori dalla patch: la diffusione non ha
@@ -132,13 +140,14 @@ operatore di preparazione e misura.
   dal margine del §3 di almeno 25 deg². Le coppie che non lo soddisfano escono dal bacino e si contano per cella. La
   verifica sui pixel finiti si fa dopo, con lo stato «non valutabile».
 - **Strati:** Δt (1–3, 3–4,5 giorni; estremi inferiori inclusi) × molteplicità delle associazioni («un NOAA» se
-  `NOAA_NUM` = 1, «altro o ignoto» altrimenti, con un flag per NOAA assente): 4 celle, con 24 / 21 / 160 / 131 coppie
+  `NOAA_NUM` = 1, «altro o ignoto» altrimenti, con un flag per NOAA assente): 4 celle, con 22 / 19 / 174 / 158 coppie
   fattibili (stima del §1, su T_REC). Il rapporto
   USFLUX(controllo)/USFLUX(primario) si riporta come covariata continua e con le due classi descrittive del §1, senza
   stratificare. Si riportano separatamente la variabile di selezione USFLUX e il flusso P1 rimisurato: sono quantità
   diverse e nessuna delle due misura soltanto l'emergenza.
-- **Numerosità:** 18 per cella, al più 72. Con la stima del §1 la cella più povera ne ha 21. La regola vale comunque:
-  una cella con meno di 18 HARP si prende intera.
+- **Numerosità:** 18 per cella, al più 72. Con la stima del §1 la cella più povera ne ha 19, al limite: con T_OBS il
+  conteggio può cambiare di poco. La regola vale comunque: una cella con meno di 18 HARP si prende intera e si
+  dichiara.
 - **Estrazione:** ordinamento canonico per `HARPNUM`; permutazione `numpy.random.default_rng(36_200_000)`; le prime 18
   per cella. Zona di semi 36 200 000–36 200 999, verificata libera il 25 novembre. Pesi N/n per cella nei riepiloghi della
   popolazione.
@@ -255,15 +264,18 @@ trattamento del polar filling e della composizione temporale: protocollo separat
 
 ## 12. Punti aperti
 
-1. **Revisione del disegno da confermare (§1, §3, §4):** margine direzionale al posto di quello isotropo, criterio di
-   fattibilità geometrica dai `keys.json` nella popolazione, e Δt su due strati (1–3, 3–4,5 giorni). Con il margine
-   isotropo della revisione 2 le celle a 1–3 giorni avrebbero 5–8 coppie fattibili. Alternative calcolate sugli stessi
-   metadati: margine diffusivo √(2ηΔt) (420 coppie) oppure soglia di 10 deg² (458); non le propongo, perché
-   allentano il controllo del campo esterno.
-2. Gli altri punti della revisione 2 (margine, maschera advettata, schema 2D e convergenza, split) sono chiusi secondo
-   e87fff7.
+1. **Conferma della revisione del disegno:** margine direzionale con conversione metrica, criterio di fattibilità
+   geometrica dagli header nella popolazione, e Δt su due strati. Con le regole corrette le celle a 1–3 giorni hanno
+   22 e 19 coppie fattibili, appena sopra le 18 previste.
+2. Gli altri punti delle revisioni precedenti sono chiusi secondo e87fff7 e f4ad0a7.
 
 ## 13. Modifiche
+
+**Dalla revisione 3 (690ded3), dopo la nota f4ad0a7:**
+- Fattibilità geometrica rifatta (versione 2 dello script): ramo comune di longitudine (137 coppie corrette),
+  C = erosione(P0) ∩ P1, conversione metrica del margine in longitudine, copertura effettiva dai centri dei pixel
+  invece dei riquadri. 373 coppie fattibili; celle 22 / 19 / 174 / 158.
+- Bozza del punto 2 sostituita dal protocollo congelato (3637250).
 
 **Dalla revisione 2 (790cad1), dopo e87fff7:**
 - §3: margine direzionale sul massimo della griglia dei parametri, conversioni scritte, un solo C per caso; margine
