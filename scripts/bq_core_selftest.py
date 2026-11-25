@@ -12,7 +12,8 @@ Checks:
  6. recovery of beta = -8, 0, +8 with short chains on a moderate synthetic design;
  7. timing on the real design structure (metadata only, synthetic y);
  8-11. blocked cross-validation: blocks, masks (buffer and families), exact conditional density vs dense, end to end;
- 12. joint latent draw vs dense posterior; 13-14. L3 folded density and branch draw; 15-16. L2 and L3 Gibbs recovery.
+ 12. joint latent draw vs dense posterior; 13-14. L3 folded density and branch draw; 15-16. L2 and L3 Gibbs recovery;
+ 17. L3 with a large dispersion (many folded records).
 
     OMP_NUM_THREADS=1 .venv/bin/python scripts/bq_core_selftest.py
 """
@@ -272,6 +273,33 @@ def main():
         extra = f"mean lam {np.mean(g['summary']):.3f}" if kind == "L2" else f"share folded {np.mean(g['summary']):.3f}"
         ok(f"{15 if kind == 'L2' else 16}. {kind} Gibbs recovers beta = -8 on its own synthetic data (within 3 posterior SD)",
            abs(bb.mean() + 8.0) < 3 * bb.std(), f"mean {bb.mean():.2f}, SD {bb.std():.2f}; sigma0 {np.exp(g['psi'][:, 0]).mean():.1f} (true {sg0}); {extra}")
+    # 17: L3 with a large dispersion (many folded records) against the oracle fit on the true latent tilt
+    rr = np.random.default_rng(SEED + 80)
+    d17 = synth_design(rr, n_t=50, n=500)
+    x17 = np.array([math.log(70.0), 0.0, math.log(3.0), 0.6, -0.2, math.log(2.0)])
+    p17 = B.unpack(d17, x17)
+    mean17 = d17.X[:, :4] @ np.array([60, 70, 50, 65.0]) - 30.0 * d17.a * d17.s
+    Cs17 = dense_cov(d17, p17) - np.diag(np.full(d17.n, 70.0 ** 2))
+    th17 = mean17 + rr.multivariate_normal(np.zeros(d17.n), Cs17) + 70.0 * rr.standard_normal(d17.n)
+    y17 = np.degrees(np.arcsin(np.sin(np.radians(th17))))
+    folded = float(np.mean(np.abs(th17) > 90.0))
+    g17 = RB.gibbs(d17, y17, x17, 200, 600, rr, kind="L3")
+    b17, s17 = g17["theta"][:, -1], np.exp(g17["psi"][:, 0])
+    # oracle: the Gaussian model fitted on the TRUE latent tilt (perfect unfolding), same priors. With sigma0 = 70 the
+    # prior N(0, 10^2) on beta shrinks the estimate a lot, so the reference is the oracle posterior, not the true -30.
+    dro, _, _, _ = B.slice_chain(lambda z: B.log_post(d17, z, th17), x17, 100, 300, rr)
+    co = B.beta_conditionals(d17, dro[::5], th17)
+    mo, so = co[:, 0].mean(), math.sqrt(co[:, 1].mean() + co[:, 0].var())
+    dr1, _, _, _ = B.slice_chain(lambda z: B.log_post(d17, z, y17), x17, 100, 200, rr)
+    c1 = B.beta_conditionals(d17, dr1[::4], y17)
+    halves = (b17[:300].mean(), b17[300:].mean())
+    ok("17. L3 with large dispersion (sigma0 = 70, ~20 % folded): beta close to the oracle fit on the true latent tilt, sigma0 recovered, "
+       "no drift between chain halves",
+       abs(b17.mean() - mo) < 1.5 * math.hypot(b17.std(), so) and abs(s17.mean() - 70.0) < 3 * s17.std() + 2.0
+       and abs(halves[0] - halves[1]) < b17.std(),
+       f"folded share true {folded:.2f}, sampled {np.mean(g17['summary']):.2f}; L3 beta {b17.mean():.1f} +- {b17.std():.1f} "
+       f"(halves {halves[0]:.1f}/{halves[1]:.1f}), oracle {mo:.1f} +- {so:.1f}; sigma0 L3 {s17.mean():.1f}, L1 on folded gamma "
+       f"{np.exp(dr1[:, 0]).mean():.1f} (beta {c1[:, 0].mean():.1f}, different target)")
     # 7: timing on the real design structure (design columns only)
     try:
         sys.path.insert(0, str(ROOT / "scripts"))
