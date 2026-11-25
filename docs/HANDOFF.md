@@ -24,7 +24,7 @@
 
 Dettagli e divisione dei compiti: `docs/BL_WORK_PLAN.md`.
 
-Stato al 25 novembre: punto 1 chiuso da Codex (8b2efcd, `docs/BL_SFT_HMI_INVENTORY.md`); punto 2, bozza rev. 2 di Claude in `docs/PROTOCOL_SFT_MAP_BIPOLE_PILOT_DRAFT.md` (inventario recepito, riduzione 1D per il dipolo assiale, codici esterni come oracoli), da rivedere; punto 6, riconteggio Q4 0344bc3 in attesa di revisione (`MDI_Q4_RICONTEGGIO_PER_CODEX.txt`).
+Stato al 25 novembre: punto 1 chiuso da Codex (8b2efcd, `docs/BL_SFT_HMI_INVENTORY.md`); punto 2, bozza rev. 2 di Claude in `docs/PROTOCOL_SFT_MAP_BIPOLE_PILOT_DRAFT.md` (inventario recepito, riduzione 1D per il dipolo assiale, codici esterni come oracoli), da rivedere; punto 3, bozza rev. 1 di Claude in `docs/PROTOCOL_SFT_OBSERVED_EVOLUTION_DRAFT.md` (coppie primario → controllo a 1–4,5 giorni, trasporto 2D locale, riferimenti di persistenza e sola rotazione, sviluppo/verifica 1/3–2/3), da rivedere; punto 6, riconteggio Q4 0344bc3 in attesa di revisione (`MDI_Q4_RICONTEGGIO_PER_CODEX.txt`).
 
 ## MDI Q4 — corsa unica eseguita; riconteggio indipendente scritto (25 novembre 2026)
 
