@@ -17,6 +17,12 @@ La preparazione metodologica puo procedere in parallelo, senza ritardare le
 priorita 1 e 2. Il ranking BT usa la verifica osservativa del punto 2 e
 richiede scelte congelate prima di accedere ai suoi esiti di verifica.
 
+**Ulteriore voce approvata dall'utente:** active-region nests su HMI (N),
+prima identificazione e controllo delle emersioni/ricomparse, poi contributo
+alla sorgente BL e analisi bayesiana collegata a BQ/BT. Nessun catalogo di
+nests o risultato bayesiano e gia disponibile. I due piloti SFT restano le
+priorita operative; la specifica N si prepara senza duplicarne il lavoro.
+
 ## Due obiettivi del progetto di Paolo
 
 - **Sorgente Babcock–Leighton:** interpretare e verificare il proxy misurato
@@ -199,6 +205,71 @@ identificate separatamente dalle varianti del trasporto.
 giorni. Non identifica da sola la causa dei residui, non misura soltanto nuova
 emersione e non valida il contributo finale al campo polare globale.
 
+## 5. N — active-region nests HMI, poi confronto bayesiano
+
+**Obiettivi serviti:** sorgente BL e quenching. **Domanda:** quali emersioni
+sono raggruppate nello spazio e nel tempo, quale contributo osservativo
+producono e quanto la loro dipendenza cambia l'inferenza sul quenching?
+
+Un nest non coincide con una HARP complessa, con una famiglia di candidate
+ricomparse P1e o con una longitudine attiva assunta a priori. Occorre
+separare nuova emersione, campo persistente e osservazioni ripetute: P1
+misura vicino al meridiano, non identifica automaticamente l'emersione.
+
+### Prima: identificazione e caratterizzazione
+
+- [ ] Inventario mirato dei metadati HMI/NOAA e delle informazioni temporali
+      gia disponibili. Stabilire se bastano per un'identificazione di nests
+      o soltanto di candidati; primo avvistamento e passaggio al meridiano
+      non diventano date di emersione per convenzione implicita.
+- [ ] Specifica autonoma, dichiarando risultati P1/P1e e morfologia gia noti:
+      coordinate nel sistema rotante, intervalli spaziali e temporali,
+      eventuale deriva longitudinale, gestione di famiglie, associazioni
+      ambigue e buchi osservativi. Soglie fissate prima delle nuove letture;
+      non sceglierle massimizzando quenching o contributo BL.
+- [ ] Prove su sequenze sintetiche con nests noti e senza nesting; controllo
+      delle associazioni casuali rispettando andamento del ciclo, latitudini
+      e disponibilita. La sola vicinanza non certifica identita o causalita.
+- [ ] Catalogo verificato dei nests candidati, appartenenza dei record e
+      incertezza/ambiguita dell'associazione, durata e copertura. Distinguere
+      eventi nuovi da record ripetuti e documentare le perdite.
+- [ ] Quantificare tilt, flusso e proxy BL dei membri e del gruppo con
+      popolazione esplicita. Non sommare come nuove sorgenti misure ripetute
+      di flusso persistente; se le nuove emersioni non sono ricostruibili,
+      limitarsi ai contributi osservativi definiti, senza bilancio cumulato
+      di emersione o campo polare finale.
+
+### Poi: analisi bayesiana delle dipendenze e dei contributi
+
+- [ ] Integrare in BQ, con protocollo proprio, modelli senza/con dipendenza
+      fra membri del nest: effetti gerarchici o correlazioni da definire,
+      controllando contemporaneamente ciclo, emisfero, attivita e tempo.
+      Verificare identificabilita e incertezza delle appartenenze, senza
+      assumere ogni regione come replica indipendente.
+- [ ] Confrontare modelli sugli stessi dati e sullo stesso bersaglio:
+      adeguatezza, sensibilita alle prior, distribuzione della pendenza e
+      prestazioni predittive; eventuali Bayes factor con prior proprie.
+      Riportare anche modelli non distinguibili, senza promettere un verdetto.
+- [ ] Per BT e per la calibrazione della ripetibilita, evitare membri dello
+      stesso nest fra sviluppo/calibrazione e verifica, quando le etichette
+      siano disponibili e affidabili. Definire il raggruppamento prima di
+      leggere la verifica; nuove regole richiedono un nuovo protocollo o
+      emendamento, mai una modifica silenziosa ai piloti congelati.
+- [ ] Valutare il contributo dei nests nel trasporto solo con tempi e flussi
+      nuovi definiti. Nel modello lineare a coefficienti assialsimmetrici
+      il solo raggruppamento in longitudine non cambia il dipolo assiale:
+      non attribuire al nesting un effetto fisico che il modello non contiene.
+
+**Uscite:** catalogo di associazioni e rapporto descrittivo prima, rapporto
+bayesiano poi. Le famiglie P1e e i controlli morfologici gia eseguiti sono
+input, non un'analisi di nesting gia conclusa. L'audit §7 (riserva di 86
+coppie) verifica famiglie note e sovrapposizioni, non l'indipendenza da nests
+ancora da identificare; resta una disponibilita preliminare.
+
+**Assegnazione:** Codex prepara inventario mirato e specifica metodologica N
+insieme a BQ/BT; Claude continua A1 e i piloti SFT, poi revisione incrociata.
+Nessuna acquisizione aggiuntiva o nuova misura avviata da questo piano.
+
 ## Divisione del lavoro senza duplicazioni
 
 | Passo | Claude | Codex | Stato |
@@ -209,6 +280,7 @@ emersione e non valida il contributo finale al campo polare globale.
 | Implementazione | Corregge moduli e prepara runner/rilettori | Riferimenti matematici indipendenti pronti, 20/20, generazione riproducibile | sviluppo sintetico, niente piloti |
 | Risultati | Corsa autorizzata, conservazione, riconteggio e prima bozza del rapporto | Revisione di ricevute, risultati e formulazioni | dopo protocolli e codice |
 | BQ e BT: specifiche bayesiane | Completa i due piloti SFT; non avvia fit bayesiani senza specifica condivisa | Prepara le proposte metodologiche BQ/BT e le prove indipendenti; consegna per revisione incrociata | aggiunti al piano, nessun calcolo bayesiano avviato |
+| N: nests HMI e integrazione bayesiana | Prosegue A1/piloti; rivede proposta e codice N prima delle nuove misure | Inventario mirato, specifica N e collegamento a BQ/BT | pianificato; nests non ancora identificati |
 
 Ogni passaggio riporta commit, prodotto concreto e prossimo passo. Claude
 non deve riscrivere gli oracoli di Codex; Codex non deve implementare un
@@ -240,7 +312,7 @@ output o le regole congelate.
 
 **Inventario completato da Codex:** [consegna e fotografia dei dati](BL_SFT_HMI_INVENTORY.md).
 **Prossimo lavoro:** Claude chiude i rilievi del punto 1 e il prerequisito
-residuo del punto 2; Codex rivede le chiusure e prepara le specifiche BQ/BT.
+residuo del punto 2; Codex rivede le chiusure e prepara le specifiche BQ/BT e N.
 Il ranking BT si definisce prima di leggere la verifica osservativa; BQ e
 un'analisi separata, non cieca sui risultati HMI precedenti. Nessuna nuova
 corsa o acquisizione e stata lanciata per aggiornare questa lista.

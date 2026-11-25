@@ -1,5 +1,13 @@
 # Cold restart — SHARP BL
 
+## Aggiunta dell'utente: active-region nests HMI, poi analisi bayesiana
+
+- Nuova voce **N** nel [piano comune](BL_WORK_PLAN.md): identificare nests candidati, distinguendo nuove emersioni, ricomparse e HARP complesse; poi caratterizzazione della sorgente BL e integrazione bayesiana in BQ/BT.
+- Codex prepara inventario mirato e specifica; Claude continua A1 e le correzioni dei piloti SFT. Non duplicare le attivita e non modificare protocolli congelati per introdurre i nests.
+- Prima della nuova inferenza: controlli dell'associazione, classificazioni ambigue, dipendenze fra membri e separazione dei gruppi fra sviluppo/calibrazione e verifica. L'audit della ripetibilita non ha ancora verificato legami di nesting.
+- Nessun nest gia classificato, nessuna nuova misura o corsa bayesiana eseguita con questo aggiornamento.
+
+
 ## Decisione aggiornata dell'utente: §7 da svolgere per l'analisi bayesiana
 
 - Superata la proposta di rinviare la ripetibilita dichiarando l'errore non stimato. Il lavoro e **attivo**; Codex ha eseguito l'audit preliminare dai soli metadati, lasciando Claude su A1 e le correzioni del punto 2 mappa-bipolo.
@@ -40,6 +48,7 @@
 > **Priorita 1:** mappa HMI contro bipolo del proxy, evoluti nello stesso SFT.
 > **Priorita 2:** evoluzione simulata contro osservazioni successive indipendenti.
 > **Voci pianificate BQ/BT:** ranking bayesiano HMI del quenching e del trasporto superficiale; specifiche prima dei calcoli e, per BT, prima della lettura della verifica.
+> **Voce N:** nests HMI da identificare e verificare prima della relativa analisi bayesiana; distinti dalle ricomparse.
 > Mantenere questo richiamo sopra la cronologia. Sono i punti 1 e 2 indicati
 > dall'utente, non i passi del pilota MDI.
 

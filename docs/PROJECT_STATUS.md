@@ -25,6 +25,12 @@ e **BT del trasporto superficiale HMI**. Specifiche e controlli propri da
 fissare; nessun calcolo bayesiano avviato. BT richiede criteri congelati prima
 della lettura della verifica osservativa. Le due priorita SFT restano attive.
 
+**Aggiunta successiva dell'utente:** active-region nests HMI, prima
+identificazione e contributo osservativo alla sorgente BL, poi analisi
+bayesiana delle dipendenze e del quenching. Voce N nel piano comune;
+nessun catalogo di nests gia costruito e nessuna nuova misura eseguita.
+Le candidate ricomparse P1e non sono una classificazione di nests.
+
 La parte descrittiva del pilota MDI e conclusa. Q4 e eseguita, ricontata e
 letta; rapporto [MDI_PILOT_Q4_RESULTS.md](MDI_PILOT_Q4_RESULTS.md), formulazione
 rivista in aaf3d6f. Non rilanciarla. Catalogo MDI completo e nuovo T3 restano
