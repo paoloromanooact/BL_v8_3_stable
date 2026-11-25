@@ -12,8 +12,11 @@
 Inventario completato: [consegna SFT/HMI](BL_SFT_HMI_INVENTORY.md).
 Punto 1: protocollo congelato, emendamento numerico e correzioni del runner e
 del riconteggio richiesti in [revisione serale](SFT_Q4_EVENING_REVIEW_20261125.md).
-Punto 2: geometria rev.4 confermata, impegno sulla ripetibilita da chiudere
-prima del congelamento; codice preparatorio, nessuna corsa osservata.
+Punto 2: geometria rev.4 confermata; ripetibilita §7 attiva per decisione
+aggiornata dell'utente. Audit Codex T_OBS/header concluso: riserva conservativa
+di 86 coppie in 84 HARP; [rapporto](SFT_HMI_REPEATABILITY_METADATA_20261125.md).
+Specificare e congelare la misura prima dei pixel; nessun errore ancora
+stimato e nessuna corsa del pilota osservato.
 Il primo controlla l'approssimazione dentro il modello; il secondo il
 confronto con il Sole. Nessuno dei due piloti e ancora eseguito.
 

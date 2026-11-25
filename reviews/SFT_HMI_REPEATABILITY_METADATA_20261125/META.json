@@ -1,0 +1,719 @@
+{
+  "summary": {
+    "scope": "metadata/header audit only, not an error estimate or final selection",
+    "magnetic_arrays_read": false,
+    "tilt_flux_columns_read": false,
+    "network_used": false,
+    "simulation_run": false,
+    "nominal_pairs": 299,
+    "nominal_harps": 296,
+    "t_obs_pairs": 296,
+    "t_obs_harps": 294,
+    "nominal_pairs_lost_under_t_obs": 3,
+    "t_obs_pairs_new": 0,
+    "metadata_error_records": 13,
+    "metadata_error_pairs": 0,
+    "observed_pilot_pool_harps": 1020,
+    "duplicate_segment_paths": 56,
+    "valid_pair_gap_s_quantiles": {
+      "0": 3599.999999999992,
+      "0.5": 3600.5000000000027,
+      "1": 7200.000000000013
+    },
+    "pairs_with_area_ge_25": 113,
+    "pairs_same_harp_as_pool": 25,
+    "pairs_same_family_as_pool": 27,
+    "pairs_possible_spacetime_overlap": 32,
+    "conservative_reserve_pairs": 263,
+    "conservative_reserve_harps": 261,
+    "conservative_reserve_area_ge_25": 86,
+    "notes": [
+      "Conservative reserve excludes the ENTIRE eligible primary-control pool, its known families and possible bounding-box overlaps; it is availability accounting, not the final frozen sample.",
+      "No pilot sample is frozen/selected yet: independence must be rechecked on the preserved final sample and family/spatial graph.",
+      "Missing families and unknown/modified data need explicit handling before measurement.",
+      "Pairs sharing records or families are not independent replicates.",
+      "FITS headers only; input pixel finiteness and actual repetition scatter have not been measured."
+    ]
+  },
+  "code_sha256": "07b2208ac007d2cc444390300b79b7f6fa4d749db738885d2ff909bb12d49df8",
+  "catalogue_sha256": "67dc6a74a27b44f9ddd958f5a5dcc972a564300af89444c781665926ca0488af",
+  "collections": [
+    "data/sharp/fits",
+    "data/sharp/fits_p3",
+    "data/sharp/test_20240508"
+  ],
+  "collection_precedence": "first complete-segment path in collection order, recorded; no claim that duplicate pixels are identical",
+  "bad_records": [
+    {
+      "record": [
+        11142,
+        "20240508",
+        "031200"
+      ],
+      "error": "FileNotFoundError: [Errno 2] No such file or directory: '/home/gianluca/BL_v8_3_stable/data/sharp/test_20240508/hmi.sharp_cea_720s.11142.20240508_031200_TAI.keys.json'"
+    },
+    {
+      "record": [
+        11149,
+        "20240508",
+        "031200"
+      ],
+      "error": "FileNotFoundError: [Errno 2] No such file or directory: '/home/gianluca/BL_v8_3_stable/data/sharp/test_20240508/hmi.sharp_cea_720s.11149.20240508_031200_TAI.keys.json'"
+    },
+    {
+      "record": [
+        11150,
+        "20240508",
+        "031200"
+      ],
+      "error": "FileNotFoundError: [Errno 2] No such file or directory: '/home/gianluca/BL_v8_3_stable/data/sharp/test_20240508/hmi.sharp_cea_720s.11150.20240508_031200_TAI.keys.json'"
+    },
+    {
+      "record": [
+        11152,
+        "20240508",
+        "031200"
+      ],
+      "error": "FileNotFoundError: [Errno 2] No such file or directory: '/home/gianluca/BL_v8_3_stable/data/sharp/test_20240508/hmi.sharp_cea_720s.11152.20240508_031200_TAI.keys.json'"
+    },
+    {
+      "record": [
+        11159,
+        "20240508",
+        "031200"
+      ],
+      "error": "FileNotFoundError: [Errno 2] No such file or directory: '/home/gianluca/BL_v8_3_stable/data/sharp/test_20240508/hmi.sharp_cea_720s.11159.20240508_031200_TAI.keys.json'"
+    },
+    {
+      "record": [
+        11170,
+        "20240508",
+        "031200"
+      ],
+      "error": "FileNotFoundError: [Errno 2] No such file or directory: '/home/gianluca/BL_v8_3_stable/data/sharp/test_20240508/hmi.sharp_cea_720s.11170.20240508_031200_TAI.keys.json'"
+    },
+    {
+      "record": [
+        11178,
+        "20240508",
+        "031200"
+      ],
+      "error": "FileNotFoundError: [Errno 2] No such file or directory: '/home/gianluca/BL_v8_3_stable/data/sharp/test_20240508/hmi.sharp_cea_720s.11178.20240508_031200_TAI.keys.json'"
+    },
+    {
+      "record": [
+        11182,
+        "20240508",
+        "031200"
+      ],
+      "error": "FileNotFoundError: [Errno 2] No such file or directory: '/home/gianluca/BL_v8_3_stable/data/sharp/test_20240508/hmi.sharp_cea_720s.11182.20240508_031200_TAI.keys.json'"
+    },
+    {
+      "record": [
+        11186,
+        "20240508",
+        "031200"
+      ],
+      "error": "FileNotFoundError: [Errno 2] No such file or directory: '/home/gianluca/BL_v8_3_stable/data/sharp/test_20240508/hmi.sharp_cea_720s.11186.20240508_031200_TAI.keys.json'"
+    },
+    {
+      "record": [
+        11187,
+        "20240508",
+        "031200"
+      ],
+      "error": "FileNotFoundError: [Errno 2] No such file or directory: '/home/gianluca/BL_v8_3_stable/data/sharp/test_20240508/hmi.sharp_cea_720s.11187.20240508_031200_TAI.keys.json'"
+    },
+    {
+      "record": [
+        11189,
+        "20240508",
+        "031200"
+      ],
+      "error": "FileNotFoundError: [Errno 2] No such file or directory: '/home/gianluca/BL_v8_3_stable/data/sharp/test_20240508/hmi.sharp_cea_720s.11189.20240508_031200_TAI.keys.json'"
+    },
+    {
+      "record": [
+        11190,
+        "20240508",
+        "031200"
+      ],
+      "error": "FileNotFoundError: [Errno 2] No such file or directory: '/home/gianluca/BL_v8_3_stable/data/sharp/test_20240508/hmi.sharp_cea_720s.11190.20240508_031200_TAI.keys.json'"
+    },
+    {
+      "record": [
+        11192,
+        "20240508",
+        "031200"
+      ],
+      "error": "FileNotFoundError: [Errno 2] No such file or directory: '/home/gianluca/BL_v8_3_stable/data/sharp/test_20240508/hmi.sharp_cea_720s.11192.20240508_031200_TAI.keys.json'"
+    }
+  ],
+  "duplicate_segments": [
+    {
+      "record": [
+        317,
+        "20101225",
+        "220000"
+      ],
+      "segment": "Br",
+      "preferred": "data/sharp/fits/2010/hmi.sharp_cea_720s.317.20101225_220000_TAI.Br.fits",
+      "alternative": "data/sharp/fits_p3/2010/hmi.sharp_cea_720s.317.20101225_220000_TAI.Br.fits"
+    },
+    {
+      "record": [
+        317,
+        "20101225",
+        "220000"
+      ],
+      "segment": "bitmap",
+      "preferred": "data/sharp/fits/2010/hmi.sharp_cea_720s.317.20101225_220000_TAI.bitmap.fits",
+      "alternative": "data/sharp/fits_p3/2010/hmi.sharp_cea_720s.317.20101225_220000_TAI.bitmap.fits"
+    },
+    {
+      "record": [
+        384,
+        "20110222",
+        "220000"
+      ],
+      "segment": "Br",
+      "preferred": "data/sharp/fits/2011/hmi.sharp_cea_720s.384.20110222_220000_TAI.Br.fits",
+      "alternative": "data/sharp/fits_p3/2011/hmi.sharp_cea_720s.384.20110222_220000_TAI.Br.fits"
+    },
+    {
+      "record": [
+        384,
+        "20110222",
+        "220000"
+      ],
+      "segment": "bitmap",
+      "preferred": "data/sharp/fits/2011/hmi.sharp_cea_720s.384.20110222_220000_TAI.bitmap.fits",
+      "alternative": "data/sharp/fits_p3/2011/hmi.sharp_cea_720s.384.20110222_220000_TAI.bitmap.fits"
+    },
+    {
+      "record": [
+        605,
+        "20110518",
+        "220000"
+      ],
+      "segment": "Br",
+      "preferred": "data/sharp/fits/2011/hmi.sharp_cea_720s.605.20110518_220000_TAI.Br.fits",
+      "alternative": "data/sharp/fits_p3/2011/hmi.sharp_cea_720s.605.20110518_220000_TAI.Br.fits"
+    },
+    {
+      "record": [
+        605,
+        "20110518",
+        "220000"
+      ],
+      "segment": "bitmap",
+      "preferred": "data/sharp/fits/2011/hmi.sharp_cea_720s.605.20110518_220000_TAI.bitmap.fits",
+      "alternative": "data/sharp/fits_p3/2011/hmi.sharp_cea_720s.605.20110518_220000_TAI.bitmap.fits"
+    },
+    {
+      "record": [
+        1455,
+        "20120307",
+        "220000"
+      ],
+      "segment": "Br",
+      "preferred": "data/sharp/fits/2012/hmi.sharp_cea_720s.1455.20120307_220000_TAI.Br.fits",
+      "alternative": "data/sharp/fits_p3/2012/hmi.sharp_cea_720s.1455.20120307_220000_TAI.Br.fits"
+    },
+    {
+      "record": [
+        1455,
+        "20120307",
+        "220000"
+      ],
+      "segment": "bitmap",
+      "preferred": "data/sharp/fits/2012/hmi.sharp_cea_720s.1455.20120307_220000_TAI.bitmap.fits",
+      "alternative": "data/sharp/fits_p3/2012/hmi.sharp_cea_720s.1455.20120307_220000_TAI.bitmap.fits"
+    },
+    {
+      "record": [
+        1573,
+        "20120421",
+        "220000"
+      ],
+      "segment": "Br",
+      "preferred": "data/sharp/fits/2012/hmi.sharp_cea_720s.1573.20120421_220000_TAI.Br.fits",
+      "alternative": "data/sharp/fits_p3/2012/hmi.sharp_cea_720s.1573.20120421_220000_TAI.Br.fits"
+    },
+    {
+      "record": [
+        1573,
+        "20120421",
+        "220000"
+      ],
+      "segment": "bitmap",
+      "preferred": "data/sharp/fits/2012/hmi.sharp_cea_720s.1573.20120421_220000_TAI.bitmap.fits",
+      "alternative": "data/sharp/fits_p3/2012/hmi.sharp_cea_720s.1573.20120421_220000_TAI.bitmap.fits"
+    },
+    {
+      "record": [
+        1582,
+        "20120418",
+        "220000"
+      ],
+      "segment": "Br",
+      "preferred": "data/sharp/fits/2012/hmi.sharp_cea_720s.1582.20120418_220000_TAI.Br.fits",
+      "alternative": "data/sharp/fits_p3/2012/hmi.sharp_cea_720s.1582.20120418_220000_TAI.Br.fits"
+    },
+    {
+      "record": [
+        1582,
+        "20120418",
+        "220000"
+      ],
+      "segment": "bitmap",
+      "preferred": "data/sharp/fits/2012/hmi.sharp_cea_720s.1582.20120418_220000_TAI.bitmap.fits",
+      "alternative": "data/sharp/fits_p3/2012/hmi.sharp_cea_720s.1582.20120418_220000_TAI.bitmap.fits"
+    },
+    {
+      "record": [
+        1892,
+        "20120728",
+        "220000"
+      ],
+      "segment": "Br",
+      "preferred": "data/sharp/fits/2012/hmi.sharp_cea_720s.1892.20120728_220000_TAI.Br.fits",
+      "alternative": "data/sharp/fits_p3/2012/hmi.sharp_cea_720s.1892.20120728_220000_TAI.Br.fits"
+    },
+    {
+      "record": [
+        1892,
+        "20120728",
+        "220000"
+      ],
+      "segment": "bitmap",
+      "preferred": "data/sharp/fits/2012/hmi.sharp_cea_720s.1892.20120728_220000_TAI.bitmap.fits",
+      "alternative": "data/sharp/fits_p3/2012/hmi.sharp_cea_720s.1892.20120728_220000_TAI.bitmap.fits"
+    },
+    {
+      "record": [
+        2123,
+        "20121016",
+        "220000"
+      ],
+      "segment": "Br",
+      "preferred": "data/sharp/fits/2012/hmi.sharp_cea_720s.2123.20121016_220000_TAI.Br.fits",
+      "alternative": "data/sharp/fits_p3/2012/hmi.sharp_cea_720s.2123.20121016_220000_TAI.Br.fits"
+    },
+    {
+      "record": [
+        2123,
+        "20121016",
+        "220000"
+      ],
+      "segment": "bitmap",
+      "preferred": "data/sharp/fits/2012/hmi.sharp_cea_720s.2123.20121016_220000_TAI.bitmap.fits",
+      "alternative": "data/sharp/fits_p3/2012/hmi.sharp_cea_720s.2123.20121016_220000_TAI.bitmap.fits"
+    },
+    {
+      "record": [
+        2439,
+        "20130203",
+        "220000"
+      ],
+      "segment": "Br",
+      "preferred": "data/sharp/fits/2013/hmi.sharp_cea_720s.2439.20130203_220000_TAI.Br.fits",
+      "alternative": "data/sharp/fits_p3/2013/hmi.sharp_cea_720s.2439.20130203_220000_TAI.Br.fits"
+    },
+    {
+      "record": [
+        2439,
+        "20130203",
+        "220000"
+      ],
+      "segment": "bitmap",
+      "preferred": "data/sharp/fits/2013/hmi.sharp_cea_720s.2439.20130203_220000_TAI.bitmap.fits",
+      "alternative": "data/sharp/fits_p3/2013/hmi.sharp_cea_720s.2439.20130203_220000_TAI.bitmap.fits"
+    },
+    {
+      "record": [
+        2443,
+        "20130202",
+        "220000"
+      ],
+      "segment": "Br",
+      "preferred": "data/sharp/fits/2013/hmi.sharp_cea_720s.2443.20130202_220000_TAI.Br.fits",
+      "alternative": "data/sharp/fits_p3/2013/hmi.sharp_cea_720s.2443.20130202_220000_TAI.Br.fits"
+    },
+    {
+      "record": [
+        2443,
+        "20130202",
+        "220000"
+      ],
+      "segment": "bitmap",
+      "preferred": "data/sharp/fits/2013/hmi.sharp_cea_720s.2443.20130202_220000_TAI.bitmap.fits",
+      "alternative": "data/sharp/fits_p3/2013/hmi.sharp_cea_720s.2443.20130202_220000_TAI.bitmap.fits"
+    },
+    {
+      "record": [
+        2519,
+        "20130305",
+        "220000"
+      ],
+      "segment": "Br",
+      "preferred": "data/sharp/fits/2013/hmi.sharp_cea_720s.2519.20130305_220000_TAI.Br.fits",
+      "alternative": "data/sharp/fits_p3/2013/hmi.sharp_cea_720s.2519.20130305_220000_TAI.Br.fits"
+    },
+    {
+      "record": [
+        2519,
+        "20130305",
+        "220000"
+      ],
+      "segment": "bitmap",
+      "preferred": "data/sharp/fits/2013/hmi.sharp_cea_720s.2519.20130305_220000_TAI.bitmap.fits",
+      "alternative": "data/sharp/fits_p3/2013/hmi.sharp_cea_720s.2519.20130305_220000_TAI.bitmap.fits"
+    },
+    {
+      "record": [
+        2716,
+        "20130504",
+        "220000"
+      ],
+      "segment": "Br",
+      "preferred": "data/sharp/fits/2013/hmi.sharp_cea_720s.2716.20130504_220000_TAI.Br.fits",
+      "alternative": "data/sharp/fits_p3/2013/hmi.sharp_cea_720s.2716.20130504_220000_TAI.Br.fits"
+    },
+    {
+      "record": [
+        2716,
+        "20130504",
+        "220000"
+      ],
+      "segment": "bitmap",
+      "preferred": "data/sharp/fits/2013/hmi.sharp_cea_720s.2716.20130504_220000_TAI.bitmap.fits",
+      "alternative": "data/sharp/fits_p3/2013/hmi.sharp_cea_720s.2716.20130504_220000_TAI.bitmap.fits"
+    },
+    {
+      "record": [
+        2737,
+        "20130512",
+        "220000"
+      ],
+      "segment": "Br",
+      "preferred": "data/sharp/fits/2013/hmi.sharp_cea_720s.2737.20130512_220000_TAI.Br.fits",
+      "alternative": "data/sharp/fits_p3/2013/hmi.sharp_cea_720s.2737.20130512_220000_TAI.Br.fits"
+    },
+    {
+      "record": [
+        2737,
+        "20130512",
+        "220000"
+      ],
+      "segment": "bitmap",
+      "preferred": "data/sharp/fits/2013/hmi.sharp_cea_720s.2737.20130512_220000_TAI.bitmap.fits",
+      "alternative": "data/sharp/fits_p3/2013/hmi.sharp_cea_720s.2737.20130512_220000_TAI.bitmap.fits"
+    },
+    {
+      "record": [
+        3848,
+        "20140314",
+        "220000"
+      ],
+      "segment": "Br",
+      "preferred": "data/sharp/fits/2014/hmi.sharp_cea_720s.3848.20140314_220000_TAI.Br.fits",
+      "alternative": "data/sharp/fits_p3/2014/hmi.sharp_cea_720s.3848.20140314_220000_TAI.Br.fits"
+    },
+    {
+      "record": [
+        3848,
+        "20140314",
+        "220000"
+      ],
+      "segment": "bitmap",
+      "preferred": "data/sharp/fits/2014/hmi.sharp_cea_720s.3848.20140314_220000_TAI.bitmap.fits",
+      "alternative": "data/sharp/fits_p3/2014/hmi.sharp_cea_720s.3848.20140314_220000_TAI.bitmap.fits"
+    },
+    {
+      "record": [
+        4073,
+        "20140429",
+        "220000"
+      ],
+      "segment": "Br",
+      "preferred": "data/sharp/fits/2014/hmi.sharp_cea_720s.4073.20140429_220000_TAI.Br.fits",
+      "alternative": "data/sharp/fits_p3/2014/hmi.sharp_cea_720s.4073.20140429_220000_TAI.Br.fits"
+    },
+    {
+      "record": [
+        4073,
+        "20140429",
+        "220000"
+      ],
+      "segment": "bitmap",
+      "preferred": "data/sharp/fits/2014/hmi.sharp_cea_720s.4073.20140429_220000_TAI.bitmap.fits",
+      "alternative": "data/sharp/fits_p3/2014/hmi.sharp_cea_720s.4073.20140429_220000_TAI.bitmap.fits"
+    },
+    {
+      "record": [
+        4290,
+        "20140626",
+        "220000"
+      ],
+      "segment": "Br",
+      "preferred": "data/sharp/fits/2014/hmi.sharp_cea_720s.4290.20140626_220000_TAI.Br.fits",
+      "alternative": "data/sharp/fits_p3/2014/hmi.sharp_cea_720s.4290.20140626_220000_TAI.Br.fits"
+    },
+    {
+      "record": [
+        4290,
+        "20140626",
+        "220000"
+      ],
+      "segment": "bitmap",
+      "preferred": "data/sharp/fits/2014/hmi.sharp_cea_720s.4290.20140626_220000_TAI.bitmap.fits",
+      "alternative": "data/sharp/fits_p3/2014/hmi.sharp_cea_720s.4290.20140626_220000_TAI.bitmap.fits"
+    },
+    {
+      "record": [
+        4539,
+        "20140908",
+        "220000"
+      ],
+      "segment": "Br",
+      "preferred": "data/sharp/fits/2014/hmi.sharp_cea_720s.4539.20140908_220000_TAI.Br.fits",
+      "alternative": "data/sharp/fits_p3/2014/hmi.sharp_cea_720s.4539.20140908_220000_TAI.Br.fits"
+    },
+    {
+      "record": [
+        4539,
+        "20140908",
+        "220000"
+      ],
+      "segment": "bitmap",
+      "preferred": "data/sharp/fits/2014/hmi.sharp_cea_720s.4539.20140908_220000_TAI.bitmap.fits",
+      "alternative": "data/sharp/fits_p3/2014/hmi.sharp_cea_720s.4539.20140908_220000_TAI.bitmap.fits"
+    },
+    {
+      "record": [
+        5005,
+        "20150103",
+        "220000"
+      ],
+      "segment": "Br",
+      "preferred": "data/sharp/fits/2015/hmi.sharp_cea_720s.5005.20150103_220000_TAI.Br.fits",
+      "alternative": "data/sharp/fits_p3/2015/hmi.sharp_cea_720s.5005.20150103_220000_TAI.Br.fits"
+    },
+    {
+      "record": [
+        5005,
+        "20150103",
+        "220000"
+      ],
+      "segment": "bitmap",
+      "preferred": "data/sharp/fits/2015/hmi.sharp_cea_720s.5005.20150103_220000_TAI.bitmap.fits",
+      "alternative": "data/sharp/fits_p3/2015/hmi.sharp_cea_720s.5005.20150103_220000_TAI.bitmap.fits"
+    },
+    {
+      "record": [
+        5351,
+        "20150322",
+        "220000"
+      ],
+      "segment": "Br",
+      "preferred": "data/sharp/fits/2015/hmi.sharp_cea_720s.5351.20150322_220000_TAI.Br.fits",
+      "alternative": "data/sharp/fits_p3/2015/hmi.sharp_cea_720s.5351.20150322_220000_TAI.Br.fits"
+    },
+    {
+      "record": [
+        5351,
+        "20150322",
+        "220000"
+      ],
+      "segment": "bitmap",
+      "preferred": "data/sharp/fits/2015/hmi.sharp_cea_720s.5351.20150322_220000_TAI.bitmap.fits",
+      "alternative": "data/sharp/fits_p3/2015/hmi.sharp_cea_720s.5351.20150322_220000_TAI.bitmap.fits"
+    },
+    {
+      "record": [
+        5456,
+        "20150415",
+        "220000"
+      ],
+      "segment": "Br",
+      "preferred": "data/sharp/fits/2015/hmi.sharp_cea_720s.5456.20150415_220000_TAI.Br.fits",
+      "alternative": "data/sharp/fits_p3/2015/hmi.sharp_cea_720s.5456.20150415_220000_TAI.Br.fits"
+    },
+    {
+      "record": [
+        5456,
+        "20150415",
+        "220000"
+      ],
+      "segment": "bitmap",
+      "preferred": "data/sharp/fits/2015/hmi.sharp_cea_720s.5456.20150415_220000_TAI.bitmap.fits",
+      "alternative": "data/sharp/fits_p3/2015/hmi.sharp_cea_720s.5456.20150415_220000_TAI.bitmap.fits"
+    },
+    {
+      "record": [
+        5678,
+        "20150614",
+        "220000"
+      ],
+      "segment": "Br",
+      "preferred": "data/sharp/fits/2015/hmi.sharp_cea_720s.5678.20150614_220000_TAI.Br.fits",
+      "alternative": "data/sharp/fits_p3/2015/hmi.sharp_cea_720s.5678.20150614_220000_TAI.Br.fits"
+    },
+    {
+      "record": [
+        5678,
+        "20150614",
+        "220000"
+      ],
+      "segment": "bitmap",
+      "preferred": "data/sharp/fits/2015/hmi.sharp_cea_720s.5678.20150614_220000_TAI.bitmap.fits",
+      "alternative": "data/sharp/fits_p3/2015/hmi.sharp_cea_720s.5678.20150614_220000_TAI.bitmap.fits"
+    },
+    {
+      "record": [
+        5956,
+        "20150921",
+        "000000"
+      ],
+      "segment": "Br",
+      "preferred": "data/sharp/fits/2015/hmi.sharp_cea_720s.5956.20150921_000000_TAI.Br.fits",
+      "alternative": "data/sharp/fits_p3/2015/hmi.sharp_cea_720s.5956.20150921_000000_TAI.Br.fits"
+    },
+    {
+      "record": [
+        5956,
+        "20150921",
+        "000000"
+      ],
+      "segment": "bitmap",
+      "preferred": "data/sharp/fits/2015/hmi.sharp_cea_720s.5956.20150921_000000_TAI.bitmap.fits",
+      "alternative": "data/sharp/fits_p3/2015/hmi.sharp_cea_720s.5956.20150921_000000_TAI.bitmap.fits"
+    },
+    {
+      "record": [
+        6063,
+        "20151031",
+        "000000"
+      ],
+      "segment": "Br",
+      "preferred": "data/sharp/fits/2015/hmi.sharp_cea_720s.6063.20151031_000000_TAI.Br.fits",
+      "alternative": "data/sharp/fits_p3/2015/hmi.sharp_cea_720s.6063.20151031_000000_TAI.Br.fits"
+    },
+    {
+      "record": [
+        6063,
+        "20151031",
+        "000000"
+      ],
+      "segment": "bitmap",
+      "preferred": "data/sharp/fits/2015/hmi.sharp_cea_720s.6063.20151031_000000_TAI.bitmap.fits",
+      "alternative": "data/sharp/fits_p3/2015/hmi.sharp_cea_720s.6063.20151031_000000_TAI.bitmap.fits"
+    },
+    {
+      "record": [
+        6227,
+        "20160104",
+        "000000"
+      ],
+      "segment": "Br",
+      "preferred": "data/sharp/fits/2016/hmi.sharp_cea_720s.6227.20160104_000000_TAI.Br.fits",
+      "alternative": "data/sharp/fits_p3/2016/hmi.sharp_cea_720s.6227.20160104_000000_TAI.Br.fits"
+    },
+    {
+      "record": [
+        6227,
+        "20160104",
+        "000000"
+      ],
+      "segment": "bitmap",
+      "preferred": "data/sharp/fits/2016/hmi.sharp_cea_720s.6227.20160104_000000_TAI.bitmap.fits",
+      "alternative": "data/sharp/fits_p3/2016/hmi.sharp_cea_720s.6227.20160104_000000_TAI.bitmap.fits"
+    },
+    {
+      "record": [
+        6242,
+        "20160108",
+        "000000"
+      ],
+      "segment": "Br",
+      "preferred": "data/sharp/fits/2016/hmi.sharp_cea_720s.6242.20160108_000000_TAI.Br.fits",
+      "alternative": "data/sharp/fits_p3/2016/hmi.sharp_cea_720s.6242.20160108_000000_TAI.Br.fits"
+    },
+    {
+      "record": [
+        6242,
+        "20160108",
+        "000000"
+      ],
+      "segment": "bitmap",
+      "preferred": "data/sharp/fits/2016/hmi.sharp_cea_720s.6242.20160108_000000_TAI.bitmap.fits",
+      "alternative": "data/sharp/fits_p3/2016/hmi.sharp_cea_720s.6242.20160108_000000_TAI.bitmap.fits"
+    },
+    {
+      "record": [
+        6351,
+        "20160217",
+        "000000"
+      ],
+      "segment": "Br",
+      "preferred": "data/sharp/fits/2016/hmi.sharp_cea_720s.6351.20160217_000000_TAI.Br.fits",
+      "alternative": "data/sharp/fits_p3/2016/hmi.sharp_cea_720s.6351.20160217_000000_TAI.Br.fits"
+    },
+    {
+      "record": [
+        6351,
+        "20160217",
+        "000000"
+      ],
+      "segment": "bitmap",
+      "preferred": "data/sharp/fits/2016/hmi.sharp_cea_720s.6351.20160217_000000_TAI.bitmap.fits",
+      "alternative": "data/sharp/fits_p3/2016/hmi.sharp_cea_720s.6351.20160217_000000_TAI.bitmap.fits"
+    },
+    {
+      "record": [
+        6404,
+        "20160304",
+        "000000"
+      ],
+      "segment": "Br",
+      "preferred": "data/sharp/fits/2016/hmi.sharp_cea_720s.6404.20160304_000000_TAI.Br.fits",
+      "alternative": "data/sharp/fits_p3/2016/hmi.sharp_cea_720s.6404.20160304_000000_TAI.Br.fits"
+    },
+    {
+      "record": [
+        6404,
+        "20160304",
+        "000000"
+      ],
+      "segment": "bitmap",
+      "preferred": "data/sharp/fits/2016/hmi.sharp_cea_720s.6404.20160304_000000_TAI.bitmap.fits",
+      "alternative": "data/sharp/fits_p3/2016/hmi.sharp_cea_720s.6404.20160304_000000_TAI.bitmap.fits"
+    },
+    {
+      "record": [
+        6454,
+        "20160326",
+        "000000"
+      ],
+      "segment": "Br",
+      "preferred": "data/sharp/fits/2016/hmi.sharp_cea_720s.6454.20160326_000000_TAI.Br.fits",
+      "alternative": "data/sharp/fits_p3/2016/hmi.sharp_cea_720s.6454.20160326_000000_TAI.Br.fits"
+    },
+    {
+      "record": [
+        6454,
+        "20160326",
+        "000000"
+      ],
+      "segment": "bitmap",
+      "preferred": "data/sharp/fits/2016/hmi.sharp_cea_720s.6454.20160326_000000_TAI.bitmap.fits",
+      "alternative": "data/sharp/fits_p3/2016/hmi.sharp_cea_720s.6454.20160326_000000_TAI.bitmap.fits"
+    }
+  ],
+  "products_sha256": {
+    "PAIRS.csv": "23460efee9f9bac2bdb16b5243417a88b840147787d732b4c6fda3d36700e7ed",
+    "HEADERS.csv": "b294f8a578eea4405ee9f1801cdba9ecd0c35155b3421dd22baa4a7b096f79c3",
+    "KEYWORDS.csv": "1ca226c7c77993dffe00180a8d07773d6a03eed9b676eb97216de6b414cf9970"
+  }
+}

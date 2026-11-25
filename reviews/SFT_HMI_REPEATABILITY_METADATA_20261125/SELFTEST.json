@@ -1,0 +1,42 @@
+{
+  "passed": 9,
+  "total": 9,
+  "checks": [
+    {
+      "name": "fractional TAI seconds",
+      "ok": true
+    },
+    {
+      "name": "seconds 60 carries",
+      "ok": true
+    },
+    {
+      "name": "two-hour endpoint",
+      "ok": true
+    },
+    {
+      "name": "reject 2026.01.01_00:00:00_UTC",
+      "ok": true
+    },
+    {
+      "name": "reject 2026.01.01_00:00:61_TAI",
+      "ok": true
+    },
+    {
+      "name": "reject 2026.02.30_00:00:00_TAI",
+      "ok": true
+    },
+    {
+      "name": "minimum filter equals rectangular erosion",
+      "ok": true
+    },
+    {
+      "name": "bounding boxes cross 360",
+      "ok": true
+    },
+    {
+      "name": "same location different latitude not overlapping",
+      "ok": true
+    }
+  ]
+}

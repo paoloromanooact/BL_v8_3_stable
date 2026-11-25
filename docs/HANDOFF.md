@@ -1,6 +1,14 @@
 # Cold restart — SHARP BL
 
-## Decisione dell'utente (25 novembre, sera): punto 3 §7 in pausa
+## Decisione aggiornata dell'utente: §7 da svolgere per l'analisi bayesiana
+
+- Superata la proposta di rinviare la ripetibilita dichiarando l'errore non stimato. Il lavoro e **attivo**; Codex ha eseguito l'audit preliminare dai soli metadati, lasciando Claude su A1 e le correzioni del punto 2 mappa-bipolo.
+- [Consegna](SFT_HMI_REPEATABILITY_METADATA_20261125.md): 299 coppie nominali diventano 296/294 HARP usando T_OBS; tre durano 7201 s. Riserva cautelativa di **86 coppie/84 HARP** con area C almeno 25 deg², esclusi intero bacino osservativo, famiglie note e possibili sovrapposizioni. Audit, manifesti e selftest 9/9 conservati; nessun pixel magnetico letto.
+- [Specifica di misura in bozza](SFT_HMI_REPEATABILITY_PLAN_DRAFT.md): completare, rivedere e congelare prima dei pixel; poi misura e riconteggio. La sigma non e ancora stimata. Ripetibilita include evoluzione ed errori correlati e non determina da sola l'errore strumentale o la discrepanza del trasporto.
+- Recepire il controllo nel §7 della bozza osservativa prima del congelamento. Per il ranking BT restano da fissare likelihood, prior e verifica; nessun ranking o pilota osservato e stato lanciato.
+
+
+## Stato precedente, superato dalla decisione sopra: punto 3 §7 in pausa
 
 - Il controllo di ripetibilità del §7 del punto 3 è **in pausa** per decisione dell'utente; di conseguenza il congelamento del punto 3 resta sospeso (bozza rev. 4, geometria confermata da Codex). Runner preparatorio `scripts/sft_observed_pilot.py` (865e6b4, 8/8 sintetico) non eseguibile sui dati.
 - Lavoro corrente di Claude: punto 2, emendamento numerico A1 (schema ibrido) e correzioni dei cinque gruppi della revisione `SFT_Q4_EVENING_REVIEW_20261125.md`.

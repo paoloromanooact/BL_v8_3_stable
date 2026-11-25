@@ -200,6 +200,8 @@ docs/SENSITIVITY_SUMMARY.md
 docs/SFT_790cad1_FINAL_REVIEW.md
 docs/SFT_790cad1_NUMERIC_REVIEW_RESULTS.json
 docs/SFT_790cad1_Q4_REVIEW_RESULTS.json
+docs/SFT_HMI_REPEATABILITY_METADATA_20261125.md
+docs/SFT_HMI_REPEATABILITY_PLAN_DRAFT.md
 docs/SFT_INDEPENDENT_CHECKS_20261125.md
 docs/SFT_MAP_BIPOLE_DRAFT_REVIEW_fa3f08d.md
 docs/SFT_MAP_BIPOLE_DRAFT_REVIEW_fa3f08d_RESULTS.json
@@ -1293,6 +1295,11 @@ reviews/MDI_Q4_RECOUNT_d303c3a_CODEX/SOURCE.json
 reviews/SFT_EVENING_20261125/GEOMETRY.json
 reviews/SFT_EVENING_20261125/PROBE.json
 reviews/SFT_EVENING_20261125/Q4_INTEGRITY.json
+reviews/SFT_HMI_REPEATABILITY_METADATA_20261125/HEADERS.csv
+reviews/SFT_HMI_REPEATABILITY_METADATA_20261125/KEYWORDS.csv
+reviews/SFT_HMI_REPEATABILITY_METADATA_20261125/META.json
+reviews/SFT_HMI_REPEATABILITY_METADATA_20261125/PAIRS.csv
+reviews/SFT_HMI_REPEATABILITY_METADATA_20261125/SELFTEST.json
 reviews/SFT_INDEPENDENT_ORACLES_V1/CHARACTERISTICS.csv
 reviews/SFT_INDEPENDENT_ORACLES_V1/GAUSSIAN_DIPOLES.csv
 reviews/SFT_INDEPENDENT_ORACLES_V1/META.json
@@ -1376,6 +1383,7 @@ scripts/repro_draft_tables.py
 scripts/review_morphology.py
 scripts/run_pipeline.sh
 scripts/sft_790cad1_numeric_review_probe.py
+scripts/sft_hmi_repeatability_metadata_audit.py
 scripts/sft_independent_oracles.py
 scripts/sft_map_bipole_draft_review_probe.py
 scripts/sft_map_bipole_pilot.py

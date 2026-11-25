@@ -101,6 +101,31 @@ ed esclusioni, errori con le unita fisiche appropriate e sensibilita ai
 parametri. L'interpretazione dell'ampiezza della sorgente e condizionata a
 questi controlli; una correlazione da sola non e una calibrazione.
 
+### §7 attivo: ripetibilita e modello dell'incertezza HMI
+
+**Decisione piu recente dell'utente (25 novembre): affrontare l'errore per
+il confronto bayesiano; non rinviarlo dichiarandolo gia non stimato.**
+La precedente proposta di rinvio e superata.
+
+- [x] Audit indipendente Codex dei tempi T_OBS, header, geometria e
+      sovrapposizione con il bacino del pilota: 296 coppie reali entro 2 h;
+      riserva conservativa di 86 coppie/84 HARP con area geometrica sufficiente.
+      [Rapporto](SFT_HMI_REPEATABILITY_METADATA_20261125.md).
+- [ ] Completare e congelare la [specifica della misura](SFT_HMI_REPEATABILITY_PLAN_DRAFT.md),
+      con campione, qualita, famiglie e separazione dal campione di verifica,
+      osservabili e codice/riconteggio verificati prima dei pixel.
+- [ ] Misurare e ricontare la distribuzione delle differenze ravvicinate;
+      preservare gli output prima della lettura e documentare copertura,
+      dipendenze e limiti di trasferimento al confronto a 1–4,5 giorni.
+- [ ] Integrare l'informazione disponibile nella likelihood BT e, dove
+      pertinente, BQ, distinguendo ripetibilita, errore strumentale, dispersione
+      intrinseca, correlazione temporale e discrepanza del modello. Non
+      identificarli automaticamente con un'unica sigma.
+
+Codex ha svolto l'audit; Claude continua A1 e le correzioni del punto 1.
+Il §7 e il congelamento del pilota osservativo si chiudono usando questa
+consegna, senza duplicare l'audit. Nessuna scala di errore e ancora misurata.
+
 ## 3. BQ — ranking bayesiano del quenching su HMI
 
 **Obiettivo servito:** quenching del tilt. **Domanda iniziale:** sugli stessi
@@ -180,7 +205,7 @@ emersione e non valida il contributo finale al campo polare globale.
 |---|---|---|---|
 | Inventario SFT e dati HMI | Usa la consegna per preparare le specifiche; non duplicare l'inventario | Inventario assunto su richiesta dell'utente e completato: codice, versioni, licenze, dati e limiti | completato da Codex, 25 novembre; [consegna](BL_SFT_HMI_INVENTORY.md) |
 | Specifica del pilota mappa–bipolo | Prepara emendamento numerico e corregge runner/riconteggio | Rivede chiusura dei rilievi aaf3d6f | protocollo congelato; corsa osservata bloccata, SFT_Q4_EVENING_REVIEW_20261125.md |
-| Specifica osservativa | Chiude impegno del §7 sulla ripetibilita, poi congela; codice preparatorio separato | Geometria rev.4 confermata; revisione del codice prima dei dati | non congelata; nessun pilota osservato avviato |
+| Specifica osservativa | Usa audit Codex per recepire §7 e completare la specifica, senza duplicare il controllo | Audit T_OBS/header completato; specifica della misura e revisione del codice | §7 attivo su richiesta utente; nessun errore ancora stimato, nessun pilota avviato |
 | Implementazione | Corregge moduli e prepara runner/rilettori | Riferimenti matematici indipendenti pronti, 20/20, generazione riproducibile | sviluppo sintetico, niente piloti |
 | Risultati | Corsa autorizzata, conservazione, riconteggio e prima bozza del rapporto | Revisione di ricevute, risultati e formulazioni | dopo protocolli e codice |
 | BQ e BT: specifiche bayesiane | Completa i due piloti SFT; non avvia fit bayesiani senza specifica condivisa | Prepara le proposte metodologiche BQ/BT e le prove indipendenti; consegna per revisione incrociata | aggiunti al piano, nessun calcolo bayesiano avviato |
