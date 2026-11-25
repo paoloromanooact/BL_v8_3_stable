@@ -1,5 +1,8 @@
 # SHARP BL — v8.3
 
+> **Obiettivi approvati il 25 novembre 2026 (utente, Paolo Romano, Alessandro Bonanno):** la sorgente BL misurata nelle
+> regioni, con il suo quenching, costruisce il campo polare osservato, ed entro quale errore? (1) sorgente BL;
+> (2) quenching e sue dipendenze (BQ, BQ-D); (3) sintesi P, sorgente → campo polare. **Fase attuale: solo HMI.**
 > **Priorita comuni Codex–Claude:** [piano di lavoro](docs/BL_WORK_PLAN.md).
 > **Attuale:** BQ-HMI prima; BQ-M successivo. Ripetibilita C attiva; SFT prosegue come base di BT.
 > **Sorgente BL:** mappa HMI contro bipolo nello stesso SFT, poi confronto con osservazioni successive separate dallo sviluppo.

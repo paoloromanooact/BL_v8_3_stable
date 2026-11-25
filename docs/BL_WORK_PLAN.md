@@ -1,5 +1,31 @@
 # Piano comune Codex–Claude — sorgente BL e quenching
 
+## OBIETTIVI APPROVATI (25 novembre 2026: utente, Paolo Romano e Alessandro Bonanno)
+
+**Domanda complessiva:** la sorgente Babcock–Leighton misurata nelle regioni attive, con il suo quenching, costruisce il
+campo polare osservato, ed entro quale errore?
+
+1. **Sorgente BL**, misurata regione per regione (P1) e verificata:
+   - nel modello di trasporto: pilota mappa–bipolo, replica ed estensione di Yeates 2020 e Wang, Jiang & Wang 2021;
+   - contro il Sole osservato: pilota dell'evoluzione e ripetibilità C;
+   - in forma bayesiana con un modello d'errore: BT.
+2. **Quenching del tilt:**
+   - BQ: c'è dipendenza dall'attività?
+   - BQ-D: da quali termini dipende e con quale forma (lineare, saturante, altre fissate prima).
+3. **Sintesi P**, centrale: il bilancio sorgente → campo polare.
+
+**FASE ATTUALE: SOLO HMI** (decisione dell'utente del 25 novembre). Ordine:
+1. BQ-HMI;
+2. BQ-D su HMI;
+3. piloti SFT e ripetibilità C, prerequisiti di BT;
+4. BT;
+5. P su HMI (cicli 24–25).
+
+BQ-M (MWO, MDI, DPD) e il prolungamento di P su più cicli sono RINVIATI a dopo la fase HMI. I nests restano sospesi
+in fondo. Le sezioni qui sotto conservano la storia delle decisioni: dove contraddicono questo riquadro, vale il
+riquadro.
+
+
 **Priorita permanenti concordate dall'utente il 25 novembre 2026:**
 1. **Confrontare mappa magnetica HMI e bipolo del proxy, facendoli evolvere nello stesso modello SFT.**
 2. **Confrontare l'evoluzione simulata con osservazioni successive, separate dai dati usati per scegliere i parametri.**
