@@ -1,5 +1,10 @@
 # Cold restart — SHARP BL
 
+## Decisione dell'utente (25 novembre, sera): punto 3 §7 in pausa
+
+- Il controllo di ripetibilità del §7 del punto 3 è **in pausa** per decisione dell'utente; di conseguenza il congelamento del punto 3 resta sospeso (bozza rev. 4, geometria confermata da Codex). Runner preparatorio `scripts/sft_observed_pilot.py` (865e6b4, 8/8 sintetico) non eseguibile sui dati.
+- Lavoro corrente di Claude: punto 2, emendamento numerico A1 (schema ibrido) e correzioni dei cinque gruppi della revisione `SFT_Q4_EVENING_REVIEW_20261125.md`.
+
 ## Nuove voci approvate dall'utente — ranking bayesiano HMI (25 novembre)
 
 - Aggiunte al [piano permanente](BL_WORK_PLAN.md) **BQ, quenching HMI**, e **BT, trasporto superficiale HMI**; specifiche da scrivere, nessun ranking calcolato.
