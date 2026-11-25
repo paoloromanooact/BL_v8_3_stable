@@ -10,7 +10,8 @@ Checks:
  5. Savage-Dickey (quadrature over one free coordinate) = ratio of evidences (quadrature) for nested M0/MQ, and
     the sampled Savage-Dickey estimate within Monte Carlo error;
  6. recovery of beta = -8, 0, +8 with short chains on a moderate synthetic design;
- 7. timing on the real design structure (metadata only, synthetic y).
+ 7. timing on the real design structure (metadata only, synthetic y);
+ 8-11. blocked cross-validation: blocks, masks (buffer and families), exact conditional density vs dense, end to end.
 
     OMP_NUM_THREADS=1 .venv/bin/python scripts/bq_core_selftest.py
 """
@@ -26,7 +27,7 @@ from scipy.linalg import cho_factor, cho_solve
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "python"))
-from sharpbl import bq_core as B  # noqa: E402
+from sharpbl import bq_core as B, bq_cv as CV  # noqa: E402
 
 SEED = 36_400_101
 res = []
@@ -171,6 +172,48 @@ def main():
         m = c6[:, 0].mean()
         sd = math.sqrt(c6[:, 1].mean() + c6[:, 0].var())
         ok(f"6. recovery beta = {bt:+.0f} (short chain; posterior mean within 3 SD)", abs(m - bt) < 3 * sd, f"mean {m:.2f}, SD {sd:.2f}")
+    # 8-11: blocked cross-validation
+    bl = CV.cv_blocks(221)
+    lens = [hi - lo + 1 for lo, hi in bl]
+    ok("8. CV blocks: 10 contiguous intervals covering the calendar, lengths differ by <= 1, remainder first",
+       bl[0][0] == 0 and bl[-1][1] == 220 and all(bl[i + 1][0] == bl[i][1] + 1 for i in range(9)) and max(lens) - min(lens) <= 1
+       and lens == sorted(lens, reverse=True), f"lengths {lens}")
+    d8 = synth_design(np.random.default_rng(SEED + 30), n_t=60, n=300)
+    far = np.flatnonzero(d8.t > 50)[0]
+    d8.fam[far] = d8.fam[np.flatnonzero(d8.t < 6)[0]]                          # a family member far from the block
+    d8 = B.Design(t=d8.t, h=d8.h, s=d8.s, a=d8.a, lphi=d8.lphi, cell=d8.cell, fam=d8.fam, n_t=60, n_cell=4)
+    tr, ve = CV.cv_masks(d8, (0, 5), 11)
+    ok("9. CV masks: block, buffer of 11 CR and every family member of the verification excluded from training (also far away)",
+       not (tr & ve).any() and not tr[(d8.t <= 16)].any() and not tr[far] and tr[(d8.t > 16) & ~np.isin(d8.fam, d8.fam[ve])].all())
+    # 10: exact conditional density = dense Gaussian conditional
+    x10 = random_x(d8, np.random.default_rng(SEED + 31))
+    y10 = np.random.default_rng(SEED + 32).normal(0, 20, d8.n)
+    tr, ve = CV.cv_masks(d8, (24, 29), 11)
+    val = CV.conditional_terms(d8, tr, ve, y10, [x10])[0]
+    both = tr | ve
+    dj = CV.subset(d8, both)
+    Cj = dense_cov(dj, B.unpack(dj, x10)) + dj.X @ np.diag(dj.vprior) @ dj.X.T
+    it, iv = np.flatnonzero(tr[both]), np.flatnonzero(ve[both])
+    yj = y10[both]
+    Ctt, Cvt, Cvv = Cj[np.ix_(it, it)], Cj[np.ix_(iv, it)], Cj[np.ix_(iv, iv)]
+    K = Cvt @ np.linalg.inv(Ctt)
+    mu, Sg = K @ yj[it], Cvv - K @ Cvt.T
+    ref = -0.5 * (len(iv) * math.log(2 * math.pi) + np.linalg.slogdet(Sg)[1] + (yj[iv] - mu) @ np.linalg.solve(Sg, yj[iv] - mu))
+    marg = sum(-0.5 * (math.log(2 * math.pi * Cvv[i, i]) + (yj[iv][i] - 0) ** 2 / Cvv[i, i]) for i in range(len(iv)))
+    ok("10. block score given psi: l(train+ver) - l(train) = dense conditional Gaussian density (joint, not a sum of marginals)",
+       abs(val - ref) < 1e-8 * abs(ref), f"{val:.6f} vs {ref:.6f}; sum of independent prior marginals would give {marg:.2f}")
+    # 11: end to end on a strong synthetic effect: MQ should predict the blocks better than M0
+    rr = np.random.default_rng(SEED + 40)
+    dq = synth_design(rr, n_t=60, n=420)
+    d0 = B.Design(t=dq.t, h=dq.h, s=dq.s, a=dq.a, lphi=dq.lphi, cell=dq.cell, fam=dq.fam, n_t=60, n_cell=4, with_beta=False)
+    x11 = np.array([math.log(10.0), -0.3, math.log(2.0), 0.5, 0.0, math.log(2.0)])
+    y11 = rr.multivariate_normal(dq.X[:, :4] @ np.array([22, 24, 18, 20.0]) - 15.0 * dq.a * dq.s, dense_cov(dq, B.unpack(dq, x11)))
+    tot = {}
+    for name, dm in (("MQ", dq), ("M0", d0)):
+        sc = [CV.run_fold(dm, y11, blk, 5, x11, 60, 120, np.random.default_rng(SEED + 41 + k), thin=4) for k, blk in enumerate(CV.cv_blocks(60, 5))]
+        tot[name] = (sum(f["score"] for f in sc), math.sqrt(sum(f["mc_se"] ** 2 for f in sc)))
+    ok("11. end to end, beta = -15 (strong): MQ total block score > M0 (5 blocks, buffer 5, short chains)", tot["MQ"][0] > tot["M0"][0],
+       f"MQ {tot['MQ'][0]:.1f} +- {tot['MQ'][1]:.2f}, M0 {tot['M0'][0]:.1f} +- {tot['M0'][1]:.2f}")
     # 7: timing on the real design structure (design columns only)
     try:
         sys.path.insert(0, str(ROOT / "scripts"))
