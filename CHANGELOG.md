@@ -1,5 +1,12 @@
 # Cronologia
 
+## Chiusura della revisione Q4 MDI (fed1775)
+
+- Cinque rilievi chiusi, selftest 55/55 e 50 controlli sintetici aggiuntivi positivi.
+- Salvata sonda numerica e revisione; nessuna modifica a codice produttivo o testi congelati.
+- Pronto tecnicamente per la decisione dell'utente sul lancio; nessuna corsa MDI eseguita.
+
+
 ## Codice Q4 corretto dopo la revisione di bb39a23
 
 - Ricevute ancorate, bersaglio nullo, disegni vuoti e fallimenti espansi, prodotti per tutti i bersagli, conteggi per cella e scelte nel META.

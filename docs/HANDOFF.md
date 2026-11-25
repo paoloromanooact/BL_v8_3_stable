@@ -1,5 +1,15 @@
 # Cold restart — SHARP BL
 
+## MDI Q4 — codice fed1775 tecnicamente approvato (25 novembre 2026)
+
+- Chiusura in `docs/MDI_Q4_CODEX_CLOSE_fed1775.md`; i cinque rilievi di bb39a23 sono chiusi.
+- Selftest 55/55 e sonda numerica aggiuntiva `scripts/mdi_q4_close_review_probe.py` 50/50; controesempi precedenti risolti.
+- Nota Q4, A2 e codice produttivo invariati in questa revisione. Nessun --run o calcolo prospettico MDI eseguito.
+- La decisione dell'utente sulla corsa resta da acquisire secondo la nota congelata; nessun lancio automatico.
+- Dopo decisione: run pulito con log rediretto, conservazione degli output prima della lettura (il runner stampa CRITERIA), riconteggio indipendente, rapporto e decisione sul catalogo.
+- Q4 resta una valutazione condizionata a scenari, senza verdetto sul Sole e senza serie BL combinata.
+
+
 ## MDI Q4 — codice corretto dopo la revisione Codex di bb39a23 (25 novembre 2026)
 
 - `scripts/mdi_q4_prospective.py` (SHA `033b233b…`): selftest 55/55 (era 31/31), nessuna corsa sui disegni MDI; nota e A2 congelati intatti.
