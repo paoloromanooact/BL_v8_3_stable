@@ -26,7 +26,7 @@ priorita operative; la specifica N si prepara senza duplicarne il lavoro.
 **Decisione piu recente dell'utente (25 novembre, pomeriggio): il lavoro bayesiano passa PRIMA di tutto, i nests
 DOPO tutto.** Ordine complessivo:
 1. BQ su HMI (§3), che non dipende dai piloti SFT;
-2. BQ multi-strumento su piu cicli (§3bis);
+2. BQ multi-strumento su piu cicli (§3bis), e BQ-D sui termini da cui dipende il quenching (§3ter);
 3. prerequisiti di BT: chiusura del pilota mappa–bipolo (A1 in revisione), ripetibilita (§7) e pilota
    dell'evoluzione osservata. Servono perche BT ne usa la macchina e la verifica;
 4. BT (§4);
@@ -190,6 +190,34 @@ una giustificazione della penalita per dati dipendenti. Cambiare n da regioni
 a CR senza derivazione e solo sensibilita euristica, non un secondo BIC validato.
 Nessun BIC reale e stato calcolato; confronto predittivo e sensibilita delle
 evidenze restano separati. Nests ancora sospesi.
+
+## 3ter. BQ-D — da quali termini dipende il quenching (dopo BQ-HMI; in parallelo con BQ-M dove servono più cicli)
+
+**Aggiunta dell'utente il 25 novembre 2026:** il quenching è centrale quanto la sorgente, e serve capire da quali
+termini dipende. Obiettivo servito: quenching del tilt, e quindi anche la sorgente BL (voce P).
+
+**Domanda.** Fra un numero limitato di dipendenze fissate prima, quali descrivono e prevedono meglio la variazione del
+coefficiente di Joy?
+- **attività globale dentro il ciclo** (emisferica, come in T3 e BQ-HMI);
+- **forza del ciclo** (coefficiente contro ampiezza, alla Jiao et al. 2021): richiede più cicli, quindi BQ-M;
+- **flusso della regione** (quenching locale, come Q3);
+- **latitudine e fase**: termine separato dal quenching di latitudine (T4), da non confondere;
+- **attività locale** (regioni vicine, complessi; più avanti nests): solo quando i raggruppamenti saranno definiti.
+
+**Regole.**
+- I candidati sono pochi, elencati nella specifica prima di qualunque fit, ciascuno con la propria prior e la stessa
+  base (k_(c,h), u, famiglie). Si confrontano anche le combinazioni previste, non tutte quelle possibili. Niente
+  ricerca della combinazione migliore a posteriori.
+- È non cieco rispetto a T3, Q1–Q3 e T4 già noti: va dichiarato.
+- Si confrontano predizione a blocchi, evidenza dove affidabile e BIC secondario, come in BQ-HMI. Contano anche
+  l'identificabilità reciproca dei termini (attività e fase sono correlate nel ciclo; il flusso della regione cresce
+  con l'attività) e prove sintetiche con un termine vero alla volta, come nel pilota β contro v.
+- Esito possibile: dati compatibili con più dipendenze, senza graduatoria netta.
+
+**Uscita:** rapporto separato. Dove i dati lo permettono, i termini scelti entrano nel bilancio della voce P.
+
+**Assegnazione proposta:** Codex scrive la specifica dopo il congelamento di BQ-HMI; Claude estende il codice BQ (i
+regressori sono colonne in più della stessa struttura) e le prove sintetiche.
 
 ## 3bis. BQ-M — quenching bayesiano su piu strumenti e piu cicli
 
