@@ -1,5 +1,11 @@
 # Cronologia
 
+## 2026-11-25 — controllo finale SFT 790cad1 e correzioni Q4
+
+- Verificate le revisioni dei due protocolli; documentato controesempio di positività CN, margine comune e regola spazio-temporale dello split prima del congelamento.
+- Fotografia Q4 a6c0a72d… supera vecchie regressioni e casi di dominio: via condizionato a commit/selftest dello stesso SHA, senza riconteggio reale o lettura dei risultati in revisione.
+
+
 ## 2026-11-25 — controllo preliminare delle correzioni Q4
 
 - Sulla fotografia 6024dc61… confermata la chiusura dei sei controesempi precedenti; conservate prove dei due dettagli residui sui conteggi e sui bersagli nulli.

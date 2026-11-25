@@ -194,6 +194,9 @@ docs/RESULTS_INDEX.md
 docs/ROADMAP_2026-11-18.md
 docs/SEEN_BEFORE_FREEZE_2026-11-03.md
 docs/SENSITIVITY_SUMMARY.md
+docs/SFT_790cad1_FINAL_REVIEW.md
+docs/SFT_790cad1_NUMERIC_REVIEW_RESULTS.json
+docs/SFT_790cad1_Q4_REVIEW_RESULTS.json
 docs/SFT_MAP_BIPOLE_DRAFT_REVIEW_fa3f08d.md
 docs/SFT_MAP_BIPOLE_DRAFT_REVIEW_fa3f08d_RESULTS.json
 docs/SFT_OBSERVED_DRAFT_REVIEW_e0bba64.md
@@ -1345,6 +1348,7 @@ scripts/repro_compare.py
 scripts/repro_draft_tables.py
 scripts/review_morphology.py
 scripts/run_pipeline.sh
+scripts/sft_790cad1_numeric_review_probe.py
 scripts/sft_map_bipole_draft_review_probe.py
 scripts/sft_observed_draft_review_probe.py
 scripts/t3_dpd_feasibility.py

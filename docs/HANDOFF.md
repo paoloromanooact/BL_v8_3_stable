@@ -7,6 +7,14 @@
 > dall'utente, non i passi del pilota MDI.
 
 
+## SFT 790cad1: controllo finale e Q4 a6c0a72d… (25 novembre)
+
+- [Revisione finale](SFT_790cad1_FINAL_REVIEW.md): correzioni scientifiche principali recepite; prima del congelamento fissare positività del solutore, dominio comune a tutta la griglia e split per componenti con sovrapposizione spazio-temporale.
+- Prova sintetica CN: impulso positivo, N=400 e dt=1 giorno → minimo -0,277 nonostante massa conservata. Proposto sottopasso con vincolo di positività dell'operatore; nessuna evoluzione di dati reali.
+- Margine a 15°/4,5 giorni: 4,628° nel riferimento, 4,813° nella sensibilità veloce; mantenere lo stesso C fra tutti i confronti e dichiarare il campo ignoto esterno. Verifica geometrica da header prima del congelamento.
+- Q4: f0ab43a non conteneva gli ultimi due dettagli. La nuova fotografia SHA a6c0a72d… li chiude: base sintetica valida, sei mutazioni precedenti e cinque casi di dominio rifiutati. Via tecnico al solo riconteggio reale per QUESTO SHA, dopo commit e selftest completo conservato; se il codice cambia, rivedere la differenza. Nessuna corsa Q4 da rilanciare.
+- Nessuna bozza modificata/congelata in questa revisione, nessun pixel osservato o risultato scientifico Q4 letto. Vecchie sezioni sotto sono la cronologia.
+
 ## Q4 — correzioni in lavorazione, verifica preliminare Codex (25 novembre)
 
 - Fotografia non committata SHA 6024dc61…: base sintetica valida e sei controesempi precedenti ora rifiutati; gate corrente degli hash senza problemi.
