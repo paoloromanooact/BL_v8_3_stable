@@ -1,0 +1,89 @@
+{
+  "sign_and_factor": [
+    {
+      "cycle": 24,
+      "latitude": -15.0,
+      "hale": -1,
+      "leading": -1,
+      "draft_over_exact": 2.0000000030010283,
+      "corrected_over_exact": 1.0000000015005142
+    },
+    {
+      "cycle": 24,
+      "latitude": -15.0,
+      "hale": 1,
+      "leading": 1,
+      "draft_over_exact": -2.0000000030010283,
+      "corrected_over_exact": 1.0000000015005142
+    },
+    {
+      "cycle": 24,
+      "latitude": 15.0,
+      "hale": -1,
+      "leading": 1,
+      "draft_over_exact": -2.0000000030010283,
+      "corrected_over_exact": 1.0000000015005142
+    },
+    {
+      "cycle": 24,
+      "latitude": 15.0,
+      "hale": 1,
+      "leading": -1,
+      "draft_over_exact": 2.0000000030010283,
+      "corrected_over_exact": 1.0000000015005142
+    },
+    {
+      "cycle": 25,
+      "latitude": -15.0,
+      "hale": -1,
+      "leading": 1,
+      "draft_over_exact": -2.0000000030010283,
+      "corrected_over_exact": 1.0000000015005142
+    },
+    {
+      "cycle": 25,
+      "latitude": -15.0,
+      "hale": 1,
+      "leading": -1,
+      "draft_over_exact": 2.0000000030010283,
+      "corrected_over_exact": 1.0000000015005142
+    },
+    {
+      "cycle": 25,
+      "latitude": 15.0,
+      "hale": -1,
+      "leading": -1,
+      "draft_over_exact": 2.0000000030010283,
+      "corrected_over_exact": 1.0000000015005142
+    },
+    {
+      "cycle": 25,
+      "latitude": 15.0,
+      "hale": 1,
+      "leading": 1,
+      "draft_over_exact": -2.0000000030010283,
+      "corrected_over_exact": 1.0000000015005142
+    }
+  ],
+  "deposition": {
+    "exact_first_moment": -0.007999999999999993,
+    "nearest_cell": 0.0,
+    "linear_moment_conserving": -0.007999999999999993
+  },
+  "gaussian_overlap": {
+    "component_flux_each": 1.0,
+    "actual_positive_flux": 0.38283509325399256,
+    "actual_negative_flux": 0.3828350932539923,
+    "positive_anchor_lon_deg": 1.0,
+    "actual_positive_centroid_lon_deg": 2.612009642391891
+  },
+  "transport": {
+    "p": 2.33,
+    "published_eta": 350.0,
+    "published_Du_km_s": 0.041,
+    "published_vmax_m_s": 14.821216659558742,
+    "source_default_eta": 466.8,
+    "source_default_vmax_m_s": 15.5,
+    "source_default_Du_km_s": 0.0428777214851753
+  }
+}

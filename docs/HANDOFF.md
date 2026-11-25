@@ -13,6 +13,13 @@
 - Base sintetica con due realizzazioni accettata; sei alterazioni dei prodotti passano impropriamente. Da correggere: tolleranze protette, tabelle/etichette/scelte complete, conteggi esatti e gate dei file correnti.
 - Claude corregge il riconteggio e aggiunge le regressioni; Codex rivede la chiusura. Runner, protocolli e output reali invariati; nessun risultato Q4 letto. Non rilanciare Q4.
 
+## SFT mappa–bipolo: revisione Codex di fa3f08d (25 novembre)
+
+- Impostazione 1D approvata, bozza non ancora congelabile: [revisione e decisioni sui nove punti](SFT_MAP_BIPOLE_DRAFT_REVIEW_fa3f08d.md).
+- Tre correzioni provate sui sintetici: formula S_BL→D (fattore e segno), deposito conservativo del dipolo iniziale, gaussiane sovrapposte (flussi/centroidi non conservati automaticamente).
+- Proposti bipolo puntiforme principale, gaussiane come sensibilita; trasporto Yeates 2020 esplicito con scenari fissati; nessuna soglia di adeguatezza al 20 %.
+- Claude recepisce le scelte prima del congelamento. Nessun pixel osservato o simulazione SFT eseguita nella revisione. Punto 3 in revisione separata, con scelte comuni da raccordare.
+
 ## Lista dell'utente (25 novembre 2026), nell'ordine
 
 1. Inventario SFT e dati HMI disponibili. Completato da Codex su richiesta dell’utente; consegna e limiti in `docs/BL_SFT_HMI_INVENTORY.md`. Claude usa questa consegna per i punti 2 e 3.

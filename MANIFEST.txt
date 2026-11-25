@@ -192,6 +192,8 @@ docs/RESULTS_INDEX.md
 docs/ROADMAP_2026-11-18.md
 docs/SEEN_BEFORE_FREEZE_2026-11-03.md
 docs/SENSITIVITY_SUMMARY.md
+docs/SFT_MAP_BIPOLE_DRAFT_REVIEW_fa3f08d.md
+docs/SFT_MAP_BIPOLE_DRAFT_REVIEW_fa3f08d_RESULTS.json
 docs/T3_LONG_CATALOGUE_FEASIBILITY_DRAFT.md
 docs/T3_MWO_ANALYSIS_CODE_REVIEW_20261118.md
 docs/T3_MWO_AUTONOMOUS_PREPARATION_20261120.md
@@ -1336,6 +1338,7 @@ scripts/repro_compare.py
 scripts/repro_draft_tables.py
 scripts/review_morphology.py
 scripts/run_pipeline.sh
+scripts/sft_map_bipole_draft_review_probe.py
 scripts/t3_dpd_feasibility.py
 scripts/t3_mwo_analysis.py
 scripts/t3_mwo_analysis_recount.py

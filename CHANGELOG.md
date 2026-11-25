@@ -1,5 +1,11 @@
 # Cronologia
 
+## 2026-11-25 — revisione del protocollo SFT mappa–bipolo
+
+- Verificate riduzione 1D e fonti; conservate prove sintetiche su segni/fattore, rimappatura del dipolo e sovrapposizione delle gaussiane.
+- Decisioni sui nove punti e correzioni prima del congelamento, senza evoluzioni o letture di mappe reali.
+
+
 ## 2026-11-25 — revisione del riconteggio Q4 0344bc3
 
 - Base sintetica verificata e conservati sei controesempi accettati impropriamente.
