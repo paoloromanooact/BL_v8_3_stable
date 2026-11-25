@@ -30,7 +30,7 @@ Non e da solo una validazione contro l'evoluzione del Sole.
 
 ### Passi e prodotti
 
-- [ ] Inventario del codice SFT riusabile: versione, licenza, geometria,
+- [x] Inventario del codice SFT riusabile: versione, licenza, geometria,
       trasporto, diffusione, ingresso delle mappe e requisiti di calcolo.
       Inventario dei FITS HMI gia locali e degli istanti disponibili, senza
       promettere che siano sufficienti per tutti i confronti.
@@ -98,7 +98,7 @@ questi controlli; una correlazione da sola non e una calibrazione.
 
 | Passo | Claude | Codex | Stato |
 |---|---|---|---|
-| Inventario SFT e dati HMI | Inventario di codice/dati, provenienza, disponibilita e dipendenze | Controllo indipendente di quanto effettivamente disponibile e dei limiti del riuso | da iniziare |
+| Inventario SFT e dati HMI | Usa la consegna per preparare le specifiche; non duplicare l'inventario | Inventario assunto su richiesta dell'utente e completato: codice, versioni, licenze, dati e limiti | completato da Codex, 25 novembre; [consegna](BL_SFT_HMI_INVENTORY.md) |
 | Specifica del pilota mappa–bipolo | Bozza del protocollo e proposta operativa del campione | Revisione di confronti, unita, bilancio, doppio conteggio, criteri e popolazione | da iniziare |
 | Specifica osservativa | Bozza su orizzonti, dati successivi e separazione sviluppo/verifica | Verifica indipendente dei confronti e dell'assenza di uso dei dati futuri | da iniziare |
 | Implementazione | Runner, adattatori, prove sintetiche e documentazione | Oracoli sintetici, controesempi, revisione e controlli numerici separati | dopo specifiche |
@@ -132,9 +132,9 @@ modifica Q4, i suoi output o le regole congelate.
 3. Aggiornare stati e prossimo passo conservando il richiamo alle priorita
    1 e 2 sopra la cronologia. Non archiviarle sotto una nuova nota Q4/MDI.
 
-**Prossimo lavoro preparatorio:** inventario congiunto del materiale SFT e
-degli istanti HMI gia disponibili; due specifiche collegate per i punti 1–2.
-Nessuna nuova simulazione o acquisizione e stata lanciata da questo piano.
+**Inventario completato da Codex:** [consegna e fotografia dei dati](BL_SFT_HMI_INVENTORY.md).
+**Prossimo lavoro:** Claude prepara le due specifiche collegate per i punti
+1–2; Codex le rivede. Nessuna nuova simulazione o acquisizione lanciata.
 
 ## Fonti di metodo gia consultate
 

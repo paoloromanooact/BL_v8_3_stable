@@ -1,8 +1,15 @@
 # Cold restart — SHARP BL
 
+> **PIANO PERMANENTE CODEX–CLAUDE: [BL_WORK_PLAN.md](BL_WORK_PLAN.md).**
+> **Priorita 1:** mappa HMI contro bipolo del proxy, evoluti nello stesso SFT.
+> **Priorita 2:** evoluzione simulata contro osservazioni successive indipendenti.
+> Mantenere questo richiamo sopra la cronologia. Sono i punti 1 e 2 indicati
+> dall'utente, non i passi del pilota MDI.
+
+
 ## Lista dell'utente (25 novembre 2026), nell'ordine
 
-1. Inventario SFT e dati HMI disponibili. Claude individua codice riutilizzabile, mappe e osservazioni successive già disponibili; Codex verifica disponibilità, compatibilità e limiti.
+1. Inventario SFT e dati HMI disponibili. Completato da Codex su richiesta dell’utente; consegna e limiti in `docs/BL_SFT_HMI_INVENTORY.md`. Claude usa questa consegna per i punti 2 e 3.
 2. Protocollo del pilota mappa–bipolo — prima priorità. Campione, costruzione del bipolo, trattamento del flusso preesistente e delle ricomparse, parametri di trasporto e tempi di confronto. Claude scrive la bozza, Codex la rivede.
 3. Protocollo del confronto con l'evoluzione osservata — seconda priorità. Osservabili, intervalli temporali e separazione fra dati di sviluppo e verifica; procede insieme al punto 2.
 4. Codice e prove indipendenti. Claude implementa; Codex controlla formule, unità, segni, bilancio del flusso e casi sintetici. Protocolli congelati prima delle corse.
@@ -21,17 +28,20 @@ Dettagli e divisione dei compiti: `docs/BL_WORK_PLAN.md`.
 - Rilievo emerso: nei modelli protetti B1 della propria famiglia è zero per costruzione (bA→A, bJ→J), quindi `tol_units_{fam}_*` è rumore numerico di grandezza arbitraria. Il riconteggio verifica B1 trascurabile e confronta quelle tolleranze come illimitate. Nel rapporto non vanno lette.
 - Controlli preliminari del percorso reale in prova a secco: 6/6. Prossimo passo: revisione Codex del riconteggio, poi `--check`, ricevuta, lettura e rapporto.
 
-> **PIANO PERMANENTE CODEX–CLAUDE: [BL_WORK_PLAN.md](BL_WORK_PLAN.md).**
-> **Priorita 1:** mappa HMI contro bipolo del proxy, evoluti nello stesso SFT.
-> **Priorita 2:** evoluzione simulata contro osservazioni successive indipendenti.
-> Mantenere questo richiamo sopra la cronologia. Sono i punti 1 e 2 indicati
-> dall'utente, non i passi del pilota MDI.
+## Inventario SFT/HMI completato da Codex — 25 novembre 2026
+
+- Su richiesta dell'utente il punto operativo 1 e stato svolto da Codex: `docs/BL_SFT_HMI_INVENTORY.md`, fotografie in `docs/BL_SFT_INVENTORY/`, script `scripts/bl_sft_local_inventory.py`.
+- Dati P1 presenti per 14195/14195 record: Br, bitmap e keys.json. 2836 HARP hanno il controllo successivo al primario; sono disponibilita, non un campione validato di evoluzione.
+- Codici esterni con commit/licenza verificati: sharps-bmrs (Python SFT1, GPL-3.0), sft-historical (Fortran 1D, BSD-2-Clause), HipFT (2D, Apache-2.0). Nessuna installazione o esecuzione esterna.
+- Distinguere 1D per D(t) sotto ipotesi assialsimmetriche da 2D per la mappa locale; la pipeline esterna completa non sostituisce P1.
+- **Prossimo compito di Claude:** bozze delle due specifiche del piano, usando l'inventario; non rifarlo da zero. **Codex:** revisione indipendente delle specifiche e dei test. Il riconteggio Q4 resta lavoro separato di Claude, non toccato.
+- Nessun pixel FITS o tilt letto, nessuna simulazione, nuovo download scientifico o lettura dei risultati Q4.
 
 ## Stato operativo, 25 novembre 2026
 
 - L'utente ha chiesto che i due controlli della sorgente BL restino in primo piano per entrambi gli agenti.
-- Piano comune e divisione dei compiti in `docs/BL_WORK_PLAN.md`: inventario SFT/dati HMI, due specifiche collegate, prove e revisione prima delle misure. Preparazione da iniziare; nessun nuovo run o download eseguito.
-- **Q4 e gia stata eseguita da Claude e conservata in dab5a33**, dopo il via tecnico 1c25c2e. Non rilanciare. Riconteggio e rapporto sono il seguito; `scripts/mdi_q4_recount.py` e lavoro concorrente non tracciato, non toccato qui. Nessun output scientifico Q4 letto per aggiornare questo piano.
+- Piano comune e divisione dei compiti in `docs/BL_WORK_PLAN.md`: inventario SFT/dati HMI, due specifiche collegate, prove e revisione prima delle misure. Inventario completato nella consegna sopra; restano le specifiche, nessun nuovo run o download eseguito.
+- **Q4 e gia stata eseguita da Claude e conservata in dab5a33**, dopo il via tecnico 1c25c2e. Non rilanciare. Riconteggio e rapporto sono il seguito; `scripts/mdi_q4_recount.py` e conservato in 0344bc3, in revisione separata. Nessun output scientifico Q4 letto per aggiornare questo piano.
 - Le sezioni sotto sono cronologia: «non avviato» descrive stati precedenti, non lo stato corrente.
 
 

@@ -1,0 +1,27 @@
+{
+  "checked_date": "2026-11-25",
+  "method": "rg --files names and bounded content search; only readable, non-ignored paths; no executable imported",
+  "searched_code_roots": [
+    "/home/gianluca/BL_v8_3_stable/scripts",
+    "/home/gianluca/BL_v8_3_stable/python",
+    "/home/gianluca/BL_v8_3_stable/docs",
+    "/home/gianluca/HMI-MDI-Dipole-B10-Sunspots_new-main",
+    "/home/gianluca/sunpy",
+    "/home/gianluca/python",
+    "/home/gianluca/ssw"
+  ],
+  "filename_terms": [
+    "sft",
+    "flux.?transport",
+    "surface.?transport"
+  ],
+  "bl_content_terms": [
+    "surface.flux.transport",
+    "SFT",
+    "meridional.flow",
+    "meridional.circul",
+    "diffusivit"
+  ],
+  "identified_local_solver_files": [],
+  "limitation": "Not an exhaustive whole-machine search; ignored/inaccessible/unlisted paths are not certified absent."
+}

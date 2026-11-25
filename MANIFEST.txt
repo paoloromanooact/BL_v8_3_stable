@@ -16,6 +16,11 @@ ancillary/SILSO_TOT/SHA256.txt
 ancillary/SILSO_TOT/SN_m_tot_V2.0.txt
 data/.gitkeep
 docs/ARTICLE_OUTLINE.md
+docs/BL_SFT_HMI_INVENTORY.md
+docs/BL_SFT_INVENTORY/EXTRA_HMI_PATHS.json
+docs/BL_SFT_INVENTORY/LOCAL_INVENTORY.json
+docs/BL_SFT_INVENTORY/LOCAL_SEARCH_SCOPE.json
+docs/BL_SFT_INVENTORY/SOFTWARE_REFERENCES.json
 docs/BL_WORK_PLAN.md
 docs/CATALOGUE_DICTIONARY.md
 docs/CODEX_REVIEW_ARTEFACTS_REMOVED_2026-11-16.csv
@@ -1255,6 +1260,7 @@ results/T5_PROXY_SENSITIVITY/PROXY_QUALITY.csv
 results/T5_PROXY_SENSITIVITY/SUMMARY.csv
 results/T5_PROXY_SENSITIVITY_SELFTEST/RECEIPT.txt
 results/T5_PROXY_SENSITIVITY_SELFTEST/RECEIPT_R2.txt
+scripts/bl_sft_local_inventory.py
 scripts/check_repo.sh
 scripts/download_test_20240508.sh
 scripts/dpd_activity_homogeneity.py

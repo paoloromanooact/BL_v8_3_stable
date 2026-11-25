@@ -9,7 +9,8 @@
 2. **Controllo contro il Sole:** confronto dell'evoluzione simulata con
    magnetogrammi successivi esclusi dalla scelta dei parametri.
 
-Entrambi richiedono inventario e specifiche prima delle nuove misure. Il primo
+L'inventario e ora completato da Codex: [consegna SFT/HMI](BL_SFT_HMI_INVENTORY.md).
+Restano le specifiche prima delle nuove misure. Il primo
 controlla l'approssimazione dentro il modello; il secondo la sua aderenza alle
 osservazioni. Non sono ancora eseguiti. Il catalogo HMI al meridiano non e
 un elenco di nuove emersioni da inserire senza controllo delle ricomparse.

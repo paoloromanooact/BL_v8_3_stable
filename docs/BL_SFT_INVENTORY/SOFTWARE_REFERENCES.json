@@ -1,0 +1,95 @@
+{
+  "checked_date": "2026-11-25",
+  "method": "Official author pages and read-only GitHub connector, pinned commits; no solver downloaded into BL or executed.",
+  "candidates": [
+    {
+      "repository": "antyeates1983/sharps-bmrs",
+      "commit": "2d6566cebaea36eb7aa1ae5eae08480c19bdd895",
+      "commit_date": "2021-07-13T17:29:17Z",
+      "url": "https://github.com/antyeates1983/sharps-bmrs/commit/2d6566cebaea36eb7aa1ae5eae08480c19bdd895",
+      "license": "GPL-3.0",
+      "role": "Python SFT1 / BMR reference; 1D axial dipole, not 2D observation prediction",
+      "installed": false,
+      "compiled": false,
+      "executed": false,
+      "files_inspected": [
+        {
+          "path": "README.md",
+          "git_blob_sha": "28745c8f36508feeec108d63da576cfa2c730f97",
+          "url": "https://github.com/antyeates1983/sharps-bmrs/blob/2d6566cebaea36eb7aa1ae5eae08480c19bdd895/README.md"
+        },
+        {
+          "path": "LICENSE",
+          "git_blob_sha": "f288702d2fa16d3cdf0035b15a9fcbc552cd88e7",
+          "url": "https://github.com/antyeates1983/sharps-bmrs/blob/2d6566cebaea36eb7aa1ae5eae08480c19bdd895/LICENSE"
+        },
+        {
+          "path": "sharptools.py",
+          "git_blob_sha": "8bc12268b2f81aafe21dabf953e1cdf8f16345ac",
+          "url": "https://github.com/antyeates1983/sharps-bmrs/blob/2d6566cebaea36eb7aa1ae5eae08480c19bdd895/sharptools.py"
+        }
+      ]
+    },
+    {
+      "repository": "antyeates1983/sft-historical",
+      "commit": "3cd2f3325f3605d466f8c193975d075b8c74c3f2",
+      "commit_date": "2025-10-24T13:23:27Z",
+      "url": "https://github.com/antyeates1983/sft-historical/commit/3cd2f3325f3605d466f8c193975d075b8c74c3f2",
+      "license": "BSD-2-Clause",
+      "role": "Fortran sft1d plus Python wrapper; alternative 1D core",
+      "installed": false,
+      "compiled": false,
+      "executed": false,
+      "files_inspected": [
+        {
+          "path": "README.md",
+          "git_blob_sha": "8d439d01c0274f94296538649777a5a449d1317f",
+          "url": "https://github.com/antyeates1983/sft-historical/blob/3cd2f3325f3605d466f8c193975d075b8c74c3f2/README.md"
+        },
+        {
+          "path": "LICENSE",
+          "git_blob_sha": "737be5dfc72c6f9023c0e54d39c116c7618a49ce",
+          "url": "https://github.com/antyeates1983/sft-historical/blob/3cd2f3325f3605d466f8c193975d075b8c74c3f2/LICENSE"
+        },
+        {
+          "path": "sft/fortran/Makefile",
+          "git_blob_sha": "dbebd24c838a2eb6d255943c3e5569ac562c3c4f",
+          "url": "https://github.com/antyeates1983/sft-historical/blob/3cd2f3325f3605d466f8c193975d075b8c74c3f2/sft/fortran/Makefile"
+        },
+        {
+          "path": "sft/fortran/sft1d.f90",
+          "git_blob_sha": "e2c680424f62fc78e1b998336296ace37f00ec25",
+          "url": "https://github.com/antyeates1983/sft-historical/blob/3cd2f3325f3605d466f8c193975d075b8c74c3f2/sft/fortran/sft1d.f90"
+        },
+        {
+          "path": "sft/_sft_.py",
+          "git_blob_sha": "f8ec7c540c9dc7323d7accb8b672dbd1b80767c2",
+          "url": "https://github.com/antyeates1983/sft-historical/blob/3cd2f3325f3605d466f8c193975d075b8c74c3f2/sft/_sft_.py"
+        }
+      ]
+    },
+    {
+      "repository": "predsci/HipFT",
+      "commit": "5d41dea07138df7abcb5f5930a4bb0147bd10431",
+      "commit_date": "2026-11-06T23:00:17Z",
+      "url": "https://github.com/predsci/HipFT/commit/5d41dea07138df7abcb5f5930a4bb0147bd10431",
+      "license": "Apache-2.0",
+      "role": "2D spherical solver; later candidate for spatial observational validation",
+      "installed": false,
+      "compiled": false,
+      "executed": false,
+      "files_inspected": [
+        {
+          "path": "README.md",
+          "git_blob_sha": "3743bab65ea874876f508b99e47960f7100cb8ef",
+          "url": "https://github.com/predsci/HipFT/blob/5d41dea07138df7abcb5f5930a4bb0147bd10431/README.md"
+        },
+        {
+          "path": "LICENSE",
+          "git_blob_sha": "e30e94ed0f05e0ae37662d66498217b0a4394be3",
+          "url": "https://github.com/predsci/HipFT/blob/5d41dea07138df7abcb5f5930a4bb0147bd10431/LICENSE"
+        }
+      ]
+    }
+  ]
+}

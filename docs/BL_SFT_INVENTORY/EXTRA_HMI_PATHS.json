@@ -1,0 +1,41 @@
+[
+  {
+    "root": "/home/gianluca/sunpy",
+    "exists": true,
+    "hmi_fits_by_prefix": {},
+    "examples": {},
+    "errors": []
+  },
+  {
+    "root": "/home/gianluca/HMI-MDI-Dipole-B10-Sunspots_new-main/data",
+    "exists": true,
+    "hmi_fits_by_prefix": {},
+    "examples": {},
+    "errors": []
+  },
+  {
+    "root": "/storage/shared/gianluca/MWO_project/repo_data",
+    "exists": true,
+    "hmi_fits_by_prefix": {},
+    "examples": {},
+    "errors": []
+  },
+  {
+    "root": "/storage/shared/gianluca/MWO_project/repo_data_external",
+    "exists": true,
+    "hmi_fits_by_prefix": {},
+    "examples": {},
+    "errors": []
+  },
+  {
+    "root": "/storage/shared/gianluca/MWO_project/sunpy",
+    "exists": true,
+    "hmi_fits_by_prefix": {
+      "hmi.synoptic_mr_polfil_720s": 216
+    },
+    "examples": {
+      "hmi.synoptic_mr_polfil_720s": "/storage/shared/gianluca/MWO_project/sunpy/data/hmi.synoptic_mr_polfil_720s.2193.Mr_polfil.fits"
+    },
+    "errors": []
+  }
+]

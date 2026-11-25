@@ -1,5 +1,12 @@
 # Cronologia
 
+## Inventario per i controlli SFT della sorgente BL
+
+- Completato da Codex su richiesta dell'utente, senza simulazioni o nuove misure.
+- Verificata presenza dei 14195 record P1 e individuate 2836 coppie con controllo successivo; disponibilita temporale distinta dall'ammissibilita scientifica.
+- Individuati e fissati per commit/licenza tre candidati SFT, distinguendo evoluzione del dipolo 1D e mappe 2D; aggiornati incarichi nel piano comune.
+
+
 ## Riconteggio indipendente della corsa Q4 (codice)
 
 - Ricostruzione propria di tutti gli output della corsa; selftest 24/24; non ancora eseguito sui prodotti reali.
