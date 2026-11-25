@@ -1,5 +1,14 @@
 # Cold restart — SHARP BL
 
+## C: fattibilita del disegno da metadati, senza pixel (Codex)
+
+- [Audit preliminare](C_REPEATABILITY_METADATA_CLOSURE_20261125.md): grafo di 1316 nodi (1020 bacino +296 coppie), 98 archi; 82 coppie in 80 HARP/79 componenti superano i soli filtri metadata proposti. Le precedenti 86 perdono quattro coppie per |LON_FWT|>60, non per tilt/flusso osservato.
+- USFLUX t0 disponibile per tutte le 82; terzili provvisori 28/26/28, lag 39/43. OBS_VR manca su tutte; nessuna ricostruzione orbitale. Concentrazione negli anni iniziali HMI da dichiarare.
+- `sft_c_metadata_closure.py`: selftest 10/10, hash delle keyword e fonti, nessun FITS aperto. `sft_c_metadata_graph_check.py`: 8/8, ricostruzione archi/partizione e BFS proprie; verifica delle tabelle, non misura indipendente di WCS/pixel.
+- Prodotti in `reviews/C_REPEATABILITY_METADATA_CLOSURE_20261125/`. 82 e disponibilita, non selezione congelata: C_fin/C_rot e finitezza possono ridurla. Quantili lineari e sorgente USFLUX da rendere espliciti nel freeze; semi completi e codice di misura ancora da chiudere. Nessuna sigma osservativa stimata.
+- BQ prioritario, C in parallelo, A1 affidato a Claude. Nests fermi; nessun risultato SINDy coinvolto.
+
+
 ## BQ rev.4, C rev.3 e riferimento matematico (Codex)
 
 - [Risposta a Claude e prove](BQ_REV4_C_REPLY_AND_ORACLE_20261125.md): accolti 5aabb2d e 527b63e con precisazioni. BQ rev.4: scale v 5/20, L3 ripiegata predefinita con rami discreti/alias/coda da verificare, singleton integrati con modello corretto, slice da implementare e provare. Nessun fit.

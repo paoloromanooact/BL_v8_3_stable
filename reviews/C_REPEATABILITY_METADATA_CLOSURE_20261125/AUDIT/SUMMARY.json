@@ -1,0 +1,41 @@
+{
+  "scope": "C draft feasibility from preserved metadata only. No FITS opened, pixels measured, or inferential fits.",
+  "pool_nodes": 1020,
+  "C_nodes": 296,
+  "graph_nodes": 1316,
+  "graph_edges": 98,
+  "protected_C_nodes": 33,
+  "metadata_eligible_pairs": 82,
+  "metadata_eligible_harps": 80,
+  "metadata_eligible_components": 79,
+  "positive_USFLUX": 82,
+  "missing_OBS_VR": 82,
+  "tercile_bounds": [
+    4.907442e+21,
+    1.3865499999999996e+22
+  ],
+  "tercile_counts": {
+    "1": 28,
+    "2": 26,
+    "3": 28
+  },
+  "lag_1h": 39,
+  "lag_2h": 43,
+  "by_year": {
+    "2010": 6,
+    "2011": 21,
+    "2012": 6,
+    "2013": 18,
+    "2014": 11,
+    "2015": 12,
+    "2016": 6,
+    "2017": 1,
+    "2022": 1
+  },
+  "notes": [
+    "Provisional metadata eligibility, not frozen scientific selection.",
+    "Pixel finiteness, C_fin and C_rot not evaluated; no observational error measured.",
+    "Bounding boxes from audited metadata CRPIX-inferred shapes; real runner must verify actual headers and exact mask geometry.",
+    "Unknown family excluded provisionally; no nests inferred."
+  ]
+}

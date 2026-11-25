@@ -1,0 +1,46 @@
+{
+  "passed": 10,
+  "total": 10,
+  "checks": [
+    {
+      "name": "TAI 7200 seconds exact",
+      "ok": true
+    },
+    {
+      "name": "7201 seconds is outside",
+      "ok": true
+    },
+    {
+      "name": "seconds60 equals next minute",
+      "ok": true
+    },
+    {
+      "name": "fraction preserved",
+      "ok": true
+    },
+    {
+      "name": "protected graph transitive exclusion",
+      "ok": true
+    },
+    {
+      "name": "bbox longitude seam",
+      "ok": true
+    },
+    {
+      "name": "different latitude not overlap",
+      "ok": true
+    },
+    {
+      "name": "quality invalid missing",
+      "ok": true
+    },
+    {
+      "name": "quality invalid nan",
+      "ok": true
+    },
+    {
+      "name": "quality invalid ",
+      "ok": true
+    }
+  ]
+}

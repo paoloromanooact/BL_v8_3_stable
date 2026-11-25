@@ -1,0 +1,39 @@
+{
+  "scope": "Independent reachability/arithmetic check of C metadata audit tables, not a FITS recount.",
+  "passed": 8,
+  "total": 8,
+  "checks": [
+    {
+      "name": "Product hashes match stored metadata",
+      "ok": true
+    },
+    {
+      "name": "Nodes unique and edges reference existing nodes",
+      "ok": true
+    },
+    {
+      "name": "Edges reconstructed from exported intervals families and boxes",
+      "ok": true
+    },
+    {
+      "name": "Protected status agrees with independent breadth-first traversal",
+      "ok": true
+    },
+    {
+      "name": "Provisional eligibility and pair counts consistent",
+      "ok": true
+    },
+    {
+      "name": "Selected component partition and unique HARP counts reconstructed",
+      "ok": true
+    },
+    {
+      "name": "Flux class counts cover all provisionally eligible pairs",
+      "ok": true
+    },
+    {
+      "name": "Lag bins cover provisional sample",
+      "ok": true
+    }
+  ]
+}
