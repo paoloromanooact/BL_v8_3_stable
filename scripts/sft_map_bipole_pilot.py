@@ -1,10 +1,12 @@
 """SFT map-bipole pilot (point 2), runner of the frozen protocol docs/PROTOCOL_SFT_MAP_BIPOLE_PILOT.md (rev. 4).
 
 Receipt docs/PROTOCOL_SFT_MAP_BIPOLE_PILOT_FREEZE.json (protocol SHA 380b7982...). Core numerics: python/sharpbl/sft_core.py.
+Amendment A1 (numerical; draft docs/PROTOCOL_SFT_MAP_BIPOLE_PILOT_AMENDMENT_A1_DRAFT.md) must be frozen before --run.
 Not run on observed maps before the Codex code review; --selftest uses a synthetic catalogue and synthetic CEA patches.
 
 Steps (protocol section in brackets)
-1. Gate: protocol text and receipt pinned, inputs of the receipt unchanged, clean tree, script equal to HEAD, new output dir.
+1. Gate: protocol text and receipt pinned, receipt inputs (exact set) unchanged, amendment A1 frozen with the SHA of
+   sft_core.py, clean tree, script equal to HEAD, new output dir.
 2. Population and draw [§3]: primary records (role primary/both), valid_bl = 1, family_rank = 0; strata "un NOAA"
    (NOAA_NUM = 1) / "altro/ignoto" (flag NOAA_NUM = 0) x USFLUX terciles (numpy linear quantiles; 1 if x <= q1, 2 if
    q1 < x <= q2, 3 otherwise; records without finite USFLUX counted and left out) x |LAT_FWT| bands (<10, 10-20, >=20);
@@ -17,15 +19,19 @@ Steps (protocol section in brackets)
    Gaussian sensitivities (area-equivalent sigma, 2 deg, 4 deg): each component on its own 8-sigma cap (step sigma/10)
    for the deposit; effective fluxes and centroids of the summed field on a common cap around the midpoint
    (implementation choice, declared).
-5. Transport [§6]: SFT1D (N 400, hybrid advection, positivity-limited Crank-Nicolson), the four parameter sets of the
+5. Transport [§6 as amended by A1]: SFT1D (N from the A1 preflight, hybrid advection, positivity-limited Crank-Nicolson), the four parameter sets of the
    2x2 grid (reference eta 466.8, Du 0.025, p 2.33); tau = 5 and 10 years as exp(-t/tau) factors on the reference.
 6. Times [§7]: 0, 27 days, 0.5, 1, 3 Julian years; daily curves for the reference transport (M and point B, 100 G).
-7. Products [§8]: SAMPLE.csv, REGIONS.csv, DIPOLES.csv (long), CURVES.csv.gz, SUMMARY.csv, CONVERGENCE.csv, META.json.
+7. Products [§8]: SAMPLE.csv, CELLS.csv, REGIONS.csv, DIPOLES.csv.gz (long), CURVES.csv.gz, SUMMARY.csv (groups incl.
+   the 18 cells), DENOMINATORS.csv, MANIFEST.csv (Br/bitmap/keys with SHA-256 and T_OBS), CONVERGENCE.csv, PREFLIGHT.csv,
+   META.json. A region that raises inside the processing gets the status technical_error:<type>.
    Summaries weighted with N/n (lower weighted quantile: first sorted value whose cumulative normalised weight reaches q)
    and unweighted; ratio threshold 0.1 m(t), m(t) = weighted median of |D_M(t)| for M at 100 G with the reference
    transport, the same for every variant; if m(t) = 0 no ratio.
-8. Convergence on the first 3 successful sampled regions (permutation order): N 800 and halved step against the
-   reference, recorded with the criterion 1e-3 max(|D_fine|, 1e-6 D_scale) (a check of the fixed rule, no tuning).
+8. Convergence (A1 §2), a requirement: synthetic preflight before any map (N 400 -> 800 -> 1600, else technical stop);
+   then the first 3 regions (permutation order) with M and point B deposited, four transports, 2N and halved step,
+   criterion 1e-3 max(|D_fine|, CONV_FLOOR D_scale). A failure gives convergence_failed: products kept, run not valid
+   (exit code 3).
 
     OMP_NUM_THREADS=1 .venv/bin/python scripts/sft_map_bipole_pilot.py --selftest
     OMP_NUM_THREADS=1 .venv/bin/python scripts/sft_map_bipole_pilot.py --run        # only after the code review
@@ -51,7 +57,8 @@ from sharpbl.download_records import file_stem, record_dir  # noqa: E402
 
 PROTOCOL = ROOT / "docs/PROTOCOL_SFT_MAP_BIPOLE_PILOT.md"
 FREEZE = ROOT / "docs/PROTOCOL_SFT_MAP_BIPOLE_PILOT_FREEZE.json"
-PIN = dict(protocol="380b79829fbac870479acc02797ef245623b689c09af9ff9f595ac5a81b61d38")
+PIN = dict(protocol="380b79829fbac870479acc02797ef245623b689c09af9ff9f595ac5a81b61d38",
+           receipt="a5f289876fef388b86be17e813e2c3d8578bdb170cb51392e7eb40a8a3f9f849")
 CATALOGUE = ROOT / "results/P1/P1_SBL_CATALOG_BY_HARP.csv"
 FITS = ROOT / "data/sharp/fits"
 OUT = ROOT / "results/SFT_MAP_BIPOLE_PILOT"
@@ -61,6 +68,12 @@ TAUS = ((5.0, "ref_tau5y"), (10.0, "ref_tau10y"))
 TRANSPORTS = {f"eta{p['eta_km2s']:g}_du{p['du_kms']:g}": p for p in C.SENSITIVITY}
 REF = f"eta{C.REFERENCE['eta_km2s']:g}_du{C.REFERENCE['du_kms']:g}"
 THRESHOLDS = (100.0, 300.0)
+A1 = ROOT / "docs/PROTOCOL_SFT_MAP_BIPOLE_PILOT_AMENDMENT_A1.md"
+A1_FREEZE = ROOT / "docs/PROTOCOL_SFT_MAP_BIPOLE_PILOT_AMENDMENT_A1_FREEZE.json"
+INPUTS_EXPECTED = frozenset({"results/P1/P1_SBL_CATALOG_BY_HARP.csv", "python/sharpbl/geometry.py", "python/sharpbl/measure.py",
+                             "python/sharpbl/cycle.py", "docs/BL_SFT_HMI_INVENTORY.md"})
+CONV_TOL, N_CHOICES = 1e-3, (400, 800, 1600)
+CONV_FLOOR = 1e-2           # A1 §2 (draft, to be decided by the review): floor of the criterion as a fraction of D_scale (parent: 1e-6)
 CAT_COLS = ["HARPNUM", "T_REC", "role", "valid_bl", "family_rank", "NOAA_NUM", "USFLUX", "LAT_FWT", "d_axial_g", "d_axial_bal_g",
             "d_cm", "tilt_deg", "phi_pos_mx", "phi_neg_mx"]
 
@@ -72,12 +85,25 @@ def sha(p):
 # ---------------------------------------------------------------- gate
 
 def gate():
+    """Provenance before any map is read (Codex review aaf3d6f §4): parent protocol and its receipt pinned, exact input
+    set with current hashes, frozen amendment A1 present with its receipt, and the transport code equal to the SHA
+    recorded in the A1 receipt."""
     probs = []
     fz = json.loads(FREEZE.read_text())
     if not (sha(PROTOCOL) == fz.get("sha256") == PIN["protocol"]):
         probs.append("protocol text and receipt")
-    if any(sha(ROOT / p) != h for p, h in fz.get("inputs_sha256", {}).items()):
-        probs.append("inputs of the freeze receipt changed")
+    if sha(FREEZE) != PIN["receipt"]:
+        probs.append("freeze receipt file differs from the pinned one")
+    ins = fz.get("inputs_sha256")
+    if not (isinstance(ins, dict) and set(ins) == INPUTS_EXPECTED and all(sha(ROOT / p) == h for p, h in ins.items())):
+        probs.append("inputs of the freeze receipt: exact set and current hashes")
+    if not (A1.exists() and A1_FREEZE.exists()):
+        probs.append("amendment A1 not frozen")
+    else:
+        a1 = json.loads(A1_FREEZE.read_text())
+        if not (sha(A1) == a1.get("sha256") and a1.get("parent_sha256") == PIN["protocol"]
+                and a1.get("sft_core_sha256") == sha(ROOT / "python/sharpbl/sft_core.py")):
+            probs.append("amendment A1 text, parent or transport code")
     if subprocess.run(["git", "status", "--porcelain", "--untracked-files=no"], cwd=ROOT, capture_output=True, text=True).stdout.strip():
         probs.append("tracked tree not clean")
     head = subprocess.run(["git", "show", f"HEAD:scripts/{Path(__file__).name}"], cwd=ROOT, capture_output=True)
@@ -178,6 +204,13 @@ def run_region(row, read_maps, models, curve_times):
         br, bm, h = read_maps(row["HARPNUM"], row["T_REC"])
     except (OSError, ValueError, KeyError) as exc:
         return [dict(base, threshold=t, status=f"read_error:{type(exc).__name__}") for t in THRESHOLDS], [], []
+    try:
+        return _region(base, row, br, bm, h, models, curve_times)
+    except Exception as exc:                                  # recorded, never a silent disappearance or a crash of the run
+        return [dict(base, threshold=t, status=f"technical_error:{type(exc).__name__}") for t in THRESHOLDS], [], []
+
+
+def _region(base, row, br, bm, h, models, curve_times):
     regions, dips, curves = [], [], []
     for thr in THRESHOLDS:
         ing = ingredients(br, bm, h, thr)
@@ -223,7 +256,7 @@ def wquantile(x, w, q):
 
 
 def summarise(regions, dips):
-    reg = regions[["HARPNUM", "threshold", "status", "D_scale", "weight", "multiplicity", "flux_class", "lat_band"]]
+    reg = regions[["HARPNUM", "threshold", "status", "D_scale", "weight", "multiplicity", "flux_class", "lat_band"]].copy()
     d = dips.merge(reg, on=["HARPNUM", "threshold"], how="left")
     M = d[d.representation == "M"][["HARPNUM", "threshold", "transport", "time", "D"]].rename(columns={"D": "D_M"})
     B = d[d.representation != "M"].merge(M, on=["HARPNUM", "threshold", "transport", "time"], how="inner")
@@ -234,7 +267,8 @@ def summarise(regions, dips):
     B["ratio_threshold"] = B.time.map(thr_t)
     B["ratio"] = np.where((B.ratio_threshold > 0) & (B.D_M.abs() >= B.ratio_threshold), B.dD / B.D_M.abs(), np.nan)
     rows = []
-    groups = [("all", None)] + [(c, c) for c in ("multiplicity", "flux_class", "lat_band")]
+    B["cell"] = B.multiplicity + "|" + B.flux_class.astype(int).astype(str) + "|" + B.lat_band
+    groups = [("all", None)] + [(c, c) for c in ("multiplicity", "flux_class", "lat_band", "cell")]
     for (rep, thr, tr, tm), g in B.groupby(["representation", "threshold", "transport", "time"], sort=True):
         for gname, col in groups:
             parts = [("all", g)] if col is None else [(f"{col}={v}", x) for v, x in g.groupby(col)]
@@ -255,45 +289,176 @@ def summarise(regions, dips):
     return pd.DataFrame(rows), B
 
 
-def convergence(sample_ok, read_maps):
+PREFLIGHT_CENTRES = (5.0, 15.0, 30.0, 60.0)
+
+
+_PROFILE_CACHE = {}
+
+
+def preflight_profiles(model):
+    if model.n not in _PROFILE_CACHE:
+        _PROFILE_CACHE[model.n] = _preflight_profiles(model)
+    return _PROFILE_CACHE[model.n]
+
+
+def _preflight_profiles(model):
+    """Synthetic cases of A1 §2.1 at each centre: point bipole (separation 2 deg, tilt 10 deg, following negative north),
+    Gaussian bipoles sigma 2 and 4 deg, an impulse; returns name -> (cell flux, D_scale, single-polarity flag)."""
+    out = {}
+    for c in PREFLIGHT_CENTRES:
+        dl = math.sin(math.radians(10.0))
+        lp, ln = c - dl, c + dl
+        out[f"point_{c:g}"] = (C.deposit_linear(*C.point_bipole(lp, ln, 1e22), model.s)[0], 3e22 / (4 * math.pi * C.RSUN_CM ** 2), False)
+        for sg in (2.0, 4.0):
+            zp, fp = C.gaussian_component_cells((1.0, lp), sg, 1e22)
+            zn, fn = C.gaussian_component_cells((-1.0, ln), sg, -1e22)
+            out[f"gauss{sg:g}_{c:g}"] = (C.deposit_linear(np.sin(np.radians(np.r_[zp, zn])), np.r_[fp, fn], model.s)[0],
+                                         3e22 / (4 * math.pi * C.RSUN_CM ** 2), False)
+            out[f"gauss{sg:g}_pos_{c:g}"] = (C.deposit_linear(np.sin(np.radians(zp)), fp, model.s)[0], 3e22 / (4 * math.pi * C.RSUN_CM ** 2), True)
+        imp = np.zeros(model.n)
+        imp[int(np.argmin(np.abs(model.s - math.sin(math.radians(c)))))] = 1e22
+        out[f"impulse_{c:g}"] = (imp, 3e22 / (4 * math.pi * C.RSUN_CM ** 2), True)
+    return out
+
+
+def refined_dipoles(cf_fn, n, half_step, transport):
+    m = C.SFT1D(n=n, **transport)
+    if half_step:
+        m.dt_max = 0.5 * m.dt_max
+    cf = cf_fn(m)
+    outs = m.evolve(m.profile(cf), [t for _, t in TIMES])
+    return [m.dipole(b) for b in outs], outs
+
+
+def preflight():
+    """A1 §2.1-2.2: synthetic cases, four transports, all times, N -> 2N and half step; positivity and mass. Returns
+    (chosen N or None, table)."""
     rows = []
-    for _, row in sample_ok.head(3).iterrows():
+    for n in N_CHOICES:
+        base_model = C.SFT1D(n=n)
+        cases = list(preflight_profiles(base_model))
+        all_ok = True
+        for tname, par in TRANSPORTS.items():
+            for case in cases:
+                def cf_for(m, case=case):
+                    return preflight_profiles(m)[case][0]
+                dsc, single = preflight_profiles(base_model)[case][1:]
+                if cf_for(base_model) is None or cf_for(C.SFT1D(n=2 * n)) is None:
+                    # a component cap reaching beyond the outermost cell centre (sigma 4 deg at 60 deg): recorded, outside
+                    # the requirement, as the same status in the observed run (A1 §2.1)
+                    rows.append(dict(N=n, transport=tname, case=case, refinement="deposit", time="all", criterion=np.nan, passes=np.nan,
+                                     status="deposition_out_of_range"))
+                    continue
+                d0, outs0 = refined_dipoles(cf_for, n, False, par)
+                prof0 = base_model.profile(cf_for(base_model))
+                if single:
+                    mx = float(np.max(np.abs(prof0)))
+                    neg = min(float(o.min()) for o in outs0)
+                    mass = max(abs(float(o.sum() - prof0.sum())) for o in outs0) / float(np.abs(prof0).sum())
+                    good = neg >= -C.POS_TOL * mx and mass <= 1e-12
+                    rows.append(dict(N=n, transport=tname, case=case, refinement="positivity", time="all", criterion=max(-neg / mx, mass), passes=good,
+                                     status="ok"))
+                    all_ok &= good
+                    continue
+                for ref, (nn, half) in (("N_double", (2 * n, False)), ("dt_half", (n, True))):
+                    d1, _ = refined_dipoles(cf_for, nn, half, par)
+                    for (tl, _), a, b in zip(TIMES, d0, d1):
+                        c_ = abs(b - a) / max(abs(b), CONV_FLOOR * dsc)
+                        rows.append(dict(N=n, transport=tname, case=case, refinement=ref, time=tl, D_ref=a, D_fine=b, D_scale=dsc, criterion=c_,
+                                         passes=bool(c_ <= CONV_TOL), status="ok"))
+                        all_ok &= c_ <= CONV_TOL
+        if all_ok:
+            return n, pd.DataFrame(rows)
+    return None, pd.DataFrame(rows)
+
+
+def convergence(regions, read_maps, n):
+    """A1 §2.3: first three successful regions (permutation order) with M and B_point deposited; four transports; 2N and
+    half step. Returns (table, numerical status)."""
+    ok = regions[(regions.threshold == THRESHOLDS[0]) & (regions.status == "ok") & (regions.get("M_status") == "ok")
+                 & (regions.get("B_point_status") == "ok")].sort_values("perm_rank").head(3)
+    rows = []
+    for _, row in ok.iterrows():
         br, bm, h = read_maps(row["HARPNUM"], row["T_REC"])
         ing = ingredients(br, bm, h, THRESHOLDS[0])
         for rep in ("M", "B_point"):
-            res = {}
-            for lab, n, dt in (("ref", 400, C.DAY), ("N800", 800, C.DAY), ("dt_half", 400, None)):
-                mdl = C.SFT1D(n=n, **C.REFERENCE)
-                if dt is None:
-                    mdl.dt_max = 0.5 * mdl.dt_max
-                    dt = C.DAY
-                cf = C.deposit_linear(ing["s_pix"], ing["F_bal"], mdl.s)[0] if rep == "M" else \
-                    C.deposit_linear(*C.point_bipole(ing["lat_pos"], ing["lat_neg"], ing["phibar"]), mdl.s)[0]
-                res[lab] = [mdl.dipole(b) for b in mdl.evolve(mdl.profile(cf), [t for _, t in TIMES], dt_s=dt)]
-            for fine in ("N800", "dt_half"):
-                for (tl, _), dc, df in zip(TIMES, res["ref"], res[fine]):
-                    crit = abs(df - dc) / max(abs(df), 1e-6 * ing["D_scale"])
-                    rows.append(dict(HARPNUM=row["HARPNUM"], representation=rep, refinement=fine, time=tl, D_ref=dc, D_fine=df,
-                                     criterion=crit, passes=bool(crit <= 1e-3)))
+            def cf_for(m, rep=rep):
+                return C.deposit_linear(ing["s_pix"], ing["F_bal"], m.s)[0] if rep == "M" else \
+                    C.deposit_linear(*C.point_bipole(ing["lat_pos"], ing["lat_neg"], ing["phibar"]), m.s)[0]
+            for tname, par in TRANSPORTS.items():
+                d0, _ = refined_dipoles(cf_for, n, False, par)
+                for ref, (nn, half) in (("N_double", (2 * n, False)), ("dt_half", (n, True))):
+                    d1, _ = refined_dipoles(cf_for, nn, half, par)
+                    for (tl, _), a, b in zip(TIMES, d0, d1):
+                        c_ = abs(b - a) / max(abs(b), CONV_FLOOR * ing["D_scale"])
+                        rows.append(dict(HARPNUM=row["HARPNUM"], representation=rep, transport=tname, refinement=ref, time=tl, D_ref=a, D_fine=b,
+                                         criterion=c_, passes=bool(c_ <= CONV_TOL)))
+    t = pd.DataFrame(rows, columns=["HARPNUM", "representation", "transport", "refinement", "time", "D_ref", "D_fine", "criterion", "passes"])
+    if len(ok) == 0:
+        return t, "no_usable_convergence_case"
+    if not t.passes.all():
+        return t, "convergence_failed"
+    return t, ("ok" if len(ok) == 3 else f"ok_with_{len(ok)}_cases")
+
+
+def denominators(sample, regions):
+    reg = regions.copy()
+    reg["cell"] = reg.multiplicity + "|" + reg.flux_class.astype(int).astype(str) + "|" + reg.lat_band
+    rows = []
+    for (cell, thr), g in reg.groupby(["cell", "threshold"]):
+        r = dict(cell=cell, threshold=thr, selected=int(len(g)), region_ok=int((g.status == "ok").sum()))
+        for st, k in g.status.value_counts().items():
+            if st != "ok":
+                r[f"failed_{st}"] = int(k)
+        for rep in ("M", "B_point", "B_gauss_area", "B_gauss_2deg", "B_gauss_4deg"):
+            col = f"{rep}_status"
+            if col in g:
+                r[f"{rep}_ok"] = int((g[col] == "ok").sum())
+                r[f"{rep}_out_of_range"] = int((g[col] == "deposition_out_of_range").sum())
+        rows.append(r)
+    return pd.DataFrame(rows).fillna(0)
+
+
+def manifest(sample, paths_fn):
+    """Exact Br/bitmap/keys files of the sampled records with SHA-256 and T_OBS (recorded before processing)."""
+    rows = []
+    for _, r in sample.iterrows():
+        for kind, p in zip(("Br", "bitmap", "keys"), paths_fn(r["HARPNUM"], r["T_REC"])):
+            ok = Path(p).exists()
+            t_obs = json.loads(Path(p).read_text()).get("T_OBS") if (ok and kind == "keys") else None
+            rows.append(dict(HARPNUM=r["HARPNUM"], T_REC=r["T_REC"], kind=kind, path=str(p), exists=ok, sha256=sha(p) if ok else "",
+                             T_OBS=t_obs))
     return pd.DataFrame(rows)
 
 
 # ---------------------------------------------------------------- build and run
 
 def fits_reader(base=FITS):
+    def paths(harp, t_rec):
+        folder, stem = record_dir(base, t_rec), file_stem(int(harp), t_rec)
+        return folder / f"{stem}.Br.fits", folder / f"{stem}.bitmap.fits", folder / f"{stem}.keys.json"
+
     def read(harp, t_rec):
-        folder = record_dir(base, t_rec)
-        stem = file_stem(int(harp), t_rec)
-        br, h = geo.read_sharp(folder / f"{stem}.Br.fits")
-        bm, _ = geo.read_sharp(folder / f"{stem}.bitmap.fits")
+        pb, pm, _ = paths(harp, t_rec)
+        br, h = geo.read_sharp(pb)
+        bm, _ = geo.read_sharp(pm)
         return br, bm, h
+    read.paths = paths
     return read
 
 
-def build(cat, read_maps, curves=True):
+def build(cat, read_maps, curves=True, n_cells=None):
+    """n_cells: grid size; None runs the A1 preflight to choose it (technical stop if no N passes)."""
+    if n_cells is None:
+        n_cells, pre = preflight()
+        if n_cells is None:
+            raise SystemExit("A1 preflight failed up to N = 1600: technical stop, no product")
+    else:
+        pre = pd.DataFrame()
     pop, info = population(cat)
     sample = draw(pop)
-    models = {k: C.SFT1D(**p) for k, p in TRANSPORTS.items()}
+    man0 = manifest(sample, read_maps.paths)
+    models = {k: C.SFT1D(n=n_cells, **p) for k, p in TRANSPORTS.items()}
     curve_times = [d * C.DAY for d in range(0, 1096)] + [3 * C.YEAR] if curves else None
     regs, dips, curv = [], [], []
     for _, row in sample.iterrows():
@@ -303,11 +468,15 @@ def build(cat, read_maps, curves=True):
         curv += c
     regions, dipoles = pd.DataFrame(regs), pd.DataFrame(dips)
     summary, _ = summarise(regions, dipoles)
-    ok100 = regions[(regions.threshold == THRESHOLDS[0]) & (regions.status == "ok")].sort_values("perm_rank")
-    conv = convergence(ok100, read_maps)
+    conv, num_status = convergence(regions, read_maps, n_cells)
+    man1 = manifest(sample, read_maps.paths)
+    manifest_ok = man0[["path", "exists", "sha256"]].equals(man1[["path", "exists", "sha256"]])
     cells = pop.groupby(["multiplicity", "flux_class", "lat_band"]).size().rename("N_cell").reset_index()
-    return dict(SAMPLE=sample, CELLS=cells, REGIONS=regions, DIPOLES=dipoles, CURVES=pd.DataFrame(curv), SUMMARY=summary,
-                CONVERGENCE=conv), dict(info, population=len(pop), sample=len(sample))
+    valid = (num_status.startswith("ok")) and manifest_ok
+    return dict(SAMPLE=sample, CELLS=cells, REGIONS=regions, DIPOLES=dipoles, CURVES=pd.DataFrame(curv, columns=["HARPNUM", "representation", "t_day", "D"]),
+                SUMMARY=summary, CONVERGENCE=conv, PREFLIGHT=pre, MANIFEST=man0, DENOMINATORS=denominators(sample, regions)), \
+        dict(info, population=len(pop), sample=len(sample), n_cells=n_cells, numerical_status=num_status, manifest_unchanged=manifest_ok,
+             run_valid=bool(valid))
 
 
 def run():
@@ -324,11 +493,13 @@ def run():
                 script_sha256=sha(__file__), sft_core_sha256=sha(ROOT / "python/sharpbl/sft_core.py"), catalogue_sha256=sha(CATALOGUE),
                 git_head=subprocess.run(["git", "rev-parse", "HEAD"], cwd=ROOT, capture_output=True, text=True).stdout.strip(),
                 seed=SEED, per_cell=PER_CELL, transports=TRANSPORTS, reference=REF, times=[list(t) for t in TIMES], **info)
+    meta.update(a1_sha256=sha(A1), a1_freeze_receipt_sha256=sha(A1_FREEZE))
     meta["products_sha256"] = {f.name: sha(f) for f in sorted(tmp.iterdir())}
     (tmp / "META.json").write_text(json.dumps(meta, indent=2) + "\n")
     tmp.rename(OUT)
-    print(f"written {OUT}")
-    return 0
+    print(f"written {OUT}; numerical status {info['numerical_status']}; manifest unchanged {info['manifest_unchanged']}; "
+          f"run valid {info['run_valid']}")
+    return 0 if info["run_valid"] else 3
 
 
 # ---------------------------------------------------------------- synthetic environment (also used by the recount)
@@ -383,7 +554,7 @@ def selftest():
 
     with tempfile.TemporaryDirectory() as td:
         cat, reader = synthetic_env(td)
-        prods, info = build(cat, reader, curves=False)
+        prods, info = build(cat, reader, curves=False, n_cells=800)
         S, R, D, Su = prods["SAMPLE"], prods["REGIONS"], prods["DIPOLES"], prods["SUMMARY"]
         pop, _ = population(cat)
         ok("population: primary/both, valid_bl 1, family_rank 0, finite USFLUX; ordered by HARPNUM",
@@ -430,8 +601,44 @@ def selftest():
         ok("summary: one 'all' row per time with n, weighted quantiles and the ratio threshold; same-sign fraction at 3 years",
            len(a) == len(TIMES) and a.ratio_threshold.notna().all() and a[a.time == "3y"].same_sign_w.notna().all())
         cv = prods["CONVERGENCE"]
-        ok("convergence on the first 3 successful regions: N800 and halved step at all times, criterion recorded",
-           len(cv) == 3 * 2 * 2 * len(TIMES) and cv.criterion.notna().all(), f"max {cv.criterion.max():.1e}")
+        ok("convergence (A1 §2.3): 3 regions x M/B_point x 4 transports x 2 refinements x all times; status ok and run valid",
+           len(cv) == 3 * 2 * 4 * 2 * len(TIMES) and info["numerical_status"] == "ok" and info["run_valid"], f"max {cv.criterion.max():.1e}")
+        dn = prods["DENOMINATORS"]
+        ok("denominators per cell and threshold: selected = sample size; failures by cause; cell summaries present",
+           all(int(dn[dn.threshold == t].selected.sum()) == len(S) for t in THRESHOLDS) and any(c.startswith("failed_") for c in dn.columns)
+           and Su.group.str.startswith("cell=").any())
+        mf = prods["MANIFEST"]
+        ok("manifest: Br, bitmap and keys of every sampled record, with SHA-256; unchanged at the end", len(mf) == 3 * len(S)
+           and mf.exists.all() and info["manifest_unchanged"])
+        # a file altered after the start is detected
+        p0 = Path(mf.path.iloc[0])
+        before = manifest(S.head(1), reader.paths)
+        p0.write_bytes(p0.read_bytes() + b"x")
+        ok("manifest detects a map changed during the run", not before[["sha256"]].equals(manifest(S.head(1), reader.paths)[["sha256"]]))
+        # convergence requirement failing -> run not valid
+        global CONV_TOL
+        saved = CONV_TOL
+        CONV_TOL = 1e-15
+        try:
+            t_bad, st_bad = convergence(R, reader, 800)
+        finally:
+            CONV_TOL = saved
+        ok("convergence criterion not met -> status convergence_failed (run not valid)", st_bad == "convergence_failed")
+        # technical error inside a region is recorded, not a crash
+        g_ing = globals()["ingredients"]
+        globals()["ingredients"] = lambda *a, **k: (_ for _ in ()).throw(RuntimeError("synthetic"))
+        try:
+            rr, _, _ = run_region(S.iloc[0], reader, {REF: C.SFT1D()}, None)
+        finally:
+            globals()["ingredients"] = g_ing
+        ok("technical error in a region recorded as technical_error:<type>, the run continues",
+           all(r["status"] == "technical_error:RuntimeError" for r in rr))
+        npre, pre = preflight()
+        po = pre[pre.status == "ok"]
+        ok("A1 preflight on the actual code: N 400 fails on point bipoles, N 800 passes every synthetic case, transport, time; positivity and mass",
+           npre == 800 and not po[po.N == 400].passes.astype(bool).all() and po[po.N == 800].passes.astype(bool).all() and set(pre.refinement) == {"N_double", "dt_half", "positivity", "deposit"}
+           and set(pre[pre.status != "ok"].case) == {"gauss4_60", "gauss4_pos_60"},
+           f"max criterion at N 800 {po[(po.N == 800) & po.refinement.isin(['N_double', 'dt_half'])].criterion.max():.1e}")
     print(f"selftest: {sum(res)}/{len(res)}")
     return all(res)
 

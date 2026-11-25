@@ -10,10 +10,16 @@ only to produce synthetic products). Own pieces:
 - hybrid finite-volume generator;
 - Crank-Nicolson PROPAGATOR MATRICES built explicitly and raised to the needed powers (an algorithm different from the
   runner's step loop, mathematically equivalent), applied to all profiles at once;
-- tau factors, weighted summaries, ratio threshold, convergence check.
-Declared dependency: the P1 map reader and WCS (geometry.read_sharp, lonlat_maps, pixel_area_cm2, rsun_cm).
-Comparison: exact product set and columns; keys exact; counts and statuses exact; floats relative 1e-9 (plus 1e-12 of
-the column scale). The receipt is complete only on the real path.
+- tau factors, weighted summaries (incl. the 18 cells), ratio threshold, denominators;
+- amendment A1: synthetic preflight (first passing N), convergence on the observed cases (4 transports, 2N, dt/2) and
+  both requirements; manifest of the map files re-hashed now, with the expected set derived from SAMPLE.
+Provenance (real path): parent protocol and receipt pinned, exact receipt input set, A1 text and receipt, sft_core.py
+blob at the run HEAD = A1 receipt = META, script blob at the run HEAD, catalogue, seed, run declared valid.
+Declared dependencies: the P1 map reader and WCS (geometry.read_sharp, lonlat_maps, pixel_area_cm2, rsun_cm) and the
+SHARP file naming (download_records.record_dir, file_stem).
+Comparison: exact product set and columns; unique keys; counts integral and exactly equal; strings and booleans exact;
+floats relative 1e-9 (plus 1e-12 of the column scale); convergence criteria within 1e-8 absolute. CURVES are
+mandatory with an exact row count. The receipt is complete only on the real path and only if every requirement holds.
 
     OMP_NUM_THREADS=1 .venv/bin/python scripts/sft_map_bipole_pilot_recount.py --selftest
     OMP_NUM_THREADS=1 .venv/bin/python scripts/sft_map_bipole_pilot_recount.py --check
@@ -47,7 +53,18 @@ TIMES = (("0", 0.0), ("27d", 27 * DAY), ("0.5y", 0.5 * YEAR), ("1y", YEAR), ("3y
 GRID = [(e, d) for e in (350.0, 466.8) for d in (0.025, 0.041)]
 REF = (466.8, 0.025)
 P_EXP, OMEGA_UNUSED = 2.33, None
-PRODUCTS = {"SAMPLE.csv", "CELLS.csv", "REGIONS.csv", "DIPOLES.csv.gz", "CURVES.csv.gz", "SUMMARY.csv", "CONVERGENCE.csv", "META.json"}
+PRODUCTS = {"SAMPLE.csv", "CELLS.csv", "REGIONS.csv", "DIPOLES.csv.gz", "CURVES.csv.gz", "SUMMARY.csv", "CONVERGENCE.csv", "PREFLIGHT.csv",
+            "MANIFEST.csv", "DENOMINATORS.csv", "META.json"}
+CAT_COLS = ["HARPNUM", "T_REC", "role", "valid_bl", "family_rank", "NOAA_NUM", "USFLUX", "LAT_FWT", "d_axial_g", "d_axial_bal_g",
+            "d_cm", "tilt_deg", "phi_pos_mx", "phi_neg_mx"]
+RECEIPT_PIN = "a5f289876fef388b86be17e813e2c3d8578bdb170cb51392e7eb40a8a3f9f849"
+A1, A1_FREEZE = ROOT / "docs/PROTOCOL_SFT_MAP_BIPOLE_PILOT_AMENDMENT_A1.md", ROOT / "docs/PROTOCOL_SFT_MAP_BIPOLE_PILOT_AMENDMENT_A1_FREEZE.json"
+CONV_TOL, N_CHOICES, CENTRES = 1e-3, (400, 800, 1600), (5.0, 15.0, 30.0, 60.0)
+CONV_FLOOR = 1e-2
+INPUTS_EXPECTED = {"results/P1/P1_SBL_CATALOG_BY_HARP.csv", "python/sharpbl/geometry.py", "python/sharpbl/measure.py", "python/sharpbl/cycle.py",
+                   "docs/BL_SFT_HMI_INVENTORY.md"}
+EXACT = {"HARPNUM", "valid_bl", "family_rank", "NOAA_NUM", "flux_class", "perm_rank", "N_cell", "n_cell", "n_pos", "n_neg", "n", "n_ratio",
+         "selected", "region_ok", "N"}
 
 
 def sha(p):
@@ -97,10 +114,9 @@ def own_sample(cat):
     rows = []
     for idx in chosen:
         c = cell[idx]
-        rows.append(dict(HARPNUM=int(p.HARPNUM[idx]), T_REC=p.T_REC[idx], multiplicity=c[0], flux_class=int(c[1]), lat_band=c[2],
+        rows.append(dict({k: p[k][idx] for k in CAT_COLS}, multiplicity=c[0], flux_class=int(c[1]), lat_band=c[2],
                          noaa_absent=bool(p.NOAA_NUM[idx] == 0), perm_rank=int(rank[idx]), N_cell=N[c], n_cell=taken[c],
-                         pi=taken[c] / N[c], weight=N[c] / taken[c], d_axial_g=p.d_axial_g[idx], d_axial_bal_g=p.d_axial_bal_g[idx],
-                         d_cm=p.d_cm[idx], tilt_deg=p.tilt_deg[idx]))
+                         pi=taken[c] / N[c], weight=N[c] / taken[c]))
     cells = pd.DataFrame([dict(multiplicity=k[0], flux_class=int(k[1]), lat_band=k[2], N_cell=v) for k, v in N.items()])
     return pd.DataFrame(rows), cells
 
@@ -129,7 +145,8 @@ class Model:
                 L[j, j - 1] += (D[j] + cl[j]) / self.ds
         self.L = L
         self.dt = min(DAY, 0.9 * 2.0 / float(np.max(-np.diag(L))))
-        self._P = {}
+        self.r = r
+        self._P, self._M = {}, {}                    # propagators by step; interval operators by (dt, k, remainder)
 
     def prop(self, dt):
         key = round(dt, 6)
@@ -140,11 +157,11 @@ class Model:
 
     def evolve_many(self, B0, targets):
         """B0: (n, m) profiles; returns list of (n, m) at each target, with the step rule of the protocol."""
-        B, t, out, cache = np.asarray(B0, float), 0.0, [], {}
+        B, t, out, cache = np.asarray(B0, float), 0.0, [], self._M
         for target in targets:
             k = int(np.floor((target - t) / self.dt * (1 + 1e-12)))
             rem = target - (t + k * self.dt)
-            key = (k, round(rem, 6))
+            key = (self.dt, k, round(rem, 6))
             if key not in cache:
                 M = np.linalg.matrix_power(self.prop(self.dt), k) if k else np.eye(self.n)
                 if rem > 1e-9 * self.dt:
@@ -236,9 +253,9 @@ def own_ingredients(br, bm, h, thr):
                 s=s, F=Fb)
 
 
-def own_all(cat, read_maps, curves=True):
+def own_all(cat, read_maps, curves=True, n=N_CELLS):
     samp, cells = own_sample(cat)
-    models = {tname(e, d): Model(e, d) for e, d in GRID}
+    models = {tname(e, d): model(e, d, n) for e, d in GRID}
     reg_rows, profiles = [], []                     # profiles: (HARPNUM, thr, rep, profile)
     for _, row in samp.iterrows():
         base = dict(HARPNUM=row.HARPNUM, T_REC=row.T_REC, multiplicity=row.multiplicity, noaa_absent=row.noaa_absent, flux_class=row.flux_class,
@@ -249,6 +266,19 @@ def own_all(cat, read_maps, curves=True):
         except (OSError, ValueError, KeyError) as exc:
             reg_rows += [dict(base, threshold=t, status=f"read_error:{type(exc).__name__}") for t in (100.0, 300.0)]
             continue
+        n_prof = len(profiles)
+        try:
+            reg_rows += _own_region(base, br, bm, h, models, profiles)
+        except Exception as exc:
+            del profiles[n_prof:]
+            reg_rows += [dict(base, threshold=t, status=f"technical_error:{type(exc).__name__}") for t in (100.0, 300.0)]
+    return _own_finish(samp, cells, reg_rows, profiles, models, curves)
+
+
+def _own_region(base, br, bm, h, models, profiles):
+    reg_rows = []
+    row = pd.Series(base)
+    if True:
         for thr in (100.0, 300.0):
             ing = own_ingredients(br, bm, h, thr)
             reg = dict(base, threshold=thr, status=ing["status"], n_pos=ing["n_pos"], n_neg=ing["n_neg"])
@@ -274,6 +304,10 @@ def own_all(cat, read_maps, curves=True):
                     if prof is not None:
                         profiles.append((row.HARPNUM, thr, name, prof))
             reg_rows.append(reg)
+    return reg_rows
+
+
+def _own_finish(samp, cells, reg_rows, profiles, models, curves):
     regions = pd.DataFrame(reg_rows)
     dips, curves_rows = [], []
     if profiles:
@@ -293,7 +327,7 @@ def own_all(cat, read_maps, curves=True):
                 for ts, B in zip(ct, mdl.evolve_many(P[:, sel], ct)):
                     for i, dv in zip(sel, mdl.dip(B)):
                         curves_rows.append(dict(HARPNUM=profiles[i][0], representation=profiles[i][2], t_day=ts / DAY, D=dv))
-    return samp, cells, regions, pd.DataFrame(dips), pd.DataFrame(curves_rows), models
+    return samp, cells, regions, pd.DataFrame(dips), pd.DataFrame(curves_rows, columns=["HARPNUM", "representation", "t_day", "D"]), models
 
 
 def own_wq(x, w, q):
@@ -325,9 +359,10 @@ def own_summary(regions, dips):
     B["dD_scaled"] = B.dD / B.D_scale
     B["rt"] = B.time.map(thr_t)
     B["ratio"] = np.where((B.rt > 0) & (B.D_M.abs() >= B.rt), B.dD / B.D_M.abs(), np.nan)
+    B["cell"] = [f"{a}|{int(b)}|{c}" for a, b, c in zip(B.multiplicity, B.flux_class, B.lat_band)]
     for (rep, thr, tr, tm), g in B.groupby(["representation", "threshold", "transport", "time"], sort=True):
         parts = [("all", g)]
-        for col in ("multiplicity", "flux_class", "lat_band"):
+        for col in ("multiplicity", "flux_class", "lat_band", "cell"):
             parts += [(f"{col}={v}", x) for v, x in g.groupby(col)]
         for label, x in parts:
             w = x.weight.to_numpy(float)
@@ -345,35 +380,170 @@ def own_summary(regions, dips):
     return pd.DataFrame(rows)
 
 
-def own_convergence(regions, read_maps):
-    ok = regions[(regions.threshold == 100.0) & (regions.status == "ok")].sort_values("perm_rank").head(3)
+def own_point(m, lp, ln, phi):
+    return m.deposit(np.sin(np.radians([lp, ln])), np.array([phi, -phi]))[0]
+
+
+_MODELS = {}
+
+
+def model(eta, du, n, half=False):
+    """Shared models (their operators are cached): reference step, or the step halved."""
+    key = (eta, du, n, half)
+    if key not in _MODELS:
+        m = Model(eta, du, n=n)
+        if half:
+            m.dt = 0.5 * m.dt
+        _MODELS[key] = m
+    return _MODELS[key]
+
+
+def own_refinements_many(profile_fns, n, eta, du, d_scales):
+    """For several cases at once: dipoles at TIMES on (N, dt), (2N, dt(2N)) and (N, dt/2); per case a list of
+    (refinement, time, D_ref, D_fine, criterion)."""
+    tt = [t for _, t in TIMES]
+    runs = {}
+    for lab, m in (("ref", model(eta, du, n)), ("N_double", model(eta, du, 2 * n)), ("dt_half", model(eta, du, n, half=True))):
+        P = np.stack([fn(m) for fn in profile_fns], axis=1)
+        runs[lab] = [m.dip(B) for B in m.evolve_many(P, tt)]
+    out = []
+    for i, dsc in enumerate(d_scales):
+        rows = []
+        for lab in ("N_double", "dt_half"):
+            for (tl, _), a, b in zip(TIMES, runs["ref"], runs[lab]):
+                a_, b_ = float(a[i]), float(b[i])
+                rows.append((lab, tl, a_, b_, abs(b_ - a_) / max(abs(b_), CONV_FLOOR * dsc)))
+        out.append(rows)
+    return out
+
+
+def own_refinements(profile_fn, n, eta, du, d_scale):
+    return own_refinements_many([profile_fn], n, eta, du, [d_scale])[0]
+
+
+_CASES = {}
+
+
+def own_preflight_cases(m):
+    """A1 2.1, rewritten: name -> (profile or None, single-polarity flag); cached per grid size."""
+    if m.n not in _CASES:
+        _CASES[m.n] = _own_preflight_cases(m)
+    return _CASES[m.n]
+
+
+def _own_preflight_cases(m):
+    out = {}
+    for c in CENTRES:
+        dl = math.sin(math.radians(10.0))
+        lp, ln = c - dl, c + dl
+        out[f"point_{c:g}"] = (own_point(m, lp, ln, 1e22), False)
+        for sg in (2.0, 4.0):
+            zp, fp = gauss_cells(1.0, lp, sg, 1e22, m.r)
+            zn, fn = gauss_cells(-1.0, ln, sg, -1e22, m.r)
+            out[f"gauss{sg:g}_{c:g}"] = (m.deposit(np.r_[zp, zn], np.r_[fp, fn])[0], False)
+            out[f"gauss{sg:g}_pos_{c:g}"] = (m.deposit(zp, fp)[0], True)
+        imp = np.zeros(m.n)
+        imp[int(np.argmin(np.abs(m.s - math.sin(math.radians(c)))))] = 1e22 / (2 * np.pi * m.r ** 2 * m.ds)
+        out[f"impulse_{c:g}"] = (imp, True)
+    return out
+
+
+def own_preflight():
+    """Returns (first N that passes or None, table) with the runner's columns."""
+    rows, dsc = [], 3e22 / (4 * math.pi * 6.96e10 ** 2)
+    for n in N_CHOICES:
+        good_all = True
+        for e, d in GRID:
+            m = model(e, d, n)
+            cases = own_preflight_cases(m)
+            fine_cases = own_preflight_cases(model(e, d, 2 * n))
+            refin = [c for c, (prof, single) in cases.items() if prof is not None and fine_cases[c][0] is not None and not single]
+            res = dict(zip(refin, own_refinements_many([lambda mm, c=c: own_preflight_cases(mm)[c][0] for c in refin], n, e, d,
+                                                       [dsc] * len(refin))))
+            for case, (prof, single) in cases.items():
+                if prof is None or fine_cases[case][0] is None:
+                    rows.append(dict(N=n, transport=tname(e, d), case=case, refinement="deposit", time="all", criterion=np.nan,
+                                     passes=np.nan, status="deposition_out_of_range"))
+                    continue
+                if single:
+                    outs = m.evolve_many(prof[:, None], [t for _, t in TIMES])
+                    mx = float(np.abs(prof).max())
+                    neg = min(float(B.min()) for B in outs)
+                    mass = max(abs(float(B.sum() - prof.sum())) for B in outs) / float(np.abs(prof).sum())
+                    g = neg >= -1e-12 * mx and mass <= 1e-12
+                    rows.append(dict(N=n, transport=tname(e, d), case=case, refinement="positivity", time="all", criterion=max(-neg / mx, mass),
+                                     passes=g, status="ok"))
+                    good_all &= g
+                    continue
+                for lab, tl, a, b, c_ in res[case]:
+                    rows.append(dict(N=n, transport=tname(e, d), case=case, refinement=lab, time=tl, D_ref=a, D_fine=b, D_scale=dsc, criterion=c_,
+                                     passes=bool(c_ <= CONV_TOL), status="ok"))
+                    good_all &= c_ <= CONV_TOL
+        if good_all:
+            return n, pd.DataFrame(rows)
+    return None, pd.DataFrame(rows)
+
+
+def own_convergence(regions, read_maps, n):
+    ok = regions[(regions.threshold == 100.0) & (regions.status == "ok") & (regions.get("M_status", pd.Series(index=regions.index, dtype=object)) == "ok")
+                 & (regions.get("B_point_status", pd.Series(index=regions.index, dtype=object)) == "ok")].sort_values("perm_rank").head(3)
     rows = []
     for _, row in ok.iterrows():
         br, bm, h = read_maps(row.HARPNUM, row.T_REC)
         ing = own_ingredients(br, bm, h, 100.0)
         for rep in ("M", "B_point"):
-            res = {}
-            for lab, n, half in (("ref", 400, False), ("N800", 800, False), ("dt_half", 400, True)):
-                m = Model(*REF, n=n)
-                if half:
-                    m.dt = min(DAY, 0.5 * 0.9 * 2.0 / float(np.max(-np.diag(m.L))))
-                prof = m.deposit(ing["s"], ing["F"])[0] if rep == "M" else \
-                    m.deposit(np.sin(np.radians([ing["lat_pos"], ing["lat_neg"]])), np.array([ing["phibar"], -ing["phibar"]]))[0]
-                res[lab] = [float(m.dip(B)[0]) for B in m.evolve_many(prof[:, None], [t for _, t in TIMES])]
-            for fine in ("N800", "dt_half"):
-                for (tl, _), dc, df in zip(TIMES, res["ref"], res[fine]):
-                    c = abs(df - dc) / max(abs(df), 1e-6 * ing["D_scale"])
-                    rows.append(dict(HARPNUM=row.HARPNUM, representation=rep, refinement=fine, time=tl, D_ref=dc, D_fine=df, criterion=c, passes=bool(c <= 1e-3)))
+            fn = (lambda m: m.deposit(ing["s"], ing["F"])[0]) if rep == "M" else \
+                (lambda m: own_point(m, ing["lat_pos"], ing["lat_neg"], ing["phibar"]))
+            for e, d in GRID:
+                for lab, tl, a, b, c_ in own_refinements(fn, n, e, d, ing["D_scale"]):
+                    rows.append(dict(HARPNUM=row.HARPNUM, representation=rep, transport=tname(e, d), refinement=lab, time=tl, D_ref=a, D_fine=b,
+                                     criterion=c_, passes=bool(c_ <= CONV_TOL)))
+    t = pd.DataFrame(rows, columns=["HARPNUM", "representation", "transport", "refinement", "time", "D_ref", "D_fine", "criterion", "passes"])
+    status = "no_usable_convergence_case" if len(ok) == 0 else "convergence_failed" if not t.passes.all() else \
+        ("ok" if len(ok) == 3 else f"ok_with_{len(ok)}_cases")
+    return t, status
+
+
+def own_denominators(regions):
+    rows = []
+    reg = regions.assign(cell=[f"{a}|{int(b)}|{c}" for a, b, c in zip(regions.multiplicity, regions.flux_class, regions.lat_band)])
+    for (cell, thr), g in reg.groupby(["cell", "threshold"]):
+        r = dict(cell=cell, threshold=thr, selected=len(g), region_ok=int((g.status == "ok").sum()))
+        r.update({f"failed_{k}": int(v) for k, v in g.status[g.status != "ok"].value_counts().items()})
+        for rep in ("M", "B_point", "B_gauss_area", "B_gauss_2deg", "B_gauss_4deg"):
+            if f"{rep}_status" in g:
+                r[f"{rep}_ok"] = int((g[f"{rep}_status"] == "ok").sum())
+                r[f"{rep}_out_of_range"] = int((g[f"{rep}_status"] == "deposition_out_of_range").sum())
+        rows.append(r)
+    return pd.DataFrame(rows).fillna(0)
+
+
+def own_manifest(sample, paths_fn):
+    rows = []
+    for h_, t_ in zip(sample.HARPNUM, sample.T_REC):
+        for kind, p in zip(("Br", "bitmap", "keys"), paths_fn(h_, t_)):
+            ex = Path(p).exists()
+            rows.append(dict(HARPNUM=h_, T_REC=t_, kind=kind, path=str(p), exists=ex, sha256=sha(p) if ex else "",
+                             T_OBS=json.loads(Path(p).read_text()).get("T_OBS") if ex and kind == "keys" else None))
     return pd.DataFrame(rows)
 
 
 # ---------------------------------------------------------------- comparison and check
 
-def frames_match(a, b, key, tol=1e-9):
+def is_count(c):
+    return c in EXACT or c.startswith("failed_") or c.endswith(("_ok", "_out_of_range", "_n_out"))
+
+
+def frames_match(a, b, key, tol=1e-9, abs_cols=()):
+    """Exact column set, unique keys, equal rows; counts integral and exactly equal; strings and booleans exact; floats
+    relative `tol` plus 1e-12 of the column scale; columns in `abs_cols` within 1e-8 absolute."""
     if set(a.columns) != set(b.columns):
         return False, f"columns {sorted(set(a.columns) ^ set(b.columns))[:4]}"
     if len(a) != len(b):
         return False, f"rows {len(a)} vs {len(b)}"
+    for f, lab in ((a, "theirs"), (b, "ours")):
+        if f.duplicated(key).any():
+            return False, f"duplicate keys ({lab})"
     a = a.sort_values(key, kind="mergesort").reset_index(drop=True)
     b = b[list(a.columns)].sort_values(key, kind="mergesort").reset_index(drop=True)
     for c in a.columns:
@@ -385,74 +555,133 @@ def frames_match(a, b, key, tol=1e-9):
                 return False, c
             continue
         xv, yv = xn.to_numpy(float), yn.to_numpy(float)
+        if is_count(c):
+            fx, fy = np.isfinite(xv), np.isfinite(yv)
+            if not ((fx == fy).all() and (xv[fx] == np.round(xv[fx])).all() and (xv[fx] == yv[fy]).all()):
+                return False, f"{c} (count)"
+            continue
         fin = np.isfinite(xv) & np.isfinite(yv)
-        scale = np.nanmax(np.abs(yv[fin])) if fin.any() else 0.0
-        good = (np.isnan(xv) & np.isnan(yv)) | (fin & (np.abs(xv - yv) <= tol * np.maximum(np.abs(xv), np.abs(yv)) + 1e-12 * scale))
+        if c in abs_cols:
+            good = (np.isnan(xv) & np.isnan(yv)) | (fin & (np.abs(xv - yv) <= 1e-8))
+        else:
+            scale = np.nanmax(np.abs(yv[fin])) if fin.any() else 0.0
+            good = (np.isnan(xv) & np.isnan(yv)) | (fin & (np.abs(xv - yv) <= tol * np.maximum(np.abs(xv), np.abs(yv)) + 1e-12 * scale))
         if not good.all():
             return False, f"{c} ({int((~good).sum())})"
     return True, ""
 
 
-def check(out=OUT, write=True, rec_dir=REC, data=None, outputs=None):
+def git_blob_sha(head, path):
+    r = subprocess.run(["git", "show", f"{head}:{path}"], cwd=ROOT, capture_output=True)
+    return hashlib.sha256(r.stdout).hexdigest() if r.returncode == 0 else None
+
+
+def fits_paths(harp, t_rec):
+    spec = importlib.util.find_spec("sharpbl.download_records")
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    folder, stem = mod.record_dir(ROOT / "data/sharp/fits", t_rec), mod.file_stem(int(harp), t_rec)
+    return folder / f"{stem}.Br.fits", folder / f"{stem}.bitmap.fits", folder / f"{stem}.keys.json"
+
+
+def fits_read(harp, t_rec):
+    pb, pm, _ = fits_paths(harp, t_rec)
+    br, h = geo.read_sharp(pb)
+    bm, _ = geo.read_sharp(pm)
+    return br, bm, h
+
+
+fits_read.paths = fits_paths
+CSV_PRODUCTS = {k: (f"{k}.csv.gz" if k in ("DIPOLES", "CURVES") else f"{k}.csv")
+                for k in ("SAMPLE", "CELLS", "REGIONS", "DIPOLES", "CURVES", "SUMMARY", "CONVERGENCE", "PREFLIGHT", "MANIFEST", "DENOMINATORS")}
+N_CURVE_TIMES = 1097
+
+
+def check(out=OUT, write=True, rec_dir=REC, data=None, outputs=None, info=None, cache=None):
+    """Real path: data, outputs and info are None (read from `out`). Selftest: data = (catalogue, reader with .paths),
+    outputs = product frames, info = the runner's run information (n_cells, numerical_status, manifest_unchanged,
+    run_valid)."""
     checks = []
 
-    def ok(name, cond, info=""):
-        checks.append(dict(name=name, ok=bool(cond), info=str(info)[:300]))
-        print(f"[{'OK' if cond else 'FALLITO'}] {name} {str(info)[:160]}")
+    def ok(name, cond, info_=""):
+        checks.append(dict(name=name, ok=bool(cond), info=str(info_)[:300]))
+        print(f"[{'OK' if cond else 'FALLITO'}] {name} {str(info_)[:160]}")
 
     real = data is None and outputs is None
     if real:
         fz = json.loads(FREEZE.read_text())
         meta = json.loads((Path(out) / "META.json").read_text())
-        ok("frozen protocol pinned, receipt inputs unchanged", sha(PROTOCOL) == fz["sha256"] == PIN == meta.get("protocol_sha256")
+        ok("frozen protocol and its receipt pinned; receipt inputs: exact set, unchanged", sha(PROTOCOL) == fz["sha256"] == PIN == meta.get("protocol_sha256")
+           and sha(FREEZE) == RECEIPT_PIN == meta.get("freeze_receipt_sha256") and set(fz["inputs_sha256"]) == INPUTS_EXPECTED
            and all(sha(ROOT / p) == h for p, h in fz["inputs_sha256"].items()))
+        a1 = json.loads(A1_FREEZE.read_text()) if A1_FREEZE.exists() and A1.exists() else {}
+        core_blob = git_blob_sha(meta.get("git_head", ""), "python/sharpbl/sft_core.py")
+        ok("amendment A1 frozen: text, receipt, parent; transport code at the run HEAD = A1 receipt = META", bool(a1)
+           and sha(A1) == a1.get("sha256") == meta.get("a1_sha256") and sha(A1_FREEZE) == meta.get("a1_freeze_receipt_sha256")
+           and a1.get("parent_sha256") == PIN and core_blob == a1.get("sft_core_sha256") == meta.get("sft_core_sha256"))
         ok("products: exact set and hashes", {p.name for p in Path(out).iterdir()} == PRODUCTS
            and all(sha(Path(out) / n) == h for n, h in meta["products_sha256"].items()) and set(meta["products_sha256"]) == PRODUCTS - {"META.json"})
-        blob = subprocess.run(["git", "show", f"{meta['git_head']}:scripts/sft_map_bipole_pilot.py"], cwd=ROOT, capture_output=True)
-        ok("run: script equal to the blob at the run HEAD; catalogue unchanged", hashlib.sha256(blob.stdout).hexdigest() == meta["script_sha256"]
+        ok("run: script equal to the blob at the run HEAD; catalogue unchanged; seed",
+           git_blob_sha(meta["git_head"], "scripts/sft_map_bipole_pilot.py") == meta["script_sha256"]
            and meta["catalogue_sha256"] == sha(CATALOGUE) and meta["seed"] == SEED)
         if not all(c["ok"] for c in checks):
             return _finish(checks, real, write, rec_dir, out)
-        rd = lambda n: pd.read_csv(Path(out) / n, low_memory=False, float_precision="round_trip")          # noqa: E731
-        outputs = {k: rd(f) for k, f in (("SAMPLE", "SAMPLE.csv"), ("CELLS", "CELLS.csv"), ("REGIONS", "REGIONS.csv"), ("DIPOLES", "DIPOLES.csv.gz"),
-                                          ("CURVES", "CURVES.csv.gz"), ("SUMMARY", "SUMMARY.csv"), ("CONVERGENCE", "CONVERGENCE.csv"))}
-        cat = pd.read_csv(CATALOGUE, usecols=["HARPNUM", "T_REC", "role", "valid_bl", "family_rank", "NOAA_NUM", "USFLUX", "LAT_FWT", "d_axial_g",
-                                              "d_axial_bal_g", "d_cm", "tilt_deg"], low_memory=False)
-
-        def reader(harp, t_rec):
-            spec = importlib.util.find_spec("sharpbl.download_records")
-            mod = importlib.util.module_from_spec(spec)
-            spec.loader.exec_module(mod)
-            folder, stem = mod.record_dir(ROOT / "data/sharp/fits", t_rec), mod.file_stem(int(harp), t_rec)
-            br, h = geo.read_sharp(folder / f"{stem}.Br.fits")
-            bm, _ = geo.read_sharp(folder / f"{stem}.bitmap.fits")
-            return br, bm, h
-        data = (cat, reader)
+        rd = lambda n: pd.read_csv(Path(out) / n, low_memory=False, float_precision="round_trip", keep_default_na=True)     # noqa: E731
+        outputs = {}
+        for k, f in CSV_PRODUCTS.items():
+            try:
+                outputs[k] = rd(f)
+            except pd.errors.EmptyDataError:
+                outputs[k] = pd.DataFrame()
+        info = meta
+        data = (pd.read_csv(CATALOGUE, usecols=CAT_COLS, low_memory=False), fits_read)
     cat, reader = data
-    samp, cells, regions, dips, curves, _ = own_all(cat, reader, curves=len(outputs["CURVES"]) > 0)
-    th = outputs["SAMPLE"]
-    common = [c for c in samp.columns if c in th.columns]
-    g1 = frames_match(th[common], samp[common], ["HARPNUM"])
-    ok("SAMPLE: same HARPs, strata, permutation ranks, N, n, pi and weights", g1[0] and len(th) == len(samp), g1[1])
+    ok("run declared valid: numerical status ok, manifest unchanged during the run",
+       info.get("run_valid") is True and str(info.get("numerical_status", "")).startswith("ok") and info.get("manifest_unchanged") is True,
+       f"{info.get('numerical_status')} {info.get('manifest_unchanged')}")
+    # A1 preflight, recomputed with propagator matrices
+    memo = cache if cache is not None else {}
+    if "pre" not in memo:
+        memo["pre"] = own_preflight()
+    n_own, pre = memo["pre"]
+    tp = outputs["PREFLIGHT"]
+    g = frames_match(tp, pre, ["N", "transport", "case", "refinement", "time"], abs_cols=("criterion",)) if len(tp) else (False, "empty")
+    req = pre[pre.status == "ok"]
+    ok("PREFLIGHT (A1 2.1-2.2): same cases, criteria within 1e-8 absolute, pass flags; first passing N = the run N; requirement met",
+       g[0] and n_own is not None and n_own == info.get("n_cells") and req[req.N == n_own].passes.astype(bool).all()
+       and all(not req[req.N == n].passes.astype(bool).all() for n in N_CHOICES if n < n_own), f"{g[1]} N own {n_own} run {info.get('n_cells')}")
+    n_run = int(info.get("n_cells") or N_CELLS)
+    if ("all", n_run) not in memo:
+        memo[("all", n_run)] = own_all(cat, reader, curves=True, n=n_run)
+    samp, cells, regions, dips, curves, _ = memo[("all", n_run)]
+    g = frames_match(outputs["SAMPLE"], samp, ["HARPNUM"])
+    ok("SAMPLE: exact columns; same HARPs, catalogue values, strata, permutation ranks, N, n, pi and weights", g[0], g[1])
     ok("CELLS: population counts per cell", frames_match(outputs["CELLS"], cells, ["multiplicity", "flux_class", "lat_band"])[0])
     g = frames_match(outputs["REGIONS"], regions, ["HARPNUM", "threshold"])
     ok("REGIONS: statuses, fluxes, centroids, balancing, pixel dipoles, deposit statuses, Gaussian effective quantities", g[0], g[1])
     g = frames_match(outputs["DIPOLES"], dips, ["HARPNUM", "threshold", "representation", "transport", "time"])
     ok("DIPOLES: every representation, threshold, transport, tau factor and time (propagator matrices vs step loop)", g[0], g[1])
-    if len(outputs["CURVES"]):
-        g = frames_match(outputs["CURVES"], curves, ["HARPNUM", "representation", "t_day"])
-        ok("CURVES: daily reference curves", g[0], g[1])
+    r100 = regions[(regions.threshold == 100.0) & (regions.status == "ok")]
+    n_curves = N_CURVE_TIMES * sum(int((r100.get(f"{r}_status", pd.Series(dtype=object)) == "ok").sum()) for r in ("M", "B_point"))
+    g = frames_match(outputs["CURVES"], curves, ["HARPNUM", "representation", "t_day"]) if len(outputs["CURVES"]) else (False, "empty")
+    ok("CURVES: mandatory; daily reference curves of M and B_point at 100 G, exact row count", g[0] and len(outputs["CURVES"]) == n_curves > 0,
+       f"{g[1]} rows {len(outputs['CURVES'])} expected {n_curves}")
     g = frames_match(outputs["SUMMARY"], own_summary(outputs["REGIONS"], outputs["DIPOLES"]), ["representation", "threshold", "transport", "time", "group"])
-    ok("SUMMARY: weighted and unweighted quantiles, ratio threshold, same-sign fractions", g[0], g[1])
-    oc = own_convergence(regions, reader)
-    kc = ["HARPNUM", "representation", "refinement", "time"]
-    tc = outputs["CONVERGENCE"]
-    g = frames_match(tc.drop(columns=["criterion"]), oc.drop(columns=["criterion"]), kc)
-    # the criterion is a relative difference of two nearly equal dipoles: compared with an absolute tolerance 1e-8
-    # (five orders below the 1e-3 rule); the pass/fail flag must be identical
-    cm = tc.sort_values(kc).criterion.to_numpy(float) - oc.sort_values(kc).criterion.to_numpy(float) if len(tc) == len(oc) else np.array([np.inf])
-    ok("CONVERGENCE: refinements, dipoles, pass flags; criterion within 1e-8 absolute", g[0] and np.abs(cm).max() <= 1e-8,
-       g[1] or f"max criterion gap {np.abs(cm).max():.1e}")
+    ok("SUMMARY: weighted and unweighted quantiles, ratio threshold, same-sign fractions; groups incl. the 18 cells", g[0], g[1])
+    g = frames_match(outputs["DENOMINATORS"], own_denominators(regions), ["cell", "threshold"])
+    ok("DENOMINATORS: per cell and threshold, selected, successes and failures by cause (integral counts)", g[0], g[1])
+    mf = own_manifest(samp, reader.paths)
+    g = frames_match(outputs["MANIFEST"], mf, ["HARPNUM", "kind"])
+    ok("MANIFEST: Br, bitmap and keys of every sampled record (set derived from SAMPLE); SHA-256 and T_OBS re-read now",
+       g[0] and mf.exists.all() and len(mf) == 3 * len(samp), g[1])
+    if ("conv", n_run) not in memo:
+        memo[("conv", n_run)] = own_convergence(regions, reader, n_run)
+    oc, st = memo[("conv", n_run)]
+    g = frames_match(outputs["CONVERGENCE"], oc, ["HARPNUM", "representation", "transport", "refinement", "time"], abs_cols=("criterion",)) \
+        if len(outputs["CONVERGENCE"]) else (False, "empty")
+    ok("CONVERGENCE (A1 2.3): 4 transports, 2N and dt/2, criteria within 1e-8 absolute, pass flags", g[0], g[1])
+    ok("convergence requirement met on the observed cases (else the run is not valid and the receipt is not complete)",
+       st.startswith("ok") and st == info.get("numerical_status"), f"own {st} run {info.get('numerical_status')}")
     return _finish(checks, real, write, rec_dir, out)
 
 
@@ -487,34 +716,82 @@ def selftest():
 
     with tempfile.TemporaryDirectory() as td:
         cat, reader = Rn.synthetic_env(td)
-        prods, _ = Rn.build(cat, reader, curves=False)
-        outs = {k: v.copy() for k, v in prods.items()}
-        with tempfile.TemporaryDirectory() as t2:                                      # CSV round trip
-            for k, v in outs.items():
+        prods, info = Rn.build(cat, reader, curves=True)                                # preflight included (n_cells None)
+        with tempfile.TemporaryDirectory() as t2:                                      # CSV round trip, as on the real path
+            rt = {}
+            for k, v in prods.items():
                 v.to_csv(Path(t2) / f"{k}.csv", index=False)
-            rt = {k: (pd.read_csv(Path(t2) / f"{k}.csv", low_memory=False, float_precision="round_trip") if len(outs[k]) else outs[k]) for k in outs}
+                try:
+                    rt[k] = pd.read_csv(Path(t2) / f"{k}.csv", low_memory=False, float_precision="round_trip")
+                except pd.errors.EmptyDataError:
+                    rt[k] = pd.DataFrame()
+        memo = {}
 
-        def quiet(o):
-            with contextlib.redirect_stdout(io.StringIO()):
-                return check(write=False, data=(cat, reader), outputs=o)
-        ok("synthetic run recounted in full (own propagators, Gaussians, summaries)", quiet(rt))
+        def run_check(o, inf=None):
+            buf = io.StringIO()
+            with contextlib.redirect_stdout(buf):
+                got = check(write=False, data=(cat, reader), outputs=o, info=dict(info if inf is None else inf), cache=memo)
+            return got, buf.getvalue()
+        good, txt = run_check(rt)
+        ok("synthetic run recounted in full (own preflight, propagators, Gaussians, summaries, denominators, manifest, convergence)", good,
+           " | ".join(l for l in txt.splitlines() if "FALLITO" in l)[:400])
 
-        def tamper(name, key, fn):
+        def tamper(name, key, fn, inf=None):
             o = dict(rt)
-            o[key] = fn(rt[key].copy())
-            got = quiet(o)
+            if key is not None:
+                o[key] = fn(rt[key].copy())
+            got, _ = run_check(o, inf)
             res.append(not got)
             print(f"[{'OK' if not got else 'FALLITO'}] refused: {name}")
-        i0 = rt["DIPOLES"].index[(rt["DIPOLES"].time == "3y")][0]
+        D = rt["DIPOLES"]
+        i0 = D.index[D.time == "3y"][0]
         tamper("a 3-year dipole moved by 1e-7 relative", "DIPOLES", lambda t: t.assign(D=t.D.where(t.index != i0, t.D * (1 + 1e-7))))
         tamper("a dipole row dropped", "DIPOLES", lambda t: t.drop(index=i0))
+        tamper("a duplicated key (one row replaced by a copy of another)", "DIPOLES", lambda t: pd.concat([t.drop(index=i0), t.loc[[t.index[0]]]]))
         tamper("a sampled HARP replaced", "SAMPLE", lambda t: t.assign(HARPNUM=t.HARPNUM.where(t.index != 0, 999)))
         tamper("a weight", "SAMPLE", lambda t: t.assign(weight=t.weight.where(t.index != 0, t.weight * 2)))
+        tamper("a SAMPLE column dropped (USFLUX)", "SAMPLE", lambda t: t.drop(columns=["USFLUX"]))
+        tamper("a REGIONS column dropped (D_pix_raw)", "REGIONS", lambda t: t.drop(columns=["D_pix_raw"]))
         tamper("a deposit status", "REGIONS", lambda t: t.assign(M_status=t.M_status.where(t.index != t.index[t.M_status.eq("ok")][0], "deposition_out_of_range")))
         tamper("a Gaussian effective flux", "REGIONS", lambda t: t.assign(B_gauss_2deg_eff_phi_pos=t.B_gauss_2deg_eff_phi_pos * (1 + 1e-6)))
+        tamper("empty curves", "CURVES", lambda t: t.iloc[0:0])
+        tamper("truncated curves (last day of one region dropped)", "CURVES", lambda t: t.drop(index=t.index[-1]))
         tamper("a weighted median", "SUMMARY", lambda t: t.assign(dD_scaled_median_w=t.dD_scaled_median_w.where(t.index != 0, 0.123)))
         tamper("a same-sign fraction", "SUMMARY", lambda t: t.assign(same_sign_w=t.same_sign_w.where(t.same_sign_w.isna() | (t.index != t.index[t.same_sign_w.notna()][0]), 0.5)))
+        tamper("cell summaries dropped", "SUMMARY", lambda t: t[~t.group.str.startswith("cell=")])
+        tamper("a fractional count (n + 0.5)", "SUMMARY", lambda t: t.assign(n=t.n.astype(float).where(t.index != 0, t.n.iloc[0] + 0.5)))
+        tamper("a fractional denominator (selected + 0.5)", "DENOMINATORS", lambda t: t.assign(selected=t.selected.astype(float).where(t.index != 0, t.selected.iloc[0] + 0.5)))
+        tamper("a failure moved between causes", "DENOMINATORS", lambda t: t.assign(region_ok=t.region_ok.where(t.index != 0, t.region_ok.iloc[0] + 1)))
         tamper("a convergence criterion", "CONVERGENCE", lambda t: t.assign(criterion=t.criterion.where(t.index != 0, 0.5)))
+        tamper("convergence rows of one transport dropped", "CONVERGENCE", lambda t: t[t.transport != t.transport.iloc[0]])
+        tamper("a preflight criterion moved by 1e-6 absolute", "PREFLIGHT", lambda t: t.assign(criterion=t.criterion.where(t.index != 0, t.criterion.iloc[0] + 1e-6)))
+        tamper("a preflight case dropped", "PREFLIGHT", lambda t: t.drop(index=t.index[0]))
+        tamper("run N different from the first passing N", None, None, inf=dict(info, n_cells=800))
+        tamper("a manifest hash", "MANIFEST", lambda t: t.assign(sha256=t.sha256.where(t.index != 0, "0" * 64)))
+        tamper("a manifest row dropped", "MANIFEST", lambda t: t.drop(index=t.index[0]))
+        tamper("run declared not valid (convergence_failed)", None, None, inf=dict(info, numerical_status="convergence_failed", run_valid=False))
+        tamper("manifest changed during the run", None, None, inf=dict(info, manifest_unchanged=False, run_valid=False))
+        # convergence requirement: the same failing table on both sides is still refused
+        global CONV_TOL
+        saved = CONV_TOL, Rn.CONV_TOL
+        CONV_TOL = Rn.CONV_TOL = 1e-15
+        try:
+            t_bad, st_bad = Rn.convergence(prods["REGIONS"], reader, info["n_cells"])
+            memo_bad = {k: v for k, v in memo.items() if k != ("conv", info["n_cells"])}
+            buf = io.StringIO()
+            with contextlib.redirect_stdout(buf):
+                got = check(write=False, data=(cat, reader), outputs=dict(rt, CONVERGENCE=t_bad), info=dict(info, numerical_status=st_bad),
+                            cache=memo_bad)
+        finally:
+            CONV_TOL, Rn.CONV_TOL = saved
+        lines = buf.getvalue().splitlines()
+        ok("refused: convergence requirement not met although the values agree (no complete receipt)",
+           not got and any(l.startswith("[OK] CONVERGENCE") for l in lines) and any(l.startswith("[FALLITO] convergence requirement") for l in lines))
+        # a map changed after the run is detected by the manifest re-read
+        p0 = Path(rt["MANIFEST"].path.iloc[0])
+        p0.write_bytes(p0.read_bytes() + b"x")
+        got, _ = run_check(rt)
+        ok("refused: a map file changed after the run (manifest hash re-read)", not got)
     print(f"selftest: {sum(res)}/{len(res)}")
     return all(res)
 
