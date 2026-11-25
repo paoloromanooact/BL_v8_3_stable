@@ -1,5 +1,12 @@
 # SHARP BL — v8.3
 
+> **Punti fissi correnti: due pilastri, solo HMI.** (1) sorgente BL regione per regione: P1, verifica
+> mappa–bipolo, osservazioni successive e ripetibilita C, poi BT con errore esplicito. (2) quenching:
+> BQ-HMI e successiva BQ-D con termini/forme fissati prima dei nuovi fit. **BQ-M rinviato; nests sospesi.**
+> L'eventuale sintesi P e un'estensione del pilastro BL. [Regole correnti e assegnazioni](docs/BL_WORK_PLAN.md).
+> Questo riquadro prevale sui riepiloghi storici sottostanti; i controlli osservativi pianificati non sono gia conclusi.
+
+
 > **Obiettivi approvati il 25 novembre 2026 (utente, Paolo Romano, Alessandro Bonanno):** la sorgente BL misurata nelle
 > regioni, con il suo quenching, costruisce il campo polare osservato, ed entro quale errore? (1) sorgente BL;
 > (2) quenching e sue dipendenze (BQ, BQ-D); (3) sintesi P, sorgente → campo polare. **Fase attuale: solo HMI.**

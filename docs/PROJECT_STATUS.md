@@ -1,5 +1,17 @@
 # Stato del progetto
 
+## Punti fissi correnti — fase solo HMI
+
+- **Sorgente BL:** P1 gia prodotto; mappa–bipolo, C ed evoluzione osservata in preparazione/verifica;
+  BT successivo con modello d'errore. Nessuna nuova validazione contro il Sole gia ottenuta dai sintetici.
+- **Quenching:** BQ-HMI in preparazione e prove sintetiche; BQ-D successivo con specifica propria.
+- **Fuori dalla fase attuale:** BQ-M rinviato, nests sospesi; SINDy e S42 separati.
+- Claude completa implementazione/test; Codex revisioni e controlli indipendenti. Nessun nuovo carico pesante
+  mentre le prove in corso saturano la macchina. [Piano autorevole](BL_WORK_PLAN.md).
+
+Le priorita storiche sotto non prevalgono su questo riquadro.
+
+
 ## Priorita correnti — 25 novembre 2026
 
 [Piano comune Codex–Claude](BL_WORK_PLAN.md), da leggere a ogni ripresa:

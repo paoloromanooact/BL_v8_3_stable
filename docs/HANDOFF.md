@@ -1,5 +1,30 @@
 # Cold restart — SHARP BL
 
+## Punti fissi del lavoro — decisione corrente dell'utente
+
+**Due pilastri, fase attuale solo HMI.** Questo riquadro prevale sugli ordini storici conservati sotto.
+
+1. **Sorgente BL regione per regione:** P1 e il prodotto osservativo gia costruito. La sua verifica e ancora
+   un obiettivo: mappa–bipolo dentro lo stesso SFT; confronto con osservazioni successive e ripetibilita C;
+   quindi BT, confronto bayesiano dei trasporti con un modello d'errore esplicito. Non presentare i piloti
+   pianificati o i test sintetici come validazione gia ottenuta contro il Sole. Il rapporto con i precedenti
+   bibliografici va dichiarato come replica/estensione, con le differenze di metodo documentate.
+2. **Quenching del tilt:** BQ-HMI confronta la dipendenza dall'attivita; BQ-D studia termini e forme predefiniti
+   (lineare, saturante o altre motivate prima dei nuovi fit), senza trasformare un'associazione in una causa.
+
+**BQ-M e rinviato:** HMI+MWO/eventuale MDI e ponte DPD appartengono alla fase multi-strumento futura, non
+alla fase solo HMI. Gli esiti HMI/MWO/MDI precedenti restano conservati e non vengono riabilitati dal piano.
+L'eventuale sintesi futura sorgente→campo polare (voce P gia pianificata sotto) appartiene al pilastro BL;
+non e un terzo obiettivo operativo ne una ricostruzione del campo polare gia validata.
+
+**Assegnazioni:** Claude implementa e completa i test in corso; Codex rivede metodi/codice e prepara controlli
+indipendenti, senza duplicare il lavoro. BQ-HMI prioritario; C e chiusura SFT procedono in parallelo come
+prerequisiti di BT. BQ-D richiede una specifica propria, non parte con una ricerca libera di modelli.
+Nests sospesi finche l'utente non li riattiva; SINDy e S42 completamente separati.
+Ogni nuovo compito dichiara il pilastro servito, il contributo aggiunto e lo stato (proposta, sintetici,
+misura osservata, verifica). Questo piano non congela protocolli o autorizza nuove corse/acquisizioni.
+
+
 ## C: fattibilita del disegno da metadati, senza pixel (Codex)
 
 - [Audit preliminare](C_REPEATABILITY_METADATA_CLOSURE_20261125.md): grafo di 1316 nodi (1020 bacino +296 coppie), 98 archi; 82 coppie in 80 HARP/79 componenti superano i soli filtri metadata proposti. Le precedenti 86 perdono quattro coppie per |LON_FWT|>60, non per tilt/flusso osservato.

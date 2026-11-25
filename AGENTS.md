@@ -11,6 +11,12 @@ SFT restano obiettivi della sorgente BL. Mantenere il richiamo al piano sopra
 la cronologia e verificare le assegnazioni Codex/Claude per non duplicare
 lavoro. Il piano non sostituisce i protocolli congelati. SINDy e separato.
 
+**Vincolo permanente per Codex e Claude:** ogni attivita serve uno dei due pilastri fissati in testa
+al piano: (1) sorgente BL P1 → verifica mappa/bipolo e osservazioni/C → BT; (2) quenching BQ-HMI → BQ-D.
+La fase corrente usa solo HMI: BQ-M e futuro, nests sospesi. L'eventuale sintesi P resta nel pilastro BL.
+Dichiarare obiettivo e stato del lavoro, senza confondere test sintetici con risultati osservati.
+Non aprire altre linee mentre le prove in corso saturano la macchina; privilegiare revisioni/documentazione.
+
 Sul branch `v8.4-python-gianluca` leggere prima `README_V84.md` e i protocolli
 `docs/PROTOCOL_P1_SBL_SERIES.md` e `docs/PROTOCOL_P2_QUENCHING.md`: sono
 congelati e non si modificano; una regola nuova richiede un nuovo protocollo,
