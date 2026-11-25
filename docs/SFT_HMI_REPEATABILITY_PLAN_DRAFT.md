@@ -1,4 +1,4 @@
-# HMI: ripetibilità a breve intervallo per il confronto SFT — specifica rev. 2, BOZZA
+# HMI: ripetibilità a breve intervallo per il confronto SFT — specifica rev. 3, BOZZA
 
 25 novembre 2026, Codex. **Da rivedere e congelare prima delle misure sui pixel.**
 Sostituisce la proposta generale di 78cffda; non modifica protocolli congelati. Collegata al §7 della bozza
@@ -65,7 +65,8 @@ conservato: nessuna unita di calibrazione compare nella verifica.
 
 - Principale: tutti i pixel Br finiti con |Br| <= 10000 G, senza soglia, bitmap o bilanciamento, come il principale
   del pilota osservativo. Varianti distinte: maschera P1 bitmap >=33 e |Br| >=100 G; campo bilanciato con riscalatura
-  separata delle due polarita, se entrambe presenti. Non riempire buchi con zeri scambiandoli per osservazioni.
+  separata delle due polarita, se entrambe presenti; altrimenti `balance_polarity_missing`, senza impedire
+  le misure grezze disponibili. Non riempire buchi con zeri scambiandoli per osservazioni.
 - Griglia a 0,06 gradi, ramo del primo CRVAL1. Estremi inferiori = minimo dei centri WCS di entrambe le patch meno
   1 grado; celle sino a coprire il massimo piu 1 grado, arrotondamento per eccesso. Aree sferiche esatte.
 - C_geo = erode(P0) intersezione P1, con le impronte dai centri WCS, margini direzionali del pilota alla massima
@@ -97,7 +98,13 @@ Conservare unita fisiche e scale relative esplicite:
 - Angoli: statistiche assiali/circolari, non una gaussiana ordinaria applicata senza controllo vicino al taglio.
 
 La differenza osservata principale non sottrae una previsione SFT. Eventuali differenze dopo sola rotazione
-sono un prodotto supplementare separato, sotto specifica esplicita e con gli stessi dati/supporti.
+sono un prodotto **secondario predefinito**: trasportare solo in longitudine con omega(lambda)-omega_Carr,
+legge e parametri del pilota osservativo vincolati al congelamento, Delta T_OBS effettivo, senza diffusione,
+flusso meridiano o decadimento. Rimappatura conservativa verificata sui sintetici. Per questa variante usare
+C_rot = C_fin intersezione supporto valido trasportato di t0 (con l'intero stencil); restringere **sia**
+osservazione t1, previsione ruotata e persistenza a C_rot, e pubblicare area/pixel persi. Non cambiare il
+principale su C_fin. Se C_rot<25 deg²: stato secondario non valutabile. Il margine geometrico non sostituisce
+la verifica della copertura dei valori finiti a monte della rotazione.
 
 ## 6. Riepiloghi e incertezza
 
@@ -117,8 +124,21 @@ lineari per la media circolare: in questa versione se ne riporta solo il valore 
 di leading restano visibili, non vengono ritagliati per costruire una sigma piccola.
 
 Riepiloghi fissati: totale, due emisferi, Delta t in (0;1,5 h] e (1,5;2 h]; flusso, latitudine e distanza dal
-meridiano riportati per coppia come covariate, senza altri tagli scelti dopo la lettura. Distribuzione per anno
-e popolazione coperta sempre mostrate. Sensibilita QUALITY solo 0 e variante P1/bilanciata separate.
+meridiano riportati per coppia come covariate. Le due classi di lag sono una struttura descrittiva minima:
+riportare separatamente media delle differenze, secondo momento E[Delta^2] e varianza centrata; non chiamare
+quest'ultima rumore puro. Nessuna estrapolazione ai giorni da due soli lag.
+
+Terzili predefiniti del flusso **di metadati** iniziale (USFLUX del record t0), sulla selezione prima dei pixel:
+quantili empirici 1/3 e 2/3, classe 1 <=q1, 2 q1<x<=q2, 3 >q2. Parita non spezzate per riempire le classi;
+valore mancante/non finito/non positivo in classe distinta, senza imputazione. Vincolare la sorgente e verificare
+la disponibilita prima del congelamento; non sostituire col flusso misurato sulla finestra dopo la selezione.
+Questi terzili non entrano come nuovi filtri. Nessun altro taglio scelto dopo la lettura. Distribuzione per anno
+e popolazione coperta sempre mostrate. Confronto dai metadati con il bacino/pilota osservativo per flusso,
+latitudine e LCM: dichiarare fonte, valori mancanti e differenze, senza scegliere pesi per farli coincidere.
+Registrare anche mu medio geometrico dei pixel di C_fin ai due istanti, solo per celle sul disco; non e
+la correzione LOS di Br. Conteggi degli elementi non visibili separati. Nessuna inferenza strumentale da mu.
+Le terne locali t,t+1h,t+2h si registrano se presenti nella selezione: collegamenti fra i record e le coppie gia ammesse, senza nuove repliche indipendenti.
+Una differenza t->t+2h non prevista dalla popolazione del §2 non si aggiunge al principale. Sensibilita QUALITY solo 0 e variante P1/bilanciata separate.
 
 Intervalli descrittivi percentile 95% con 2000 repliche: ricampionare le K componenti con reinserimento, tenendo
 tutte le coppie di ogni estrazione e pesandole coerentemente. Seme proposto 36_300_001 nella zona 36_300_000–999:
@@ -136,8 +156,19 @@ ai giorni e niente sostituzione della discrepanza del modello con questa scala.
 Il protocollo bayesiano successivo deve definire quali osservabili usa e come la loro dipendenza entra nella
 likelihood. Deve considerare errori della mappa iniziale oltre che del controllo, variabilita intrinseca e
 processi non modellati. Se adotta una conversione da C, riportarla come assunzione con sensibilita (per esempio
-scale 0,5/1/2 rispetto al riferimento esplicitamente definito), non come errore strumentale misurato. Nessuna
+scale 0,5/1/2/4 rispetto al riferimento esplicitamente definito), non come errore strumentale misurato. Nessuna
 somma in quadratura senza dichiarare ipotesi di indipendenza e covarianze.
+
+**Rischio direzionale:** a parita di varianza singola, una correlazione degli errori maggiore a 1-2 h
+rispetto ai giorni rende la differenza breve piu piccola: C puo sottostimare la scala rilevante per BT.
+Non e dimostrato che cio accada in ogni regione, e l'evoluzione si aggiunge con le sue covarianze.
+Le sensibilita fino a fattore 4 sono scenari, non un intervallo garantito dell'errore. Nei keys locali
+OBS_VR non risulta disponibile: registrare limite e nessuna correzione orbitale dedotta da T_OBS da solo.
+Nessuna rete per aggiungere keyword in C. Un riferimento su modulazioni HMI va verificato prima di citarlo.
+
+BT puo considerare C insieme ai residui di persistenza dei soli dati di sviluppo, in una specifica propria.
+Questi residui includono evoluzione e discrepanza del modello: non identificano a loro volta rumore puro.
+Mai usare le osservazioni di verifica per scegliere la scala che poi ne determina il punteggio.
 
 BQ non e bloccato scientificamente da C e non riceve automaticamente la stessa scala: per il quenching restano
 dispersione dei tilt e dipendenza fra CR da stimare/controllare. La loro dominanza non e assunta in anticipo.
@@ -152,7 +183,9 @@ Nests restano sospesi; non entra in C o BQ una classificazione non ancora costru
    al taglio. Errori di input devono fermare prima delle misure; le fixture non producono ricevute complete.
 3. Prova esatta sui sintetici: per coppie con errori generati di varianza sigma² e correlazione rho,
    Var(Delta)=2 sigma²(1-rho) quando non c'e evoluzione. Serve a verificare codice e interpretazione, non a
-   imporre rho=0 ai dati. Nessun solutore SFT e necessario per il principale di C.
+   imporre rho=0 ai dati. Aggiungere il caso rho=0,8 a 1 h e rho=0 ai giorni, stessa varianza singola:
+   la scala della differenza breve e sqrt(0,2) della scala ai giorni, anche senza evoluzione.
+   Nessun solutore SFT e necessario per il principale di C.
 4. Corse reali su codice e input conservati: SELECTION/EXCLUSIONS, INPUT_MANIFEST, MEASUREMENTS, DIFFERENCES,
    COMPONENTS, SUMMARY, BOOTSTRAP e META, con colonne e chiavi esatte e hash all'inizio/fine. Destinazioni nuove,
    nessuna sovrascrittura dei prodotti precedenti; salvataggio prima della lettura.

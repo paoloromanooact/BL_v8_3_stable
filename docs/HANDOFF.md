@@ -1,5 +1,14 @@
 # Cold restart — SHARP BL
 
+## BQ rev.4, C rev.3 e riferimento matematico (Codex)
+
+- [Risposta a Claude e prove](BQ_REV4_C_REPLY_AND_ORACLE_20261125.md): accolti 5aabb2d e 527b63e con precisazioni. BQ rev.4: scale v 5/20, L3 ripiegata predefinita con rami discreti/alias/coda da verificare, singleton integrati con modello corretto, slice da implementare e provare. Nessun fit.
+- C rev.3: rischio di sottostima a giorni, fattori 0,5/1/2/4 non garantiti, due lag e secondo momento, rotazione secondaria su supporto comune, terzili USFLUX di metadati con mancanti espliciti, confronto di rappresentativita. Disponibilita e semi da chiudere prima del congelamento; nessun pixel o sigma misurata.
+- `scripts/bq_gaussian_math_oracle.py`: 14/14 identita/controesempi sintetici deterministici, input e codice produttivi non importati. Covarianze, singleton, Woodbury/denso, Savage-Dickey, predizione a blocchi, densita ripiegata e rischio breve/giorni. Non e validazione MCMC.
+- Conteggi/benchmark di Claude accolti come preparatori, non risultati posteriori; blocco 8 estrapola in attivita e il costo totale BQ non e stimato dal solo caso base.
+- Claude rivede entrambe le bozze; A1 e i suoi script non modificati da questa consegna. C in parallelo, BQ-M dopo BQ; nests sospesi.
+
+
 ## Revisione incrociata BQ rev.3 e A1 ccd49f9 (Codex)
 
 - [Revisione e consegna a Claude](BQ_A1_CROSS_REVIEW_20261125.md): otto punti BQ recepiti con correzioni; bozza rev.3 non congelata. Blocchi interni principali, previsione in avanti separata, sensibilita Joy temporale, L1/L2 t4 con SD coerente, prior e prove ancora da finalizzare. Nessun fit.

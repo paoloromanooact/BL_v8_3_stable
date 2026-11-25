@@ -1,0 +1,73 @@
+{
+  "scope": "Independent deterministic BQ mathematical reference; no repository inputs or production inference code.",
+  "passed": 14,
+  "total": 14,
+  "checks": [
+    {
+      "name": "Missing CR retain actual lags with signed AR coefficient",
+      "ok": true
+    },
+    {
+      "name": "Full-grid submatrix agrees with direct observed covariance",
+      "ok": true
+    },
+    {
+      "name": "Gaussian singleton integration equals diagonal addition",
+      "ok": true
+    },
+    {
+      "name": "Woodbury determinant and quadratic agree with dense Cholesky",
+      "ok": true,
+      "error": 0.0
+    },
+    {
+      "name": "Savage-Dickey matches exact nested evidence with compatible nuisance prior",
+      "ok": true,
+      "logBF0Q": 0.012910902587730533
+    },
+    {
+      "name": "Joint block prediction equals joint minus training log-density",
+      "ok": true
+    },
+    {
+      "name": "Independent pointwise score differs from correlated block score",
+      "ok": true,
+      "difference": -0.05430475026334891
+    },
+    {
+      "name": "Folded density normalizes mu=25.0 sigma=12.0",
+      "ok": true,
+      "integral": 1.0
+    },
+    {
+      "name": "Folded density normalizes mu=120.0 sigma=30.0",
+      "ok": true,
+      "integral": 0.9999999999999999
+    },
+    {
+      "name": "Folded density normalizes mu=-35.0 sigma=150.0",
+      "ok": true,
+      "integral": 1.0000000000000002
+    },
+    {
+      "name": "Folded density aliases latent mu+360 and 180-mu",
+      "ok": true
+    },
+    {
+      "name": "Three-image truncation need not normalize for broad scales",
+      "ok": true,
+      "integral": 0.8172814153877868
+    },
+    {
+      "name": "Student singleton integration is convolution not variance-inflated Student",
+      "ok": true,
+      "convolution": 0.34595569948556576,
+      "shortcut": 0.41411822278067456
+    },
+    {
+      "name": "Short-lag difference need not bound day-lag difference",
+      "ok": true,
+      "short_to_day_scale": 0.44721359549995787
+    }
+  ]
+}

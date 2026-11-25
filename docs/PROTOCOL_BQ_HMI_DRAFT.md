@@ -1,4 +1,4 @@
-# BQ-HMI — confronto bayesiano della dipendenza del tilt dall'attività: BOZZA rev. 3
+# BQ-HMI — confronto bayesiano della dipendenza del tilt dall'attività: BOZZA rev. 4
 
 25 novembre 2026, Codex. **Non congelata; nessun fit reale o lettura di risultati bayesiani.**
 Priorita operativa aggiornata dall'utente: BQ-HMI, poi BQ-M; C prosegue come preparazione di BT e i piloti SFT
@@ -42,7 +42,12 @@ la preferenza più netta. Nests esclusi dalla fase attuale; la dipendenza residu
 con v AR(1) bivariato stazionario distinto da u e a priori indipendente da u, b e beta. Proposta:
 sigma_v~half-Normal(20 gradi), z_phi_v,z_kappa_v~N(0,1), trasformazioni tanh come per u.
 Non sottrarre a posteriori la proiezione di v sull'attivita: imporrebbe la separazione desiderata.
-Queste prior restano da verificare con le prove a priori. Una variazione lenta del coefficiente di Joy puo
+Queste prior restano da verificare con le prove a priori. Fissare entrambe le scale half-Normal
+5 e 20 gradi per sigma_v come sensibilita predefinite, con 20 riferimento della variante v. Sul disegno
+esportare separatamente la varianza a priori di beta*a*s e di v*s e le loro proiezioni sul regressore.
+Una prior ampia per v puo assorbire il segnale, ma non dimostra in anticipo una preferenza per M0: l'effetto
+sulle evidenze e da misurare con sintetici beta!=0,v=0 e beta=0,v!=0 per entrambe le scale.
+Non regolare sigma_v sui risultati HMI per ottenere una preferenza. Riportare tutte le varianti. Una variazione lenta del coefficiente di Joy puo
 imitare beta: il ranking con/senza v e il recupero sintetico sono parte dei risultati, non una selezione
 post hoc della sola variante favorevole. Un allargamento o una forte dipendenza dalle prior e un limite
 alla separazione dei contributi, non una prova causale.
@@ -60,6 +65,8 @@ La distribuzione iniziale è stazionaria e la griglia temporale non comprime i C
 Una sola osservazione per famiglia non separa autonomamente sigma_f dalla varianza individuale;
 la presenza di famiglie replicate e di eteroschedasticita puo fornire informazione: verificarla sul disegno.
 Contare famiglie singleton/replicate, non confondere questi conteggi con le celle CR singleton.
+Conteggi preparatori noti senza risposta (9740a7f): 221 CR nel calendario, 2149 famiglie, 1862 singleton e
+287 replicate con 623 record. Vincolare input e ricontare prima del fit; non sono 2149 repliche indipendenti.
 phi e kappa possono essere negativi; le trasformazioni tanh non impongono persistenza positiva.
 
 L2 predefinita: residui individuali Student-t con nu=4 **fisso**, stessi effetti u/b (e v nella sensibilita)
@@ -71,11 +78,31 @@ richiedono una scelta separata prima dei dati. Integrare le scale nella previsio
 le risposte escluse e poi trattarle come note. L'evidenza L2 resta opzionale e subordinata a verifiche.
 Il BIC L2 e per ora non stabilito; non riciclare la likelihood gaussiana condizionata alle scale.
 
-**Scelte non da nascondere:** gamma deriva da una trasformazione limitata a [-90,90]. La normale è un'approssimazione,
-non una densità esatta della misura angolare. Prima del congelamento, controllare predizioni a priori e definire
-una sensibilità con likelihood angolare/limitata coerente; non scegliere la famiglia dopo aver visto quale
-favorisce il quenching. Una likelihood normalizzata su supporto diverso può anche cambiare il significato del
-parametro di posizione rispetto alla media: la mappa verso il bersaglio deve essere esplicita.
+**L3 limitata, proposta concreta da verificare:** gamma deriva dal ripiegamento in [-90,90], non
+da un troncamento. Definire theta come angolo latente **gia firmato per emisfero**: gamma=F(theta),
+F(theta)=180/pi*arcsin(sin(pi*theta/180)). Non moltiplicare di nuovo per sign(lat).
+Condizionatamente agli effetti condivisi, theta~N(mu,sigma_i^2), stessa mu di L1. Per -90<gamma<90:
+
+f(gamma|mu,sigma_i) = sum_k [ NormalPDF(gamma+360*k;mu,sigma_i)
+                         + NormalPDF(180-gamma+360*k;mu,sigma_i) ].
+
+Unita gradi: Jacobiano assoluto uno su ciascun ramo. Gli estremi hanno misura nulla; dichiarare il
+trattamento numerico di valori esattamente +/-90 senza crearvi atomi. Nessuna assunzione sigma<=40:
+le prior hanno supporto illimitato. Scegliere immagini con controllo esplicito della coda omessa e somma
+log-sum-exp, prova di normalizzazione anche a sigma=150 e 400 gradi. La densita e periodica in mu e
+ha ambiguita riflesse: verificare modi/alias, non presumere identificazione del tilt latente.
+La formula riproduce il ripiegamento matematico, non dimostra una distribuzione fisica gaussiana del
+vero tilt. Beta e un coefficiente **latente** in L3; calcolare E[gamma|x] e la sua proiezione sul disegno
+per il confronto con T3. L1/L2 sono likelihood di lavoro sul gamma osservato, con un bersaglio distinto.
+Nessuna semplice divisione degli angoli o trasposizione del posteriore fra le tre likelihood.
+
+Il dato gamma esatto ammette i latenti theta=gamma+360*k oppure theta=180-gamma+360*k.
+Il passo condizionale di theta e un'estrazione **discreta** di ramo/intero con pesi gaussiani, non un
+Gibbs gaussiano continuo. Dati i rami, i coefficienti/effetti possono avere condizionali gaussiane.
+Per L2 lambda ha condizionale Gamma solo mantenendo la struttura condizionale richiesta: vedi singleton
+nel §7. L3 e una sensibilita predefinita; evidenza e BIC non stabiliti e non richiesti in questa fase.
+Prima del congelamento decidere supporto, troncamento adattivo, parametrizzazione e prove dei rami;
+nessun fit L3 fino a queste verifiche. Non scegliere L1/L2/L3 dopo averne visto il ranking.
 
 C non è un prerequisito per iniziare la specifica BQ: le coppie ravvicinate non stimano automaticamente sigma_i,
 sigma_x o sigma_f. Un futuro uso di C richiede confrontabilità del campione e modello della correlazione fra
@@ -135,6 +162,10 @@ Ripetere lo stesso schema con buffer 22 come sensibilita, riportando la dipenden
 di training. La densita del blocco integra gli stati correlati condizionati ai soli dati di training:
 puo usare tempi precedenti e successivi, quindi e interpolazione temporale e non un vero forecast.
 Nessuna garanzia di isolamento per persistenze vicine a uno. Stesso schema per L1/L2 e M0/MQ.
+Conteggi preparatori dei blocchi gia noti (9740a7f), senza risposta: blocco 8 contiene A=4,05, training
+massimo 3,35; con buffer 22 nel ciclo 25 restano 45 N/61 S. E estrapolazione in attivita anche nel confronto
+interno, non eliminarla o ridisegnare il blocco dopo i punteggi. Blocco 5 ha 22 record. Riportare numerosita,
+range A, supporto ciclo/emisfero e perdite per ogni blocco; non trattarli come 10 esperimenti equivalenti.
 Punteggio: somma delle log-densita congiunte di ciascun blocco e differenze per blocco; non considerare i
 10 punteggi come repliche certamente indipendenti per costruire un intervallo artificiosamente stretto.
 
@@ -229,7 +260,8 @@ Prima dei dati: casi con beta noto nullo/negativo/positivo, famiglie note, AR(1)
 eteroschedasticità e dipendenza non modellata. Controlli di implementazione e calibrazione da simulazione sotto
 le prior sono distinti dai controlli di robustezza a generatori diversi. Non estendere a BQ la validazione di M.
 Obbligatori: coefficiente k(t) variabile con fase senza beta, con somiglianza crescente ad a(t); nulli con
-code t4; confondimento sigma_f/sigma0; cicli assenti nel training. Con beta e k(t)*s indistinguibili i test
+code t4; beta vero senza v con v attivo, v senza beta, entrambe le scale 5/20;
+normalizzazione/alias di L3 e campionamento discreto dei rami; confondimento sigma_f/sigma0; cicli assenti nel training. Con beta e k(t)*s indistinguibili i test
 devono rivelare sensibilita/ambiguita, non imporre un recupero impossibile. Riportare frequenze di preferenza
 errata sotto ogni generatore con incertezza Monte Carlo; generatori e numerosita da fissare prima dei fit reali.
 
@@ -251,7 +283,22 @@ aperte sono chiuse e codice/likelihood verificati. Nessuna libreria nuova instal
 **Ambiente proposto:** numpy/scipy locali possono bastare, ma un campionatore proprio non e approvato solo
 per questo. Woodbury/determinante e precisione AR(1) verificati contro Cholesky densa su sintetici; registrare
 Jacobian dei parametri trasformati e differenza fra likelihood marginale ML e densita integrata bayesiana.
-La dimensione dei latenti include tutte le famiglie, non solo i CR: benchmark prima di promettere millisecondi.
+In L1 integrare le famiglie singleton esattamente nella diagonale, +sigma_f^2: non occorrono latenti
+singleton nel Woodbury. Con u: 442+287=729 dimensioni; con u e v: 884+287=1171, sul disegno noto.
+In L2, condizionatamente a lambda, la diagonale singleton e sigma_i^2*(nu-2)/(nu*lambda_i)+sigma_f^2.
+NON e una t con SD sqrt(sigma_i^2+sigma_f^2). Integrando b_single, la condizionale di lambda non e piu
+la semplice Gamma coniugata: o mantenere b_single per quel Gibbs o aggiornare lambda con kernel corretto.
+In L3 si possono sommare le varianze gaussiane singleton nel theta latente, poi applicare il ripiegamento.
+Non sommarle a una varianza gaussiana del gamma osservato.
+Benchmark aee64df: accordo denso/Woodbury su risposte sintetiche e struttura reale, non verifica del sampler.
+La stima circa 2 h e per un numero ipotizzato di valutazioni del caso base: slice, quattro catene, CV,
+prior multiple e likelihood diverse possono richiedere molto di piu. Benchmark per valutazione != durata.
+
+Proposta di campionatore: slice per coordinate trasformate, larghezze adattate solo nel warm-up, con stepping-out
+/shrinkage verificato e Jacobiani. Numero di passi/espansioni, gestione dei fallimenti e composizione per
+coefficienti/effetti da fissare con il codice. Proposta di estensione: lunghezza base e raddoppi fino a 4 volte
+la base, poi stato tecnico, non nuove prior o modelli; base e semi da congelare prima dei dati. L2/L3 richiedono
+i kernel corretti sopra, non un generico "Gibbs gaussiano".
 Bridge sampling opzionale: controllo su integrali gaussiani noti, quadratura ridotta e Savage-Dickey con
 errori numerici; separare campioni usati per costruire la proposta e per stimare l'integrale. Se i controlli
 falliscono, nessuna evidenza pubblicabile e nessun vincitore per difetto tecnico. Nessuna installazione ora.
