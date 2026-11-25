@@ -1,0 +1,6 @@
+{
+  "seed": 36400001,
+  "agreement_rel_1e10": true,
+  "numpy": "2.2.6",
+  "note": "synthetic y only; timings single-thread, indicative"
+}

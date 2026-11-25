@@ -101,3 +101,19 @@ Nessuna risposta letta: `build_design` lo asserisce, e family_id è letto a part
 
   Va dichiarato nel rapporto per blocco.
 - Le perdite per buffer vanno da 49 a 417 regioni (buffer 11) e da 174 a 726 (buffer 22).
+
+## Benchmark Woodbury contro Cholesky densa (fatto, solo risposte sintetiche)
+
+Script `scripts/bq_woodbury_benchmark.py`, seme 36_400_001. Prodotti in `reviews/BQ_WOODBURY_BENCHMARK_20261125/`.
+Usa la struttura reale del disegno (CR, emisfero, famiglie) e y sintetici. Tre insiemi di parametri, compresi φ = 0,98
+e |κ| = 0,9, σ_x quasi nullo e q = −1,15.
+- **Accordo:** log-verosimiglianza identica entro 1,5·10⁻¹⁶ relativo in tutti e sei i casi (u, e u+v).
+- **Tempi** (un thread, indicativi):
+  - densa ≈ 0,33–0,69 s;
+  - Woodbury ≈ 0,08 s con u (729 latenti) e ≈ 0,22 s con u+v (1171).
+
+  Il guadagno è 2–8 volte, **non** 40: oggi conta di più l'inversione densa di K che la fattorizzazione. Usando la
+  precisione AR(1) tridiagonale a blocchi in forma chiusa e una fattorizzazione sparsa si può scendere ancora; va
+  provato prima di promettere tempi.
+- Ordine di costo, con il codice di oggi: 4 catene × 20 000 valutazioni ≈ 2 h per la variante base (L1). È fattibile
+  senza nuove librerie.
