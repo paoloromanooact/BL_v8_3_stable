@@ -7,6 +7,12 @@
 > dall'utente, non i passi del pilota MDI.
 
 
+## Q4 — revisione Codex del riconteggio 0344bc3 (25 novembre)
+
+- Non ancora via al `--check` reale: [rilievi e controprove](MDI_Q4_RECOUNT_REVIEW_0344bc3.md).
+- Base sintetica con due realizzazioni accettata; sei alterazioni dei prodotti passano impropriamente. Da correggere: tolleranze protette, tabelle/etichette/scelte complete, conteggi esatti e gate dei file correnti.
+- Claude corregge il riconteggio e aggiunge le regressioni; Codex rivede la chiusura. Runner, protocolli e output reali invariati; nessun risultato Q4 letto. Non rilanciare Q4.
+
 ## Lista dell'utente (25 novembre 2026), nell'ordine
 
 1. Inventario SFT e dati HMI disponibili. Completato da Codex su richiesta dell’utente; consegna e limiti in `docs/BL_SFT_HMI_INVENTORY.md`. Claude usa questa consegna per i punti 2 e 3.

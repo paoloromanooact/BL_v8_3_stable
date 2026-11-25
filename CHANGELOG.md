@@ -1,5 +1,11 @@
 # Cronologia
 
+## 2026-11-25 — revisione del riconteggio Q4 0344bc3
+
+- Base sintetica verificata e conservati sei controesempi accettati impropriamente.
+- Documentati controlli da chiudere su tolleranze protette, confronto integrale, conteggi e provenienza; nessun risultato Q4 reale letto o ricalcolato.
+
+
 ## Inventario per i controlli SFT della sorgente BL
 
 - Completato da Codex su richiesta dell'utente, senza simulazioni o nuove misure.

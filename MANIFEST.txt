@@ -69,6 +69,8 @@ docs/MDI_PILOT_Q4_NOTE_DRAFT.md
 docs/MDI_PILOT_Q4_NOTE_FREEZE.json
 docs/MDI_Q4_CODEX_CLOSE_fed1775.md
 docs/MDI_Q4_PREP_COUNTS_RULES.md
+docs/MDI_Q4_RECOUNT_REVIEW_0344bc3.md
+docs/MDI_Q4_RECOUNT_REVIEW_0344bc3_RESULTS.json
 docs/MDI_SMARP_COUNTS_REVIEW.md
 docs/MDI_SMARP_FEASIBILITY.md
 docs/MDI_SMARP_FIELD_MAP_REVIEW.md
@@ -1312,6 +1314,7 @@ scripts/mdi_q4_close_review_probe.py
 scripts/mdi_q4_prep_counts.py
 scripts/mdi_q4_prospective.py
 scripts/mdi_q4_recount.py
+scripts/mdi_q4_recount_review_probe.py
 scripts/mdi_smarp_inventory.py
 scripts/mdi_smarp_overlap_analysis.py
 scripts/mdi_synoptic_adapter.py

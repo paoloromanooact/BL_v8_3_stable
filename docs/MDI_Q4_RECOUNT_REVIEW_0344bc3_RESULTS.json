@@ -1,0 +1,34 @@
+[
+  {
+    "case": "valid synthetic base",
+    "accepted": true
+  },
+  {
+    "case": "protected SUMMARY tolerance set to zero",
+    "accepted": true
+  },
+  {
+    "case": "protected RAW negative tolerance",
+    "accepted": true
+  },
+  {
+    "case": "YIELD_EFFECTS duplicated key and missing step",
+    "accepted": true
+  },
+  {
+    "case": "YIELD_EFFECTS altered label or extra column",
+    "accepted": true
+  },
+  {
+    "case": "META implementation choices replaced",
+    "accepted": true
+  },
+  {
+    "case": "META extra unverified field",
+    "accepted": true
+  },
+  {
+    "case": "CELL_COUNTS noninteger count",
+    "accepted": true
+  }
+]
