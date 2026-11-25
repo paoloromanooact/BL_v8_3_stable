@@ -23,6 +23,15 @@ alla sorgente BL e analisi bayesiana collegata a BQ/BT. Nessun catalogo di
 nests o risultato bayesiano e gia disponibile. I due piloti SFT restano le
 priorita operative; la specifica N si prepara senza duplicarne il lavoro.
 
+**Decisione piu recente dell'utente (25 novembre, pomeriggio): il lavoro bayesiano passa in cima.** Ordine:
+1. BQ su HMI (§3);
+2. BQ multi-strumento su piu cicli (§3bis);
+3. nests come effetto di gruppo in BQ (§5);
+4. BT (§4), che dipende dalla ripetibilita (§7) e dai piloti SFT.
+
+I piloti SFT non si fermano: il punto 1 si chiude con l'emendamento A1 gia in revisione, perche BT ne usa la
+macchina. Non si anticipa pero il loro lavoro a scapito di BQ.
+
 ## Due obiettivi del progetto di Paolo
 
 - **Sorgente Babcock–Leighton:** interpretare e verificare il proxy misurato
@@ -170,6 +179,60 @@ carattere non cieco e conserva gli esiti precedenti.
 **Uscita:** rapporto bayesiano HMI separato, con posteriori, adeguatezza,
 sensibilita e confronto relativo. Non modifica T3/T5 precedenti e non elimina
 il limite informativo dei dati o i problemi strumentali delle altre serie.
+
+## 3bis. BQ-M — quenching bayesiano su piu strumenti e piu cicli
+
+**Aggiunta approvata dall'utente il 25 novembre 2026.** Obiettivo servito: quenching del tilt.
+
+**Domanda.** Combinando HMI (cicli 24–25), MWO 1974–2012 (cicli 20–24) e, se costruito, il catalogo MDI completo
+(ciclo 23), quanto i dati distinguono un coefficiente di Joy che non dipende dall'attivita da uno che ne dipende?
+Si considerano sia la dipendenza dentro il ciclo (T3) sia quella fra cicli (coefficiente contro ampiezza del ciclo,
+come Jiao et al. 2021).
+
+**Punto di partenza (non cieco).** Le stime separate sono gia note:
+- HMI: −3,59° [−10,58; +3,41], «non deciso»;
+- MWO R4: −4,93° [−10,21; +0,34], descrittivo;
+- per MWO, la pendenza dello scarto MWO − luce bianca e −3,18° [−8,77; +2,40] (S2).
+
+Il protocollo lo dichiara. Non si sommano ne si mediano gli intervalli gia pubblicati: serve una nuova inferenza
+sui record.
+
+**Come si combinano i dati: verosimiglianza congiunta, non somma dei cataloghi.**
+- Parametri fisici **comuni**: coefficiente di Joy e sua dipendenza dall'attivita. Termini di ciclo, emisfero e
+  fase restano coerenti con BQ-HMI.
+- Parametri **per strumento**: scala e offset del tilt, errore di misura, eventuale dipendenza dell'errore dal
+  flusso.
+  - Per MWO, un termine di deriva con l'attivita, stimato attraverso il ponte con la luce bianca DPD sulle stesse
+    regioni. Senza ponte non si separa dal quenching, e la specifica deve dichiararlo.
+- **Stessa regione misurata da piu strumenti** (HMI–MWO 2010–2012, MDI–MWO 1996–2010, MDI–HMI 2010–2011): due misure
+  dello stesso tilt latente, non due regioni. Si usano per stimare scale ed errori relativi e non contano due volte
+  come informazione sul quenching.
+- **Indice di attivita** con una definizione unica su tutto il periodo, fissata nella specifica. Unita e
+  normalizzazione restano comuni a tutti gli strumenti.
+- **Dipendenze**: correlazione temporale per CR, famiglie e ricomparse, nests (§5) quando disponibili. Le regioni
+  non si trattano come repliche indipendenti.
+
+**Passi.**
+- [ ] Prerequisito: BQ-HMI specificato, congelato e funzionante sui sintetici. BQ-M ne estende il modello e non ne
+      cambia le scelte a posteriori.
+- [ ] Inventario dei record sovrapposti fra strumenti e del ponte DPD luce bianca (bozza T3-DPD esistente). Decidere
+      se il catalogo MDI completo entra o resta fuori.
+- [ ] Specifica separata:
+  - likelihood congiunta, prior di scala/offset/deriva e loro sensibilita;
+  - controlli sintetici con quenching noto e deriva strumentale nota, per verificare che i due si separino;
+  - controlli predittivi per strumento e per ciclo;
+  - confronto con e senza dipendenza fra cicli.
+- [ ] Prodotti:
+  - distribuzione della pendenza comune e probabilita che sia negativa;
+  - contributo di ciascuno strumento (analisi lasciandone fuori uno);
+  - confronto predittivo per blocchi di tempo o cicli.
+- [ ] Riconteggio indipendente e rapporto separato. Nessun verdetto promesso: con circa cinque cicli la parte fra
+      cicli resta debole, e se la deriva di MWO non si identifica il guadagno si riduce.
+
+**Uscita:** rapporto bayesiano multi-strumento, distinto da BQ-HMI. Non modifica T3 HMI, T3 MWO o Q4 MDI.
+
+**Assegnazione proposta:** Codex estende la specifica BQ; Claude prepara inventario delle sovrapposizioni e codice
+dopo il congelamento, con revisione incrociata.
 
 ## 4. BT — ranking bayesiano del trasporto superficiale su HMI
 
