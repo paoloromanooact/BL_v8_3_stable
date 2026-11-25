@@ -63,8 +63,27 @@ def p1_consistency():
     res.append(("point 3: pixels deposited on the local box give D = d_axial_g of measure_v84 (rel 1e-12)", nout2 == 0 and rel2 < 1e-12,
                 f"{rel2:.1e}"))
     fm = box.measures(Bg)
-    res.append(("point 3: fluxes on the grid = phi_pos/phi_neg of measure_v84 (rel 1e-12)",
+    res.append(("point 3 (P1 pixels): fluxes on the grid = phi_pos/phi_neg of measure_v84 in this well-separated case (rel 1e-12); "
+                "not a general identity (see the remap report)",
                 abs(fm["phi_pos"] - m["phi_pos_mx"]) < 1e-12 * m["phi_pos_mx"] and abs(fm["phi_neg"] - m["phi_neg_mx"]) < 1e-12 * m["phi_neg_mx"]))
+    # point 3 main field: all finite pixels, no bitmap and no threshold (weak field and noise included)
+    raw = np.isfinite(br) & (np.abs(br) <= measure.MAX_ABS_BR_G)
+    pix = C.field_measures(lat[raw], lon[raw], br[raw], np.full(raw.sum(), area), r)
+    reps = {}
+    for step in (0.06, 0.03):
+        bx = L.LocalBox((float(lat[raw].min()) - 0.5, float(lat[raw].max()) + 0.5), (float(lon[raw].min()) - 0.5, float(lon[raw].max()) + 0.5),
+                        step_deg=step, r_cm=r)
+        Bg2, n2 = bx.deposit(lat[raw], lon[raw], br[raw] * area)
+        reps[step] = (n2, L.remap_report(pix, bx.measures(Bg2)))
+    r6, r3 = reps[0.06][1], reps[0.03][1]
+    res.append(("point 3 raw field (no bitmap, no threshold): D and net flux kept by the deposit (1e-12 of D_scale and of the unsigned flux)",
+                reps[0.06][0] == 0 and abs(r6["d_D_g"]) <= 1e-12 * 3 * 0.5 * (pix["phi_pos"] + pix["phi_neg"]) / (4 * np.pi * r * r)
+                and abs(r6["d_phi_net"]) <= 1e-12 * (pix["phi_pos"] + pix["phi_neg"]), f"dD {r6['d_D_g']:.1e}"))
+    res.append(("point 3 raw field: the deposit lowers the unsigned flux (noise cancels in coarse cells) and moves centroids; "
+                "both are reported and shrink when the grid is refined 0.06 -> 0.03 deg",
+                r6["d_phi_pos"] < 0 and abs(r3["d_phi_pos"]) < abs(r6["d_phi_pos"]) and abs(r3["d_lon_pos"]) <= abs(r6["d_lon_pos"]) + 1e-9,
+                f"d phi_pos/phi_pos {r6['d_phi_pos'] / pix['phi_pos']:.3f} -> {r3['d_phi_pos'] / pix['phi_pos']:.3f}; "
+                f"d lon_pos {r6['d_lon_pos']:.4f} -> {r3['d_lon_pos']:.4f} deg"))
     return res
 
 
