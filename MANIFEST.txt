@@ -1375,6 +1375,7 @@ scripts/sft_790cad1_numeric_review_probe.py
 scripts/sft_independent_oracles.py
 scripts/sft_map_bipole_draft_review_probe.py
 scripts/sft_map_bipole_pilot.py
+scripts/sft_map_bipole_pilot_recount.py
 scripts/sft_observed_draft_review_probe.py
 scripts/sft_observed_feasibility.py
 scripts/sft_observed_header_review_audit.py
