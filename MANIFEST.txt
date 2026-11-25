@@ -201,6 +201,7 @@ docs/SFT_MAP_BIPOLE_DRAFT_REVIEW_fa3f08d.md
 docs/SFT_MAP_BIPOLE_DRAFT_REVIEW_fa3f08d_RESULTS.json
 docs/SFT_OBSERVED_DRAFT_REVIEW_e0bba64.md
 docs/SFT_OBSERVED_DRAFT_REVIEW_e0bba64_RESULTS.json
+docs/SFT_OBSERVED_FEASIBILITY_RESULTS.txt
 docs/SFT_PREP_80b28a4_CODE_REVIEW.md
 docs/SFT_PREP_80b28a4_P1_REVIEW_RESULTS.json
 docs/SFT_PREP_80b28a4_REVIEW_RESULTS.json
@@ -1359,6 +1360,7 @@ scripts/run_pipeline.sh
 scripts/sft_790cad1_numeric_review_probe.py
 scripts/sft_map_bipole_draft_review_probe.py
 scripts/sft_observed_draft_review_probe.py
+scripts/sft_observed_feasibility.py
 scripts/sft_prep_code_review_probe.py
 scripts/sft_prep_selftest.py
 scripts/t3_dpd_feasibility.py

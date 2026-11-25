@@ -1,9 +1,9 @@
-# Pilota SFT mappa–bipolo — BOZZA di protocollo (revisione 3, non congelata)
+# Pilota SFT mappa–bipolo — BOZZA di protocollo (revisione 4, non congelata)
 
-Stato: **bozza per il controllo finale di Codex prima del congelamento**, 25 novembre 2026 (Claude). Non autorizza
-simulazioni né download. Recepisce la revisione di Codex della revisione 2
-(`docs/SFT_MAP_BIPOLE_DRAFT_REVIEW_fa3f08d.md`, commit 9aa3fce) e il raccordo dei parametri della revisione del
-punto 3 (`docs/SFT_OBSERVED_DRAFT_REVIEW_e0bba64.md`, commit 7f5d703). Modifiche al §13. Piano: `docs/BL_WORK_PLAN.md`,
+Stato: **bozza pronta per il congelamento, dopo il controllo finale di Codex**, 25 novembre 2026 (Claude). Non
+autorizza simulazioni né download. Recepisce le revisioni di Codex 9aa3fce (`docs/SFT_MAP_BIPOLE_DRAFT_REVIEW_fa3f08d.md`),
+7f5d703 (raccordo dei parametri) ed e87fff7 (`docs/SFT_790cad1_FINAL_REVIEW.md`: positività, bordi del deposito,
+quadratura delle gaussiane, convergenza). Modifiche al §13. Piano: `docs/BL_WORK_PLAN.md`,
 priorità 1; lista dell'utente, punto 2.
 
 ## 0. Obiettivo servito e che cosa aggiunge
@@ -101,11 +101,13 @@ sintetici entro 1,6·10⁻⁹ relativo). Questa relazione non entra nella misura
   ripartisce fra i due centri di cella adiacenti in s con pesi lineari, w_j = (s_{j+1} − s)/(s_{j+1} − s_j) e
   w_{j+1} = 1 − w_j. Questo conserva esattamente sia il flusso totale sia il primo momento Σ F s, quindi D(0). Il
   deposito nella sola cella che contiene il pixel conserverebbe il flusso ma non il momento: Codex ha mostrato un
-  caso in cui annulla D. Ai bordi (s oltre il primo o l'ultimo centro) si usa la cella estrema con un controllo
-  dichiarato; con le latitudini attive il caso non dovrebbe presentarsi e viene contato.
+  caso in cui annulla D. **Fuori dal supporto dei centri** (s oltre il primo o l'ultimo centro, cioè entro mezza
+  cella dai poli) flusso, momento e pesi non negativi non si possono conservare insieme: la regione riceve lo stato
+  tecnico `deposition_out_of_range`, con i conteggi, senza sostituzioni, senza tagli e senza celle oltre i poli. Con le
+  latitudini delle regioni attive non è atteso.
 - **Controlli distinti:**
-  1. **deposito:** flusso e Σ F s dopo il deposito uguali a quelli dei pixel entro 10⁻¹² relativo (identità
-     algebrica);
+  1. **deposito:** residui di flusso e di Σ F s dopo il deposito entro 10⁻¹² · Σ|F| (scala non nulla; con Σ|F| = 0 si
+     applica la regola di fallimento della misura, senza epsilon);
   2. **D_M(0) contro D P1** della mappa bilanciata: stessa quadratura sui centri dei pixel, quindi stessa identità.
      Si riporta la differenza; non si impone a una rappresentazione sub-pixel di riprodurla.
 
@@ -126,8 +128,12 @@ Gli scalari P1 non determinano una mappa bipolare unica: forma ed estensione son
   e σ = 2° il campo risultante ha flusso positivo 0,383 e centroide a 2,61°. Per ogni sensibilità si riportano
   quindi i flussi e i centroidi **effettivi** del campo risultante, accanto ai centri delle componenti, senza
   correggerli dopo aver letto gli esiti.
-- Le gaussiane si integrano su una griglia 2D fine, con passo non superiore a σ/10 e non superiore a 0,05°, e poi si
-  depositano in s con la regola del §4.
+- **Quadratura delle gaussiane:** per ciascuna componente, una calotta locale di raggio 8σ centrata sul suo centro,
+  su una griglia in coordinate ruotate (polo della griglia nel centro della componente), con passo σ/10; aree
+  sferiche esatte; normalizzazione a Φ̄ sulla calotta. Così non ci sono tagli ai poli né al raccordo 0/360, e il costo
+  non dipende dalla σ più piccola su una griglia globale. Le celle si depositano in s con la regola del §4. Sui
+  sintetici si verificano la coda fuori dalla calotta (< 10⁻¹⁰ del flusso) e l'errore di quadratura su D (< 10⁻⁶
+  di D_scale) dimezzando il passo.
 
 ## 6. Modello di trasporto
 
@@ -141,11 +147,23 @@ Stesso codice, griglia, parametri e tempi per M e B. Nessun parametro si sceglie
   modelli pubblicati né un intervallo di confidenza.
 - **Decadimento:** τ = 5 e 10 anni come sensibilità, applicato come fattore exp(−t/τ) alla soluzione senza decadimento.
   È un'identità dell'equazione lineare, verificata nelle prove (§10), quindi non serve ricalcolare il trasporto.
-- **Discretizzazione (fissata ora):** volumi finiti su N = 400 celle uniformi in s ∈ [−1, 1]; flusso nullo alle facce
-  polari; schema di Crank–Nicolson sull'operatore lineare completo, con passo Δt = 1 giorno (86 400 s). Convergenza su
-  N ∈ {200, 400, 800} e Δt ∈ {2; 1; 0,5} giorni, nei casi sintetici del §10. Criterio fissato ora: variazione relativa di
-  D(3 anni) fra N = 400 e 800, e fra Δt = 1 e 0,5 giorni, < 10⁻³. Se il criterio fallisce, si raddoppia la risoluzione
-  prima di qualunque dato osservato.
+- **Discretizzazione (fissata ora, un solo algoritmo principale):** volumi finiti su N = 400 celle uniformi in
+  s ∈ [−1, 1]; flusso nullo alle facce polari; flussi diffusivi a due punti e avvezione **upwind del primo ordine**,
+  così che l'operatore L abbia coefficienti fuori diagonale non negativi e conservi la massa. Crank–Nicolson con passo
+  effettivo Δt = min(1 giorno, 0,9 · 2/max_i(−L_ii)), con un ultimo sottopasso ridotto per arrivare esattamente ai
+  tempi di uscita. Con questo limite anche il membro destro della tappa CN ha coefficienti non negativi e la
+  soluzione resta non negativa da un dato non negativo. Codex ha mostrato che CN a un giorno, senza il limite, crea
+  campo negativo da un impulso positivo (minimo −0,277), pur conservando il flusso. Con N = 400 e η = 466,8 km²/s il
+  limite vale circa 0,27 giorni.
+- **Prove di positività e massa:** impulsi e gaussiane non negativi, e i contributi delle singole polarità del
+  bipolo, evolvono senza valori negativi (oltre l'arrotondamento, −10⁻¹² del massimo) e con flusso conservato entro
+  10⁻¹² · Σ|F|. La somma firmata delle due polarità può cambiare segno per cancellazione; il propagatore non deve
+  crearne di nuovi a partire da una sola polarità.
+- **Convergenza:** N ∈ {200, 400, 800}, e il passo dimezzato rispetto alla regola sopra, separatamente, a **tutti** i
+  tempi del §7 e con **tutti** i trasporti, nei casi sintetici del §10. Criterio fissato ora:
+  |D_fine − D_coarse| ≤ 10⁻³ · max(|D_fine|, 10⁻⁶ D_scale). Se fallisce, si raddoppia la risoluzione prima di qualunque
+  dato osservato. Gli scarti numerici si conservano anche per i tre casi osservati del §10. È una soglia numerica,
+  non una classificazione fisica.
 - **Codice:** implementazione propria nel repository BL. `SFT1` di `sharps-bmrs` (GPL-3.0, commit 2d6566ce) e la
   versione 1D di `sft-historical` (BSD-2-Clause, commit 3cd2f332) restano riferimenti esterni separati, con versione e
   licenza registrate. I confronti fra codici a griglie diverse si portano allo stesso problema continuo e a
@@ -193,7 +211,9 @@ regione si esclude o si corregge dopo la lettura.
    - modo l = 1 in sola diffusione: decade come exp(−2ηt/R²);
    - decadimento uniforme: exp(−t/τ) applicato a posteriori uguale al calcolo con τ;
    - riflessione nord/sud e inversione di polarità: segno di D;
+   - positività e massa su impulsi, gaussiane e singole polarità (§6);
    - convergenza spaziale e temporale (§6), con punti nella stessa cella e vicino all'equatore;
+   - deposito fuori dal supporto → stato `deposition_out_of_range`;
    - raccordo di longitudine 0/360 e WCS obliqua, verificati a parte;
    - confronto con i riferimenti esterni sullo stesso problema continuo.
 4. **Casi osservati:** tre regioni estratte con lo stesso seme verificano la regola numerica già fissata, senza servire
@@ -206,13 +226,20 @@ Popolazione `family_rank` = 0; strati «un NOAA» / «altro o ignoto»; riscalat
 puntiforme principale con gaussiane come sensibilità; tempi in anni giuliani; lettura senza soglia pratica; riduzione 1D;
 parametri pre-HMI con griglia 2 × 2; implementazione propria e riferimenti esterni separati.
 
-## 12. Punti ancora aperti
+## 12. Punti aperti
 
-1. Scelta di N = 400, Crank–Nicolson e Δt = 1 giorno, con il criterio di convergenza 10⁻³: adeguati?
-2. Gestione dei pixel con s oltre il primo o l'ultimo centro di cella (§4): cella estrema con conteggio, o estensione
-   con celle fantasma?
+Nessuno. I due punti della revisione 3 (schema numerico e bordi del deposito) sono chiusi secondo e87fff7 (§6, §4).
 
-## 13. Modifiche dalla revisione 2 (fa3f08d)
+## 13. Modifiche
+
+**Dalla revisione 3 (790cad1), dopo e87fff7:**
+- §6: avvezione upwind del primo ordine e passo CN limitato per la positività (Δt ≤ min(1 giorno, 0,9·2/max(−L_ii))),
+  con prove di positività e massa; convergenza a tutti i tempi e trasporti con la soglia
+  10⁻³·max(|D_fine|, 10⁻⁶ D_scale).
+- §4: fuori dal supporto dei centri, stato `deposition_out_of_range` senza sostituzioni; residui scalati con Σ|F|.
+- §5: quadratura delle gaussiane su calotte locali di raggio 8σ in coordinate ruotate, con coda ed errore verificati.
+
+**Dalla revisione 2 (fa3f08d):**
 
 - A1: corretta la relazione S_BL → D (fattore 1/2 e segno, −expected_leading_sign); resa solo descrittiva; D geografico.
 - A2: deposito lineare in s, che conserva flusso e primo momento; due controlli distinti.

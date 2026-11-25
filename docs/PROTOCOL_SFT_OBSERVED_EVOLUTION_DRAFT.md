@@ -1,9 +1,10 @@
-# Confronto SFT con l'evoluzione osservata — BOZZA di protocollo (revisione 2, non congelata)
+# Confronto SFT con l'evoluzione osservata — BOZZA di protocollo (revisione 3, non congelata)
 
-Stato: **bozza per il controllo finale di Codex prima del congelamento**, 25 novembre 2026 (Claude). Non autorizza
-simulazioni né download. Recepisce la revisione di Codex della revisione 1 (`docs/SFT_OBSERVED_DRAFT_REVIEW_e0bba64.md`,
-commit 7f5d703). Modifiche al §13. Piano: `docs/BL_WORK_PLAN.md`, priorità 2; lista dell'utente, punto 3. Collegato alla
-bozza del punto 2 (`docs/PROTOCOL_SFT_MAP_BIPOLE_PILOT_DRAFT.md`, revisione 3), con gli stessi parametri di trasporto.
+Stato: **bozza per il congelamento, con una revisione del disegno da confermare (§12)**, 25 novembre 2026 (Claude).
+Non autorizza simulazioni né download. Recepisce le revisioni di Codex 7f5d703 (`docs/SFT_OBSERVED_DRAFT_REVIEW_e0bba64.md`)
+ed e87fff7 (`docs/SFT_790cad1_FINAL_REVIEW.md`). Modifiche al §13. Piano: `docs/BL_WORK_PLAN.md`, priorità 2; lista
+dell'utente, punto 3. Collegato alla bozza del punto 2 (`docs/PROTOCOL_SFT_MAP_BIPOLE_PILOT_DRAFT.md`, revisione 4), con
+gli stessi parametri di trasporto.
 
 ## 0. Obiettivo servito e che cosa aggiunge
 
@@ -37,6 +38,16 @@ bozza del punto 2 (`docs/PROTOCOL_SFT_MAP_BIPOLE_PILOT_DRAFT.md`, revisione 3), 
   | 3–4,5 | 434 / 276 | 13 / 3 |
 
   Le celle «variazione ≤ 20 %» contengono in tutto 29 regioni: per questo l'andamento del flusso non stratifica (§4).
+  Per molteplicità × Δt il bacino conta 66, 72, 84, 75, 447, 279 HARP (somma 1023, minimo 66; un NOAA / altro, per
+  1–2, 2–3, 3–4,5 giorni). Conteggi preliminari su T_REC; l'estrazione usa T_OBS.
+- **Fattibilità geometrica dai soli `keys.json` (25 novembre; nessun pixel letto).** Impronte in Carrington dai bordi
+  della griglia CEA, con la WCS dell'adattatore P1; intersezione primario–controllo; erosione con il margine del §3
+  calcolato sul massimo della griglia dei parametri. Le patch hanno una mediana di 16,3° × 7,2° (longitudine ×
+  latitudine). Con il margine della revisione 2 (isotropo) e 25 deg², solo **207** coppie su 1023 hanno un interno
+  utilizzabile, e le celle a 1–3 giorni ne avrebbero 5–8, sotto le 18 previste. Con il **margine direzionale** del §3
+  (rotazione solo in longitudine, flusso meridiano solo in latitudine), sempre con √(4ηΔt) e 25 deg², le coppie
+  utilizzabili sono **336**: 1–2 giorni 7/9, 2–3 giorni 17/12, 3–4,5 giorni 160/131 (un NOAA / altro). Da qui la revisione
+  degli strati del §4. È una scelta di disegno su soli metadati e geometria, prima di qualunque pixel o esito.
 - **Scale attese del modello.** In tre giorni la diffusione sposta il flusso di circa √(4ηt) ≈ 2° (η = 466,8 km²/s),
   il flusso meridiano di circa 0,2°; la rotazione differenziale stira la regione in longitudine. Nei primi giorni le
   variazioni osservate possono essere dominate da processi che l'SFT non contiene (Gottschling et al. 2021,
@@ -66,14 +77,26 @@ preparato** a t₀, e l'osservazione a t₁ si prepara con lo stesso operatore.
   i suoi riferimenti. La variante bipolo bilanciata del punto 2 si confronta con questa mappa bilanciata, non con il
   principale grezzo.
 
-**Dominio comune (confronto principale).** Griglia di Carrington regolare (passo 0,06°). Il dominio comune C è
-l'insieme delle celle coperte da pixel finiti **sia** nella patch a t₀ **sia** in quella a t₁, meno un margine
-interno m dal bordo della patch a t₀, perché il campo che entra da fuori non è nel modello:
-m = √(4ηΔt) + v_max·Δt + max_λ |ω(λ) − ω_C|·Δt + 0,5°, con η e v_max del riferimento e il massimo sulle latitudini della
-patch. Con λ = 15° e Δt = 4,5 giorni: 2,2° + 0,3° + 1,6° + 0,5° ≈ 4,6°. Osservazione, SFT, persistenza e
-sola rotazione si misurano tutti su C. Si registrano l'area di C, la frazione dell'area della patch iniziale e il
-flusso iniziale fuori da C. Con area di C nulla o minore di 25 deg² il caso ha lo stato «non valutabile», senza
-sostituzioni.
+**Dominio comune (confronto principale).** Griglia di Carrington regolare in latitudine e longitudine (passo 0,06°),
+con aree R²·Δφ·(sin λ_nord − sin λ_sud). Il dominio comune C è l'insieme delle celle coperte da pixel finiti **sia**
+nella patch a t₀ **sia** in quella a t₁, erose dal bordo della patch a t₀ con un margine **direzionale**, perché il campo
+che entra da fuori non è nel modello:
+- in longitudine: m_φ = √(4η_max Δt)/R + max_λ |ω(λ) − ω_C|·Δt + 0,5°;
+- in latitudine: m_λ = √(4η_max Δt)/R + v_max·Δt/R + 0,5°;
+- η_max e v_max sono i massimi sulla griglia dei parametri (η = 466,8 km²/s; D_u = 0,041 km/s, v_max = D_u·max_λ sin λ
+  cos^p λ); il massimo di |ω − ω_C| è sulle latitudini della patch. Conversioni: η in km²/s → cm²/s (× 10¹⁰), distanze
+  divise per R in cm → radianti → gradi (× 180/π); Δt in secondi (TAI).
+- Erosione: una cella resta in C se la distanza in latitudine dal bordo nord e sud della patch iniziale è almeno m_λ e
+  quella in longitudine, misurata lungo il parallelo come differenza circolare in gradi, dai bordi est e ovest è almeno
+  m_φ. Bordi della patch dall'impronta in Carrington della griglia CEA (WCS completa).
+- **Un solo C per caso**, comune a tutti i modelli (SFT, persistenza, sola rotazione) e a tutti i trasporti. Il dominio
+  di simulazione e la prova di bordo coprono il caso del margine massimo.
+- Il margine è **operativo**, non un limite rigoroso del contributo del campo fuori dalla patch: la diffusione non ha
+  supporto finito. Allargare un dominio riempito di zeri verifica il bordo numerico, non ricostruisce il campo solare
+  mancante; questo resta un limite dichiarato del confronto.
+- Area di C come angolo solido, Σ dA/R² · (180/π)² deg². Con area nulla o minore di 25 deg² (soglia operativa di
+  copertura, non fisica) il caso ha lo stato «non valutabile», senza sostituzioni. Si registrano l'area di C, la
+  frazione dell'area della patch iniziale e il flusso iniziale fuori da C.
 
 **Osservabili integrali su C, senza soglia** (principale):
 - D_C = 3/(4πR²) Σ B_r sin λ dA;
@@ -89,10 +112,12 @@ sostituzioni.
 - correlazione di Br fra previsto e osservato su C, solo come diagnostica: pesi d'area, celle finite su entrambi i
   lati; con varianza nulla, non definita.
 
-**Maschera advettata (diagnostica).** La bitmap iniziale (≥ 33) spostata con la sola rotazione differenziale e il flusso
-meridiano, senza diffusione: una cella appartiene alla maschera advettata se almeno il 50 % della sua area proviene da
-celle della bitmap iniziale. Il flusso osservato a t₁ fuori da questa maschera si riporta. Non misura la sola nuova
-emersione: anche la diffusione porta flusso fuori.
+**Maschera advettata (diagnostica).** Indicatore materiale della bitmap iniziale (≥ 33), trasportato per preimmagine
+con la sola rotazione differenziale e il flusso meridiano, senza diffusione: ogni cella a t₁ è suddivisa in 4 × 4
+sottopunti; ciascun sottopunto si riporta indietro a t₀ integrando φ̇ = ω(λ) − ω_C e λ̇ = v(λ)/R (Runge–Kutta del quarto
+ordine, 100 passi); la cella appartiene alla maschera se almeno 8 dei 16 sottopunti cadono in pixel della bitmap
+iniziale. Non è una densità magnetica 0/1 fatta evolvere con il termine compressibile. Il flusso osservato a t₁ fuori
+da questa maschera si riporta; non misura la sola nuova emersione, perché anche la diffusione porta flusso fuori.
 
 **Prova d'identità:** a Δt = 0 (t₁ = t₀, stesso file), osservazione e tutte le previsioni coincidono su C con lo stesso
 operatore di preparazione e misura.
@@ -103,21 +128,30 @@ operatore di preparazione e misura.
   T_OBS(primario) ≤ 4,5 giorni (TAI, intervalli in secondi), stessa HARP, `family_rank` = 0, `valid_bl` = 1 al
   primario. Al controllo non si richiede `valid_bl`: una polarità sola o la scomparsa del segnale sono osservazioni
   informative. Un tilt non definito resta mancante e non diventa mai 0.
-- **Strati:** Δt (1–2, 2–3, 3–4,5 giorni; estremi inferiori inclusi) × molteplicità delle associazioni («un NOAA» se
-  `NOAA_NUM` = 1, «altro o ignoto» altrimenti, con un flag per NOAA assente): 6 celle. Il rapporto
+- **Fattibilità geometrica (criterio di popolazione, dai soli `keys.json`):** interno di C stimato dalle impronte e
+  dal margine del §3 di almeno 25 deg². Le coppie che non lo soddisfano escono dal bacino e si contano per cella. La
+  verifica sui pixel finiti si fa dopo, con lo stato «non valutabile».
+- **Strati:** Δt (1–3, 3–4,5 giorni; estremi inferiori inclusi) × molteplicità delle associazioni («un NOAA» se
+  `NOAA_NUM` = 1, «altro o ignoto» altrimenti, con un flag per NOAA assente): 4 celle, con 24 / 21 / 160 / 131 coppie
+  fattibili (stima del §1, su T_REC). Il rapporto
   USFLUX(controllo)/USFLUX(primario) si riporta come covariata continua e con le due classi descrittive del §1, senza
   stratificare. Si riportano separatamente la variabile di selezione USFLUX e il flusso P1 rimisurato: sono quantità
   diverse e nessuna delle due misura soltanto l'emergenza.
-- **Numerosità:** 18 per cella, al più 108. Con le numerosità del §1 tutte le celle ne hanno almeno 128: nessuna cella
-  povera attesa. La regola vale comunque: una cella con meno di 18 HARP si prende intera.
+- **Numerosità:** 18 per cella, al più 72. Con la stima del §1 la cella più povera ne ha 21. La regola vale comunque:
+  una cella con meno di 18 HARP si prende intera.
 - **Estrazione:** ordinamento canonico per `HARPNUM`; permutazione `numpy.random.default_rng(36_200_000)`; le prime 18
   per cella. Zona di semi 36 200 000–36 200 999, verificata libera il 25 novembre. Pesi N/n per cella nei riepiloghi della
   popolazione.
-- **Separazione sviluppo/verifica, fissata prima di qualsiasi calcolo:** seconda permutazione
-  `default_rng(36_200_001)` delle HARP estratte, per cella; le prime ⌊n/3⌋ sono lo sviluppo, le altre la verifica.
-  - Le HARP di una stessa famiglia P1e e le HARP le cui patch si sovrappongono a t₀, identificabili dai metadati
-    (riquadri in Carrington), stanno dalla stessa parte. In caso di conflitto prevale l'assegnazione della HARP con
-    `HARPNUM` minore. HARP diverse non garantiscono l'indipendenza del campo.
+- **Separazione sviluppo/verifica, fissata prima di qualsiasi calcolo:**
+  1. assegnazione provvisoria: seconda permutazione `default_rng(36_200_001)` delle HARP estratte, per cella; le prime
+     ⌊n/3⌋ sono lo sviluppo, le altre la verifica;
+  2. grafo delle HARP estratte, con un arco se (a) appartengono alla stessa famiglia P1e, oppure (b) le finestre
+     temporali [T_OBS(primario), T_OBS(controllo)] si intersecano **e** le impronte in Carrington delle loro patch a t₀
+     si intersecano (longitudini con raccordo 0/360). Patch degli stessi luoghi in anni diversi non sono collegate;
+  3. ogni componente connessa va interamente nella parte provvisoria della sua HARP con `HARPNUM` minimo;
+  4. la proporzione finale può differire da 1/3 – 2/3: si riportano conteggi per cella, componenti e probabilità di
+     assegnazione effettive, senza spostare casi; una cella senza casi di verifica non ha stima.
+  HARP diverse non garantiscono l'indipendenza del campo.
   - **Accesso:** i metadati si possono usare per la selezione e gli strati; le mappe a t₁ non si usano per scelte di
     modello o di misura. Lo sviluppo serve solo a controlli d'implementazione (rimappatura, dominio, margine, bordi,
     tolleranze numeriche).
@@ -134,14 +168,24 @@ operatore di preparazione e misura.
 - **Parametri:** gli stessi del punto 2 (riferimento η = 466,8 km²/s, D_u = 0,025 km/s, p = 2,33) e la stessa griglia
   2 × 2 di sensibilità (η ∈ {350; 466,8}, D_u ∈ {0,025; 0,041}). Il set (350; 0,041) fu scelto in letteratura sul
   ciclo 24 HMI: si dichiara la sovrapposizione temporale. Nessun parametro si migliora sui dati del pilota.
-- **Dominio di simulazione:** il riquadro della patch iniziale più un margine di 2m per lato; condizione al bordo a
-  flusso nullo. Prova del bordo: allargando il dominio di un altro margine m, le osservabili su C cambiano meno di 10⁻⁶
-  relativo; si registra anche il flusso unsigned nella fascia di bordo. Regole di ampliamento e condizioni al bordo
-  fissate ora.
+- **Dominio di simulazione:** il riquadro della patch iniziale più 2m_φ per lato in longitudine e 2m_λ in latitudine,
+  con i margini massimi del §3; condizione al bordo a flusso nullo. Prova del bordo, separata dalla convergenza:
+  allargando il dominio di altri m_φ e m_λ, le osservabili su C cambiano meno di 10⁻⁶ della loro scala (sotto); si
+  registra anche il flusso unsigned nella fascia di bordo. Regole di ampliamento e condizioni al bordo fissate ora.
 - **Rimappatura** dalle CEA oblique con la WCS completa del `keys.json` (adattatore P1), conservativa nel flusso, con
   orientamento e raccordo 0/360 verificati. Nessun riallineamento dei magnetogrammi che ottimizzi la correlazione.
-- **Schema numerico:** volumi finiti; diffusione implicita (Crank–Nicolson) e avvezione upwind del secondo ordine, con
-  passo che rispetta la condizione CFL dell'avvezione (fissato ora a 600 s). Convergenza nelle prove sintetiche.
+- **Schema numerico (un solo algoritmo, fissato ora):** volumi finiti con fattori metrici sferici sulla griglia
+  uniforme in latitudine e longitudine. Separazione di Strang per ogni passo: mezzo passo di diffusione con
+  Crank–Nicolson (operatore a due punti, coefficienti fuori diagonale non negativi), un passo di avvezione con
+  ricostruzione TVD minmod e SSP-RK2, mezzo passo di diffusione. Passo Δt = min(600 s, 0,5·CFL dell'avvezione,
+  0,9·2/max_i(−L_ii) della diffusione sul mezzo passo), con l'ultimo sottopasso ridotto per arrivare esattamente a t₁;
+  il limite di diffusione rende non negativa anche la tappa CN. 600 s è un massimo, non un valore assunto.
+- **Convergenza (separata dalla prova del bordo):** passo di griglia 0,06° contro 0,03° e passo temporale dimezzato,
+  nei casi sintetici e nei casi di sviluppo. Scale fissate ora: D con D_scale = 3Φ̄₀/(4πR²) del campo iniziale (soglia
+  inferiore 10⁻⁶ D_scale); flussi con il flusso unsigned iniziale su C; centroidi e tilt in gradi (differenze circolari
+  e assiali); norma L² del campo su C relativa a quella iniziale, così che un momento corretto non nasconda una mappa
+  oscillante. Criterio: scarto ≤ 10⁻³ di ciascuna scala; si conservano residui e casi non valutabili. Sono controlli
+  numerici, non intervalli osservativi.
 - HipFT (Apache-2.0) è un oracolo aggiuntivo se disponibile, non un requisito.
 
 ## 6. Riferimenti senza trasporto (obbligatori)
@@ -209,17 +253,30 @@ trattamento del polar filling e della composizione temporale: protocollo separat
 4. Corsa sullo sviluppo e rapporto tecnico; congelamento del registro delle scelte; corsa unica sulla verifica;
    conservazione prima della lettura; riconteggio indipendente; rapporto descrittivo distinto da quello del punto 2.
 
-## 12. Punti ancora aperti
+## 12. Punti aperti
 
-1. Margine m = √(4ηΔt) + v_max Δt + max|ω − ω_C| Δt + 0,5° e area minima di C di 25 deg²: adeguati? Un margine più
-   largo riduce molto C nelle patch piccole.
-2. Soglia del 50 % per la maschera advettata.
-3. Schema numerico 2D (Crank–Nicolson e upwind del secondo ordine, 600 s) e criterio di convergenza: fissarlo come nel
-   punto 2 (10⁻³ relativo sulle osservabili su C)?
-4. Regola di separazione delle patch sovrapposte fra sviluppo e verifica: riquadri in Carrington a t₀ con
-   intersezione non vuota.
+1. **Revisione del disegno da confermare (§1, §3, §4):** margine direzionale al posto di quello isotropo, criterio di
+   fattibilità geometrica dai `keys.json` nella popolazione, e Δt su due strati (1–3, 3–4,5 giorni). Con il margine
+   isotropo della revisione 2 le celle a 1–3 giorni avrebbero 5–8 coppie fattibili. Alternative calcolate sugli stessi
+   metadati: margine diffusivo √(2ηΔt) (420 coppie) oppure soglia di 10 deg² (458); non le propongo, perché
+   allentano il controllo del campo esterno.
+2. Gli altri punti della revisione 2 (margine, maschera advettata, schema 2D e convergenza, split) sono chiusi secondo
+   e87fff7.
 
-## 13. Modifiche dalla revisione 1 (e0bba64)
+## 13. Modifiche
+
+**Dalla revisione 2 (790cad1), dopo e87fff7:**
+- §3: margine direzionale sul massimo della griglia dei parametri, conversioni scritte, un solo C per caso; margine
+  dichiarato operativo; area come angolo solido; erosione definita.
+- §1, §4: fattibilità geometrica dai `keys.json` (207 coppie con il margine isotropo, 336 con quello direzionale);
+  criterio di popolazione; Δt su due strati; 4 celle, al più 72; correzione editoriale dei conteggi per cella (66, 72,
+  84, 75, 447, 279).
+- §3: maschera advettata per preimmagine dei sottopunti (indicatore materiale).
+- §4: split per componenti connesse di un grafo con archi di famiglia o di sovrapposizione nello spazio e nel tempo.
+- §5: schema di Strang con CN a passo limitato per la positività e avvezione TVD minmod + SSP-RK2; 600 s come massimo;
+  convergenza con scale per osservabile e norma L² del campo, separata dalla prova del bordo.
+
+**Dalla revisione 1 (e0bba64):**
 
 - A1: tolto lo strato «flusso in calo», impossibile con il controllo al massimo; tabella delle celle dai soli metadati;
   6 celle Δt × molteplicità, con il rapporto di USFLUX come covariata.

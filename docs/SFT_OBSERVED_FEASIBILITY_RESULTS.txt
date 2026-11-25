@@ -1,0 +1,30 @@
+current (isotropic, sqrt(4 eta t), 25) total 207
+cx     altro/ignoto  un NOAA
+dtc                         
+1-2               6        5
+2-3               8        8
+3-4.5           103       77
+A anisotropic, sqrt(4 eta t), 25 total 336
+cx     altro/ignoto  un NOAA
+dtc                         
+1-2               9        7
+2-3              12       17
+3-4.5           131      160
+B anisotropic, sqrt(2 eta t) = 1 sigma, 25 total 420
+cx     altro/ignoto  un NOAA
+dtc                         
+1-2              10       11
+2-3              16       26
+3-4.5           141      216
+C anisotropic, sqrt(4 eta t), 10 total 458
+cx     altro/ignoto  un NOAA
+dtc                         
+1-2              14       21
+2-3              17       28
+3-4.5           143      235
+D anisotropic, 1 sigma, 10 total 558
+cx     altro/ignoto  un NOAA
+dtc                         
+1-2              16       30
+2-3              23       38
+3-4.5           153      298
