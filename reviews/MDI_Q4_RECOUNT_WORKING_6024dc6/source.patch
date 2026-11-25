@@ -1,0 +1,398 @@
+--- a/scripts/mdi_q4_recount.py
++++ b/scripts/mdi_q4_recount.py
+@@ -53,8 +53,60 @@
+                 a2="c834077011ff7e201d01eabc318de7e6fbfc547bbffcfca05a0091e87636203e",
+                 note_receipt="0f9b3acc01e6a58a182685259350f71a8caf82edc2381c209f210d89b5b2410d",
+                 a2_receipt="76a26f061ab99c659f312d84a599a9b3e540b77b321529bd2c99ae83b5a23326")
++CHOICES_SHA = "5b352e8cb4cc04177bda83c3f8b2f08087b4ec082fa7118c5a01969f1cf15fc1"
++META_KEYS = {"script_sha256", "git_head", "note_sha256", "a2_sha256", "note_freeze_sha256", "a2_freeze_sha256", "seed0", "n_realisations",
++             "z", "units", "mf_missing_years", "noise", "filters", "runtime_s", "python", "numpy", "pandas", "omp", "receipts_problems",
++             "implementation_choices"}
+ PRODUCTS = {"RAW.csv.gz", "SUMMARY.csv", "NOT_COMPUTABLE.csv", "CRITERIA.csv", "DESIGNS.csv", "YIELD_EFFECTS.csv",
+             "CELL_COUNTS.csv", "MF_POOLS.csv", "PROOFS.csv", "META.json", "RUN.log", "RUN.exit"}
++
++NOTE_REL, A2_REL = "docs/MDI_PILOT_Q4_NOTE.md", "docs/PROTOCOL_MDI_TILT_PILOT_AMENDMENT_A2.md"
++A2_FREEZE_REL, PARENT_REL, RULES_REL = ("docs/PROTOCOL_MDI_TILT_PILOT_AMENDMENT_A2_FREEZE.json", "docs/PROTOCOL_MDI_TILT_PILOT.md",
++                                        "docs/MDI_Q4_PREP_COUNTS_RULES.md")
++PIN_PARENT = "77367350e8f9a5f71933afdcc791429b307c95ec1875224c1f2d7486950d086f"
++PIN_RULES = "9ce409fc1030e5d41ffac1d994887d8b540ccc711f25b488426e9c387ad8a77a"
++CODE9 = frozenset({"scripts/prospective_phase_a.py", "scripts/t5_proxy_sensitivity.py", "python/sharpbl/diag_t5_oracle.py",
++                   "python/sharpbl/p2d.py", "python/sharpbl/run_p2.py", "python/sharpbl/p2f_validation.py", "python/sharpbl/p2f_pilot.py",
++                   "scripts/mdi_synoptic_adapter.py", "scripts/mdi_q4_prep_counts.py"})
++INPUTS17 = frozenset({
++    "results/MDI_PILOT_SELECTION/POPULATION.csv", "results/MDI_PILOT_SELECTION/SAMPLE.csv", "results/MDI_PILOT_SELECTION/CELLS.csv",
++    "results/MDI_PILOT_SELECTION/META.json", "results/MDI_PILOT_L1/L1_RECORDS.csv", "results/MDI_PILOT_L2/L2_RECORDS.csv",
++    "results/MDI_SYNOPTIC_AUDIT/FILES.csv", "results/MDI_PILOT_ANALYSIS_L1/Q1_YIELD_PROJECTED.csv",
++    "results/MDI_PILOT_ANALYSIS_L2/YIELD_A1.csv", "results/MDI_PILOT_ANALYSIS_L2/Q2_PAIRS_A1_main.csv",
++    "results/MDI_PILOT_ANALYSIS_L2/Q2_PAIRS_A1_sens100.csv", "results/MDI_PILOT_ANALYSIS_L2/Q2_SUMMARY_A1_main.csv",
++    "results/MDI_PILOT_ANALYSIS_L2/Q2_SUMMARY_A1_sens100.csv", "results/PROSPECTIVE_PHASE_A/RAW.csv.gz",
++    "results/P1/P1_SBL_CATALOG_BY_HARP.csv", "ancillary/SILSO_HEMI/SN_m_hem_V2.0.csv", "results/MDI_Q4_PREP_COUNTS/META.json"})
++GATE_ROOT = ROOT                         # the selftest points it to a fixture to prove the stop
++
++
++def provenance(nf, af, nf_sha, af_sha, root=None):
++    """Names of the failed provenance checks of the files the recount reads or imports now ([] = all matched)."""
++    root = Path(GATE_ROOT if root is None else root)
++    probs = []
++
++    def need(name, f):
++        try:
++            good = bool(f())
++        except (OSError, KeyError, TypeError, ValueError):
++            good = False
++        if not good:
++            probs.append(name)
++
++    def files(d, expected):
++        return isinstance(d, dict) and set(d) == set(expected) and all(sha(root / p) == h for p, h in d.items())
++
++    need("note receipt pinned", lambda: nf_sha == EXPECTED["note_receipt"])
++    need("A2 receipt pinned", lambda: af_sha == EXPECTED["a2_receipt"])
++    need("note text", lambda: sha(root / NOTE_REL) == nf["sha256"] == EXPECTED["note"])
++    need("A2 text and A2 receipt named by the note", lambda: sha(root / A2_REL) == af["sha256"] == nf["amendment_A2_sha256"] == EXPECTED["a2"]
++         and nf["amendment_A2_receipt_sha256"] == af_sha)
++    need("parent protocol", lambda: sha(root / PARENT_REL) == nf["parent_sha256"] == af["parent_sha256"] == PIN_PARENT)
++    need("preparatory-count rules and META", lambda: sha(root / RULES_REL) == nf["prep_counts_rules_sha256"] == af["prep_counts_rules_sha256"]
++         == PIN_RULES and af["prep_counts_meta_sha256"] == sha(root / "results/MDI_Q4_PREP_COUNTS/META.json"))
++    need("reused code (9): exact set and current hashes", lambda: files(nf["reused_code_sha256"], CODE9))
++    need("inputs (17): exact set and current hashes", lambda: files(nf["inputs_sha256"], INPUTS17))
++    return probs
++
+ 
+ # ---- frozen constants of the note, written here (checked against the receipt and the phase A RAW where possible)
+ SEED0, N_REAL, N_COMP = 35_200_000, 20, 5
+@@ -612,34 +664,81 @@
+ 
+ 
+ def yield_steps(X):
++    """Own YIELD_EFFECTS with every column (labels written here, not taken from the runner)."""
+     P, N = X["P"], X["cells"].N.to_numpy(float)
+     c = P.cell.to_numpy()
+     rows = []
++
++    def add(th, d, k, step, change, v):
++        rows.append(dict(threshold=th, design=d, step_order=k, step=step, change=change, value=float(v)))
+     for th in THR:
+         n, r = X["ms"][th]
+         n0, r0 = X["ms_all"][th]
+         d = P.MS.to_numpy()
+-        rows += [(th, "MS", 1, (N * r0 / n0).sum() / N.sum()), (th, "MS", 2, (N * r / n).sum() / N.sum()),
+-                 (th, "MS", 3, (r / n)[c][d].mean()), (th, "MS", 4, ((r + 0.5) / (n + 1))[c][d].mean())]
++        add(th, "MS", 1, "r/n, all L1 units, eligible population (published)", "-", (N * r0 / n0).sum() / N.sum())
++        add(th, "MS", 2, "r/n, map-missing units removed, eligible population", "units", (N * r / n).sum() / N.sum())
++        add(th, "MS", 3, "r/n, map-missing units removed, Q4 domain", "domain", (r / n)[c][d].mean())
++        add(th, "MS", 4, "Beta mean, Q4 domain", "Beta", ((r + 0.5) / (n + 1))[c][d].mean())
+         a, f = X["mf_all"], X["mf"]
+-        rows += [(th, "MF", 1, (a.w * a[f"ok_{th}"]).sum() / a.w.sum()), (th, "MF", 2, (f.w * f[f"ok_{th}"]).sum() / f.w.sum())]
++        add(th, "MF", 1, "ratio estimate, all level-2 units, eligible population (published)", "-", (a.w * a[f"ok_{th}"]).sum() / a.w.sum())
++        add(th, "MF", 2, "ratio estimate, gap units removed, eligible population", "units", (f.w * f[f"ok_{th}"]).sum() / f.w.sum())
+         pl = X["pools"][th]
+         dm = P.MF.to_numpy()
+         for k, kind in enumerate(("cohort", "cohort_act", "cohort_area")):
+             ix = pool_idx(P, kind)
+             ph = pl.p_hat.to_numpy()[ix]
+             be = ((pl.r_eff + 0.5) / (pl.n_eff + 1)).to_numpy()[ix]
+-            rows += [(th, "MF", 3 + 3 * k, ph.mean()), (th, "MF", 4 + 3 * k, ph[dm].mean()), (th, "MF", 5 + 3 * k, be[dm].mean())]
+-    return rows
++            add(th, "MF", 3 + 3 * k, f"pool {kind} p_hat, eligible population", "pool", ph.mean())
++            add(th, "MF", 4 + 3 * k, f"pool {kind} p_hat, Q4 domain", "domain", ph[dm].mean())
++            add(th, "MF", 5 + 3 * k, f"pool {kind} Beta mean, Q4 domain", "Beta", be[dm].mean())
++    return pd.DataFrame(rows)
++
++
++def expected_choices():
++    """IMPLEMENTATION_CHOICES of the runner as committed at the run HEAD, parsed from the blob (no import), and pinned."""
++    import ast
++    src = subprocess.run(["git", "show", f"{EXPECTED['head']}:{SCRIPT_REL}"], cwd=ROOT, capture_output=True, check=True).stdout.decode()
++    for node in ast.parse(src).body:
++        if isinstance(node, ast.Assign) and any(getattr(t, "id", None) == "IMPLEMENTATION_CHOICES" for t in node.targets):
++            v = ast.literal_eval(node.value)
++            if hashlib.sha256(json.dumps(v).encode()).hexdigest() != CHOICES_SHA:
++                raise ValueError("implementation choices at the run HEAD differ from the pinned ones")
++            return v
++    raise ValueError("IMPLEMENTATION_CHOICES not found at the run HEAD")
+ 
+ 
+ # ---------------------------------------------------------------- comparison helpers
+ 
++EXACT = {"n_records", "n_mdi", "n_cells", "n_cr", "noise", "r", "scen", "n_ok", "n_fail", "n_domain", "n_included",
++         "n_excluded_yield", "n_no_activity", "N_selection", "N_orig", "N_f1_date", "N_f2_cr", "MS_f3_maps", "MS_f3_N_ambiguous",
++         "MF_f4_gap", "N_MS", "N_MF", "ms_units_n_main", "ms_units_r_main", "ms_units_n_sens100", "ms_units_r_sens100", "n", "ok",
++         "n_realisations", "step_order", "act_class", "area_class"}
++SIGNED = {"r"}                           # r = -1 for the H rows
++
++
++def is_exact(c):
++    return c in EXACT or (c.startswith("target_null_") and c.endswith("_n"))
++
++
+ def close_cols(a, b, tol=1e-8):
+-    """(ok, reason) for two aligned frames with the same columns."""
++    """(ok, reason) for two aligned frames with the same columns. Counts (by column meaning, not by dtype) must be finite,
++    integer, non-negative where expected and exactly equal; flags must be True/False (or missing on both sides);
++    other numbers are compared with the relative tolerance."""
+     for c in a.columns:
+         x, y = a[c].to_numpy(), b[c].to_numpy()
+         xn, yn = pd.to_numeric(pd.Series(x), errors="coerce").to_numpy(float), pd.to_numeric(pd.Series(y), errors="coerce").to_numpy(float)
++        if is_exact(c):
++            nx, ny = pd.Series(x).isna().to_numpy(), pd.Series(y).isna().to_numpy()
++            v = xn[~nx]
++            if not (np.array_equal(nx, ny) and np.isfinite(v).all() and (v == np.round(v)).all() and (c in SIGNED or (v >= 0).all())
++                    and np.array_equal(v, yn[~ny])):
++                return False, f"{c} (count: not finite, not integer, negative or different)"
++            continue
++        if c.startswith("target_null_"):
++            sx, sy = pd.Series(x).astype(str).to_numpy(), pd.Series(y).astype(str).to_numpy()
++            if not (set(sx) <= {"True", "False", "nan"} and (sx == sy).all()):
++                return False, f"{c} (flag)"
++            continue
+         numeric = (pd.Series(x).isna() | ~np.isnan(xn)).all() and (pd.Series(y).isna() | ~np.isnan(yn)).all() and a[c].dtype != object
+         if pd.api.types.is_bool_dtype(a[c]) or pd.api.types.is_bool_dtype(b[c]):
+             if not (pd.Series(x).astype(str).to_numpy() == pd.Series(y).astype(str).to_numpy()).all():
+@@ -659,7 +758,10 @@
+     return True, ""
+ 
+ 
+-def frames_match(theirs, mine, key, tol=1e-8):
++def frames_match(theirs, mine, key, tol=1e-8, ordered=False):
++    """Exact column set (and order if `ordered`), same number of rows, unique and equal keys, then every value."""
++    if ordered and list(theirs.columns) != list(mine.columns):
++        return False, f"schema {list(theirs.columns)} vs {list(mine.columns)}"
+     if set(theirs.columns) != set(mine.columns):
+         return False, f"columns: extra {sorted(set(theirs.columns) - set(mine.columns))[:3]}, missing {sorted(set(mine.columns) - set(theirs.columns))[:3]}"
+     if len(theirs) != len(mine):
+@@ -677,10 +779,17 @@
+ PROTECTED = {"bA": "A", "bJ": "J"}      # the protected model contains the offset shape of its own family: B1 = 0 analytically
+ 
+ 
++NULL_TOL = -2.0                          # sentinel for a protected tolerance with a null target (0 or +inf by formula)
++
++
+ def protected_tolerances(df, summary=False):
+-    """In the protected models B1 of their own family is zero by construction (numerically ~1e-17), so the tolerance
+-    0.5|target|/(unit |B1|) is numerical noise of arbitrary size. Returns (copy with those tolerances set to inf,
+-    True if B1 is negligible there and the stored tolerance is >= 1e6 or infinite)."""
++    """Protected models contain the offset shape of their own family, so B1 of that family is zero by construction
++    (numerically ~1e-17) and 0.5|target|/(unit |B1|) is numerical noise of arbitrary size. Returns (copy with those
++    tolerances normalised, domain check). Rules, RAW: successful rows need a finite negligible B1 (<= 1e-10 of the
++    scale of the other rows) and, per target, a tolerance that is +inf or >= 1e6 (positive), or, when the target is null,
++    0 or +inf (normalised to a sentinel); failed rows need B1 and tolerances missing. SUMMARY: with n_ok = 0 every value
++    missing; otherwise +inf or >= 1e6, or 0 only when that target was null in some realisation. Missing values stay
++    missing; non-protected families are not touched."""
+     d = df.copy()
+     good = True
+     for model, fam in PROTECTED.items():
+@@ -689,14 +798,34 @@
+         if not m.any() or not cols:
+             continue
+         if not summary:
++            okr = (d.status == "ok").to_numpy()
+             b = pd.to_numeric(d[f"B1_{fam}"], errors="coerce").to_numpy(float)
+-            sc = np.nanmax(np.abs(b[~m])) if (~m).any() and np.isfinite(b[~m]).any() else 1.0
+-            fin = np.isfinite(b[m])
+-            good &= bool((np.abs(b[m][fin]) <= 1e-10 * sc).all())
+-        for c in cols:
+-            v = pd.to_numeric(d.loc[m, c], errors="coerce").to_numpy(float)
+-            good &= bool((np.isnan(v) | np.isinf(v) | (np.abs(v) >= 1e6)).all())
+-            d.loc[m, c] = np.where(np.isnan(v), np.nan, np.inf)
++            other = okr & ~m & np.isfinite(b)
++            sc = np.nanmax(np.abs(b[other])) if other.any() else 1.0
++            good &= bool(np.isfinite(b[m & okr]).all() and (np.abs(b[m & okr]) <= 1e-10 * sc).all() and np.isnan(b[m & ~okr]).all())
++            for c in cols:
++                tag = c[len(f"tol_units_{fam}_"):]
++                v = pd.to_numeric(d[c], errors="coerce").to_numpy(float)
++                nul = d[f"target_null_{tag}"].astype(str).eq("True").to_numpy()
++                big = (v == np.inf) | (np.isfinite(v) & (v >= 1e6))
++                zero_or_inf = (v == 0) | (v == np.inf)
++                good &= bool(np.isnan(v[m & ~okr]).all() and (big | (nul & zero_or_inf))[m & okr].all())
++                out = v.copy()
++                out[m & okr & nul] = NULL_TOL
++                out[m & okr & ~nul] = np.inf
++                d[c] = out
++        else:
++            nok = pd.to_numeric(d.n_ok, errors="coerce").to_numpy(float)
++            for c in cols:
++                tag = c[len(f"tol_units_{fam}_"):].rsplit("_", 1)[0]
++                v = pd.to_numeric(d[c], errors="coerce").to_numpy(float)
++                nn = pd.to_numeric(d.get(f"target_null_{tag}_n", 0), errors="coerce")
++                nn = np.zeros(len(d)) if np.isscalar(nn) else nn.to_numpy(float)
++                big = (v == np.inf) | (np.isfinite(v) & (v >= 1e6))
++                good &= bool(np.isnan(v[m & (nok == 0)]).all() and (big | ((v == 0) & (nn > 0)))[m & (nok > 0)].all())
++                out = v.copy()
++                out[m & big] = np.inf
++                d[c] = out
+     return d, good
+ 
+ 
+@@ -757,6 +886,14 @@
+ 
+     real = data is None and outputs is None
+     if real:
++        nf = json.loads((Path(GATE_ROOT) / "docs/MDI_PILOT_Q4_NOTE_FREEZE.json").read_text())
++        af = json.loads((Path(GATE_ROOT) / A2_FREEZE_REL).read_text())
++        pv = provenance(nf, af, sha(Path(GATE_ROOT) / "docs/MDI_PILOT_Q4_NOTE_FREEZE.json"), sha(Path(GATE_ROOT) / A2_FREEZE_REL))
++        ok("provenance of the files read or imported now: receipts pinned, note, A2, parent, rules, 9 reused code files and 17 "
++           "inputs with exact sets and current hashes", not pv, pv)
++        if pv:
++            print("provenance not verified: stop before reading outputs or importing dependencies")
++            return _finish(checks, real, write, rec_dir, out)
+         files = {p.name for p in Path(out).iterdir()}
+         ok("outputs: exact product set", files == PRODUCTS, sorted(files ^ PRODUCTS))
+         meta = json.loads((Path(out) / "META.json").read_text())
+@@ -806,26 +943,27 @@
+     ok("RAW: every row and column rebuilt (keys, statuses, columns used and dropped, counts, targets, quantiles, SE, h, shares, "
+        "ratios and flags, recognition, product shift, offsets, tolerances, worst cases, h/h_H)", good, why)
+     sm, nc = summarise(raw, n_real)
+-    good, why = frames_match(protected_tolerances(outputs["SUMMARY"], True)[0], protected_tolerances(sm, True)[0], KEYC)
+-    ok("SUMMARY: every configuration, median/min/max, null-target counts, n_ok and n_fail", good, why)
++    ts_, g3 = protected_tolerances(outputs["SUMMARY"], True)
++    ms_, g4 = protected_tolerances(sm, True)
++    good, why = frames_match(ts_, ms_, KEYC)
++    ok("SUMMARY: protected tolerances in their domain; every configuration, median/min/max, null-target counts, n_ok and n_fail",
++       good and g3 and g4, why if not good else f"domain run {g3}, recount {g4}")
+     t_nc = outputs["NOT_COMPUTABLE"]
+     ok("NOT_COMPUTABLE: same causes and counts", (len(t_nc) == 0 and len(nc) == 0 and list(t_nc.columns) == list(nc.columns))
+        or frames_match(t_nc, nc, ["design", "threshold", "variant", "model", "status"])[0], f"{len(t_nc)} vs {len(nc)}")
+-    good, why = frames_match(outputs["DESIGNS"], des, ["r", "threshold", "variant", "design"])
++    good, why = frames_match(outputs["DESIGNS"], des, ["r", "threshold", "variant", "design"], ordered=True)
+     ok("DESIGNS: domains, statuses, inclusions, exclusions, activity losses, expected yields, |lat| distances", good, why)
+     mine = criteria(raw, "main") + criteria(raw, "sens100")
+     th_ = outputs["CRITERIA"]
+-    ok("CRITERIA: criteria, verdicts and every paired median, n_ok and n_fail (both thresholds)",
+-       len(th_) == len(mine) and all(a.criterion == b["criterion"] and a.threshold == b["threshold"] and a.verdict == b["verdict"]
++    ok("CRITERIA: exact schema; criteria, verdicts and every paired median, n_ok and n_fail (both thresholds)",
++       list(th_.columns) == ["criterion", "threshold", "verdict", "detail"] and len(th_) == len(mine) and all(a.criterion == b["criterion"] and a.threshold == b["threshold"] and a.verdict == b["verdict"]
+                                      and json_close(b["detail"], json.loads(a.detail)) for a, b in zip(th_.itertuples(), mine)))
+-    good, why = frames_match(outputs["CELL_COUNTS"], cell_table(X), CELL_KEYS)
++    good, why = frames_match(outputs["CELL_COUNTS"], cell_table(X), CELL_KEYS, ordered=True)
+     ok("CELL_COUNTS: N per cell, original and after each filter, MS/MF domains, MS units", good, why)
+-    ye = outputs["YIELD_EFFECTS"]
+-    st = {(a, b, int(c)): v for a, b, c, v in yield_steps(X)}
+-    ok("YIELD_EFFECTS: every step value (one change per step)", len(ye) == len(st) and all(
+-        json_close(st[(r.threshold, r.design, int(r.step_order))], r.value) for r in ye.itertuples()))
++    good, why = frames_match(outputs["YIELD_EFFECTS"], yield_steps(X), ["threshold", "design", "step_order"], ordered=True)
++    ok("YIELD_EFFECTS: exact schema, unique and complete keys, labels, changes and values (one change per step)", good, why)
+     mp = pd.concat([X["pools"][t].assign(threshold=t) for t in THR], ignore_index=True)
+-    good, why = frames_match(outputs["MF_POOLS"].astype({"key": str}), mp, ["threshold", "pool", "key"])
++    good, why = frames_match(outputs["MF_POOLS"].astype({"key": str}), mp, ["threshold", "pool", "key"], ordered=True)
+     ok("MF_POOLS: n, ok, p_hat, Kish n_eff, r_eff per pool and threshold", good, why)
+     meta = outputs["META"]
+     P = X["P"]
+@@ -833,9 +971,12 @@
+                 MS_excl_map_missing=int((P.f1 & P.f2 & P.map_missing).sum()),
+                 MS_excl_N_ambiguous=int((P.f1 & P.f2 & ~P.map_missing & P.N_amb).sum()), MF_excl_gap=int((P.f1 & P.f2 & P.gap).sum()),
+                 MS=int(P.MS.sum()), MF=int(P.MF.sum()))
+-    ok("META: H units (d3, sbar), missing years, noise rows, filter counts, nine implementation choices",
++    choices = expected_choices()
++    if real:
++        ok("META: exact key set", set(meta) == META_KEYS, sorted(set(meta) ^ META_KEYS))
++    ok("META: H units (d3, sbar), missing years, noise rows, filter counts, the nine implementation choices in order",
+        json_close(u, meta["units"]) and meta["mf_missing_years"] == X["missing_years"]
+-       and [list(x) for x in NOISE] == meta["noise"] and meta["filters"] == filt and len(meta["implementation_choices"]) == 9)
++       and [list(x) for x in NOISE] == meta["noise"] and meta["filters"] == filt and meta["implementation_choices"] == choices)
+     return _finish(checks, real, write, rec_dir, out)
+ 
+ 
+@@ -844,6 +985,9 @@
+     receipt = dict(passed=passed, total=len(checks), partial=not real, checks=checks)
+     if real:
+         receipt["outputs_sha256"] = {p.name: sha(p) for p in sorted(Path(out).iterdir())}
++        receipt["recount_sha256"] = sha(__file__)
++        used = sorted(INPUTS17 | CODE9 | {NOTE_REL, A2_REL, A2_FREEZE_REL, PARENT_REL, RULES_REL, "docs/MDI_PILOT_Q4_NOTE_FREEZE.json"})
++        receipt["inputs_sha256"] = {p: sha(ROOT / p) for p in used}
+     if write:
+         if not real:
+             sys.exit("a receipt is written only on the real path")
+@@ -860,6 +1004,7 @@
+ def selftest():
+     import contextlib
+     import io
++    import tempfile
+     Q = _mod("q4_runner_for_selftest", SCRIPT_REL)              # runner only to produce synthetic outputs
+     res = []
+ 
+@@ -907,7 +1052,6 @@
+                                           MF_excl_gap=int((I["pop"].f1 & I["pop"].f2 & I["pop"].gap).sum()), MS=int(I["pop"].in_MS.sum()),
+                                           MF=int(I["pop"].in_MF.sum())), implementation_choices=Q.IMPLEMENTATION_CHOICES))
+     # the CSV round trip of the real run
+-    import tempfile
+     with tempfile.TemporaryDirectory() as td:
+         for k, v in outputs.items():
+             if isinstance(v, pd.DataFrame):
+@@ -946,6 +1090,76 @@
+     tamper("a cell count", "CELL_COUNTS", lambda t: first(t, "MF_f4_gap", t.MF_f4_gap[0] + 1))
+     tamper("a Kish n_eff", "MF_POOLS", lambda t: first(t, "n_eff", 1.0))
+     tamper("META units", "META", lambda m: dict(m, units=dict(m["units"], d3=1.0)))
++    # Codex review of 0344bc3: the six accepted alterations
++    def first_where(t, mask, col, v):
++        t = t.copy()
++        t.loc[t.index[mask][0], col] = v
++        return t
++    tolA = lambda t: next(c for c in t.columns if c.startswith("tol_units_A_"))   # noqa: E731
++    tamper("protected SUMMARY tolerance set to zero", "SUMMARY", lambda t: first_where(t, t.model.eq("bA").to_numpy(), tolA(t), 0.0))
++    tamper("protected RAW tolerance negative (-1e30)", "RAW",
++           lambda t: first_where(t, (t.model.eq("bA") & t.status.eq("ok")).to_numpy(), tolA(t), -1e30))
++    tamper("protected RAW tolerance -inf", "RAW", lambda t: first_where(t, (t.model.eq("bA") & t.status.eq("ok")).to_numpy(), tolA(t), -np.inf))
++
++    def dup_yield(t):
++        t = t.copy()
++        t.iloc[1] = t.iloc[0]
++        return t
++    tamper("YIELD_EFFECTS duplicated key and missing step", "YIELD_EFFECTS", dup_yield)
++    tamper("YIELD_EFFECTS step label", "YIELD_EFFECTS", lambda t: first(t, "step", "wrong label"))
++    tamper("YIELD_EFFECTS fractional step_order", "YIELD_EFFECTS", lambda t: t.assign(step_order=t.step_order.astype(float).where(t.index != 0, 1.5)))
++    tamper("META implementation choices replaced", "META", lambda m: dict(m, implementation_choices=["wrong"] * 9))
++    tamper("META implementation choices reordered", "META", lambda m: dict(m, implementation_choices=m["implementation_choices"][::-1]))
++
++    def frac(t):
++        t = t.copy()
++        t["N_orig"] = t.N_orig.astype(float)
++        t.loc[t.index[t.N_orig.gt(0)][0], "N_orig"] += 1e-9
++        return t
++    tamper("CELL_COUNTS non-integer count (+1e-9)", "CELL_COUNTS", frac)
++    tamper("DESIGNS negative count", "DESIGNS", lambda t: first(t, "n_no_activity", -1))
++    tamper("RAW flag not boolean", "RAW", lambda t: t.assign(target_null_020=t.target_null_020.astype(object).where(t.index != 0, "maybe")))
++    tamper("CRITERIA extra column", "CRITERIA", lambda t: t.assign(extra="x"))
++    # provenance gate on a fixture root (symbolic links to the real files; the real files are never touched)
++    nf0 = json.loads(NOTE_FREEZE.read_text())
++    af0 = json.loads((ROOT / A2_FREEZE_REL).read_text())
++    fs = (sha(NOTE_FREEZE), sha(ROOT / A2_FREEZE_REL))
++    ok("provenance on the real files: every check matched", provenance(nf0, af0, *fs, root=ROOT) == [], provenance(nf0, af0, *fs, root=ROOT))
++    with tempfile.TemporaryDirectory() as fx:
++        rels = sorted(INPUTS17 | CODE9 | {NOTE_REL, A2_REL, A2_FREEZE_REL, PARENT_REL, RULES_REL, "docs/MDI_PILOT_Q4_NOTE_FREEZE.json"})
++        for rel in rels:
++            (Path(fx) / rel).parent.mkdir(parents=True, exist_ok=True)
++            (Path(fx) / rel).symlink_to(ROOT / rel)
++        ok("provenance on the fixture of links: every check matched", provenance(nf0, af0, *fs, root=fx) == [])
++
++        def altered(rel):
++            f = Path(fx) / rel
++            data_ = f.read_bytes()
++            f.unlink()
++            f.write_bytes(data_ + b"\n# altered\n")
++        altered("python/sharpbl/p2d.py")
++        pr = provenance(nf0, af0, *fs, root=fx)
++        ok("a reused code file altered -> refused by its check only", pr == ["reused code (9): exact set and current hashes"], pr)
++        altered(NOTE_REL)
++        pr = provenance(nf0, af0, *fs, root=fx)
++        ok("the note text altered -> refused", "note text" in pr, pr)
++        nf1 = json.loads(json.dumps(nf0))
++        nf1["reused_code_sha256"].pop("python/sharpbl/p2d.py")
++        ok("a reused code entry missing in the receipt -> refused", "reused code (9): exact set and current hashes" in provenance(nf1, af0, *fs, root=ROOT))
++        ok("receipt file SHA different from the pin -> refused", provenance(nf0, af0, "0" * 64, fs[1], root=ROOT) == ["note receipt pinned"])
++        g = globals()
++        called = []
++        saved = (g["GATE_ROOT"], g["real_inputs"], g["compute"])
++        g["GATE_ROOT"] = Path(fx)
++        g["real_inputs"] = lambda *a_, **k_: called.append("inputs")
++        g["compute"] = lambda *a_, **k_: called.append("compute")
++        try:
++            with contextlib.redirect_stdout(io.StringIO()):
++                got = check(write=False)
++        finally:
++            g["GATE_ROOT"], g["real_inputs"], g["compute"] = saved
++        ok("check() on the real path with an altered fixture: refused before reading outputs, importing or computing",
++           got is False and not called)
+     # failures: a realisation not computable for MF must be recounted on the expanded grid
+     real_rec = Q.mdi_records
+ 

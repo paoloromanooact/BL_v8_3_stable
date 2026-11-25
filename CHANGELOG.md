@@ -1,5 +1,11 @@
 # Cronologia
 
+## 2026-11-25 — controllo preliminare delle correzioni Q4
+
+- Sulla fotografia 6024dc61… confermata la chiusura dei sei controesempi precedenti; conservate prove dei due dettagli residui sui conteggi e sui bersagli nulli.
+- Copia di lavoro di Claude lasciata intatta, nessun riconteggio reale e nessuna lettura scientifica Q4.
+
+
 ## 2026-11-25 — revisione del protocollo SFT contro osservazioni
 
 - Verificato dai soli metadati il vincolo USFLUX del controllo al massimo; documentati bilanciamento coerente, supporti comuni e limiti delle attribuzioni causali.

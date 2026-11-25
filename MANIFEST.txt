@@ -71,6 +71,8 @@ docs/MDI_Q4_CODEX_CLOSE_fed1775.md
 docs/MDI_Q4_PREP_COUNTS_RULES.md
 docs/MDI_Q4_RECOUNT_REVIEW_0344bc3.md
 docs/MDI_Q4_RECOUNT_REVIEW_0344bc3_RESULTS.json
+docs/MDI_Q4_RECOUNT_WORKING_REVIEW.md
+docs/MDI_Q4_RECOUNT_WORKING_REVIEW_RESULTS.json
 docs/MDI_SMARP_COUNTS_REVIEW.md
 docs/MDI_SMARP_FEASIBILITY.md
 docs/MDI_SMARP_FIELD_MAP_REVIEW.md
@@ -1268,6 +1270,7 @@ results/T5_PROXY_SENSITIVITY/PROXY_QUALITY.csv
 results/T5_PROXY_SENSITIVITY/SUMMARY.csv
 results/T5_PROXY_SENSITIVITY_SELFTEST/RECEIPT.txt
 results/T5_PROXY_SENSITIVITY_SELFTEST/RECEIPT_R2.txt
+reviews/MDI_Q4_RECOUNT_WORKING_6024dc6/source.patch
 scripts/bl_sft_local_inventory.py
 scripts/check_repo.sh
 scripts/download_test_20240508.sh
@@ -1319,6 +1322,7 @@ scripts/mdi_q4_close_review_probe.py
 scripts/mdi_q4_prep_counts.py
 scripts/mdi_q4_prospective.py
 scripts/mdi_q4_recount.py
+scripts/mdi_q4_recount_domain_review_probe.py
 scripts/mdi_q4_recount_review_probe.py
 scripts/mdi_smarp_inventory.py
 scripts/mdi_smarp_overlap_analysis.py

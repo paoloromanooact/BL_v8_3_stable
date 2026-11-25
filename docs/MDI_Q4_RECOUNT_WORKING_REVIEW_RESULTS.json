@@ -1,0 +1,79 @@
+{
+  "snapshot": {
+    "source_sha256": "6024dc6157f57cb5acf0bf7ed2238ba52c9a9599d79451eb62ada6558cb9a489",
+    "source_state": "uncommitted working copy; preliminary review only",
+    "scientific_results_read": false
+  },
+  "full_synthetic_regressions": [
+    {
+      "case": "valid synthetic base",
+      "accepted": true
+    },
+    {
+      "case": "protected SUMMARY tolerance set to zero",
+      "accepted": false
+    },
+    {
+      "case": "protected RAW negative tolerance",
+      "accepted": false
+    },
+    {
+      "case": "YIELD_EFFECTS duplicated key and missing step",
+      "accepted": false
+    },
+    {
+      "case": "YIELD_EFFECTS altered label or extra column",
+      "accepted": false
+    },
+    {
+      "case": "META implementation choices replaced",
+      "accepted": false
+    },
+    {
+      "case": "META extra unverified field",
+      "accepted": true
+    },
+    {
+      "case": "CELL_COUNTS noninteger count",
+      "accepted": false
+    }
+  ],
+  "domain_probes": [
+    {
+      "case": "null target with B1 exactly zero and finite tolerance 1e30",
+      "accepted": true,
+      "expected_accepted": false
+    },
+    {
+      "case": "n_ok",
+      "expected_value": 2,
+      "altered_value": 2.000000001,
+      "accepted": true,
+      "expected_accepted": false
+    },
+    {
+      "case": "n_records_min",
+      "expected_value": 5223,
+      "altered_value": 5223.000000001,
+      "accepted": true,
+      "expected_accepted": false
+    },
+    {
+      "case": "n_mdi",
+      "expected_value": 0,
+      "altered_value": false,
+      "accepted": true,
+      "expected_accepted": false
+    },
+    {
+      "case": "null-target RAW row from nrows: corrupted finite tolerance passes both domain and normalised comparison",
+      "accepted": true,
+      "expected_accepted": false
+    }
+  ],
+  "provenance_only": {
+    "problems": [],
+    "only_file_hash_checks": true,
+    "real_check_run": false
+  }
+}

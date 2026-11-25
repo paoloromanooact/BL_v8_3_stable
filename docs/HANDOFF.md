@@ -7,6 +7,12 @@
 > dall'utente, non i passi del pilota MDI.
 
 
+## Q4 — correzioni in lavorazione, verifica preliminare Codex (25 novembre)
+
+- Fotografia non committata SHA 6024dc61…: base sintetica valida e sei controesempi precedenti ora rifiutati; gate corrente degli hash senza problemi.
+- [Consegna preliminare](MDI_Q4_RECOUNT_WORKING_REVIEW.md): restano conteggi esatti anche nei riepiloghi/JSON e dominio della tolleranza con bersaglio nullo. Sonda specifica e fotografia patch conservate, nessuna modifica al file in lavorazione di Claude.
+- Claude completa e committa; revisione sul commit definitivo prima del `--check` reale. Nessun risultato Q4 reale letto e nessuna nuova corsa. La sezione su 0344bc3 sotto e la revisione precedente.
+
 ## Q4 — revisione Codex del riconteggio 0344bc3 (25 novembre)
 
 - Non ancora via al `--check` reale: [rilievi e controprove](MDI_Q4_RECOUNT_REVIEW_0344bc3.md).
