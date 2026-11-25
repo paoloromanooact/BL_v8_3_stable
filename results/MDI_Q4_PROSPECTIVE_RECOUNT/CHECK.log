@@ -1,0 +1,26 @@
+/home/gianluca/BL_v8_3_stable/scripts/mdi_q4_recount.py:773: RuntimeWarning: invalid value encountered in subtract
+  okv = both_nan | same_inf | (fin & (np.abs(xn - yn) <= tol * np.maximum(np.abs(xn), np.abs(yn)) + 1e-12 * scale))
+/home/gianluca/BL_v8_3_stable/scripts/mdi_q4_recount.py:773: RuntimeWarning: invalid value encountered in subtract
+  okv = both_nan | same_inf | (fin & (np.abs(xn - yn) <= tol * np.maximum(np.abs(xn), np.abs(yn)) + 1e-12 * scale))
+[OK] provenance of the files read or imported now: receipts pinned, note, A2, parent, rules, 9 reused code files and 17 inputs with exact sets and current hashes []
+[OK] outputs: exact product set []
+[OK] run: script SHA = fed1775 correction, equal to the blob at the run HEAD; note, A2 and receipts pinned; no receipt problem 
+[OK] inputs unchanged since the freeze (17 files of the note receipt) 
+[OK] run: exit 0, internal selftest and proofs 55/55, no technical stop 
+[OK] PROOFS: 55 checks, all true 
+[OK] seed0, realisations, z 
+[OK] E0 quantiles read from the phase A RAW at full precision (0.5020189558504007, 2.7602501179328134)
+[OK] filters and counts: MS 5151, MF 5062, MF before the gap, map-missing and N-ambiguous as the preparatory META; missing maps 1938-1940, MS units removed 8, missing years 1996 and 2008 
+[OK] d_gamma of the Q2 summaries equal to the note (rounded) 
+[OK] protected models (bA family A, bJ family J): B1 negligible (<= 1e-10 of the scale) and tolerance unbounded (>= 1e6 or inf), in the run and in the recount; compared as unbounded below 
+[OK] RAW: every row and column rebuilt (keys, statuses, columns used and dropped, counts, targets, quantiles, SE, h, shares, ratios and flags, recognition, product shift, offsets, tolerances, worst cases, h/h_H) 
+[OK] SUMMARY: protected tolerances in their domain; every configuration, median/min/max, null-target counts, n_ok and n_fail domain run True, recount True
+[OK] NOT_COMPUTABLE: same causes and counts 0 vs 0
+[OK] DESIGNS: domains, statuses, inclusions, exclusions, activity losses, expected yields, |lat| distances 
+[OK] CRITERIA: exact schema; criteria, verdicts and every paired median, n_ok and n_fail (both thresholds) 
+[OK] CELL_COUNTS: N per cell, original and after each filter, MS/MF domains, MS units 
+[OK] YIELD_EFFECTS: exact schema, unique and complete keys, labels, changes and values (one change per step) 
+[OK] MF_POOLS: n, ok, p_hat, Kish n_eff, r_eff per pool and threshold 
+[OK] META: exact key set []
+[OK] META: H units (d3, sbar), missing years, noise rows, filter counts, the nine implementation choices in order 
+recount: 21/21 (partial False)

@@ -1,0 +1,161 @@
+{
+  "passed": 21,
+  "total": 21,
+  "partial": false,
+  "checks": [
+    {
+      "name": "provenance of the files read or imported now: receipts pinned, note, A2, parent, rules, 9 reused code files and 17 inputs with exact sets and current hashes",
+      "ok": true,
+      "info": "[]"
+    },
+    {
+      "name": "outputs: exact product set",
+      "ok": true,
+      "info": "[]"
+    },
+    {
+      "name": "run: script SHA = fed1775 correction, equal to the blob at the run HEAD; note, A2 and receipts pinned; no receipt problem",
+      "ok": true,
+      "info": ""
+    },
+    {
+      "name": "inputs unchanged since the freeze (17 files of the note receipt)",
+      "ok": true,
+      "info": ""
+    },
+    {
+      "name": "run: exit 0, internal selftest and proofs 55/55, no technical stop",
+      "ok": true,
+      "info": ""
+    },
+    {
+      "name": "PROOFS: 55 checks, all true",
+      "ok": true,
+      "info": ""
+    },
+    {
+      "name": "seed0, realisations, z",
+      "ok": true,
+      "info": ""
+    },
+    {
+      "name": "E0 quantiles read from the phase A RAW at full precision",
+      "ok": true,
+      "info": "(0.5020189558504007, 2.7602501179328134)"
+    },
+    {
+      "name": "filters and counts: MS 5151, MF 5062, MF before the gap, map-missing and N-ambiguous as the preparatory META; missing maps 1938-1940, MS units removed 8, missing years 1996 and 2008",
+      "ok": true,
+      "info": ""
+    },
+    {
+      "name": "d_gamma of the Q2 summaries equal to the note (rounded)",
+      "ok": true,
+      "info": ""
+    },
+    {
+      "name": "protected models (bA family A, bJ family J): B1 negligible (<= 1e-10 of the scale) and tolerance unbounded (>= 1e6 or inf), in the run and in the recount; compared as unbounded below",
+      "ok": true,
+      "info": ""
+    },
+    {
+      "name": "RAW: every row and column rebuilt (keys, statuses, columns used and dropped, counts, targets, quantiles, SE, h, shares, ratios and flags, recognition, product shift, offsets, tolerances, worst cases, h/h_H)",
+      "ok": true,
+      "info": ""
+    },
+    {
+      "name": "SUMMARY: protected tolerances in their domain; every configuration, median/min/max, null-target counts, n_ok and n_fail",
+      "ok": true,
+      "info": "domain run True, recount True"
+    },
+    {
+      "name": "NOT_COMPUTABLE: same causes and counts",
+      "ok": true,
+      "info": "0 vs 0"
+    },
+    {
+      "name": "DESIGNS: domains, statuses, inclusions, exclusions, activity losses, expected yields, |lat| distances",
+      "ok": true,
+      "info": ""
+    },
+    {
+      "name": "CRITERIA: exact schema; criteria, verdicts and every paired median, n_ok and n_fail (both thresholds)",
+      "ok": true,
+      "info": ""
+    },
+    {
+      "name": "CELL_COUNTS: N per cell, original and after each filter, MS/MF domains, MS units",
+      "ok": true,
+      "info": ""
+    },
+    {
+      "name": "YIELD_EFFECTS: exact schema, unique and complete keys, labels, changes and values (one change per step)",
+      "ok": true,
+      "info": ""
+    },
+    {
+      "name": "MF_POOLS: n, ok, p_hat, Kish n_eff, r_eff per pool and threshold",
+      "ok": true,
+      "info": ""
+    },
+    {
+      "name": "META: exact key set",
+      "ok": true,
+      "info": "[]"
+    },
+    {
+      "name": "META: H units (d3, sbar), missing years, noise rows, filter counts, the nine implementation choices in order",
+      "ok": true,
+      "info": ""
+    }
+  ],
+  "outputs_sha256": {
+    "CELL_COUNTS.csv": "38987d4b585cedf7832186c0051f72c437c926b62daaedff065b317b268052ce",
+    "CRITERIA.csv": "2ce9aa5b86fae6e13ac65a00ff615cf02f48087de34c028e92fe63b02005d3a8",
+    "DESIGNS.csv": "a40c3a16f3cae50a67043973a6e375bfd2b2a69fdb1ce16a3d6cdc0e281fa59e",
+    "META.json": "71a45c7c781b2d626d38561d447cbc277aa877618a5bdc305325ef0a0792f609",
+    "MF_POOLS.csv": "1eeadc00f016c0def5ec89c8af55fcd24eb1ef2d93883d5281aa28fb5969de02",
+    "NOT_COMPUTABLE.csv": "30776fc0a500d467cafedc279eac5d9e9d3774b6720be48b8605758b6aa297ed",
+    "PROOFS.csv": "2adb8b3b6615ebdb95f59046d3de074b2ebb10880d16fac61702ff8e05356230",
+    "RAW.csv.gz": "5f0512d73c2e893038fd2534eeb27c897a81fa7124fda11b94d3e13d57e8ff0f",
+    "RUN.exit": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "RUN.log": "fc89826ed9b01c068c9d1ced4b34527a6eeb933b3467e1fc2f4e49df116977c0",
+    "SUMMARY.csv": "4dfd112ca849e0ffe4169fa90455b2ad4d277fd5c9a683e6b4399aed39ac82ed",
+    "YIELD_EFFECTS.csv": "105c9c0a7dd6da9d06d15c8e208f5e3b7d0ff6c7c1515728bd9edaf30e735f6b"
+  },
+  "recount_sha256": "a6c0a72d227c26d15f5ca584f22bdf12e63c3222028ffe4eaab3f33aa0233398",
+  "inputs_sha256": {
+    "ancillary/SILSO_HEMI/SN_m_hem_V2.0.csv": "32690e4372ab6355d05f54d9ccd96158564029892a62128db42eb3fa8b79292f",
+    "docs/MDI_PILOT_Q4_NOTE.md": "e13a3a72875e15bed296414cfcf9423b7f4d032c3d3a8efaeb67e9ad7882ade9",
+    "docs/MDI_PILOT_Q4_NOTE_FREEZE.json": "0f9b3acc01e6a58a182685259350f71a8caf82edc2381c209f210d89b5b2410d",
+    "docs/MDI_Q4_PREP_COUNTS_RULES.md": "9ce409fc1030e5d41ffac1d994887d8b540ccc711f25b488426e9c387ad8a77a",
+    "docs/PROTOCOL_MDI_TILT_PILOT.md": "77367350e8f9a5f71933afdcc791429b307c95ec1875224c1f2d7486950d086f",
+    "docs/PROTOCOL_MDI_TILT_PILOT_AMENDMENT_A2.md": "c834077011ff7e201d01eabc318de7e6fbfc547bbffcfca05a0091e87636203e",
+    "docs/PROTOCOL_MDI_TILT_PILOT_AMENDMENT_A2_FREEZE.json": "76a26f061ab99c659f312d84a599a9b3e540b77b321529bd2c99ae83b5a23326",
+    "python/sharpbl/diag_t5_oracle.py": "f7808c54be0048e12fd6e08d250ed02291bc3b96c2bd2756340af272595577f4",
+    "python/sharpbl/p2d.py": "5e6dad4f2450f244d969d90c8305f9c18f71dc6d3ab19212f464325d5d546aa1",
+    "python/sharpbl/p2f_pilot.py": "17d1f728f3c7626ebbbca38620fb2711769dc3228d0090747990410631e28ec8",
+    "python/sharpbl/p2f_validation.py": "8adfc197e9ee9d66359ed893162d38b92cf9c98c634beb250bb34b9b8a4ae1f1",
+    "python/sharpbl/run_p2.py": "05c5ad01a417f22d4ec5a6350ffaed0a8d411cb62954410f0a6284eb490c791d",
+    "results/MDI_PILOT_ANALYSIS_L1/Q1_YIELD_PROJECTED.csv": "78290c48a9d55148fd60569ac895c3c5a1ce84148161e792bcea43a59597616b",
+    "results/MDI_PILOT_ANALYSIS_L2/Q2_PAIRS_A1_main.csv": "9dde8593bc304c5131e424963a2dcb61524ae4bc725b0bfe52731ec8a3e14e95",
+    "results/MDI_PILOT_ANALYSIS_L2/Q2_PAIRS_A1_sens100.csv": "1f304b191826753b94d9598d561406489a8b4aaefd9070dad2eaafd0b3826d08",
+    "results/MDI_PILOT_ANALYSIS_L2/Q2_SUMMARY_A1_main.csv": "6da9d138a2c135ee27b5284538547fdf522854a96a548890a98d62c0e8a22c1f",
+    "results/MDI_PILOT_ANALYSIS_L2/Q2_SUMMARY_A1_sens100.csv": "fa3ffa2158c03324c066fc06e28e70583320bbb34f878a025404d25c8837b18a",
+    "results/MDI_PILOT_ANALYSIS_L2/YIELD_A1.csv": "c7575d3bd7673f9f0725bf1b2604ed97da6f6ae68d59bc53528ea047ccd319a4",
+    "results/MDI_PILOT_L1/L1_RECORDS.csv": "42c178a0498fcc9e2a9fd24dde32e38e38ef089bbc2df18accedaa9ed4a2151a",
+    "results/MDI_PILOT_L2/L2_RECORDS.csv": "ed6861a4b7a1e27e53465fcd3f55ebc28c408789174c36cbf7afe091c7d53882",
+    "results/MDI_PILOT_SELECTION/CELLS.csv": "0b1f473b1c013a842162dcac8ffe09d5e0cdd814daa2edd2739d58261826b40c",
+    "results/MDI_PILOT_SELECTION/META.json": "b7e3e7007069cabb01536abfa4d62f6a83a585118acb4425a35a677c8897177e",
+    "results/MDI_PILOT_SELECTION/POPULATION.csv": "9507cdaf00b5da6600a8718e9d0f13a565365afaf707204ef03d99c0c28d6c99",
+    "results/MDI_PILOT_SELECTION/SAMPLE.csv": "7210e1a33814dc56824819edadfa0c4c4538a872d7643d1e84df27ab039d893f",
+    "results/MDI_Q4_PREP_COUNTS/META.json": "de2dde6fcde25e9a22c41e67a15d7570ee7b1f735df2e5aab3dc1d15391a2b2a",
+    "results/MDI_SYNOPTIC_AUDIT/FILES.csv": "29678a4f63851351ab6832cf4d37935e081948dae378432961099b81d569eeb5",
+    "results/P1/P1_SBL_CATALOG_BY_HARP.csv": "67dc6a74a27b44f9ddd958f5a5dcc972a564300af89444c781665926ca0488af",
+    "results/PROSPECTIVE_PHASE_A/RAW.csv.gz": "09ceadab4d6979e2576afef22b42aea7abbdf27e652b41d95d47e3b62327d104",
+    "scripts/mdi_q4_prep_counts.py": "cf221fb1580d720bef37287dea2984b0dd1e17bad28c7d6271d9d9181a1afc8a",
+    "scripts/mdi_synoptic_adapter.py": "1787dc0ae085b12bff03cdde96c61b6954f9fccd3fa5e83e36016e6b26a1038a",
+    "scripts/prospective_phase_a.py": "e99df1d295cac35a4e64dade8e51b32045b2e0acbcc4e63b5b2f8caab96adcec",
+    "scripts/t5_proxy_sensitivity.py": "58554b8650d90f3d45b0696a764f2a16e4b41948a45db19624bea284213c2dd0"
+  }
+}
