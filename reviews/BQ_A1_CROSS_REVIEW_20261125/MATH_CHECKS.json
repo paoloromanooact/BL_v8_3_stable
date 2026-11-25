@@ -1,0 +1,37 @@
+{
+  "scope": "Deterministic mathematical checks only; no observed inputs, PDE solution or posterior fit",
+  "passed": 6,
+  "total": 6,
+  "checks": [
+    {
+      "name": "A1 first-order ratio indicator can pass 0.01 while perturbed ratio fails",
+      "ok": true,
+      "linear": 0.01,
+      "actual": 0.010050251256281305
+    },
+    {
+      "name": "Finite perturbation bound covers adverse case",
+      "ok": true,
+      "bound": 0.010050251256281407
+    },
+    {
+      "name": "Finite bound covers deterministic signed perturbation grid",
+      "ok": true,
+      "excess": 3.0531133177191805e-16
+    },
+    {
+      "name": "Buffer 11 is not independence guarantee under phi .98",
+      "ok": true,
+      "rho075": 0.04223513603210449,
+      "rho098": 0.8007313507497958
+    },
+    {
+      "name": "Fixed t4 scale preserves prescribed marginal variance",
+      "ok": true
+    },
+    {
+      "name": "Activity affine transformation preserves mean",
+      "ok": true
+    }
+  ]
+}

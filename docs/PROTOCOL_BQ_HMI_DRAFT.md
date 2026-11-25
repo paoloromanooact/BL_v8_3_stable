@@ -1,4 +1,4 @@
-# BQ-HMI — confronto bayesiano della dipendenza del tilt dall'attività: BOZZA rev. 2
+# BQ-HMI — confronto bayesiano della dipendenza del tilt dall'attività: BOZZA rev. 3
 
 25 novembre 2026, Codex. **Non congelata; nessun fit reale o lettura di risultati bayesiani.**
 Priorita operativa aggiornata dall'utente: BQ-HMI, poi BQ-M; C prosegue come preparazione di BT e i piloti SFT
@@ -16,7 +16,7 @@ Lo scopo è quantificare posteriori, adeguatezza e capacità predittiva sotto ip
 ## 1. Campione, risposta e matrice
 
 - Stessi record primari/both del campione S: valid_bl=1, cicli 24/25, Phi>=1e21 Mx, npos/nneg>=20,
-  cycle_state diverso da AMBIGUOUS, attività principale disponibile. Attesi 2485 record; chiave (HARPNUM,T_REC)
+  cycle_state diverso da AMBIGUOUS, attività principale disponibile. Attesi 2485 record, 394 celle CR/emisfero e 42 celle singleton (da ricontare); chiave (HARPNUM,T_REC)
   unica. Un conteggio differente o una chiave cambiata ferma la preparazione, non viene ignorato.
 - Risposta esattamente come P2: gamma = sign(lat_mean_deg) * degrees(arcsin(clip(sintilt,-1,1))). Non sostituire
   questa risposta con il semplice tilt assiale: le convenzioni non sono intercambiabili.
@@ -38,9 +38,18 @@ con il loro carattere candidato; b è un effetto condiviso additivo del tilt. Se
 prima della corsa: senza b e campione S8, con gli stessi candidati M0/MQ. Non cercare il sottocampione che dà
 la preferenza più netta. Nests esclusi dalla fase attuale; la dipendenza residua non ricostruita è dichiarata.
 
+**Sensibilita temporale obbligatoria e simmetrica:** aggiungere a entrambi i candidati v_(CR,h)*s_i,
+con v AR(1) bivariato stazionario distinto da u e a priori indipendente da u, b e beta. Proposta:
+sigma_v~half-Normal(20 gradi), z_phi_v,z_kappa_v~N(0,1), trasformazioni tanh come per u.
+Non sottrarre a posteriori la proiezione di v sull'attivita: imporrebbe la separazione desiderata.
+Queste prior restano da verificare con le prove a priori. Una variazione lenta del coefficiente di Joy puo
+imitare beta: il ranking con/senza v e il recupero sintetico sono parte dei risultati, non una selezione
+post hoc della sola variante favorevole. Un allargamento o una forte dipendenza dalle prior e un limite
+alla separazione dei contributi, non una prova causale.
+
 ## 3. Likelihood ed errori: proposta da rivedere prima del congelamento
 
-Prima versione proposta: likelihood gaussiana **di lavoro**, condizionata a u e b, con
+L1 principale: likelihood gaussiana **di lavoro**, condizionata a u e b, con
 sigma_i = sigma0 exp(q log10(Phi_i/1e21 Mx)). La dispersione individuale comprende evoluzione/morfologia e misura:
 non identifica da sola le due componenti. Il flusso è un possibile predittore della dispersione, non un numero
 di repliche né un esponente con unità arbitrarie della likelihood.
@@ -48,7 +57,19 @@ di repliche né un esponente con unità arbitrarie della likelihood.
 u_t è un AR(1) bivariato stazionario per CR, con varianza marginale sigma_x², correlazione emisferica kappa e
 persistenza phi. Proposta: phi=tanh(z_phi), kappa=tanh(z_kappa), senza il limite REML artificiale di 0,98.
 La distribuzione iniziale è stazionaria e la griglia temporale non comprime i CR mancanti. b_f ~N(0,sigma_f²).
-I gruppi singleton non forniscono informazione distinta su sigma_f e sigma0: verificarne la separabilità.
+Una sola osservazione per famiglia non separa autonomamente sigma_f dalla varianza individuale;
+la presenza di famiglie replicate e di eteroschedasticita puo fornire informazione: verificarla sul disegno.
+Contare famiglie singleton/replicate, non confondere questi conteggi con le celle CR singleton.
+phi e kappa possono essere negativi; le trasformazioni tanh non impongono persistenza positiva.
+
+L2 predefinita: residui individuali Student-t con nu=4 **fisso**, stessi effetti u/b (e v nella sensibilita)
+e stessa deviazione standard sigma_i di L1. La scala della t e sigma_i*sqrt((nu-2)/nu).
+Miscela equivalente: lambda_i~Gamma(nu/2, rate=nu/2), epsilon_i|lambda_i~N(0, sigma_i^2*(nu-2)/(nu*lambda_i)).
+L1 e L2 si riportano entrambe; non si sceglie la famiglia dopo aver visto beta o il ranking.
+La proposta nu-1~Gamma consentirebbe varianza infinita per nu<=2: non e adottata. nu libero o altri valori
+richiedono una scelta separata prima dei dati. Integrare le scale nella previsione, mai stimarle usando
+le risposte escluse e poi trattarle come note. L'evidenza L2 resta opzionale e subordinata a verifiche.
+Il BIC L2 e per ora non stabilito; non riciclare la likelihood gaussiana condizionata alle scale.
 
 **Scelte non da nascondere:** gamma deriva da una trasformazione limitata a [-90,90]. La normale è un'approssimazione,
 non una densità esatta della misura angolare. Prima del congelamento, controllare predizioni a priori e definire
@@ -65,15 +86,21 @@ errori; non inserire una sigma singola come già calibrata e non assumere la dom
 Proposte numeriche per la revisione, non parametri già congelati:
 
 - k_(c,h) ~ N(0,40²) gradi; nessuna imposizione del segno del coefficiente osservato.
-- beta in MQ ~ N(0,10²) gradi per unità di attività. Sensibilità predefinite: deviazione 5 e 20 gradi.
+- beta in MQ ~ N(0,10²) gradi per unità di attività. Sensibilita predefinite: deviazioni 2,5; 5; 20; 40 gradi, con 10 principale. Stesse prior comuni in ogni confronto.
 - sigma0 ~ half-Normal(30 gradi), sigma_x ~ half-Normal(10 gradi), sigma_f ~ half-Normal(5 gradi).
-- q~N(0;(0,5)²) nella scala log10 del flusso; z_phi,z_kappa~N(0,1).
+- q~N(0;1²), con sensibilita N(0;(0,5)²) nella scala log10 del flusso; z_phi,z_kappa~N(0,1).
 - Probabilità a priori M0/MQ pari a 1/2, se vengono calcolate probabilità di modello.
 
 Tutte le densità e costanti di normalizzazione entrano nell'evidenza. Il protocollo definitivo conserva anche
 la predizione a priori sul disegno HMI. Eventuali modifiche dopo queste prove ma prima del fit reale sono
 registrate come sviluppo, senza cancellare le versioni precedenti. Le prior devono essere definite anche
 negli stati in cui una componente di varianza è scarsamente identificata.
+
+La scala di attivita HMI resta P2. Per una futura trasformazione a'=c*a, c noto e non nullo,
+beta'=beta/c e p'(beta')=|c| p(c*beta'): preservare la distribuzione dell'effetto e l'evidenza.
+Se cambia anche il centro, a'=c*a+d, trasformare congiuntamente k'=k-beta*d/c e beta'=beta/c;
+non reimporre prior indipendenti su k' e beta'. La scala comune multi-strumento si fissa in BQ-M,
+non si inventa ora una nuova normalizzazione per HMI. Registrare fattori e Jacobiani.
 
 ## 5. Bersaglio e confronto con T3 storico
 
@@ -94,11 +121,29 @@ Principale: posteriori e confronto predittivo M0/MQ, con incertezza dei punteggi
 e probabilità oltre un effetto operativo fissato prima (bersaglio proiettato), senza confonderle con P(MQ|dati)
 o con la probabilità di un meccanismo fisico corretto. Intervalli credibili e diagnostica completi.
 
-Per la previsione: proposta di quattro blocchi futuri contigui sul calendario CR, dopo un primo 60% di CR di
-addestramento; blocchi successivi di 10%, aggiornamento solo dopo la valutazione del blocco precedente. Le famiglie
-del blocco di verifica non possono contribuire con altri membri alla stima. Definire il trattamento dei gruppi
-che attraversano il bordo prima della corsa. Le attività SILSO sono covariate date: non è una previsione di SSN.
-Integrare i futuri stati temporali e gli effetti nuovi, senza usare le risposte di verifica per ricostruirli.
+**Confronto principale: previsione di blocchi interni al periodo osservato**, non previsione del ciclo futuro.
+Dividere i CR interi da primo a ultimo in 10 intervalli contigui, lunghezze che differiscono al piu di uno
+(resto assegnato ai primi intervalli). Tutti i record nel blocco sono verifica. Escludere dalla stima anche
+11 CR per lato e **tutti** i membri di ogni famiglia presente nella verifica, ovunque siano nel calendario.
+Non assegnare tutti i membri al blocco del primo: altererebbe il bersaglio temporale. Ogni record ha un solo
+blocco di verifica. Le osservazioni eliminate per famiglia/buffer non entrano nel punteggio di quel blocco.
+Controllare prima dei fit supporto di ciclo/emisfero, rango e intervallo di attivita del training; non spostare
+i confini usando gamma. Se manca un coefficiente, segnalarne la previsione dominata dalla prior.
+
+Il buffer 11 corrisponde a |phi|^11<0,05 **solo** per |phi|=0,75; non garantisce indipendenza nella prior corrente.
+Ripetere lo stesso schema con buffer 22 come sensibilita, riportando la dipendenza dal buffer e la perdita
+di training. La densita del blocco integra gli stati correlati condizionati ai soli dati di training:
+puo usare tempi precedenti e successivi, quindi e interpolazione temporale e non un vero forecast.
+Nessuna garanzia di isolamento per persistenze vicine a uno. Stesso schema per L1/L2 e M0/MQ.
+Punteggio: somma delle log-densita congiunte di ciascun blocco e differenze per blocco; non considerare i
+10 punteggi come repliche certamente indipendenti per costruire un intervallo artificiosamente stretto.
+
+**Secondario: previsione solo in avanti.** Primi 60% dei CR in training, poi quattro blocchi contigui del 10%,
+con arrotondamenti deterministici da esportare nel manifesto. Rimuovere dal training i familiari di verifica;
+aggiornare solo dopo il punteggio del blocco. Mostrare separatamente i blocchi del ciclo 25 per cui i k_(25,h)
+non hanno supporto nel training: questo confronto include il trasferimento fra cicli e puo essere dominato
+dalla prior. Non usarlo da solo come giudizio sulla pendenza dentro il ciclo. L'attivita e covariata data,
+non previsione SILSO. Integrare gli stati futuri, senza condizionarli alle risposte di verifica.
 
 Non sommare log-probabilità marginali di record correlati come se fossero indipendenti. Valutare la densità
 predittiva congiunta o una fattorizzazione condizionata corretta; controllare l'errore Monte Carlo. Quattro blocchi
@@ -109,6 +154,15 @@ Non usare REML o massimi di likelihood come evidenze. Nel caso gaussiano, con co
 propria V_theta, l'integrazione dei coefficienti dà y~N(0,C_psi+X V_theta X^T), poi si integra sui parametri psi.
 Questa identità fornisce un riferimento indipendente per i casi sintetici; la massa a beta=0 resta distinta
 dalla probabilità del segno nel modello continuo.
+
+Per ogni likelihood/struttura annidata verificata, Savage-Dickey e un secondo calcolo possibile:
+BF_0Q = p(beta=0|y,MQ)/p(beta=0|MQ), solo se la prior dei parametri comuni sotto M0 coincide con quella
+condizionata a beta=0 sotto MQ. Verificare identita, normalizzazioni e indipendenza proposte; non usare una
+stima puntuale di densita senza errore Monte Carlo. In L1 integrare analiticamente i coefficienti per
+calcolare l'ordinata condizionale e poi mediarla sul posteriore delle covarianze (Rao-Blackwell).
+Un controllo che condivide campioni/covarianze non e una validazione completamente indipendente.
+Ripetere i fit per le prior di beta prescritte, oppure usare pesi solo con diagnostica di sovrapposizione
+ed ESS adeguati e regole fissate prima. Non riusare il posteriore tau=10 per tutte le tau senza controllo.
 
 ## 6bis. BIC: controllo secondario, con condizioni di applicabilita
 
@@ -132,6 +186,8 @@ numero effettivo della complessita predittiva. Per la proposta gaussiana attuale
 4 coefficienti ciclo-emisfero + 6 parametri di covarianza/dispersione (sigma0,q,sigma_x,phi,kappa,sigma_f),
 quindi k0=10 e kQ=11. Registrare l'elenco effettivo; una likelihood o una struttura diversa cambia il conteggio.
 Non aggiungere un parametro per ogni stato CR o famiglia dopo averli gia integrati.
+La variante con v aggiunge sigma_v,phi_v,kappa_v: k0=13, kQ=14 se identificati, e cambia anche la
+verifica delle condizioni asintotiche. I conteggi 10/11 non valgono per ogni variante.
 
 **n e asintotica:** non scegliere arbitrariamente regioni, CR o blocchi per ottenere la classifica voluta.
 La dipendenza non vieta ogni BIC, ma richiede una giustificazione del regime di crescita dell'informazione.
@@ -172,11 +228,18 @@ Riferimenti metodologici primari consultati:
 Prima dei dati: casi con beta noto nullo/negativo/positivo, famiglie note, AR(1) forte, salti di livello,
 eteroschedasticità e dipendenza non modellata. Controlli di implementazione e calibrazione da simulazione sotto
 le prior sono distinti dai controlli di robustezza a generatori diversi. Non estendere a BQ la validazione di M.
+Obbligatori: coefficiente k(t) variabile con fase senza beta, con somiglianza crescente ad a(t); nulli con
+code t4; confondimento sigma_f/sigma0; cicli assenti nel training. Con beta e k(t)*s indistinguibili i test
+devono rivelare sensibilita/ambiguita, non imporre un recupero impossibile. Riportare frequenze di preferenza
+errata sotto ogni generatore con incertezza Monte Carlo; generatori e numerosita da fissare prima dei fit reali.
 
 Campionamento: proposta quattro catene, Rhat<=1,01 ed ESS bulk/tail>=400 per beta e parametri di scala/correlazione,
-nessuna divergenza irrisolta; controllare anche ridotte identificabilità e sensibilità alle inizializzazioni.
+nessuna divergenza irrisolta se si usa HMC, diagnostica specifica del kernel altrimenti; controllare anche ridotte identificabilità e sensibilità alle inizializzazioni.
 Impostazioni, semi effettivi, benchmark e regole di estensione delle catene da congelare con l'implementazione;
-nessun limite di durata delle corse imposto da questa bozza. Con diagnostica insufficiente: esito tecnico,
+nessun limite di durata delle corse imposto da questa bozza. L'adattamento Metropolis e confinato al
+warm-up; la fase salvata usa un kernel fissato. Proposte di estensione, numero massimo di estensioni e
+stati di arresto tecnico devono essere fissati con il runner prima del congelamento operativo.
+Con diagnostica insufficiente: esito tecnico,
 non una preferenza per il modello che ha campionato meglio. Densità marginali: controllo indipendente e
 precisione richiesta da fissare prima del confronto reale.
 
@@ -184,6 +247,14 @@ Controlli predittivi: residui/medie per CR ed emisfero, code, vincoli angolari, 
 attività. Possono risultare inadeguati entrambi i candidati. Input/codice/protocolli con SHA, albero e input
 conservati, output prima della lettura, riconteggio e rapporto separato. Nessun fit reale finché le scelte
 aperte sono chiuse e codice/likelihood verificati. Nessuna libreria nuova installata per scrivere la bozza.
+
+**Ambiente proposto:** numpy/scipy locali possono bastare, ma un campionatore proprio non e approvato solo
+per questo. Woodbury/determinante e precisione AR(1) verificati contro Cholesky densa su sintetici; registrare
+Jacobian dei parametri trasformati e differenza fra likelihood marginale ML e densita integrata bayesiana.
+La dimensione dei latenti include tutte le famiglie, non solo i CR: benchmark prima di promettere millisecondi.
+Bridge sampling opzionale: controllo su integrali gaussiani noti, quadratura ridotta e Savage-Dickey con
+errori numerici; separare campioni usati per costruire la proposta e per stimare l'integrale. Se i controlli
+falliscono, nessuna evidenza pubblicabile e nessun vincitore per difetto tecnico. Nessuna installazione ora.
 
 ## 8. Estensione BQ-M: requisiti prima del codice multi-strumento
 

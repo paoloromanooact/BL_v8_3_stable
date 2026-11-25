@@ -1,5 +1,14 @@
 # Cold restart — SHARP BL
 
+## Revisione incrociata BQ rev.3 e A1 ccd49f9 (Codex)
+
+- [Revisione e consegna a Claude](BQ_A1_CROSS_REVIEW_20261125.md): otto punti BQ recepiti con correzioni; bozza rev.3 non congelata. Blocchi interni principali, previsione in avanti separata, sensibilita Joy temporale, L1/L2 t4 con SD coerente, prior e prove ancora da finalizzare. Nessun fit.
+- A1 non ancora congelabile: scarto fra griglie non e errore garantito; formula del rapporto al primo ordine insufficiente. Bound finito e controesempio documentati. f=1e-2 accettabile come tolleranza di scarto solo con regola numerica esplicita delle grandezze derivate; nessun allargamento automatico a 1e-1.
+- Proposta: controlli N/2N/4N e passo su tutti i rapporti destinati ai riepiloghi, stato/eleggibilita stabili e differenze <=0,01; m(t) verificato con la stessa popolazione, denominatori e quote di irrisolti. Da recepire e rivedere nel testo e nel codice, non una corsa approvata.
+- Sei controlli algebrici deterministici conservati, non validazione PDE o bayesiana. Riconteggio SFT finale/selftest da consegnare: questa revisione non dichiara i cinque gruppi del codice integralmente chiusi.
+- BQ al primo posto, C attivo in parallelo, BQ-M successivo. Nests sospesi; nessuna serie SINDy coinvolta.
+
+
 ## BIC aggiunto alla bozza BQ (prima dei fit)
 
 - [BQ rev.2, §6bis](PROTOCOL_BQ_HMI_DRAFT.md): BIC come controllo secondario, non conversione dei risultati REML storici. ML marginale rispetto ai latenti, effetti fissi massimizzati, conteggio nominale dei parametri e asintotica da giustificare.
