@@ -14,7 +14,9 @@ Steps (protocol section in brackets)
    deposit in s; out of the centre support -> status deposition_out_of_range. 300 G sensitivity: everything recomputed
    from the 300 G mask for M and for the point bipole.
 4. Bipole B [§5]: point bipole at the P1-style centroids (|Br|-weighted unit-vector means, renormalised) with +-phibar;
-   Gaussian sensitivities (area-equivalent sigma, 2 deg, 4 deg) with effective fluxes and centroids recorded.
+   Gaussian sensitivities (area-equivalent sigma, 2 deg, 4 deg): each component on its own 8-sigma cap (step sigma/10)
+   for the deposit; effective fluxes and centroids of the summed field on a common cap around the midpoint
+   (implementation choice, declared).
 5. Transport [§6]: SFT1D (N 400, hybrid advection, positivity-limited Crank-Nicolson), the four parameter sets of the
    2x2 grid (reference eta 466.8, Du 0.025, p 2.33); tau = 5 and 10 years as exp(-t/tau) factors on the reference.
 6. Times [§7]: 0, 27 days, 0.5, 1, 3 Julian years; daily curves for the reference transport (M and point B, 100 G).
@@ -154,9 +156,12 @@ def representations(ing, threshold, model):
         r = ing["r_cm"]
         sig_area = (math.degrees(math.sqrt(ing["area_pos"] / (2 * math.pi * r * r))), math.degrees(math.sqrt(ing["area_neg"] / (2 * math.pi * r * r))))
         for name, (sp_, sn_) in (("B_gauss_area", sig_area), ("B_gauss_2deg", (2.0, 2.0)), ("B_gauss_4deg", (4.0, 4.0))):
-            g = C.gaussian_bipole((ing["lon_pos"], ing["lat_pos"]), (ing["lon_neg"], ing["lat_neg"]), sp_, sn_, ing["phibar"], r_cm=r)
-            cf, nout = C.deposit_linear(np.sin(np.radians(g["lat"])), g["br"] * g["area"], model.s)
-            e = g["effective"]
+            # deposit: one 8-sigma cap per component (protocol §5); effective quantities of the summed field on the common
+            # cap around the midpoint (implementation choice: the protocol requires them but does not fix their grid)
+            lp_, fp_ = C.gaussian_component_cells((ing["lon_pos"], ing["lat_pos"]), sp_, ing["phibar"], r_cm=r)
+            ln_, fn_ = C.gaussian_component_cells((ing["lon_neg"], ing["lat_neg"]), sn_, -ing["phibar"], r_cm=r)
+            cf, nout = C.deposit_linear(np.sin(np.radians(np.r_[lp_, ln_])), np.r_[fp_, fn_], model.s)
+            e = C.gaussian_bipole((ing["lon_pos"], ing["lat_pos"]), (ing["lon_neg"], ing["lat_neg"]), sp_, sn_, ing["phibar"], r_cm=r)["effective"]
             reps[name] = (cf, "ok" if cf is not None else "deposition_out_of_range",
                           dict(n_out=nout, sigma_pos=sp_, sigma_neg=sn_, eff_phi_pos=e["phi_pos"], eff_phi_neg=e["phi_neg"],
                                eff_lon_pos=e["lon_pos"], eff_lat_pos=e["lat_pos"], eff_lon_neg=e["lon_neg"], eff_lat_neg=e["lat_neg"]))

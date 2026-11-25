@@ -226,6 +226,20 @@ def gaussian_bipole(pos, neg, sigma_pos_deg, sigma_neg_deg, phibar, step_deg=Non
                 step_deg=math.degrees(step), tail_bound=math.exp(-0.5 * support_sigma ** 2))
 
 
+def gaussian_component_cells(centre, sigma_deg, flux, step_deg=None, support_sigma=8.0, r_cm=RSUN_CM):
+    """Quadrature of ONE spherical Gaussian component as in the frozen protocol §5: its own cap of radius 8 sigma centred
+    on the component, rotated polar grid (grid pole at the centre), step sigma/10, exact areas, normalised to `flux`
+    (signed) on the cap. Returns (lat_deg, cell_flux). Used for the deposit in s (linear: components add)."""
+    if not sigma_deg > 0:
+        raise ValueError("sigma must be positive")
+    c = geo.unit_vectors(*centre)
+    step = math.radians(step_deg if step_deg else sigma_deg / 10.0)
+    lat, lon, area, v = rotated_cap_grid(c, math.radians(support_sigma * sigma_deg), step, r_cm)
+    delta = np.degrees(np.arccos(np.clip(v @ c, -1, 1)))
+    g = np.exp(-delta ** 2 / (2.0 * sigma_deg ** 2)) * area
+    return lat, flux * g / float(g.sum())
+
+
 # ---------------------------------------------------------------- field measures (P1 conventions)
 
 def field_measures(lat_deg, lon_deg, br, area_cm2, r_cm=RSUN_CM, threshold=0.0):
@@ -396,6 +410,9 @@ def selftest(verbose=True):
     ok("bipole across the pole: no cut; effective fluxes and separation equal to the same bipole at the equator (1e-6)",
        abs(gp["effective"]["phi_pos"] - ge["effective"]["phi_pos"]) < 1e-6 and abs(gp["effective"]["sep_deg"] - ge["effective"]["sep_deg"]) < 1e-6,
        f"phi {gp['effective']['phi_pos']:.7f} vs {ge['effective']['phi_pos']:.7f}")
+    lat_c, fl_c = gaussian_component_cells((30.0, 12.0), 0.4, 2.5)
+    ok("one Gaussian component on its own 8-sigma cap: flux normalised exactly, centroid latitude at the centre",
+       abs(fl_c.sum() - 2.5) < 1e-12 and abs(np.degrees(np.arcsin((fl_c * np.sin(np.radians(lat_c))).sum() / fl_c.sum())) - 12.0) < 1e-3)
     try:
         sphere_grid((89.0, 91.0), (0.0, 1.0), 0.5)
         ok("latitude beyond the pole refused", False)
