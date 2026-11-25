@@ -1,5 +1,16 @@
 # Cold restart — SHARP BL
 
+## Lista dell'utente (25 novembre 2026), nell'ordine
+
+1. Inventario SFT e dati HMI disponibili. Claude individua codice riutilizzabile, mappe e osservazioni successive già disponibili; Codex verifica disponibilità, compatibilità e limiti.
+2. Protocollo del pilota mappa–bipolo — prima priorità. Campione, costruzione del bipolo, trattamento del flusso preesistente e delle ricomparse, parametri di trasporto e tempi di confronto. Claude scrive la bozza, Codex la rivede.
+3. Protocollo del confronto con l'evoluzione osservata — seconda priorità. Osservabili, intervalli temporali e separazione fra dati di sviluppo e verifica; procede insieme al punto 2.
+4. Codice e prove indipendenti. Claude implementa; Codex controlla formule, unità, segni, bilancio del flusso e casi sintetici. Protocolli congelati prima delle corse.
+5. Esecuzione dei due piloti. Prima conservazione degli output, poi riconteggio e lettura. Due rapporti distinti: approssimazione bipolare nel modello e accordo con il Sole osservato.
+6. Chiudere Q4 MDI, su una linea separata. La corsa è già conservata: servono revisione del riconteggio, verifica e rapporto. Poi la decisione sul catalogo MDI completo per T3. Non va rilanciata.
+
+Dettagli e divisione dei compiti: `docs/BL_WORK_PLAN.md`.
+
 ## MDI Q4 — corsa unica eseguita; riconteggio indipendente scritto (25 novembre 2026)
 
 - Corsa autorizzata dall'utente dopo la chiusura Codex di fed1775. Eseguita su 1c25c2e pulito, uscita 0, ~11 min; selftest interno 55/55. Output e log conservati prima della lettura in dab5a33 (`results/MDI_Q4_PROSPECTIVE/`, con `RUN.log` e `RUN.exit`). Risultati NON ancora letti.
