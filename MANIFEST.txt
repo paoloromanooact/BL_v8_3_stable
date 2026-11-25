@@ -641,6 +641,7 @@ python/sharpbl/run_p1.py
 python/sharpbl/run_p2.py
 python/sharpbl/run_p3.py
 python/sharpbl/select_records.py
+python/sharpbl/sft_core.py
 python/sharpbl/t5_oracle_postcheck.py
 python/sharpbl/tilt_window.py
 requirements-v84.txt
