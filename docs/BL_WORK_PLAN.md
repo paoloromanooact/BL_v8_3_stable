@@ -23,15 +23,17 @@ alla sorgente BL e analisi bayesiana collegata a BQ/BT. Nessun catalogo di
 nests o risultato bayesiano e gia disponibile. I due piloti SFT restano le
 priorita operative; la specifica N si prepara senza duplicarne il lavoro.
 
-**Decisione piu recente dell'utente (25 novembre, pomeriggio): il lavoro bayesiano passa in cima.** Ordine:
-1. BQ su HMI (§3);
+**Decisione piu recente dell'utente (25 novembre, pomeriggio): il lavoro bayesiano passa PRIMA di tutto, i nests
+DOPO tutto.** Ordine complessivo:
+1. BQ su HMI (§3), che non dipende dai piloti SFT;
 2. BQ multi-strumento su piu cicli (§3bis);
-3. BT (§4), che dipende dalla ripetibilita (§7) e dai piloti SFT;
-4. **nests (§5) alla fine**, per decisione dell'utente: identificazione e poi effetto di gruppo in BQ/BT. Fino ad allora
-   BQ e BT dichiarano che la dipendenza fra membri di uno stesso nest non e modellata.
+3. prerequisiti di BT: chiusura del pilota mappa–bipolo (A1 in revisione), ripetibilita (§7) e pilota
+   dell'evoluzione osservata. Servono perche BT ne usa la macchina e la verifica;
+4. BT (§4);
+5. **nests (§5) alla fine di tutto**: identificazione, poi effetto di gruppo in BQ/BT. Fino ad allora BQ e BT
+   dichiarano non modellata la dipendenza fra membri di uno stesso nest.
 
-I piloti SFT non si fermano: il punto 1 si chiude con l'emendamento A1 gia in revisione, perche BT ne usa la
-macchina. Non si anticipa pero il loro lavoro a scapito di BQ.
+Le priorita SFT 1 e 2 qui sopra restano nel piano, ma vengono dopo BQ e BQ-M.
 
 ## Due obiettivi del progetto di Paolo
 
