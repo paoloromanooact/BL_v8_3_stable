@@ -26,8 +26,9 @@ priorita operative; la specifica N si prepara senza duplicarne il lavoro.
 **Decisione piu recente dell'utente (25 novembre, pomeriggio): il lavoro bayesiano passa in cima.** Ordine:
 1. BQ su HMI (§3);
 2. BQ multi-strumento su piu cicli (§3bis);
-3. nests come effetto di gruppo in BQ (§5);
-4. BT (§4), che dipende dalla ripetibilita (§7) e dai piloti SFT.
+3. BT (§4), che dipende dalla ripetibilita (§7) e dai piloti SFT;
+4. **nests (§5) alla fine**, per decisione dell'utente: identificazione e poi effetto di gruppo in BQ/BT. Fino ad allora
+   BQ e BT dichiarano che la dipendenza fra membri di uno stesso nest non e modellata.
 
 I piloti SFT non si fermano: il punto 1 si chiude con l'emendamento A1 gia in revisione, perche BT ne usa la
 macchina. Non si anticipa pero il loro lavoro a scapito di BQ.
@@ -209,8 +210,9 @@ sui record.
   come informazione sul quenching.
 - **Indice di attivita** con una definizione unica su tutto il periodo, fissata nella specifica. Unita e
   normalizzazione restano comuni a tutti gli strumenti.
-- **Dipendenze**: correlazione temporale per CR, famiglie e ricomparse, nests (§5) quando disponibili. Le regioni
-  non si trattano come repliche indipendenti.
+- **Dipendenze**: correlazione temporale per CR, famiglie e ricomparse. I nests (§5) arrivano alla fine del
+  piano; prima di allora la loro dipendenza e dichiarata non modellata. Le regioni non si trattano come repliche
+  indipendenti.
 
 **Passi.**
 - [ ] Prerequisito: BQ-HMI specificato, congelato e funzionante sui sintetici. BQ-M ne estende il modello e non ne
