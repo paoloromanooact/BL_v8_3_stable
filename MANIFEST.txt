@@ -1352,6 +1352,7 @@ scripts/run_pipeline.sh
 scripts/sft_790cad1_numeric_review_probe.py
 scripts/sft_map_bipole_draft_review_probe.py
 scripts/sft_observed_draft_review_probe.py
+scripts/sft_prep_selftest.py
 scripts/t3_dpd_feasibility.py
 scripts/t3_mwo_analysis.py
 scripts/t3_mwo_analysis_recount.py
