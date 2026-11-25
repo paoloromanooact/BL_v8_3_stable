@@ -1,0 +1,66 @@
+{
+  "protocol": "docs/PROTOCOL_SFT_MAP_BIPOLE_PILOT.md",
+  "sha256": "380b79829fbac870479acc02797ef245623b689c09af9ff9f595ac5a81b61d38",
+  "freeze_commit": "36372502ea1d8431026b7048b821ab99724f3d73",
+  "frozen_utc": "2026-11-25T10:43:46.482643+00:00",
+  "reviewed_draft": "docs/PROTOCOL_SFT_MAP_BIPOLE_PILOT_DRAFT.md",
+  "reviewed_draft_sha256": "2f4deebb58e8a6abccd331ade975551371c34af61d2a40d7a18d73b6411e4067",
+  "reviewed_draft_commit": "690ded3",
+  "draft_to_frozen_changes": "title line only (freeze header)",
+  "revision_history": {
+    "rev1": "d62c379",
+    "rev2": "fa3f08d",
+    "rev3": "790cad1",
+    "rev4": "690ded3"
+  },
+  "reviews": {
+    "9aa3fce": "docs/SFT_MAP_BIPOLE_DRAFT_REVIEW_fa3f08d.md",
+    "7f5d703": "docs/SFT_OBSERVED_DRAFT_REVIEW_e0bba64.md (parameters)",
+    "e87fff7": "docs/SFT_790cad1_FINAL_REVIEW.md",
+    "f4ad0a7": "docs/SFT_INDEPENDENT_CHECKS_20261125.md (clearance to freeze rev 4)"
+  },
+  "seed": 36100000,
+  "seed_zone": [
+    36100000,
+    36100999
+  ],
+  "seed_zone_check": "no number in 36100000-36100999 in scripts/, python/, docs/ (checked 2026-11-25; only hash fragments elsewhere)",
+  "transport_reference": {
+    "eta_km2s": 466.8,
+    "du_kms": 0.025,
+    "p": 2.33,
+    "tau": "infinite"
+  },
+  "transport_sensitivity": [
+    {
+      "eta_km2s": 350.0,
+      "du_kms": 0.025,
+      "p": 2.33
+    },
+    {
+      "eta_km2s": 350.0,
+      "du_kms": 0.041,
+      "p": 2.33
+    },
+    {
+      "eta_km2s": 466.8,
+      "du_kms": 0.025,
+      "p": 2.33
+    },
+    {
+      "eta_km2s": 466.8,
+      "du_kms": 0.041,
+      "p": 2.33
+    }
+  ],
+  "inputs_sha256": {
+    "results/P1/P1_SBL_CATALOG_BY_HARP.csv": "67dc6a74a27b44f9ddd958f5a5dcc972a564300af89444c781665926ca0488af",
+    "python/sharpbl/geometry.py": "22e329d8257b3193b4b10979a12cf7961ab4011e75d57264a1de7bf42d6637c2",
+    "python/sharpbl/measure.py": "7a60f5e61fd80cfb71228db1d5cf193d1d6b01f686a7db68029a18610a56e69e",
+    "python/sharpbl/cycle.py": "eaadd931af8a98d713e2396da140bf3acd0aaf08b23f20d9fbaab84b0eaaadcc",
+    "docs/BL_SFT_HMI_INVENTORY.md": "8a49e948104a6dabe7af170a438811bc4fcdcc2c69610bc43031fd5cdd2c44d1"
+  },
+  "approved_by": "Codex clearance in docs/SFT_INDEPENDENT_CHECKS_20261125.md (f4ad0a7)",
+  "not_blind": true,
+  "status": "frozen; code, selftest, independent checks and code review required before any run; no simulation or download authorised by the freeze"
+}
