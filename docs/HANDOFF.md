@@ -1,5 +1,15 @@
 # Cold restart — SHARP BL
 
+## MDI Q4 — corsa unica eseguita; riconteggio indipendente scritto (25 novembre 2026)
+
+- Corsa autorizzata dall'utente dopo la chiusura Codex di fed1775. Eseguita su 1c25c2e pulito, uscita 0, ~11 min; selftest interno 55/55. Output e log conservati prima della lettura in dab5a33 (`results/MDI_Q4_PROSPECTIVE/`, con `RUN.log` e `RUN.exit`). Risultati NON ancora letti.
+- `scripts/mdi_q4_recount.py` (selftest 24/24):
+  - non importa il runner;
+  - codice proprio per calendario, SILSO, filtri, rese, pool, donatori L-NN, numeri casuali, matrice e rango, riga WLS via QR, covarianze AR(1) e a gradini, bersagli, scarti, frequenze, SUMMARY, CRITERIA, DESIGNS, YIELD_EFFECTS, CELL_COUNTS, MF_POOLS;
+  - dipendenze dichiarate: record HMI di E0 (`load_inputs`/`e0_records` della fase A) e regola delle rotazioni e delle mappe richieste.
+- Rilievo emerso: nei modelli protetti B1 della propria famiglia è zero per costruzione (bA→A, bJ→J), quindi `tol_units_{fam}_*` è rumore numerico di grandezza arbitraria. Il riconteggio verifica B1 trascurabile e confronta quelle tolleranze come illimitate. Nel rapporto non vanno lette.
+- Controlli preliminari del percorso reale in prova a secco: 6/6. Prossimo passo: revisione Codex del riconteggio, poi `--check`, ricevuta, lettura e rapporto.
+
 > **PIANO PERMANENTE CODEX–CLAUDE: [BL_WORK_PLAN.md](BL_WORK_PLAN.md).**
 > **Priorita 1:** mappa HMI contro bipolo del proxy, evoluti nello stesso SFT.
 > **Priorita 2:** evoluzione simulata contro osservazioni successive indipendenti.

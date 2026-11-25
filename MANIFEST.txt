@@ -1304,6 +1304,7 @@ scripts/mdi_pilot_select_recount.py
 scripts/mdi_q4_close_review_probe.py
 scripts/mdi_q4_prep_counts.py
 scripts/mdi_q4_prospective.py
+scripts/mdi_q4_recount.py
 scripts/mdi_smarp_inventory.py
 scripts/mdi_smarp_overlap_analysis.py
 scripts/mdi_synoptic_adapter.py

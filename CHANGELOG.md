@@ -1,5 +1,9 @@
 # Cronologia
 
+## Riconteggio indipendente della corsa Q4 (codice)
+
+- Ricostruzione propria di tutti gli output della corsa; selftest 24/24; non ancora eseguito sui prodotti reali.
+
 ## Piano permanente sorgente BL — 25 novembre 2026
 
 - Priorita esplicite dell'utente: confronto mappa–bipolo nello stesso SFT e verifica dell'evoluzione contro osservazioni successive.
