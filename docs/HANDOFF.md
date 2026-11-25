@@ -1,5 +1,13 @@
 # Cold restart — SHARP BL
 
+## Consegna Codex: nests HMI, Finley e bozza bayesiana
+
+- [Inventario](HMI_NESTS_FEASIBILITY.md) concluso: 197 CSV, 1300060 record canonici, 8296 HARP; 7133 con primario P1. 1800 righe ai confini mensili rendicontate; nessun nuovo tilt/flusso misurato letto o nest classificato. Script e input con SHA; selftest 7/7.
+- [Note Finley](HMI_NESTS_FINLEY_METHOD_NOTES.md): letti i lavori 2025 (arXiv 2504.06345v2) e 2026 (2608.26315v1), piu Norton (2511.03646v2). AIA 304 Å, EUI e PHI annotati su richiesta dell'utente per un futuro studio di continuita; nessuna acquisizione. AIA terrestre da sola non risolve il lato nascosto.
+- [Bozza N/bayesiana](PROTOCOL_HMI_NESTS_BAYES_DRAFT.md) rev.1: identita, candidati contro nests documentati, controlli di associazione, contributi BL senza doppi conteggi e proposta M0/MQ/MN/MQN con/senza attivita e dipendenza dal nest. Soglie/prior/semi non ancora congelati; nessun clustering o fit reale.
+- Claude continua A1 e le correzioni SFT; rivede questa consegna senza duplicare l'inventario. Il reperimento di AIA/Solar Orbiter e il ranking richiedono specifiche distinte dai piloti gia congelati.
+
+
 ## Aggiunta dell'utente: active-region nests HMI, poi analisi bayesiana
 
 - Nuova voce **N** nel [piano comune](BL_WORK_PLAN.md): identificare nests candidati, distinguendo nuove emersioni, ricomparse e HARP complesse; poi caratterizzazione della sorgente BL e integrazione bayesiana in BQ/BT.

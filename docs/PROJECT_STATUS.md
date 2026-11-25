@@ -30,6 +30,9 @@ identificazione e contributo osservativo alla sorgente BL, poi analisi
 bayesiana delle dipendenze e del quenching. Voce N nel piano comune;
 nessun catalogo di nests gia costruito e nessuna nuova misura eseguita.
 Le candidate ricomparse P1e non sono una classificazione di nests.
+Inventario mirato concluso: 197 CSV, 8296 HARP; [consegna](HMI_NESTS_FEASIBILITY.md).
+[Note Finley e AIA/Solar Orbiter](HMI_NESTS_FINLEY_METHOD_NOTES.md), bozza metodologica
+N/bayesiana disponibile; nessun nest identificato o modello bayesiano adattato.
 
 La parte descrittiva del pilota MDI e conclusa. Q4 e eseguita, ricontata e
 letta; rapporto [MDI_PILOT_Q4_RESULTS.md](MDI_PILOT_Q4_RESULTS.md), formulazione

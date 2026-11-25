@@ -1,0 +1,52 @@
+{
+  "summary": {
+    "scope": "availability inventory only; no nests identified and no tilt/flux outcomes parsed",
+    "fits_read": false,
+    "network_used": false,
+    "clustering_run": false,
+    "bayesian_fit_run": false,
+    "metadata_files": 197,
+    "bytes": 255737505,
+    "raw_rows": 1301860,
+    "canonical_unique_rows": 1300060,
+    "boundary_rows_outside_owner_month": 1800,
+    "duplicates_within_files": 0,
+    "conflicting_duplicates": 0,
+    "invalid_time": 0,
+    "harps": 8296,
+    "P1_primary_harps": 7133,
+    "harps_no_P1": 1163,
+    "harps_with_quality_and_position": 8258,
+    "harps_with_no_NOAA_ids": 5659,
+    "harps_with_multiple_NOAA_ids": 560,
+    "files_with_T_OBS": 0,
+    "files_with_emergence_time_keyword": 0,
+    "month_min": "2010_05",
+    "month_max": "2026_09",
+    "missing_months": [],
+    "first_T_REC": "2010-05-01 00:00:00",
+    "last_T_REC": "2026-09-29 00:00:00",
+    "harp_span_days_quantiles": {
+      "0": 0.0,
+      "0.25": 2.75,
+      "0.5": 6.208333333333333,
+      "0.75": 10.125,
+      "1": 23.416666666666668
+    },
+    "harps_with_gap_over_2h": 3443,
+    "P1_recurrence_candidates": 443,
+    "notes": [
+      "Times are nominal hourly T_REC in TAI, not measured emergence times.",
+      "Each row belongs to its filename month; inclusive month-end query rows are logged and removed from that file only.",
+      "Quality {0,128} is counted as the existing P1 rule, not a new nest selection.",
+      "NOAA identifiers are associations over time, not a one-to-one HARP/event identity.",
+      "Hourly metadata do not provide continuous magnetic images; only sparse selected maps are local."
+    ]
+  },
+  "code_sha256": "00bd79c09b6d3532d04829e50448db7e963952fdfcda77ebf2dcdc4a1628c0aa",
+  "catalogue_sha256": "67dc6a74a27b44f9ddd958f5a5dcc972a564300af89444c781665926ca0488af",
+  "products_sha256": {
+    "INPUTS.csv": "7e018cd17b7704cb72e986d1522c7862934dfe6208c7fc2b9210f69b45c1d186",
+    "HARP_AVAILABILITY.csv": "60ddb1f7f1a47221602a898a104e1ba83b848e9a97878093702c2124cc3f88dc"
+  }
+}

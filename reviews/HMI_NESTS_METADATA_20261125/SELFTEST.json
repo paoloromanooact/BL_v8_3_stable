@@ -1,0 +1,13 @@
+{
+  "passed": 7,
+  "total": 7,
+  "checks": {
+    "owned month only": true,
+    "duplicate key counted": true,
+    "invalid calendar counted": true,
+    "chronological first record": true,
+    "Carrington seam": true,
+    "NOAA multiple association": true,
+    "missing NOAA not zero identity": true
+  }
+}

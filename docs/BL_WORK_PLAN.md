@@ -218,10 +218,19 @@ misura vicino al meridiano, non identifica automaticamente l'emersione.
 
 ### Prima: identificazione e caratterizzazione
 
-- [ ] Inventario mirato dei metadati HMI/NOAA e delle informazioni temporali
-      gia disponibili. Stabilire se bastano per un'identificazione di nests
-      o soltanto di candidati; primo avvistamento e passaggio al meridiano
-      non diventano date di emersione per convenzione implicita.
+**Prima consegna Codex completata:** [inventario HMI](HMI_NESTS_FEASIBILITY.md),
+197 CSV orari, 8296 HARP; nessun nest identificato. [Note Finley](HMI_NESTS_FINLEY_METHOD_NOTES.md)
+e [bozza metodologica N/bayesiana](PROTOCOL_HMI_NESTS_BAYES_DRAFT.md) pronte
+per la revisione incrociata. AIA e Solar Orbiter/EUI/PHI sono annotati come
+estensione per morfologia e continuita, soprattutto sul lato nascosto;
+non sono dati gia acquisiti o un prerequisito assoluto per candidati HMI.
+
+
+- [x] Inventario mirato dei metadati HMI/NOAA e dei tempi locali: 1300060
+      record canonici, 8296 HARP, nessuna keyword di emersione nei CSV.
+      Sono una base per candidati, non una certificazione di nuove emersioni.
+      Primo avvistamento e passaggio al meridiano non diventano date di
+      emersione per convenzione implicita; selftest 7/7, input con SHA.
 - [ ] Specifica autonoma, dichiarando risultati P1/P1e e morfologia gia noti:
       coordinate nel sistema rotante, intervalli spaziali e temporali,
       eventuale deriva longitudinale, gestione di famiglie, associazioni
@@ -238,6 +247,11 @@ misura vicino al meridiano, non identifica automaticamente l'emersione.
       di flusso persistente; se le nuove emersioni non sono ricostruibili,
       limitarsi ai contributi osservativi definiti, senza bilancio cumulato
       di emersione o campo polare finale.
+
+- [ ] Inventariare separatamente AIA 304 Å e Solar Orbiter/EUI/PHI per
+      epoche di interesse, prima di una eventuale acquisizione. La vista
+      terrestre AIA da sola non ricostruisce il lato nascosto; i candidati
+      HMI restano utilizzabili con limiti osservativi dichiarati.
 
 ### Poi: analisi bayesiana delle dipendenze e dei contributi
 
@@ -280,7 +294,7 @@ Nessuna acquisizione aggiuntiva o nuova misura avviata da questo piano.
 | Implementazione | Corregge moduli e prepara runner/rilettori | Riferimenti matematici indipendenti pronti, 20/20, generazione riproducibile | sviluppo sintetico, niente piloti |
 | Risultati | Corsa autorizzata, conservazione, riconteggio e prima bozza del rapporto | Revisione di ricevute, risultati e formulazioni | dopo protocolli e codice |
 | BQ e BT: specifiche bayesiane | Completa i due piloti SFT; non avvia fit bayesiani senza specifica condivisa | Prepara le proposte metodologiche BQ/BT e le prove indipendenti; consegna per revisione incrociata | aggiunti al piano, nessun calcolo bayesiano avviato |
-| N: nests HMI e integrazione bayesiana | Prosegue A1/piloti; rivede proposta e codice N prima delle nuove misure | Inventario mirato, specifica N e collegamento a BQ/BT | pianificato; nests non ancora identificati |
+| N: nests HMI e integrazione bayesiana | Prosegue A1/piloti; rivede la bozza N e le prove prima delle misure | Inventario concluso, note Finley e bozza N/bayesiana consegnate | solo metadati; nessun nest identificato e nessun ranking avviato |
 
 Ogni passaggio riporta commit, prodotto concreto e prossimo passo. Claude
 non deve riscrivere gli oracoli di Codex; Codex non deve implementare un
