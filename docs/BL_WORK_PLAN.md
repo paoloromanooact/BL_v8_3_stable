@@ -304,6 +304,13 @@ pilota mappa–bipolo, il pilota osservativo e BT servono prima.
 - l'ampiezza della sorgente non ha una calibrazione esterna (rapporto con BARD-HMI circa 1,67);
 - HMI copre circa un ciclo e mezzo; un confronto su più cicli richiede MWO e MDI (cataloghi di BQ-M).
 
+**Letteratura (25 novembre, livello abstract):** [nota](LITERATURE_BL_SOURCE_TO_POLAR_FIELD_20261125.md).
+- La domanda non è nuova: SFT con regioni assimilate per HMI; SFT con tilt in luce bianca per i cicli 15–21; database
+  MDI+HMI per i cicli 23–25; bipolo contro mappa con una sovrastima di circa il 24 % (Yeates 2020).
+- Un nostro contributo avrebbe senso solo con un modello d'errore esplicito e un confronto pre-registrato, con i tilt
+  magnetici MWO multi-ciclo e la serie polare omogenea con incertezze.
+- Il pilota mappa–bipolo va presentato come replica ed estensione di Yeates (2020) e Wang, Jiang & Wang (2021).
+
 **Assegnazione:** da decidere quando BQ/BT saranno chiusi.
 
 ## 5. N — active-region nests HMI, poi confronto bayesiano
