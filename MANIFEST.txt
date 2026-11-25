@@ -16,6 +16,7 @@ ancillary/SILSO_TOT/SHA256.txt
 ancillary/SILSO_TOT/SN_m_tot_V2.0.txt
 data/.gitkeep
 docs/ARTICLE_OUTLINE.md
+docs/BL_WORK_PLAN.md
 docs/CATALOGUE_DICTIONARY.md
 docs/CODEX_REVIEW_ARTEFACTS_REMOVED_2026-11-16.csv
 docs/CROSS_REVIEW_2026-11-14.md

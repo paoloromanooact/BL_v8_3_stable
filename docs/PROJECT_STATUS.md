@@ -1,6 +1,29 @@
 # Stato del progetto
 
-## Branch `v8.4-python-gianluca` (aggiornato il 2026-11-15)
+## Priorita correnti — 25 novembre 2026
+
+[Piano comune Codex–Claude](BL_WORK_PLAN.md), da leggere a ogni ripresa:
+
+1. **Controllo della sorgente BL nel modello:** piccolo pilota HMI che confronti
+   la mappa magnetica osservata e il bipolo del proxy, con lo stesso trasporto SFT.
+2. **Controllo contro il Sole:** confronto dell'evoluzione simulata con
+   magnetogrammi successivi esclusi dalla scelta dei parametri.
+
+Entrambi richiedono inventario e specifiche prima delle nuove misure. Il primo
+controlla l'approssimazione dentro il modello; il secondo la sua aderenza alle
+osservazioni. Non sono ancora eseguiti. Il catalogo HMI al meridiano non e
+un elenco di nuove emersioni da inserire senza controllo delle ricomparse.
+
+La parte descrittiva del pilota MDI e conclusa. Q4 ha una corsa conservata in
+`dab5a33`; resta da verificare con il riconteggio prima della lettura. Non
+rilanciarla. Decisioni su catalogo MDI completo e nuovo T3 restano successive.
+Questo stato deriva da Git e HANDOFF, senza leggere gli output Q4.
+
+La tabella seguente conserva il quadro storico del 15 novembre; per lo stato
+operativo aggiornato usare il piano comune e [HANDOFF](HANDOFF.md).
+
+
+## Quadro storico del branch `v8.4-python-gianluca` (2026-11-15)
 
 Obiettivi: misurare un proxy osservativo della sorgente Babcock–Leighton dalle
 HARP HMI e studiarne il quenching rispetto all'attività solare. La priorità

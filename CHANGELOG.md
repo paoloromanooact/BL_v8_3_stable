@@ -1,5 +1,12 @@
 # Cronologia
 
+## Piano permanente sorgente BL — 25 novembre 2026
+
+- Priorita esplicite dell'utente: confronto mappa–bipolo nello stesso SFT e verifica dell'evoluzione contro osservazioni successive.
+- Lista comune con compiti distinti Codex/Claude, protocolli e prodotti attesi; richiami negli ingressi di documentazione e AGENTS.
+- Stato Q4 riallineato a Git: corsa conservata in dab5a33, non rilanciare; nessuna lettura dei risultati o nuova esecuzione in questo aggiornamento.
+
+
 ## Chiusura della revisione Q4 MDI (fed1775)
 
 - Cinque rilievi chiusi, selftest 55/55 e 50 controlli sintetici aggiuntivi positivi.

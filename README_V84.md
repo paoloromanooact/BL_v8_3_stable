@@ -1,5 +1,10 @@
 # SHARP BL — v8.4 (Python), branch `v8.4-python-gianluca`
 
+> **Priorita comuni Codex–Claude:** [piano di lavoro](docs/BL_WORK_PLAN.md).
+> **1.** Evoluzione della mappa HMI contro il bipolo del proxy nello stesso SFT.
+> **2.** Confronto con osservazioni successive, separate dallo sviluppo del modello.
+> Stato delle altre linee e prossimi passi: [HANDOFF](docs/HANDOFF.md).
+
 Questo branch porta in Python la pipeline SHARP BL v8.3 di Paolo Romano,
 corregge geometria, maschera e assegnazione del ciclo, e la estende da un
 singolo istante a una **serie di tutta l'era HMI (2010–2026), con una misura
@@ -8,8 +13,9 @@ per HARP**.
 **Obiettivo scientifico.** Costruire una serie osservativa della sorgente
 Babcock–Leighton (S_BL) e studiarne il **quenching**: verificare come tilt,
 latitudine ed efficienza della sorgente variano rispetto all'attività.
-Priorità corrente HMI: [misura](docs/HMI_MEASUREMENT_ASSESSMENT.md) e
-[risultati sul quenching](docs/HMI_QUENCHING_SYNTHESIS.md). MDI è rinviato.
+Misura HMI: [valutazione](docs/HMI_MEASUREMENT_ASSESSMENT.md) e
+[sintesi storica sul quenching](docs/HMI_QUENCHING_SYNTHESIS.md). Le priorita
+operative e lo stato MDI aggiornato sono nel [piano comune](docs/BL_WORK_PLAN.md).
 
 Note sulle definizioni:
 - *Una misura per HARP* non equivale necessariamente a una misura per regione

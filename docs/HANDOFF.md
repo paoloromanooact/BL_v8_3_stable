@@ -1,5 +1,19 @@
 # Cold restart — SHARP BL
 
+> **PIANO PERMANENTE CODEX–CLAUDE: [BL_WORK_PLAN.md](BL_WORK_PLAN.md).**
+> **Priorita 1:** mappa HMI contro bipolo del proxy, evoluti nello stesso SFT.
+> **Priorita 2:** evoluzione simulata contro osservazioni successive indipendenti.
+> Mantenere questo richiamo sopra la cronologia. Sono i punti 1 e 2 indicati
+> dall'utente, non i passi del pilota MDI.
+
+## Stato operativo, 25 novembre 2026
+
+- L'utente ha chiesto che i due controlli della sorgente BL restino in primo piano per entrambi gli agenti.
+- Piano comune e divisione dei compiti in `docs/BL_WORK_PLAN.md`: inventario SFT/dati HMI, due specifiche collegate, prove e revisione prima delle misure. Preparazione da iniziare; nessun nuovo run o download eseguito.
+- **Q4 e gia stata eseguita da Claude e conservata in dab5a33**, dopo il via tecnico 1c25c2e. Non rilanciare. Riconteggio e rapporto sono il seguito; `scripts/mdi_q4_recount.py` e lavoro concorrente non tracciato, non toccato qui. Nessun output scientifico Q4 letto per aggiornare questo piano.
+- Le sezioni sotto sono cronologia: «non avviato» descrive stati precedenti, non lo stato corrente.
+
+
 ## MDI Q4 — codice fed1775 tecnicamente approvato (25 novembre 2026)
 
 - Chiusura in `docs/MDI_Q4_CODEX_CLOSE_fed1775.md`; i cinque rilievi di bb39a23 sono chiusi.
