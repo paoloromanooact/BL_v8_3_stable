@@ -1,0 +1,46 @@
+{
+  "passed": 9,
+  "total": 9,
+  "checks": [
+    {
+      "name": "receipt identical to preserved 8924285 blob",
+      "ok": true
+    },
+    {
+      "name": "strict complete receipt 21/21 with unique checks",
+      "ok": true
+    },
+    {
+      "name": "exact output set and all current hashes",
+      "ok": true
+    },
+    {
+      "name": "all outputs match preserved pre-reading dab5a33 blobs",
+      "ok": true
+    },
+    {
+      "name": "recount code exact approved d303c3a source",
+      "ok": true
+    },
+    {
+      "name": "note receipt fixed to reviewed fingerprint",
+      "ok": true
+    },
+    {
+      "name": "exact recorded input set and all current hashes",
+      "ok": true
+    },
+    {
+      "name": "input and reused-code hashes equal frozen note values",
+      "ok": true
+    },
+    {
+      "name": "preservation precedes recount commit",
+      "ok": true
+    }
+  ],
+  "receipt_sha256": "b6a898ae1850008f3d7916a6af78e5ab5dec0ff1584bffb4cf5c6cb6ffb49a32",
+  "receipt_commit": "8924285",
+  "recount_commit": "d303c3a",
+  "scope": "Integrity/provenance review only; no scientific result tables parsed; not a new numerical recount."
+}

@@ -99,9 +99,9 @@ questi controlli; una correlazione da sola non e una calibrazione.
 | Passo | Claude | Codex | Stato |
 |---|---|---|---|
 | Inventario SFT e dati HMI | Usa la consegna per preparare le specifiche; non duplicare l'inventario | Inventario assunto su richiesta dell'utente e completato: codice, versioni, licenze, dati e limiti | completato da Codex, 25 novembre; [consegna](BL_SFT_HMI_INVENTORY.md) |
-| Specifica del pilota mappa–bipolo | Bozza del protocollo e proposta operativa del campione | Revisione di confronti, unita, bilancio, doppio conteggio, criteri e popolazione | bozza rev. 2 (`docs/PROTOCOL_SFT_MAP_BIPOLE_PILOT_DRAFT.md`) con l'inventario recepito e la riduzione 1D per il dipolo; in revisione |
-| Specifica osservativa | Bozza su orizzonti, dati successivi e separazione sviluppo/verifica | Verifica indipendente dei confronti e dell'assenza di uso dei dati futuri | bozza rev. 1 (`docs/PROTOCOL_SFT_OBSERVED_EVOLUTION_DRAFT.md`), in revisione |
-| Implementazione | Runner, adattatori, prove sintetiche e documentazione | Oracoli sintetici, controesempi, revisione e controlli numerici separati | dopo specifiche |
+| Specifica del pilota mappa–bipolo | Congela il testo approvato, poi implementa | Rev.4 (690ded3), SHA 2f4deebb… approvata per congelamento; codice resta da rivedere | testo pronto; docs/SFT_INDEPENDENT_CHECKS_20261125.md |
+| Specifica osservativa | Corregge fattibilita geometrica e conteggi, poi congela | Rev.3 verificata: ramo longitudinale, erosione, metrica e impronte da correggere | in revisione, nessuna mappa letta |
+| Implementazione | Corregge moduli e prepara runner/rilettori | Riferimenti matematici indipendenti pronti, 20/20, generazione riproducibile | sviluppo sintetico, niente piloti |
 | Risultati | Corsa autorizzata, conservazione, riconteggio e prima bozza del rapporto | Revisione di ricevute, risultati e formulazioni | dopo protocolli e codice |
 
 Ogni passaggio riporta commit, prodotto concreto e prossimo passo. Claude
@@ -113,7 +113,7 @@ sono nei file del repository, non soltanto nei messaggi di chat.
 
 | Linea | Stato verificato il 25 novembre | Prossimo passo |
 |---|---|---|
-| MDI Q4: precisione prospettica T3 | Il codice e approvato in 1c25c2e; **una corsa e gia conservata in dab5a33**. Nessun suo risultato letto per aggiornare questo piano | Revisione del riconteggio di Claude, controllo indipendente, ricevuta, lettura e rapporto; non rilanciare |
+| MDI Q4: precisione prospettica T3 | Corsa conservata dab5a33; riconteggio d303c3a, ricevuta 8924285 21/21 verificata e audit integrita Codex 9/9 | Claude legge e scrive il rapporto; Codex rivede. Non rilanciare; decisione sul catalogo successiva |
 | Catalogo MDI completo / nuovo T3 | Non avviato | Decisione successiva a Q4 e protocollo proprio; nessun verdetto anticipato |
 | T5 su HMI | Descrittivo; sviluppo metodologico distinto | Eventuale progetto delimitato per incertezza temporale, solo con specifica e validazione nuove; non e automaticamente risolto dai punti 1–2 |
 | T3 MWO | Analisi prevista conclusa come descrittiva | Nessuna sottrazione automatica di S2; eventuali controlli magnetici con MDI sotto specifica separata |

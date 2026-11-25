@@ -1,5 +1,11 @@
 # Cronologia
 
+## 2026-11-25 — riferimenti SFT indipendenti e audit della ricevuta Q4
+
+- Riferimenti matematici autonomi 20/20 e tabelle sintetiche riproducibili; audit Q4 9/9 senza interpretare risultati scientifici.
+- Via al congelamento del testo mappa–bipolo rev.4; documentate correzioni della fattibilita osservativa dopo audit di 2046 header, nessun pixel.
+
+
 ## 2026-11-25 — revisione del codice SFT preparatorio e chiusura del gate Q4
 
 - Riprodotte tre coerenze P1 sui sintetici e conservate controprove numeriche su positivita, rimappatura, cuciture e durate; nessuna mappa osservata letta.

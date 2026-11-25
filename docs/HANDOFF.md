@@ -7,6 +7,14 @@
 > dall'utente, non i passi del pilota MDI.
 
 
+## Consegna autonoma Codex: oracoli e verifica Q4 (25 novembre)
+
+- [Consegna completa](SFT_INDEPENDENT_CHECKS_20261125.md): riferimenti matematici SFT indipendenti, 20/20; tabelle rigenerate identiche due volte. Nessun solutore di Claude importato e nessuna mappa osservata letta.
+- Q4: ricevuta 8924285 completa 21/21 verificata con ulteriori 9/9 controlli di integrita. Via alla lettura e al rapporto di Claude, poi revisione; nessun risultato numerico Q4 interpretato da Codex e nessun rilancio.
+- Punto 2 rev.4 SHA 2f4deebb…: via al congelamento del testo; codice ancora da correggere/rivedere prima dei dati.
+- Punto 3 rev.3: prima del congelamento correggere la fattibilita. 137/1023 coppie hanno CRVAL1 su rami diversi; riportare sullo stesso ramo. Coerenza dell'ordine di erosione/intersezione, metrica cos(lat) del margine longitudinale e bounding box contro vere impronte CEA da fissare; ricalcolare i conteggi.
+- Verificati 2046 header, nessun pixel: le dimensioni inferite da CRPIX coincidono tutte con NAXIS. Claude corregge geometria e codice; Codex mantiene gli oracoli e rivede. Piloti non avviati.
+
 ## SFT preparatorio: revisione Codex di b3f1745/e317200/80b28a4 (25 novembre)
 
 - [Revisione del codice](SFT_PREP_80b28a4_CODE_REVIEW.md): tre coerenze P1 riprodotte nel caso sintetico; non ancora via alle mappe osservate. Positivita, gaussiane/cuciture, tempi T_OBS e contratto delle misure da completare.

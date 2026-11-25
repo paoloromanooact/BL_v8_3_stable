@@ -1,0 +1,87 @@
+{
+  "passed": 20,
+  "total": 20,
+  "checks": [
+    {
+      "name": "mode 0: exact cell masses integrate correctly",
+      "ok": true
+    },
+    {
+      "name": "mode 0: zero diffusion leaves the mode unchanged",
+      "ok": true
+    },
+    {
+      "name": "mode 1: exact cell masses integrate correctly",
+      "ok": true
+    },
+    {
+      "name": "mode 1: zero diffusion leaves the mode unchanged",
+      "ok": true
+    },
+    {
+      "name": "mode 2: exact cell masses integrate correctly",
+      "ok": true
+    },
+    {
+      "name": "mode 2: zero diffusion leaves the mode unchanged",
+      "ok": true
+    },
+    {
+      "name": "mode 3: exact cell masses integrate correctly",
+      "ok": true
+    },
+    {
+      "name": "mode 3: zero diffusion leaves the mode unchanged",
+      "ok": true
+    },
+    {
+      "name": "narrow spherical Gaussian has the correct first-moment expansion",
+      "ok": true
+    },
+    {
+      "name": "Gaussian finite width reduces the first moment monotonically",
+      "ok": true
+    },
+    {
+      "name": "identical coincident opposite components have zero dipole",
+      "ok": true
+    },
+    {
+      "name": "reflecting Gaussian centres reverses the axial dipole",
+      "ok": true
+    },
+    {
+      "name": "characteristic Du=0.025: hemispheric symmetry, positive density, poleward motion",
+      "ok": true
+    },
+    {
+      "name": "characteristic Du=0.041: hemispheric symmetry, positive density, poleward motion",
+      "ok": true
+    },
+    {
+      "name": "characteristic Du=0.025: agrees with independent analytic p=1 logistic solution",
+      "ok": true
+    },
+    {
+      "name": "characteristic Du=0.041: agrees with independent analytic p=1 logistic solution",
+      "ok": true
+    },
+    {
+      "name": "Carrington rotation marker follows the exact relative rate",
+      "ok": true
+    },
+    {
+      "name": "fractional duration 601 seconds is a valid reference",
+      "ok": true
+    },
+    {
+      "name": "negative elapsed time rejected",
+      "ok": true
+    },
+    {
+      "name": "zero Gaussian width rejected",
+      "ok": true
+    }
+  ],
+  "scope": "reference formulas only; does not validate production SFT code"
+}

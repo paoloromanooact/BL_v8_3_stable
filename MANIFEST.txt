@@ -197,6 +197,7 @@ docs/SENSITIVITY_SUMMARY.md
 docs/SFT_790cad1_FINAL_REVIEW.md
 docs/SFT_790cad1_NUMERIC_REVIEW_RESULTS.json
 docs/SFT_790cad1_Q4_REVIEW_RESULTS.json
+docs/SFT_INDEPENDENT_CHECKS_20261125.md
 docs/SFT_MAP_BIPOLE_DRAFT_REVIEW_fa3f08d.md
 docs/SFT_MAP_BIPOLE_DRAFT_REVIEW_fa3f08d_RESULTS.json
 docs/SFT_OBSERVED_DRAFT_REVIEW_e0bba64.md
@@ -1281,9 +1282,17 @@ results/T5_PROXY_SENSITIVITY/PROXY_QUALITY.csv
 results/T5_PROXY_SENSITIVITY/SUMMARY.csv
 results/T5_PROXY_SENSITIVITY_SELFTEST/RECEIPT.txt
 results/T5_PROXY_SENSITIVITY_SELFTEST/RECEIPT_R2.txt
+reviews/MDI_Q4_RECEIPT_CODEX_8924285/AUDIT.json
 reviews/MDI_Q4_RECOUNT_WORKING_6024dc6/source.patch
 reviews/MDI_Q4_RECOUNT_d303c3a_CODEX/SELFTEST.txt
 reviews/MDI_Q4_RECOUNT_d303c3a_CODEX/SOURCE.json
+reviews/SFT_INDEPENDENT_ORACLES_V1/CHARACTERISTICS.csv
+reviews/SFT_INDEPENDENT_ORACLES_V1/GAUSSIAN_DIPOLES.csv
+reviews/SFT_INDEPENDENT_ORACLES_V1/META.json
+reviews/SFT_INDEPENDENT_ORACLES_V1/SELFTEST.json
+reviews/SFT_INDEPENDENT_ORACLES_V1/SPHERICAL_MODES.csv
+reviews/SFT_INDEPENDENT_ORACLES_V1/UNIFORM_DECAY.csv
+reviews/SFT_OBSERVED_GEOMETRY_690ded3/HEADERS.json
 scripts/bl_sft_local_inventory.py
 scripts/check_repo.sh
 scripts/download_test_20240508.sh
@@ -1334,6 +1343,7 @@ scripts/mdi_pilot_select_recount.py
 scripts/mdi_q4_close_review_probe.py
 scripts/mdi_q4_prep_counts.py
 scripts/mdi_q4_prospective.py
+scripts/mdi_q4_receipt_integrity_audit.py
 scripts/mdi_q4_recount.py
 scripts/mdi_q4_recount_domain_review_probe.py
 scripts/mdi_q4_recount_review_probe.py
@@ -1358,9 +1368,11 @@ scripts/repro_draft_tables.py
 scripts/review_morphology.py
 scripts/run_pipeline.sh
 scripts/sft_790cad1_numeric_review_probe.py
+scripts/sft_independent_oracles.py
 scripts/sft_map_bipole_draft_review_probe.py
 scripts/sft_observed_draft_review_probe.py
 scripts/sft_observed_feasibility.py
+scripts/sft_observed_header_review_audit.py
 scripts/sft_prep_code_review_probe.py
 scripts/sft_prep_selftest.py
 scripts/t3_dpd_feasibility.py
