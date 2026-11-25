@@ -99,7 +99,7 @@ questi controlli; una correlazione da sola non e una calibrazione.
 | Passo | Claude | Codex | Stato |
 |---|---|---|---|
 | Inventario SFT e dati HMI | Usa la consegna per preparare le specifiche; non duplicare l'inventario | Inventario assunto su richiesta dell'utente e completato: codice, versioni, licenze, dati e limiti | completato da Codex, 25 novembre; [consegna](BL_SFT_HMI_INVENTORY.md) |
-| Specifica del pilota mappa–bipolo | Bozza del protocollo e proposta operativa del campione | Revisione di confronti, unita, bilancio, doppio conteggio, criteri e popolazione | bozza rev. 1 (`docs/PROTOCOL_SFT_MAP_BIPOLE_PILOT_DRAFT.md`), in revisione; parti marcate [dopo l'inventario] |
+| Specifica del pilota mappa–bipolo | Bozza del protocollo e proposta operativa del campione | Revisione di confronti, unita, bilancio, doppio conteggio, criteri e popolazione | bozza rev. 2 (`docs/PROTOCOL_SFT_MAP_BIPOLE_PILOT_DRAFT.md`) con l'inventario recepito e la riduzione 1D per il dipolo; in revisione |
 | Specifica osservativa | Bozza su orizzonti, dati successivi e separazione sviluppo/verifica | Verifica indipendente dei confronti e dell'assenza di uso dei dati futuri | da iniziare |
 | Implementazione | Runner, adattatori, prove sintetiche e documentazione | Oracoli sintetici, controesempi, revisione e controlli numerici separati | dopo specifiche |
 | Risultati | Corsa autorizzata, conservazione, riconteggio e prima bozza del rapporto | Revisione di ricevute, risultati e formulazioni | dopo protocolli e codice |
