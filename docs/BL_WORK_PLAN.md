@@ -10,6 +10,13 @@ deve dichiarare a quale obiettivo serve e che cosa aggiunge. Questo e un
 piano di lavoro, **non un protocollo congelato**; non autorizza nuovi download
 ne anticipa scelte scientifiche ancora da fissare.
 
+**Voci aggiunte dall'utente il 25 novembre 2026:** ranking bayesiano del
+quenching su HMI (BQ) e del trasporto superficiale su HMI (BT). Sono due
+confronti distinti, da specificare e congelare; non sono ancora eseguiti.
+La preparazione metodologica puo procedere in parallelo, senza ritardare le
+priorita 1 e 2. Il ranking BT usa la verifica osservativa del punto 2 e
+richiede scelte congelate prima di accedere ai suoi esiti di verifica.
+
 ## Due obiettivi del progetto di Paolo
 
 - **Sorgente Babcock–Leighton:** interpretare e verificare il proxy misurato
@@ -94,15 +101,89 @@ ed esclusioni, errori con le unita fisiche appropriate e sensibilita ai
 parametri. L'interpretazione dell'ampiezza della sorgente e condizionata a
 questi controlli; una correlazione da sola non e una calibrazione.
 
+## 3. BQ — ranking bayesiano del quenching su HMI
+
+**Obiettivo servito:** quenching del tilt. **Domanda iniziale:** sugli stessi
+record HMI di T3, quanto i dati distinguono un modello senza dipendenza del
+coefficiente di Joy dall'attivita da un modello che la ammette?
+
+**Ambito iniziale delimitato:** HMI da solo, T3 dentro il ciclo. T5, latitudine,
+confronti fra cicli e fusione MDI/MWO non entrano automaticamente in questa
+analisi. I risultati HMI sono gia noti: il nuovo protocollo dichiara il
+carattere non cieco e conserva gli esiti precedenti.
+
+- [ ] Scrivere una specifica separata: stesso campione, osservabile, pesi e
+      selezione per tutti i modelli; differenze di popolazione o di bersaglio
+      non si confondono con differenze di adeguatezza.
+- [ ] Definire un modello con pendenza di attivita nulla e un modello con
+      pendenza libera, ammettendo entrambi i segni; eventuale legge fisica di
+      quenching come candidato ulteriore solo se fissata nella specifica.
+      Conservare termini di Joy, ciclo ed emisfero coerenti con la domanda.
+- [ ] Specificare likelihood, dipendenza temporale per CR, relazione della
+      dispersione con le caratteristiche delle regioni, prior proprie e
+      sensibilita alle prior. I generatori usati nelle validazioni precedenti
+      non sono gia modelli bayesiani adattati ai dati.
+- [ ] Fissare controlli sintetici, diagnostica del calcolo e controlli
+      predittivi. Se la correlazione temporale non e descritta adeguatamente,
+      una graduatoria relativa non certifica nessun candidato.
+- [ ] Distinguere tre prodotti: distribuzione della pendenza e probabilita
+      che sia negativa o oltre una soglia fisica fissata prima; confronto
+      predittivo su blocchi temporali/famiglie; eventuali Bayes factor e
+      probabilita dei modelli con prior di modello dichiarate. I pesi
+      predittivi non sono probabilita che un modello sia fisicamente vero.
+- [ ] Protocollo e codice rivisti prima della corsa; output conservati,
+      riconteggio e rapporto con incertezza del ranking e possibilita di
+      modelli non distinguibili. Nessun verdetto promesso e nessuna conversione
+      degli intervalli storici in evidenza bayesiana senza nuova inferenza.
+
+**Uscita:** rapporto bayesiano HMI separato, con posteriori, adeguatezza,
+sensibilita e confronto relativo. Non modifica T3/T5 precedenti e non elimina
+il limite informativo dei dati o i problemi strumentali delle altre serie.
+
+## 4. BT — ranking bayesiano del trasporto superficiale su HMI
+
+**Obiettivo servito:** sorgente BL. **Domanda:** quali modelli descrivono meglio
+le osservazioni successive delle stesse regioni, agli stessi istanti e sullo
+stesso dominio? Candidati iniziali: persistenza, sola rotazione differenziale,
+SFT completo. Varianti mappa/bipolo restano confronti di rappresentazione,
+identificate separatamente dalle varianti del trasporto.
+
+- [ ] Usare disponibilita e preparazione del pilota osservativo; conservare
+      i suoi limiti di selezione (controllo scelto al massimo USFLUX) e la
+      separazione sviluppo/verifica per componenti e famiglie.
+- [ ] Scrivere un protocollo distinto o un emendamento esplicito prima della
+      lettura della verifica. Definire gli osservabili effettivamente messi
+      in likelihood e la loro dipendenza: non trattare come indipendenti
+      pixel, dipolo, flussi e centroidi derivati dalla stessa mappa.
+- [ ] Definire una distribuzione probabilistica di errori e discrepanze per
+      tutti i candidati: le simulazioni deterministiche non bastano a
+      calcolare un Bayes factor. La ripetibilita osservata comprende evoluzione
+      reale e non e automaticamente rumore strumentale.
+- [ ] Fissare prior e parametri del confronto senza adattarli alla verifica;
+      i parametri fisici congelati dei piloti SFT restano invariati. Eventuali
+      nuovi fit fisici richiedono una specifica esplicita separata.
+- [ ] Verificare numerica e modello probabilistico sui sintetici, poi
+      confronto predittivo sui casi esclusi dallo sviluppo, rispettando
+      dipendenze temporali e spaziali. Definire prima il trattamento di
+      valori mancanti, fallimenti, denominatori e casi non valutabili.
+- [ ] Riportare punteggi predittivi e loro incertezza; eventuali Bayes factor
+      solo con evidenze/prior ben definite e sensibilita conservate. Tutti i
+      modelli possono risultare inadeguati; nessun vincitore obbligatorio.
+
+**Uscita:** graduatoria relativa e incertezza sull'evoluzione locale a pochi
+giorni. Non identifica da sola la causa dei residui, non misura soltanto nuova
+emersione e non valida il contributo finale al campo polare globale.
+
 ## Divisione del lavoro senza duplicazioni
 
 | Passo | Claude | Codex | Stato |
 |---|---|---|---|
 | Inventario SFT e dati HMI | Usa la consegna per preparare le specifiche; non duplicare l'inventario | Inventario assunto su richiesta dell'utente e completato: codice, versioni, licenze, dati e limiti | completato da Codex, 25 novembre; [consegna](BL_SFT_HMI_INVENTORY.md) |
-| Specifica del pilota mappa–bipolo | Congela il testo approvato, poi implementa | Rev.4 (690ded3), SHA 2f4deebb… approvata per congelamento; codice resta da rivedere | testo pronto; docs/SFT_INDEPENDENT_CHECKS_20261125.md |
-| Specifica osservativa | Corregge fattibilita geometrica e conteggi, poi congela | Rev.3 verificata: ramo longitudinale, erosione, metrica e impronte da correggere | in revisione, nessuna mappa letta |
+| Specifica del pilota mappa–bipolo | Prepara emendamento numerico e corregge runner/riconteggio | Rivede chiusura dei rilievi aaf3d6f | protocollo congelato; corsa osservata bloccata, SFT_Q4_EVENING_REVIEW_20261125.md |
+| Specifica osservativa | Chiude impegno del §7 sulla ripetibilita, poi congela; codice preparatorio separato | Geometria rev.4 confermata; revisione del codice prima dei dati | non congelata; nessun pilota osservato avviato |
 | Implementazione | Corregge moduli e prepara runner/rilettori | Riferimenti matematici indipendenti pronti, 20/20, generazione riproducibile | sviluppo sintetico, niente piloti |
 | Risultati | Corsa autorizzata, conservazione, riconteggio e prima bozza del rapporto | Revisione di ricevute, risultati e formulazioni | dopo protocolli e codice |
+| BQ e BT: specifiche bayesiane | Completa i due piloti SFT; non avvia fit bayesiani senza specifica condivisa | Prepara le proposte metodologiche BQ/BT e le prove indipendenti; consegna per revisione incrociata | aggiunti al piano, nessun calcolo bayesiano avviato |
 
 Ogni passaggio riporta commit, prodotto concreto e prossimo passo. Claude
 non deve riscrivere gli oracoli di Codex; Codex non deve implementare un
@@ -113,16 +194,16 @@ sono nei file del repository, non soltanto nei messaggi di chat.
 
 | Linea | Stato verificato il 25 novembre | Prossimo passo |
 |---|---|---|
-| MDI Q4: precisione prospettica T3 | Corsa conservata dab5a33; riconteggio d303c3a, ricevuta 8924285 21/21 verificata e audit integrita Codex 9/9 | Claude legge e scrive il rapporto; Codex rivede. Non rilanciare; decisione sul catalogo successiva |
+| MDI Q4: precisione prospettica T3 | Corsa dab5a33, ricevuta 8924285 21/21, audit 9/9; rapporto rivisto in aaf3d6f | Decisione sul catalogo MDI successiva e distinta; nessun rilancio Q4 |
 | Catalogo MDI completo / nuovo T3 | Non avviato | Decisione successiva a Q4 e protocollo proprio; nessun verdetto anticipato |
 | T5 su HMI | Descrittivo; sviluppo metodologico distinto | Eventuale progetto delimitato per incertezza temporale, solo con specifica e validazione nuove; non e automaticamente risolto dai punti 1–2 |
 | T3 MWO | Analisi prevista conclusa come descrittiva | Nessuna sottrazione automatica di S2; eventuali controlli magnetici con MDI sotto specifica separata |
 | Serie BL MDI/MWO/HMI | Nessuna unione diretta approvata | Confrontabilita di misura e flussi, popolazione e definizioni prima di qualunque raccordo |
 
-Il fatto che Q4 sia gia stata eseguita viene da Git (dab5a33), non dalla
-lettura di RAW, SUMMARY o CRITERIA. Le note storiche in HANDOFF che dicono
-«corsa non avviata» descrivono uno stato precedente. Questo piano non
-modifica Q4, i suoi output o le regole congelate.
+Q4 e conclusa e il rapporto descrittivo e stato rivisto in aaf3d6f.
+Le note storiche in HANDOFF che dicono «corsa non avviata» o «risultati non
+letti» descrivono stati precedenti. Questo piano non modifica Q4, i suoi
+output o le regole congelate.
 
 ## Ripresa di ogni sessione
 
@@ -133,8 +214,11 @@ modifica Q4, i suoi output o le regole congelate.
    1 e 2 sopra la cronologia. Non archiviarle sotto una nuova nota Q4/MDI.
 
 **Inventario completato da Codex:** [consegna e fotografia dei dati](BL_SFT_HMI_INVENTORY.md).
-**Prossimo lavoro:** Claude prepara le due specifiche collegate per i punti
-1–2; Codex le rivede. Nessuna nuova simulazione o acquisizione lanciata.
+**Prossimo lavoro:** Claude chiude i rilievi del punto 1 e il prerequisito
+residuo del punto 2; Codex rivede le chiusure e prepara le specifiche BQ/BT.
+Il ranking BT si definisce prima di leggere la verifica osservativa; BQ e
+un'analisi separata, non cieca sui risultati HMI precedenti. Nessuna nuova
+corsa o acquisizione e stata lanciata per aggiornare questa lista.
 
 ## Fonti di metodo gia consultate
 

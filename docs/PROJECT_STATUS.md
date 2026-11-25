@@ -9,16 +9,23 @@
 2. **Controllo contro il Sole:** confronto dell'evoluzione simulata con
    magnetogrammi successivi esclusi dalla scelta dei parametri.
 
-L'inventario e ora completato da Codex: [consegna SFT/HMI](BL_SFT_HMI_INVENTORY.md).
-Restano le specifiche prima delle nuove misure. Il primo
-controlla l'approssimazione dentro il modello; il secondo la sua aderenza alle
-osservazioni. Non sono ancora eseguiti. Il catalogo HMI al meridiano non e
-un elenco di nuove emersioni da inserire senza controllo delle ricomparse.
+Inventario completato: [consegna SFT/HMI](BL_SFT_HMI_INVENTORY.md).
+Punto 1: protocollo congelato, emendamento numerico e correzioni del runner e
+del riconteggio richiesti in [revisione serale](SFT_Q4_EVENING_REVIEW_20261125.md).
+Punto 2: geometria rev.4 confermata, impegno sulla ripetibilita da chiudere
+prima del congelamento; codice preparatorio, nessuna corsa osservata.
+Il primo controlla l'approssimazione dentro il modello; il secondo il
+confronto con il Sole. Nessuno dei due piloti e ancora eseguito.
 
-La parte descrittiva del pilota MDI e conclusa. Q4 ha una corsa conservata in
-`dab5a33`; resta da verificare con il riconteggio prima della lettura. Non
-rilanciarla. Decisioni su catalogo MDI completo e nuovo T3 restano successive.
-Questo stato deriva da Git e HANDOFF, senza leggere gli output Q4.
+**Aggiunte al piano dall'utente:** ranking bayesiano **BQ del quenching HMI**
+e **BT del trasporto superficiale HMI**. Specifiche e controlli propri da
+fissare; nessun calcolo bayesiano avviato. BT richiede criteri congelati prima
+della lettura della verifica osservativa. Le due priorita SFT restano attive.
+
+La parte descrittiva del pilota MDI e conclusa. Q4 e eseguita, ricontata e
+letta; rapporto [MDI_PILOT_Q4_RESULTS.md](MDI_PILOT_Q4_RESULTS.md), formulazione
+rivista in aaf3d6f. Non rilanciarla. Catalogo MDI completo e nuovo T3 restano
+decisioni separate. Stato operativo e assegnazioni in [HANDOFF](HANDOFF.md).
 
 La tabella seguente conserva il quadro storico del 15 novembre; per lo stato
 operativo aggiornato usare il piano comune e [HANDOFF](HANDOFF.md).

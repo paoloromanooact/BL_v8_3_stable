@@ -3,6 +3,7 @@
 > **Priorita comuni Codex–Claude:** [piano di lavoro](docs/BL_WORK_PLAN.md).
 > **1.** Evoluzione della mappa HMI contro il bipolo del proxy nello stesso SFT.
 > **2.** Confronto con osservazioni successive, separate dallo sviluppo del modello.
+> **Pianificati:** ranking bayesiano del quenching HMI e del trasporto superficiale HMI; specifiche prima delle corse.
 > Stato delle altre linee e prossimi passi: [HANDOFF](docs/HANDOFF.md).
 
 > Branch `v8.4-python-gianluca`: porting in Python con correzioni e serie

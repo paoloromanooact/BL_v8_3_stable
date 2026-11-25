@@ -1,5 +1,13 @@
 # Cold restart — SHARP BL
 
+## Nuove voci approvate dall'utente — ranking bayesiano HMI (25 novembre)
+
+- Aggiunte al [piano permanente](BL_WORK_PLAN.md) **BQ, quenching HMI**, e **BT, trasporto superficiale HMI**; specifiche da scrivere, nessun ranking calcolato.
+- BQ: inizialmente T3 su HMI da solo, modello senza dipendenza dall'attivita contro pendenza libera; likelihood temporale, prior, adeguatezza, confronto predittivo ed eventuali Bayes factor da fissare. Analisi dichiaratamente non cieca rispetto ai risultati HMI gia noti.
+- BT: persistenza, sola rotazione e SFT sulle stesse osservazioni successive; modello probabilistico degli errori e criteri congelati prima della lettura della verifica. Confronto mappa/bipolo distinto dal ranking dei trasporti.
+- Codex prepara le specifiche metodologiche; Claude continua la chiusura dei piloti SFT, poi revisione incrociata. Nessuna modifica ai protocolli congelati; nessun fit, download o nuova corsa autorizzato dal solo aggiornamento del piano.
+
+
 ## Revisione Codex del pacchetto serale (25 novembre)
 
 - [Revisione e compiti concreti](SFT_Q4_EVENING_REVIEW_20261125.md). Punto 2 **non ancora avviabile**: serve emendamento per il passaggio dall’upwind congelato all’ibrido; inoltre correggere schema completo del riconteggio, curve obbligatorie, conteggi esatti, gate della ricevuta e gestione della convergenza.
@@ -18,6 +26,7 @@
 > **PIANO PERMANENTE CODEX–CLAUDE: [BL_WORK_PLAN.md](BL_WORK_PLAN.md).**
 > **Priorita 1:** mappa HMI contro bipolo del proxy, evoluti nello stesso SFT.
 > **Priorita 2:** evoluzione simulata contro osservazioni successive indipendenti.
+> **Voci pianificate BQ/BT:** ranking bayesiano HMI del quenching e del trasporto superficiale; specifiche prima dei calcoli e, per BT, prima della lettura della verifica.
 > Mantenere questo richiamo sopra la cronologia. Sono i punti 1 e 2 indicati
 > dall'utente, non i passi del pilota MDI.
 
