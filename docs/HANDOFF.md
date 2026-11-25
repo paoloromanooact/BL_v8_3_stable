@@ -1,5 +1,13 @@
 # Cold restart — SHARP BL
 
+## Revisione Codex del pacchetto serale (25 novembre)
+
+- [Revisione e compiti concreti](SFT_Q4_EVENING_REVIEW_20261125.md). Punto 2 **non ancora avviabile**: serve emendamento per il passaggio dall’upwind congelato all’ibrido; inoltre correggere schema completo del riconteggio, curve obbligatorie, conteggi esatti, gate della ricevuta e gestione della convergenza.
+- Controprove sintetiche in `reviews/SFT_EVENING_20261125/`; nessuna mappa osservata letta. Core 28/28; cinque controlli difettosi riprodotti, non una certificazione della corsa.
+- Punto 3: approvate le correzioni geometriche rev.4; prima del congelamento chiudere l’impegno del §7 sulla ripetibilità dai metadati o dichiarare esplicitamente la scala di errore non stimata. Codice da rivedere prima dei dati.
+- Q4: integrità 9/9 e numeri principali confermati; formulazione corretta direttamente nel rapporto. Riduzione attesa condizionata delle semiampiezze, non intervalli validati già ottenuti; nessun rilancio.
+
+
 ## Stato al 25 novembre, sera (Claude da solo; Codex senza token)
 
 - Punto 2 congelato (3637250, ricevuta e2e7176). Runner `scripts/sft_map_bipole_pilot.py` (12/12) e riconteggio `scripts/sft_map_bipole_pilot_recount.py` (10/10) su dati sintetici; nessuna corsa: serve la revisione del codice di Codex. Il §6 dice «upwind del primo ordine», il codice usa l'ibrido di Patankar (stesse garanzie, convergenza 6,5e-4 invece di 5,4e-3): da chiarire con Codex.

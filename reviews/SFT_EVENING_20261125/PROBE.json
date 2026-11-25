@@ -1,0 +1,24 @@
+{
+  "sources": {
+    "scripts/sft_map_bipole_pilot.py": "6cd9a0d4bbdf69e2c356cf52c9127a42e2d851adaad6e257b4c27215e53ffd7c",
+    "scripts/sft_map_bipole_pilot_recount.py": "582255650d28dcd333efad4ddf581192a10bd29f92798d0d8f97cbc2ee506352",
+    "python/sharpbl/sft_core.py": "053e622b1acde6540364d850561c3cc55afedab5f1803541965ffaae4538a554"
+  },
+  "cases": {
+    "baseline_synthetic_without_required_daily_curves": {
+      "accepted": true
+    },
+    "sample_weight_pi_perm_rank_columns_deleted": {
+      "accepted": true
+    },
+    "matched_convergence_failure_not_vetoed": {
+      "accepted": true
+    },
+    "fractional_count_accepted_by_comparator": {
+      "accepted": true
+    },
+    "empty_freeze_input_manifest": {
+      "gate_problems": []
+    }
+  }
+}

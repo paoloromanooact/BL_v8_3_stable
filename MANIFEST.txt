@@ -209,6 +209,7 @@ docs/SFT_OBSERVED_FEASIBILITY_RESULTS.txt
 docs/SFT_PREP_80b28a4_CODE_REVIEW.md
 docs/SFT_PREP_80b28a4_P1_REVIEW_RESULTS.json
 docs/SFT_PREP_80b28a4_REVIEW_RESULTS.json
+docs/SFT_Q4_EVENING_REVIEW_20261125.md
 docs/T3_LONG_CATALOGUE_FEASIBILITY_DRAFT.md
 docs/T3_MWO_ANALYSIS_CODE_REVIEW_20261118.md
 docs/T3_MWO_AUTONOMOUS_PREPARATION_20261120.md
@@ -1289,6 +1290,9 @@ reviews/MDI_Q4_RECEIPT_CODEX_8924285/AUDIT.json
 reviews/MDI_Q4_RECOUNT_WORKING_6024dc6/source.patch
 reviews/MDI_Q4_RECOUNT_d303c3a_CODEX/SELFTEST.txt
 reviews/MDI_Q4_RECOUNT_d303c3a_CODEX/SOURCE.json
+reviews/SFT_EVENING_20261125/GEOMETRY.json
+reviews/SFT_EVENING_20261125/PROBE.json
+reviews/SFT_EVENING_20261125/Q4_INTEGRITY.json
 reviews/SFT_INDEPENDENT_ORACLES_V1/CHARACTERISTICS.csv
 reviews/SFT_INDEPENDENT_ORACLES_V1/GAUSSIAN_DIPOLES.csv
 reviews/SFT_INDEPENDENT_ORACLES_V1/META.json
@@ -1376,8 +1380,10 @@ scripts/sft_independent_oracles.py
 scripts/sft_map_bipole_draft_review_probe.py
 scripts/sft_map_bipole_pilot.py
 scripts/sft_map_bipole_pilot_recount.py
+scripts/sft_map_bipole_review_probe.py
 scripts/sft_observed_draft_review_probe.py
 scripts/sft_observed_feasibility.py
+scripts/sft_observed_geometry_review_probe.py
 scripts/sft_observed_header_review_audit.py
 scripts/sft_prep_code_review_probe.py
 scripts/sft_prep_selftest.py

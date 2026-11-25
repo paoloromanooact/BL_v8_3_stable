@@ -1,6 +1,6 @@
 # Pilota MDI — Q4: precisione prospettica di T3 con un catalogo MDI 1996–2010 (rapporto descrittivo)
 
-25 novembre 2026, Claude. **Bozza per la revisione di Codex** (la formulazione va rivista prima di qualunque uso).
+25 novembre 2026, Claude. **Formulazione rivista da Codex**, 25 novembre 2026; controllo in `SFT_Q4_EVENING_REVIEW_20261125.md`.
 Nota congelata `docs/MDI_PILOT_Q4_NOTE.md` (e13a3a72…) con l'emendamento A2 (c8340770…).
 
 ## 0. Che cosa è e che cosa non è
@@ -62,16 +62,17 @@ forme principali sono AR(1) φ = 0,5, AR(1) φ = 0,9 e salti di 20 CR, a σ_x = 
 - **Il contributo di MDI sta sulla soglia di 0,7.** A 50 G una forma è sotto la soglia (0,691) e due sono appena sopra
   (0,707 e 0,709). A 100 G tutte e tre sono sotto (0,686–0,698). Lo scarto che cambia la classe (meno di 0,01) è più
   piccolo della variabilità fra realizzazioni (circa 0,65–0,74). Le etichette «marginale» e «utile come limite»
-  descrivono quindi lo stesso risultato: un intervallo più stretto di circa il 30 % (h ridotto a circa 0,7 di quello di
-  H), vicino al confine fissato.
+  non indicano una differenza scientifica dimostrata: la semiampiezza nominale attesa si riduce di circa il 30 %
+  nelle ipotesi considerate (h circa 0,7 di H), vicino al confine fissato. Il minimo–massimo sulle 20 realizzazioni
+  descrive la variabilità dei disegni, non un intervallo di confidenza della mediana.
 - **Il prodotto MF dipende dalla forma AR(1) φ = 0,5.** Le altre due forme danno 1,01–1,04; la forma φ = 0,5 dà
-  1,09–1,11, a cavallo di 1,1 fra le soglie di 50 e 100 G. MF da solo è meno preciso di H (1,00–1,07), perché la resa
-  stimata è circa la metà di quella sinottica.
+  1,09–1,11, a cavallo di 1,1 fra le soglie di 50 e 100 G. MF da solo ha semiampiezza nominale attesa maggiore di H (1,00–1,07) nel disegno con resa
+  stimata circa dimezzata rispetto al sinottico; il confronto non isola la resa dalle altre differenze dei disegni.
 - **MS da solo:** 0,89–0,92 rispetto a H, sul ciclo 23 essenzialmente. Non è una replica indipendente: ipotesi e
   possibili correlazioni temporali sono condivise.
 - **Modelli protetti.** Con bJ MDI non aggiunge informazione sulla pendenza (rapporto 1,000 per costruzione). Con bA il
-  rapporto è 0,80–0,85. Un «utile» del modello (a) presuppone scarti fra strumenti indipendenti dall'attività, non
-  verificati (nota §7).
+  rapporto è 0,80–0,85. Un «utile» del modello (a) richiede che lo scarto sistematico fra strumenti non contenga componenti
+  legate all'attività che si proiettino sulla pendenza T3; questa ipotesi non è verificata (nota §7).
 
 ## 4. Sensibilità di MS+H / H (50 G, forme principali)
 
@@ -101,35 +102,40 @@ Riferimento, 50 G. h in unità di γ₀ = 24°. SE/|Δβ| rispetto al bersaglio 
 | MS+H | 0,30 · 0,40 · 0,42 | 2,0–3,0 | 2,8–4,0 % |
 | MF+H | 0,32 · 0,41 · 0,44 | 2,3–3,1 | 2,7–3,5 % |
 
-Anche nel disegno combinato l'errore standard resta 2–3 volte la riduzione prescritta: lo scenario non sarebbe
-riconoscibile. La frequenza di riconoscimento (3–4 %) è vicina a quella sotto l'ipotesi nulla (1,25 % per lato). Come
-nella fase A, l'uso realistico di MDI è **un intervallo più stretto su β₃, non il riconoscimento dello scenario**. Con i
+Nelle configurazioni di riferimento della tabella, anche nel disegno combinato l'errore standard resta 2–3 volte
+la riduzione prescritta: riconoscere lo scenario è poco probabile. La probabilità nominale di riconoscimento
+(3–4 %) supera l'1,25 % per lato sotto il nullo, ma resta bassa. Come nella fase A, il beneficio prospettico
+principale di MDI è **una minore semiampiezza nominale attesa su β₃**; non garantisce il riconoscimento dello scenario. Con i
 quantili ricalcolati sul disegno i valori sono simili (riconoscimento 2,6–3,5 % per MS+H).
 
 ## 6. Scarti fra strumenti e fra prodotti (descrittivi)
 
 - **Differenza fra prodotti (scenario non cieco, nota §5).** Se la differenza Q2 sinottica − full-disk per classe di
-  attività valesse per i gruppi futuri, β di MS da solo si sposterebbe di −0,63° per unità di attività. È circa −0,42
-  volte il bersaglio (fra −0,46 e −0,36 sulle realizzazioni); per MS+H circa −0,29 volte. Gli intervalli di d_γ di Q2
+  attività valesse per i gruppi futuri, β di MS da solo si sposterebbe di −0,63° per unità di attività. Il rapporto firmato al modulo del bersaglio è circa −0,42
+  (fra −0,46 e −0,36 sulle realizzazioni); per MS+H circa −0,29. Lo spostamento è quindi nello stesso verso del
+  bersaglio negativo, con ampiezza rispettivamente circa il 42 % e il 29 % del suo modulo. Gli intervalli di d_γ di Q2
   contengono zero: è uno scenario, non uno scarto dimostrato, e non è una distorsione assoluta di MS rispetto al vero.
-- **Scarti di attività fra strumenti (modello (a), combinati).** La tolleranza, cioè il coefficiente di scarto che
+- **Scarti di attività fra strumenti (MS+H, modello (a), 50 G, σ_int = 15°, σ_m = 2°, AR(1) φ = 0,5,
+  σ_x = 7,5°, bersaglio δ_max = 0,20 con quantili E0).** La tolleranza, cioè il coefficiente di scarto che
   sposta β di metà del bersaglio, vale circa 0,75 unità per la famiglia A e 0,68 per la J. Nel caso peggiore con
-  |C| ≤ 0,5 la frequenza di falso «supportato» sotto l'ipotesi nulla resta intorno al 2 %.
+  |C| ≤ 0,5 la frequenza di falso «supportato» sotto l'ipotesi nulla resta intorno al 2 % in questa configurazione analitica. Non è una validazione della procedura M.
 - MDI da solo: uno scarto di misura della forma c·(A − 1)·sin|λ| coincide con x₃ e sposta β esattamente di c. Non è
   separabile e non si calcola (nota §5). La stabilità interna di MDI non è verificata.
 
 ## 7. Che cosa resta aperto per la decisione
 
-- Il contributo di MDI a T3 è un intervallo più stretto di circa il 30 % nel modello (a), al confine della soglia
-  pratica fissata. Dipende dalla scala relativa dei pesi e dall'ipotesi di scarti fra strumenti indipendenti
-  dall'attività; nel modello protetto bA il guadagno è minore (0,80–0,85) e nel bJ nullo per costruzione.
+- Nel riferimento del modello (a), MDI riduce di circa il 30 % la semiampiezza nominale attesa, al confine della soglia
+  pratica fissata. Dipende dalla scala relativa dei pesi e dall'assenza di scarti sistematici fra strumenti che si
+  proiettino sulla dipendenza dall'attività; nel modello protetto bA il guadagno è minore (0,80–0,85) e nel bJ nullo per costruzione.
 - Sinottico contro full-disk: il sinottico ha resa doppia. Il full-disk si avvicina al sinottico solo in due forme su
   tre, e la scelta dipende anche dalla differenza fra prodotti (§6), che Q4 descrive ma non risolve.
-- Nessun riconoscimento dello scenario prescritto in nessun disegno.
+- Bassa probabilità nominale di riconoscere lo scenario prescritto nelle configurazioni di riferimento; nessuna
+  conclusione sulla presenza o assenza del quenching nei dati reali.
 - Il catalogo MDI completo e un nuovo T3 restano decisioni separate, con protocollo proprio (`docs/BL_WORK_PLAN.md`).
 
 ## 8. Numeri riproducibili
 
 Tutti i valori di questo rapporto vengono da `results/MDI_Q4_PROSPECTIVE/` (CRITERIA, RAW, DESIGNS, YIELD_EFFECTS),
-letti dopo la ricevuta 8924285; rapporti appaiati per realizzazione come nella funzione `criteria` del runner. Uno script
-di sola lettura che li ricalcoli va aggiunto prima della revisione finale, come per il rapporto L2.
+letti dopo la ricevuta 8924285; rapporti appaiati per realizzazione come nella funzione `criteria` del runner. Lo script
+di sola lettura `scripts/mdi_q4_report_numbers.py` ricalcola i valori ed è stato eseguito nella revisione di Codex.
+La sua etichetta stampata `/target` indica il modulo del bersaglio per i rapporti di prodotto, come definito nel runner.
