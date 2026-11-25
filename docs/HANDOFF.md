@@ -18,6 +18,8 @@
 
 Dettagli e divisione dei compiti: `docs/BL_WORK_PLAN.md`.
 
+Stato al 25 novembre: punto 1 (inventario) in corso da parte di Codex; punto 2, bozza rev. 1 di Claude in `docs/PROTOCOL_SFT_MAP_BIPOLE_PILOT_DRAFT.md`, da rivedere (le parti marcate [dopo l'inventario] si chiudono nella rev. 2); punto 6, riconteggio Q4 0344bc3 in attesa di revisione (`MDI_Q4_RICONTEGGIO_PER_CODEX.txt`).
+
 ## MDI Q4 — corsa unica eseguita; riconteggio indipendente scritto (25 novembre 2026)
 
 - Corsa autorizzata dall'utente dopo la chiusura Codex di fed1775. Eseguita su 1c25c2e pulito, uscita 0, ~11 min; selftest interno 55/55. Output e log conservati prima della lettura in dab5a33 (`results/MDI_Q4_PROSPECTIVE/`, con `RUN.log` e `RUN.exit`). Risultati NON ancora letti.
