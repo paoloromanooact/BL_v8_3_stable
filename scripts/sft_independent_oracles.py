@@ -133,7 +133,7 @@ def write_fixtures(folder):
     folder.mkdir(parents=True)
     for name,rows in fixtures().items():
         with (folder/name).open('w',newline='') as f:
-            w=csv.DictWriter(f,fieldnames=list(rows[0]));w.writeheader();w.writerows(rows)
+            w=csv.DictWriter(f,fieldnames=list(rows[0]),lineterminator="\n");w.writeheader();w.writerows(rows)
     meta={'schema':1,'synthetic_only':True,'observed_maps_read':False,'production_sft_imported':False,'pde_solver_run':False,'generator_sha256':hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),'R_km':R_KM,'year_s':YEAR,'python':platform.python_version(),'numpy':np.__version__,'scipy':scipy.__version__,'products_sha256':{p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted(folder.glob('*.csv'))}}
     (folder/'META.json').write_text(json.dumps(meta,indent=2)+'\n')
 

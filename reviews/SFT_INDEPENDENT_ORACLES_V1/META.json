@@ -4,16 +4,16 @@
   "observed_maps_read": false,
   "production_sft_imported": false,
   "pde_solver_run": false,
-  "generator_sha256": "f6485abf1506fc4b9508e6ff37825aa4d7ac45c2408e26a6ba40e4a1adbaa484",
+  "generator_sha256": "507f1484a57aabf67ad0d3cb6fabd4587d749f80cb629ae8e9d5cfde5315cf00",
   "R_km": 696000.0,
   "year_s": 31557600.0,
   "python": "3.10.12",
   "numpy": "2.2.6",
   "scipy": "1.15.3",
   "products_sha256": {
-    "CHARACTERISTICS.csv": "777908ce60d30f621b2c513123fc7617635bddbb0c07177c639f62164c1ce3de",
-    "GAUSSIAN_DIPOLES.csv": "6b2a568ed0e7bb3a820ce99575d0a0f1ec76700a2d2a082d7b5e9af5683d48e0",
-    "SPHERICAL_MODES.csv": "864b29249df54be51c8f623cabb37658d8db6c9e905af7a4af846064ddb05a7a",
-    "UNIFORM_DECAY.csv": "b5c65798d0de7d13459708ee7970d56fe88e835e3085d3c540628d0cc42fbea3"
+    "CHARACTERISTICS.csv": "a326de455e80f030bd52567b1df589b89637f1b92277d034080b45e424b31200",
+    "GAUSSIAN_DIPOLES.csv": "366c8ba889a6a7b69c157d14f31e2fcad880ed949284a3ec4f10761c67fd5e45",
+    "SPHERICAL_MODES.csv": "1e74eb2334acd1e2739e458340107aca0b84e31028c2a36fd1e0d960760916c5",
+    "UNIFORM_DECAY.csv": "0fae14e8714dd83f86319fb95dcbd1c821f66ad3b0e736c26d6fac9f8cdf338b"
   }
 }
