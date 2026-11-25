@@ -56,3 +56,31 @@ scrive:
 - il riconteggio denso indipendente;
 - le prove sintetiche, prima di qualunque fit reale;
 - il runner e il riconteggio di C sui sintetici, prima dei pixel.
+
+## Prove a priori sul disegno HMI (fatte, solo disegno, nessuna risposta letta)
+
+Script `scripts/bq_prior_predictive.py`, seme 36_400_201, 4000 estrazioni. Prodotti in
+`reviews/BQ_PRIOR_PREDICTIVE_20261125/`. Sono proiezioni geometriche non pesate: descrivono il disegno e la prior, non
+stimano nulla.
+
+**v·s contro β·a·s.**
+- Varianza sulle regioni di v·s: mediana 1,0 deg² (σ_v HN 5) e 15,6 deg² (σ_v HN 20).
+- Varianza di β·a·s: mediana 2,4 deg² con prior di β a SD 10 (0,6 con SD 5; 10,3 con SD 20).
+- Quanto una realizzazione di v imita β: la proiezione di v·s sulla colonna dell'attività, dopo le colonne k·s, dà un
+  «β equivalente» con |β_eq| mediano 0,14 (σ_v 5) e 0,51 (σ_v 20); 90° percentile 0,70 e 2,8; SD 0,55 e 1,9.
+- Quota di var(v·s) spiegata dalla colonna dell'attività: mediana 0,1 %, 90° percentile 1,7 %.
+
+Lettura: a priori v aggiunge soprattutto varianza quasi ortogonale al regressore dell'attività. Il β che può imitare
+è dell'ordine di 2° (σ_v 20), contro la SD 10 della prior di β. Questo non decide da solo l'effetto sulle evidenze
+(Occam sulle varianze): restano necessari i sintetici previsti (β vero con v acceso, v senza β), come scrive Codex.
+
+**Predittiva dei tilt.**
+- Con q ~ N(0, 1): quota di |θ| > 90° mediana 0,3 %, 90° percentile 28 %. |θ| ha 90° percentile 73°.
+- Rapporto fra σ_i massima e minima sul disegno (Φ copre 2,5 decadi): mediana 5,7, 90° percentile 67. Il 99° percentile
+  di σ_i arriva a 400°.
+- Con q ~ N(0; 0,5²): rapporto con 90° percentile 8, 99° percentile di σ_i 136°, quota ripiegata al 90° percentile 14 %.
+- Riferimento: i pesi Φ della WLS storica (q ≈ −1,15) danno un rapporto di circa 18 su 2,5 decadi.
+
+La prior q ~ N(0, 1) lo ammette, ma ammette anche code estreme (σ fino a 400°). È un punto da pesare nel
+congelamento: q ~ N(0, 1) principale con 0,5 in sensibilità, come in rev. 4, oppure il contrario. Non lo decido io.
+La variante con v non cambia la predittiva dei tilt in modo visibile.

@@ -1,0 +1,11 @@
+{
+  "seed": 36400201,
+  "draws": 4000,
+  "records": 2485,
+  "n_cr": 221,
+  "log10_flux_range": [
+    0.00032186752587844955,
+    2.520890571416192
+  ],
+  "note": "design-only prior predictive; no response read; unweighted geometric projections"
+}
