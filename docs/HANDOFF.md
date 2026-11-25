@@ -1,5 +1,10 @@
 # Cold restart — SHARP BL
 
+## Ripresa della prossima sessione
+
+Leggere prima [il riepilogo operativo Codex](CODEX_NEXT_SESSION_20261125.md): contiene obiettivi fissi, stato delle prove da confermare, rilievi C, decisioni BQ e sequenza da seguire. La bozza BT proposta non e ancora scritta. Verificare Git e la consegna finale di Claude prima di dichiarare approvati test o corse.
+
+
 ## C: revisione preliminare del runner di lavoro (Codex)
 
 - [Rilievi e regressioni richieste](C_REPEATABILITY_PRELIMINARY_CODE_REVIEW_20261125.md), versioni identificate da SHA: copertura finita/geometrica, bilanciamento su C_fin, leading al taglio e con polarita mancanti, bootstrap con meno di 10 componenti valutabili, C_rot e validita dello stencil.
