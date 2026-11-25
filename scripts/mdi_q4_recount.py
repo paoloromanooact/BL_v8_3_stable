@@ -716,8 +716,21 @@ EXACT = {"n_records", "n_mdi", "n_cells", "n_cr", "noise", "r", "scen", "n_ok", 
 SIGNED = {"r"}                           # r = -1 for the H rows
 
 
+COUNT_BASE = {"n_records", "n_mdi", "n_cells", "n_cr"}
+
+
 def is_exact(c):
-    return c in EXACT or (c.startswith("target_null_") and c.endswith("_n"))
+    return c in EXACT or (c.startswith("target_null_") and c.endswith("_n")) or count_stat(c) in ("min", "max")
+
+
+def count_stat(c):
+    """'median', 'min' or 'max' for the SUMMARY statistics of a count column, else None."""
+    base, _, st = c.rpartition("_")
+    return st if base in COUNT_BASE and st in ("median", "min", "max") else None
+
+
+def has_bool(series):
+    return pd.api.types.is_bool_dtype(series) or any(isinstance(v, (bool, np.bool_)) for v in series.to_numpy())
 
 
 def close_cols(a, b, tol=1e-8):
@@ -727,7 +740,16 @@ def close_cols(a, b, tol=1e-8):
     for c in a.columns:
         x, y = a[c].to_numpy(), b[c].to_numpy()
         xn, yn = pd.to_numeric(pd.Series(x), errors="coerce").to_numpy(float), pd.to_numeric(pd.Series(y), errors="coerce").to_numpy(float)
+        if count_stat(c) == "median":                      # median of counts: integer or half-integer, exact
+            nx, ny = pd.Series(x).isna().to_numpy(), pd.Series(y).isna().to_numpy()
+            v = xn[~nx]
+            if has_bool(a[c]) or not (np.array_equal(nx, ny) and np.isfinite(v).all() and (2 * v == np.round(2 * v)).all()
+                                      and (v >= 0).all() and np.array_equal(v, yn[~ny])):
+                return False, f"{c} (median of counts: not a non-negative integer or half-integer, or different)"
+            continue
         if is_exact(c):
+            if has_bool(a[c]):
+                return False, f"{c} (boolean in a count column)"
             nx, ny = pd.Series(x).isna().to_numpy(), pd.Series(y).isna().to_numpy()
             v = xn[~nx]
             if not (np.array_equal(nx, ny) and np.isfinite(v).all() and (v == np.round(v)).all() and (c in SIGNED or (v >= 0).all())
@@ -809,7 +831,8 @@ def protected_tolerances(df, summary=False):
                 nul = d[f"target_null_{tag}"].astype(str).eq("True").to_numpy()
                 big = (v == np.inf) | (np.isfinite(v) & (v >= 1e6))
                 zero_or_inf = (v == 0) | (v == np.inf)
-                good &= bool(np.isnan(v[m & ~okr]).all() and (big | (nul & zero_or_inf))[m & okr].all())
+                valid = np.where(nul, zero_or_inf, big)            # separate branches: null target -> 0 or +inf only
+                good &= bool(np.isnan(v[m & ~okr]).all() and valid[m & okr].all())
                 out = v.copy()
                 out[m & okr & nul] = NULL_TOL
                 out[m & okr & ~nul] = np.inf
@@ -829,9 +852,17 @@ def protected_tolerances(df, summary=False):
     return d, good
 
 
-def json_close(a, b, tol=1e-8):
+JSON_COUNTS = {"n_ok", "n_fail"}
+
+
+def json_close(a, b, tol=1e-8, key=None):
+    """a = own value, b = product value. Counts (n_ok, n_fail) must be non-boolean non-negative integers, exactly equal."""
+    if key in JSON_COUNTS:
+        return (type(b) is int and type(a) is int and b >= 0 and a == b) or \
+               (type(b) is float and b.is_integer() and type(a) in (int, float) and float(a) == b and b >= 0 and not isinstance(a, bool))
     if isinstance(a, dict):
-        return isinstance(b, dict) and set(map(str, a)) == set(map(str, b)) and all(json_close(a[k], b[str(k)] if str(k) in b else b[k], tol) for k in a)
+        return isinstance(b, dict) and set(map(str, a)) == set(map(str, b)) and all(
+            json_close(a[k], b[str(k)] if str(k) in b else b[k], tol, key=str(k)) for k in a)
     if isinstance(a, (list, tuple)):
         return isinstance(b, (list, tuple)) and len(a) == len(b) and all(json_close(x, y, tol) for x, y in zip(a, b))
     if isinstance(a, str) or isinstance(b, str):
@@ -1120,6 +1151,24 @@ def selftest():
     tamper("DESIGNS negative count", "DESIGNS", lambda t: first(t, "n_no_activity", -1))
     tamper("RAW flag not boolean", "RAW", lambda t: t.assign(target_null_020=t.target_null_020.astype(object).where(t.index != 0, "maybe")))
     tamper("CRITERIA extra column", "CRITERIA", lambda t: t.assign(extra="x"))
+    # Codex working review (b8e38f1): count domains and null-target tolerances, on the comparators themselves
+    ok("JSON criteria counts: 2.000000001 and True refused, 2 accepted",
+       not json_close({"x": {"n_ok": 2}}, {"x": {"n_ok": 2.000000001}}) and not json_close({"x": {"n_fail": 0}}, {"x": {"n_fail": False}})
+       and json_close({"x": {"n_ok": 2, "median": 0.5}}, {"x": {"n_ok": 2, "median": 0.5}}))
+    fa = pd.DataFrame({"n_records_min": [5223.0], "n_records_median": [5223.5], "n_mdi": [0]})
+    ok("SUMMARY count statistics: min +1e-9 refused, half-integer median accepted, median +1e-9 refused, boolean count refused",
+       not close_cols(fa.assign(n_records_min=5223.000000001), fa)[0] and close_cols(fa, fa)[0]
+       and not close_cols(fa.assign(n_records_median=5223.500000001), fa)[0]
+       and not close_cols(fa.assign(n_mdi=pd.Series([False], dtype=object)), fa)[0])
+    nrow = {"model": ["bA"], "status": ["ok"], "B1_A": [0.0], **{f"target_null_{t}": [True] for t in TAGS},
+            **{f"tol_units_A_{t}": [np.inf] for t in TAGS}}
+    base_ok = protected_tolerances(pd.DataFrame(nrow))[1]
+    bad = pd.DataFrame(nrow)
+    bad.loc[0, "tol_units_A_020"] = 1e30
+    nn_row = dict(nrow, **{f"target_null_{t}": [False] for t in TAGS})
+    ok("null target: +inf accepted, 1e30 refused; non-null target: 1e30 accepted, 0 refused",
+       base_ok and not protected_tolerances(bad)[1] and protected_tolerances(pd.DataFrame(nn_row).assign(tol_units_A_020=1e30))[1]
+       and not protected_tolerances(pd.DataFrame(nn_row).assign(tol_units_A_020=0.0))[1])
     # provenance gate on a fixture root (symbolic links to the real files; the real files are never touched)
     nf0 = json.loads(NOTE_FREEZE.read_text())
     af0 = json.loads((ROOT / A2_FREEZE_REL).read_text())
