@@ -1,0 +1,90 @@
+PASS no forbidden (tilt) column in the whitelists
+PASS read_whitelisted passes usecols and refuses a tilt column
+PASS L1/L2/Q2/AUDIT read only through read_whitelisted
+PASS seed zone 35200000-35204019 disjoint from phase A USED_RANGES
+PASS uniforms reproducible and indexed by row (same vector whatever the design)
+PASS realisation 20 refused (zone fixed at 20)
+PASS Beta r=0 and r=n: quantiles inside (0,1), ordered, symmetric to each other
+PASS pool M1: p_hat = (2+6)/10, n_eff = 100/44
+PASS pool U x act 2 empty -> n = 0, p_hat NaN
+PASS pool U x area 1: p_hat = 3/4, r_eff = p_hat n_eff
+PASS incremental rank: duplicate and zero columns dropped, x3 kept last
+PASS x3 in the span of the nuisance columns -> not identifiable
+PASS MDI-only with instrument terms: M24N/M24S coincide with I24N/I24S and drop
+PASS MDI-only bJ: M_x3 = x3 -> x3 not identifiable (model not applicable)
+PASS variance formula = a' Sigma a (brute force)  [288.487 vs 288.487]
+PASS target = g . ramp (hand formula)
+PASS zeroed MDI-HMI blocks: symmetric, PSD, cross entries 0
+PASS L-NN: nearest 5 in |lat|, ties by (noaa, day) order  [[np.int64(2), np.int64(6), np.int64(0), np.int64(1), np.int64(4)]]
+PASS L-NN: cell with < 5 donors -> -1
+PASS synthetic end-to-end: rows for every design, H once, finite SE  [5661 rows, 57 s]
+PASS synthetic: combined designs contain H records (n_records > H)
+PASS synthetic: criteria table produced
+PASS synthetic: inclusion = (U_g < p) with the shared U_g of POPULATION rows; same Phi in MS and MF  [566 shared]
+PASS null target: status ok, target_020 = target_010 = 0, SE finite, ratios NaN with flag, design-quantile target defined
+PASS null target, combined: bias and tolerance columns for every target, no division error
+PASS empty design: status 'empty_design' for every model, no exception
+PASS products for target_020/010/qd_020/qd_010: SE/target, recognition, m_prod/target, tolerance, worst cases; A_lo/hi_design in RAW
+PASS failures expanded: SUMMARY has the same configurations as without failures; zero successes -> n_ok 0, n_fail 2; one failure -> n_ok 1, n_fail 1 (also every combined weight and covariance variant)  [2853 vs 2853 keys]
+PASS criteria with a failed realisation: no classification for MF alone and MF+H vs MS+H; MS unaffected
+PASS cell counts: 36 cells, filters monotone, sums = population, MS and MF domains
+PASS yield effects: one change per step, MF gap step = ratio on the filtered units, published step on all units
+PASS implementation choices: the seven declared choices and the two handling rules recorded for META
+PASS freeze receipts: every anchored check matched  [[]]
+PASS receipt altered in memory (empty input list) -> 'input set (17) and hashes' only  [['input set (17) and hashes']]
+PASS receipt altered in memory (one input missing) -> 'input set (17) and hashes' only  [['input set (17) and hashes']]
+PASS receipt altered in memory (one input hash changed) -> 'input set (17) and hashes' only  [['input set (17) and hashes']]
+PASS receipt altered in memory (empty code list) -> 'reused-code set (9) and hashes' only  [['reused-code set (9) and hashes']]
+PASS receipt altered in memory (one extra code file) -> 'reused-code set (9) and hashes' only  [['reused-code set (9) and hashes']]
+PASS receipt altered in memory (parent SHA in the note receipt) -> 'parent protocol' only  [['parent protocol']]
+PASS receipt altered in memory (A2 receipt SHA named by the note) -> 'A2 receipt named by the note receipt' only  [['A2 receipt named by the note receipt']]
+PASS receipt altered in memory (note freeze commit not existing) -> 'note blob at its freeze commit, ancestor of HEAD' only  [['note blob at its freeze commit, ancestor of HEAD']]
+PASS receipt altered in memory (note freeze commit before the note existed) -> 'note blob at its freeze commit, ancestor of HEAD' only  [['note blob at its freeze commit, ancestor of HEAD']]
+PASS receipt altered in memory (seed zone [0, 0]) -> 'seed0, seed zone, realisations, z' only  [['seed0, seed zone, realisations, z']]
+PASS receipt altered in memory (A2 freeze commit in the A2 receipt) -> 'A2 blob at its freeze commit, same commit in both receipts' only  [['A2 blob at its freeze commit, same commit in both receipts']]
+PASS receipt altered in memory (prep META SHA in the A2 receipt) -> 'preparatory-count rules and META' only  [['preparatory-count rules and META']]
+PASS note receipt file SHA different from the pinned one -> refused  [['note receipt pinned']]
+PASS §6.1 E0 reproduction: columns, dropped, targets, 9 SE and shares of every model (rel 1e-12)  [[]]
+PASS §6.1 generalised variance = phase A t3_var on E0 (all models, noise 0-8)  [27]
+PASS §6.2 deterministic yields reproduced (22 L1 + 24 L2 rows, rel 1e-12)  [max rel 3.68e-16]
+PASS preparatory counts C2/C3/C7 and filters reproduced; missing years {1996, 2008}  [{'ok': True, 'got': {'MF_before_gap': 5280, 'MS': 5151, 'map_missing': 127, 'N_ambiguous': 2}, 'expected': {'MF_before_gap': 5280, 'MS': 5151, 'map_missing': 127, 'N_ambiguous': 2}, 'c7': True, 'MF': 5062, 'missing_years': [1996, 2008]}]
+PASS MF pools after filter 4 = note table (M1 49/53, U 12/35)
+PASS MS cells: n >= 6 everywhere, 8 map-missing units removed
+PASS every cell has >= 5 donors at 50 and 100 G
+PASS no SILSO month missing in the MDI domain
+PASS cell counts on real data: N_orig = selection N (5401), MS 5151, MF 5062
+real-data proofs: 20 s
+selftest 55/55
+realisation 0: 2853 rows
+realisation 1: 5661 rows
+realisation 2: 8469 rows
+realisation 3: 11277 rows
+realisation 4: 14085 rows
+realisation 5: 16893 rows
+realisation 6: 19701 rows
+realisation 7: 22509 rows
+realisation 8: 25317 rows
+realisation 9: 28125 rows
+realisation 10: 30933 rows
+realisation 11: 33741 rows
+realisation 12: 36549 rows
+realisation 13: 39357 rows
+realisation 14: 42165 rows
+realisation 15: 44973 rows
+realisation 16: 47781 rows
+realisation 17: 50589 rows
+realisation 18: 53397 rows
+realisation 19: 56205 rows
+                                  criterion threshold                                                                                             verdict                                                                                                                                                                                                                                                                                                                                                                                                                 detail
+0                contributo MDI (MS+H vs H)      main                                                                                           marginale              {"ref": {"1": {"median": 0.6912985750117848, "n_ok": 20, "n_fail": 0}, "2": {"median": 0.7090505190537274, "n_ok": 20, "n_fail": 0}, "7": {"median": 0.7065556081739388, "n_ok": 20, "n_fail": 0}}, "robust": {"1": {"median": 0.7410212582820465, "n_ok": 20, "n_fail": 0}, "2": {"median": 0.7409856990571175, "n_ok": 20, "n_fail": 0}, "7": {"median": 0.7374913846436073, "n_ok": 20, "n_fail": 0}}}
+1                           MS da solo vs H      main  misura T3 su un altro periodo/ciclo (essenzialmente il 23), con precisione prospettica almeno pari                                                                                                                                                                                                                             {"1": {"median": 0.8903531985231251, "n_ok": 20, "n_fail": 0}, "2": {"median": 0.9195124200766353, "n_ok": 20, "n_fail": 0}, "7": {"median": 0.9146594917787897, "n_ok": 20, "n_fail": 0}}
+2                           MF da solo vs H      main                                                                            precisione inferiore a H                                                                                                                                                                                                                              {"1": {"median": 1.0737674900563767, "n_ok": 20, "n_fail": 0}, "2": {"median": 1.033148756147026, "n_ok": 20, "n_fail": 0}, "7": {"median": 1.0168036605291082, "n_ok": 20, "n_fail": 0}}
+3                     prodotto MF+H vs MS+H      main                                                                MF non considerato (perdita di resa)     {"ref": {"1": {"median": 1.1053731447509345, "n_ok": 20, "n_fail": 0}, "2": {"median": 1.03420500495458, "n_ok": 20, "n_fail": 0}, "7": {"median": 1.0236256621318294, "n_ok": 20, "n_fail": 0}}, "mf_pool_cohort_act": {"1": {"median": 1.0877528886683452, "n_ok": 20, "n_fail": 0}, "2": {"median": 1.0218068938317189, "n_ok": 20, "n_fail": 0}, "7": {"median": 1.012420285076143, "n_ok": 20, "n_fail": 0}}}
+4   accanto: modello protetto bJ, MS+H vs H      main                                                                                    (senza criterio)                                                                                                                                                                                                                              {"1": {"median": 0.9999999999999989, "n_ok": 20, "n_fail": 0}, "2": {"median": 0.999999999999999, "n_ok": 20, "n_fail": 0}, "7": {"median": 0.9999999999999993, "n_ok": 20, "n_fail": 0}}
+5   accanto: modello protetto bA, MS+H vs H      main                                                                                    (senza criterio)                                                                                                                                                                                                                             {"1": {"median": 0.8542735735986531, "n_ok": 20, "n_fail": 0}, "2": {"median": 0.8082138792576793, "n_ok": 20, "n_fail": 0}, "7": {"median": 0.8039166575412657, "n_ok": 20, "n_fail": 0}}
+6                contributo MDI (MS+H vs H)   sens100                                                                                   utile come limite              {"ref": {"1": {"median": 0.6856203339098667, "n_ok": 20, "n_fail": 0}, "2": {"median": 0.6979233683119963, "n_ok": 20, "n_fail": 0}, "7": {"median": 0.6962655322683343, "n_ok": 20, "n_fail": 0}}, "robust": {"1": {"median": 0.7382719148546419, "n_ok": 20, "n_fail": 0}, "2": {"median": 0.7325695129163622, "n_ok": 20, "n_fail": 0}, "7": {"median": 0.7294436908933088, "n_ok": 20, "n_fail": 0}}}
+7                           MS da solo vs H   sens100  misura T3 su un altro periodo/ciclo (essenzialmente il 23), con precisione prospettica almeno pari                                                                                                                                                                                                                             {"1": {"median": 0.9033278141453026, "n_ok": 20, "n_fail": 0}, "2": {"median": 0.9238026320034682, "n_ok": 20, "n_fail": 0}, "7": {"median": 0.9211037444671448, "n_ok": 20, "n_fail": 0}}
+8                           MF da solo vs H   sens100                                                                            precisione inferiore a H                                                                                                                                                                                                                             {"1": {"median": 1.0508870173267404, "n_ok": 20, "n_fail": 0}, "2": {"median": 1.0117933386736593, "n_ok": 20, "n_fail": 0}, "7": {"median": 1.0023418230321255, "n_ok": 20, "n_fail": 0}}
+9                     prodotto MF+H vs MS+H   sens100                                                                                   MF da considerare  {"ref": {"1": {"median": 1.0881461539451585, "n_ok": 20, "n_fail": 0}, "2": {"median": 1.0257338819813167, "n_ok": 20, "n_fail": 0}, "7": {"median": 1.0167286675867746, "n_ok": 20, "n_fail": 0}}, "mf_pool_cohort_act": {"1": {"median": 1.0746607100364467, "n_ok": 20, "n_fail": 0}, "2": {"median": 1.0182184846170235, "n_ok": 20, "n_fail": 0}, "7": {"median": 1.0140686734812707, "n_ok": 20, "n_fail": 0}}}
+10  accanto: modello protetto bJ, MS+H vs H   sens100                                                                                    (senza criterio)                                                                                                                                                                                                                             {"1": {"median": 0.9999999999999991, "n_ok": 20, "n_fail": 0}, "2": {"median": 0.9999999999999993, "n_ok": 20, "n_fail": 0}, "7": {"median": 0.9999999999999996, "n_ok": 20, "n_fail": 0}}
+11  accanto: modello protetto bA, MS+H vs H   sens100                                                                                    (senza criterio)                                                                                                                                                                                                                             {"1": {"median": 0.8632750093465665, "n_ok": 20, "n_fail": 0}, "2": {"median": 0.8252332517858132, "n_ok": 20, "n_fail": 0}, "7": {"median": 0.8218579203901888, "n_ok": 20, "n_fail": 0}}

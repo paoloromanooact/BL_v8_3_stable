@@ -1,0 +1,56 @@
+check,ok,value
+no forbidden (tilt) column in the whitelists,True,
+read_whitelisted passes usecols and refuses a tilt column,True,
+L1/L2/Q2/AUDIT read only through read_whitelisted,True,
+seed zone 35200000-35204019 disjoint from phase A USED_RANGES,True,
+uniforms reproducible and indexed by row (same vector whatever the design),True,
+realisation 20 refused (zone fixed at 20),True,
+"Beta r=0 and r=n: quantiles inside (0,1), ordered, symmetric to each other",True,
+"pool M1: p_hat = (2+6)/10, n_eff = 100/44",True,
+"pool U x act 2 empty -> n = 0, p_hat NaN",True,
+"pool U x area 1: p_hat = 3/4, r_eff = p_hat n_eff",True,
+"incremental rank: duplicate and zero columns dropped, x3 kept last",True,
+x3 in the span of the nuisance columns -> not identifiable,True,
+MDI-only with instrument terms: M24N/M24S coincide with I24N/I24S and drop,True,
+MDI-only bJ: M_x3 = x3 -> x3 not identifiable (model not applicable),True,
+variance formula = a' Sigma a (brute force),True,288.487 vs 288.487
+target = g . ramp (hand formula),True,
+"zeroed MDI-HMI blocks: symmetric, PSD, cross entries 0",True,
+"L-NN: nearest 5 in |lat|, ties by (noaa, day) order",True,"[np.int64(2), np.int64(6), np.int64(0), np.int64(1), np.int64(4)]"
+L-NN: cell with < 5 donors -> -1,True,
+"synthetic end-to-end: rows for every design, H once, finite SE",True,"5661 rows, 57 s"
+synthetic: combined designs contain H records (n_records > H),True,
+synthetic: criteria table produced,True,
+synthetic: inclusion = (U_g < p) with the shared U_g of POPULATION rows; same Phi in MS and MF,True,566 shared
+"null target: status ok, target_020 = target_010 = 0, SE finite, ratios NaN with flag, design-quantile target defined",True,
+"null target, combined: bias and tolerance columns for every target, no division error",True,
+"empty design: status 'empty_design' for every model, no exception",True,
+"products for target_020/010/qd_020/qd_010: SE/target, recognition, m_prod/target, tolerance, worst cases; A_lo/hi_design in RAW",True,
+"failures expanded: SUMMARY has the same configurations as without failures; zero successes -> n_ok 0, n_fail 2; one failure -> n_ok 1, n_fail 1 (also every combined weight and covariance variant)",True,2853 vs 2853 keys
+criteria with a failed realisation: no classification for MF alone and MF+H vs MS+H; MS unaffected,True,
+"cell counts: 36 cells, filters monotone, sums = population, MS and MF domains",True,
+"yield effects: one change per step, MF gap step = ratio on the filtered units, published step on all units",True,
+implementation choices: the seven declared choices and the two handling rules recorded for META,True,
+freeze receipts: every anchored check matched,True,[]
+receipt altered in memory (empty input list) -> 'input set (17) and hashes' only,True,['input set (17) and hashes']
+receipt altered in memory (one input missing) -> 'input set (17) and hashes' only,True,['input set (17) and hashes']
+receipt altered in memory (one input hash changed) -> 'input set (17) and hashes' only,True,['input set (17) and hashes']
+receipt altered in memory (empty code list) -> 'reused-code set (9) and hashes' only,True,['reused-code set (9) and hashes']
+receipt altered in memory (one extra code file) -> 'reused-code set (9) and hashes' only,True,['reused-code set (9) and hashes']
+receipt altered in memory (parent SHA in the note receipt) -> 'parent protocol' only,True,['parent protocol']
+receipt altered in memory (A2 receipt SHA named by the note) -> 'A2 receipt named by the note receipt' only,True,['A2 receipt named by the note receipt']
+"receipt altered in memory (note freeze commit not existing) -> 'note blob at its freeze commit, ancestor of HEAD' only",True,"['note blob at its freeze commit, ancestor of HEAD']"
+"receipt altered in memory (note freeze commit before the note existed) -> 'note blob at its freeze commit, ancestor of HEAD' only",True,"['note blob at its freeze commit, ancestor of HEAD']"
+"receipt altered in memory (seed zone [0, 0]) -> 'seed0, seed zone, realisations, z' only",True,"['seed0, seed zone, realisations, z']"
+"receipt altered in memory (A2 freeze commit in the A2 receipt) -> 'A2 blob at its freeze commit, same commit in both receipts' only",True,"['A2 blob at its freeze commit, same commit in both receipts']"
+receipt altered in memory (prep META SHA in the A2 receipt) -> 'preparatory-count rules and META' only,True,['preparatory-count rules and META']
+note receipt file SHA different from the pinned one -> refused,True,['note receipt pinned']
+"§6.1 E0 reproduction: columns, dropped, targets, 9 SE and shares of every model (rel 1e-12)",True,[]
+"§6.1 generalised variance = phase A t3_var on E0 (all models, noise 0-8)",True,27
+"§6.2 deterministic yields reproduced (22 L1 + 24 L2 rows, rel 1e-12)",True,max rel 3.68e-16
+"preparatory counts C2/C3/C7 and filters reproduced; missing years {1996, 2008}",True,"{'ok': True, 'got': {'MF_before_gap': 5280, 'MS': 5151, 'map_missing': 127, 'N_ambiguous': 2}, 'expected': {'MF_before_gap': 5280, 'MS': 5151, 'map_missing': 127, 'N_ambiguous': 2}, 'c7': True, 'MF': 5062, 'missing_years': [1996, 2008]}"
+"MF pools after filter 4 = note table (M1 49/53, U 12/35)",True,
+"MS cells: n >= 6 everywhere, 8 map-missing units removed",True,
+every cell has >= 5 donors at 50 and 100 G,True,
+no SILSO month missing in the MDI domain,True,
+"cell counts on real data: N_orig = selection N (5401), MS 5151, MF 5062",True,

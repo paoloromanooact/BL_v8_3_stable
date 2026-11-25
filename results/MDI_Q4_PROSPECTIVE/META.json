@@ -1,0 +1,123 @@
+{
+ "script_sha256": "033b233bebfa63acfa6743b53ca4e0b9d27548301bb6e45824257514d0667bb6",
+ "git_head": "1c25c2e87ec5d045877e345799909f73b4183a5a",
+ "note_sha256": "e13a3a72875e15bed296414cfcf9423b7f4d032c3d3a8efaeb67e9ad7882ade9",
+ "a2_sha256": "c834077011ff7e201d01eabc318de7e6fbfc547bbffcfca05a0091e87636203e",
+ "note_freeze_sha256": "0f9b3acc01e6a58a182685259350f71a8caf82edc2381c209f210d89b5b2410d",
+ "a2_freeze_sha256": "76a26f061ab99c659f312d84a599a9b3e540b77b321529bd2c99ae83b5a23326",
+ "seed0": 35200000,
+ "n_realisations": 20,
+ "z": 2.241402727604947,
+ "units": {
+  "d3": 1.602647454341313,
+  "sbar": 0.27917948049178304
+ },
+ "mf_missing_years": [
+  1996,
+  2008
+ ],
+ "noise": [
+  [
+   "ar1_05",
+   1,
+   0.5
+  ],
+  [
+   "ar1_05",
+   1,
+   1.0
+  ],
+  [
+   "ar1_05",
+   1,
+   2.0
+  ],
+  [
+   "ar1_09",
+   2,
+   0.5
+  ],
+  [
+   "ar1_09",
+   2,
+   1.0
+  ],
+  [
+   "ar1_09",
+   2,
+   2.0
+  ],
+  [
+   "steps20",
+   7,
+   0.5
+  ],
+  [
+   "steps20",
+   7,
+   1.0
+  ],
+  [
+   "steps20",
+   7,
+   2.0
+  ],
+  [
+   "ar1_09_km08",
+   3,
+   0.5
+  ],
+  [
+   "ar1_09_km08",
+   3,
+   1.0
+  ],
+  [
+   "ar1_09_km08",
+   3,
+   2.0
+  ],
+  [
+   "ar1_05_kp06",
+   4,
+   0.5
+  ],
+  [
+   "ar1_05_kp06",
+   4,
+   1.0
+  ],
+  [
+   "ar1_05_kp06",
+   4,
+   2.0
+  ]
+ ],
+ "filters": {
+  "population": 5401,
+  "excl_date": 117,
+  "excl_cr": 4,
+  "MS_excl_map_missing": 127,
+  "MS_excl_N_ambiguous": 2,
+  "MF_excl_gap": 218,
+  "MS": 5151,
+  "MF": 5062
+ },
+ "runtime_s": 559.6,
+ "python": "3.10.12",
+ "numpy": "2.2.6",
+ "pandas": "2.3.3",
+ "omp": "1",
+ "receipts_problems": [],
+ "implementation_choices": [
+  "1. 'quantili ricalcolati sul disegno' (note \u00a74, \u00a76): 5-95 % numpy-linear quantiles of the cell activity replicated on the records of the T3 design itself (phase A used T5 records, which Q4 does not build); a different set from T5. Reported as columns target_qd_* with every target-dependent product, and the quantiles A_lo_design, A_hi_design.",
+  "2. covariance check (note \u00a75): min eigenvalue >= -1e-10 * max eigenvalue, cached per (cell CR, cell hemisphere, scenario, cross-zero variant); the key keeps the order of the cells.",
+  "3. ratios h/h_H use H with model (a), the same sigma_int and the same noise row; H has sigma_m,HMI = 0 and does not depend on the realisation, the threshold or the MDI sensitivity.",
+  "4. A_main sensitivity (MDI alone only): a declared numeric scenario. target_* keep the E0 SILSO quantiles (units differ from SILSO: not the same activity range nor the same physical slope; no direct physical comparison of the betas), target_qd_* report the design's own quantiles; not used by the criteria.",
+  "5. flux donors: a target group may receive itself as donor when it is a successful L1 unit (L-NN and no-latitude sensitivity); donors are reused with replacement. This is not an independent verification of that group's flux.",
+  "6. domains: MF excludes the 1998 gap but not the missing synoptic maps; MS also excludes N ambiguous (as the note); MS/MF population differences are not compensated by choosing other groups.",
+  "7. one-at-a-time sensitivities are also computed for combinations the note does not require (for example MS alone with flux_nolat): a superset of \u00a76, same rule, labelled; no new criterion and no crossing of sensitivities.",
+  "null target: a zero ramp makes the ratios to the target (se_over_target, m_prod_over_target) not defined (NaN, flag target_null_*); SE, h and recognition are kept; no epsilon is added.",
+  "not computable designs: failures are expanded on the expected grid of configurations, so that SUMMARY has every key with n_ok and n_fail; criteria do not classify when a used realisation failed."
+ ]
+}

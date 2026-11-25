@@ -1,0 +1,31 @@
+threshold,design,step_order,step,change,value
+main,MS,1,"r/n, all L1 units, eligible population (published)",-,0.9282355119422329
+main,MS,2,"r/n, map-missing units removed, eligible population",units,0.9370195995450579
+main,MS,3,"r/n, map-missing units removed, Q4 domain",domain,0.9371356463377432
+main,MS,4,"Beta mean, Q4 domain",Beta,0.9095261784581822
+main,MF,1,"ratio estimate, all level-2 units, eligible population (published)",-,0.46991297907794854
+main,MF,2,"ratio estimate, gap units removed, eligible population",units,0.47664955552773264
+main,MF,3,"pool cohort p_hat, eligible population",pool,0.47551069547024355
+main,MF,4,"pool cohort p_hat, Q4 domain",domain,0.4792870957596078
+main,MF,5,"pool cohort Beta mean, Q4 domain",Beta,0.47959597934764453
+main,MF,6,"pool cohort_act p_hat, eligible population",pool,0.47608426550203947
+main,MF,7,"pool cohort_act p_hat, Q4 domain",domain,0.4772196198011985
+main,MF,8,"pool cohort_act Beta mean, Q4 domain",Beta,0.4796759596482717
+main,MF,9,"pool cohort_area p_hat, eligible population",pool,0.4781779806828712
+main,MF,10,"pool cohort_area p_hat, Q4 domain",domain,0.4820136203466149
+main,MF,11,"pool cohort_area Beta mean, Q4 domain",Beta,0.4853514634689613
+sens100,MS,1,"r/n, all L1 units, eligible population (published)",-,0.8170709127939269
+sens100,MS,2,"r/n, map-missing units removed, eligible population",units,0.8247855335431709
+sens100,MS,3,"r/n, map-missing units removed, Q4 domain",domain,0.8258516607963319
+sens100,MS,4,"Beta mean, Q4 domain",Beta,0.8052656788788124
+sens100,MF,1,"ratio estimate, all level-2 units, eligible population (published)",-,0.46991297907794854
+sens100,MF,2,"ratio estimate, gap units removed, eligible population",units,0.47664955552773264
+sens100,MF,3,"pool cohort p_hat, eligible population",pool,0.47551069547024355
+sens100,MF,4,"pool cohort p_hat, Q4 domain",domain,0.4792870957596078
+sens100,MF,5,"pool cohort Beta mean, Q4 domain",Beta,0.47959597934764453
+sens100,MF,6,"pool cohort_act p_hat, eligible population",pool,0.47608426550203947
+sens100,MF,7,"pool cohort_act p_hat, Q4 domain",domain,0.4772196198011985
+sens100,MF,8,"pool cohort_act Beta mean, Q4 domain",Beta,0.4796759596482717
+sens100,MF,9,"pool cohort_area p_hat, eligible population",pool,0.4781779806828712
+sens100,MF,10,"pool cohort_area p_hat, Q4 domain",domain,0.4820136203466149
+sens100,MF,11,"pool cohort_area Beta mean, Q4 domain",Beta,0.4853514634689613
