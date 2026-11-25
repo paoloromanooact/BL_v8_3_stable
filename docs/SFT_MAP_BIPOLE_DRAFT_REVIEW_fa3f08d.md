@@ -117,8 +117,8 @@ esiti. Questa scelta resta da recepire nella prossima bozza.
    del campo selezionato nella patch al tempo t0, non una sorgente pura di
    nuova emersione. Il flusso preesistente resta incluso e dichiarato.
 8. **Parametri:** usare il modello esplicito di Yeates (2020), equazioni
-   12–13: eta = 350 km²/s, `v(lat)=Du sin(lat) cos(lat)^p`, Du = 0,041 km/s,
-   p = 2,33, tau infinito. Il massimo del flusso e circa 14,82 m/s; Du NON
+   12–13, nel set pre-HMI: eta = 466,8 km²/s, `v(lat)=Du sin(lat) cos(lat)^p`, Du = 0,025 km/s,
+   p = 2,33, tau infinito. Il massimo del flusso e circa 9,04 m/s; Du NON
    e il massimo. R uguale a quello usato nella geometria P1, con conversione
    cm↔km esplicita. Proposta di sensibilita: griglia 2×2 con eta in
    {350; 466,8} e Du in {0,025; 0,041}, p invariato: due coppie sono citate
@@ -132,6 +132,12 @@ esiti. Questa scelta resta da recepire nella prossima bozza.
    esterni separati, conservandone versione e licenza. Nessuna incorporazione
    di SFT1/GPL e necessaria per congelare il protocollo. Il secondo oracolo
    numerico e utile, ma non sostituisce prove analitiche indipendenti.
+
+**Raccordo dopo la lettura congiunta del punto 3:** il riferimento qui
+indicato e aggiornato da 350/0,041 a 466,8/0,025 per usare come principale
+un set tarato prima di HMI. Il set 350/0,041 rimane nella griglia di
+sensibilita; fu scelto nel lavoro confrontando il ciclo 24 HMI. Dettagli in
+`SFT_OBSERVED_DRAFT_REVIEW_e0bba64.md`. Le due bozze non sono congelate.
 
 ## C. Specifiche numeriche da aggiungere prima della corsa
 

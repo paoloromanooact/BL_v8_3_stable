@@ -1,5 +1,11 @@
 # Cronologia
 
+## 2026-11-25 — revisione del protocollo SFT contro osservazioni
+
+- Verificato dai soli metadati il vincolo USFLUX del controllo al massimo; documentati bilanciamento coerente, supporti comuni e limiti delle attribuzioni causali.
+- Prove sintetiche su preparazione del campo e sistema rotante; disponibilita nominale di coppie brevi, senza lettura di pixel. Raccordato il riferimento pre-HMI fra i due piloti prima del congelamento.
+
+
 ## 2026-11-25 — revisione del protocollo SFT mappa–bipolo
 
 - Verificate riduzione 1D e fonti; conservate prove sintetiche su segni/fattore, rimappatura del dipolo e sovrapposizione delle gaussiane.

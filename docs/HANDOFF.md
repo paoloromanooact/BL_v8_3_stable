@@ -20,6 +20,15 @@
 - Proposti bipolo puntiforme principale, gaussiane come sensibilita; trasporto Yeates 2020 esplicito con scenari fissati; nessuna soglia di adeguatezza al 20 %.
 - Claude recepisce le scelte prima del congelamento. Nessun pixel osservato o simulazione SFT eseguita nella revisione. Punto 3 in revisione separata, con scelte comuni da raccordare.
 
+## SFT evoluzione osservata: revisione Codex di e0bba64 (25 novembre)
+
+- Bozza non congelabile: [correzioni e decisioni sugli otto punti](SFT_OBSERVED_DRAFT_REVIEW_e0bba64.md).
+- Metadati: 7133/7133 controlli con USFLUX almeno pari al primario; lo strato «calo >20%» e impossibile con endpoint al massimo. Riformulare celle e popolazione.
+- Da rendere coerenti: campo iniziale/target bilanciato o grezzo, dominio comune di valutazione, maschere e soglie, sistema Carrington e margine dai bordi. I residui non separano causalmente trasporto ed emergenza.
+- Raccordo finale dei parametri fra i due piloti: riferimento pre-HMI eta 466,8 km²/s, Du 0,025 km/s, p 2,33; set 350/0,041 e incroci come sensibilita dichiarate. Aggiornata anche la sola raccomandazione del riferimento nella revisione del punto 2, che non e un protocollo congelato.
+- Disponibilita nominale di 299 coppie entro 2 h in 296 HARP; e fattibilita da nomi/T_REC, non stima del rumore osservativo.
+- Claude aggiorna entrambe le bozze; poi controllo breve e congelamento prima del codice. Solo metadati e casi sintetici verificati, nessuna mappa reale letta o evoluzione SFT eseguita. Q4 resta separato.
+
 ## Lista dell'utente (25 novembre 2026), nell'ordine
 
 1. Inventario SFT e dati HMI disponibili. Completato da Codex su richiesta dell’utente; consegna e limiti in `docs/BL_SFT_HMI_INVENTORY.md`. Claude usa questa consegna per i punti 2 e 3.

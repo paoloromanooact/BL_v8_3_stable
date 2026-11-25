@@ -1,0 +1,31 @@
+{
+  "selection": {
+    "path": "results/P1/P1_RECORD_SELECTION.csv",
+    "sha256": "313273e254cddba10dc51c3359743881749adf42e3c43d58877c69f53605d651",
+    "harps": 7133,
+    "control_below_primary": 0,
+    "decline_over_20_percent": 0,
+    "minimum_control_over_primary": 1.0,
+    "explanation": "Control candidates include the selected primary; maximum USFLUX cannot be below primary."
+  },
+  "nominal_short_pairs": {
+    "harps": 296,
+    "pairs": 299,
+    "min_seconds": 3600.0,
+    "max_seconds": 7200.0
+  },
+  "initialisation": {
+    "raw_D": 0.015245686506410228,
+    "balanced_D": 0.0024923742903753183,
+    "perfect_persistence_error": 0.0,
+    "balanced_input_vs_raw_target_error": 0.01275331221603491
+  },
+  "frame": {
+    "latitude": 15.0,
+    "days": 4.5,
+    "omega_sidereal_deg_per_day": 14.544479632015152,
+    "carrington_rate": 14.1844,
+    "shift_without_frame_correction_deg": 65.45015834406819,
+    "shift_in_carrington_deg": 1.6203583440681841
+  }
+}
