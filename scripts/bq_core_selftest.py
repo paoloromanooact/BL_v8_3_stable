@@ -13,7 +13,8 @@ Checks:
  7. timing on the real design structure (metadata only, synthetic y);
  8-11. blocked cross-validation: blocks, masks (buffer and families), exact conditional density vs dense, end to end;
  12. joint latent draw vs dense posterior; 13-14. L3 folded density and branch draw; 15-16. L2 and L3 Gibbs recovery;
- 17. L3 with a large dispersion (many folded records).
+ 17. L3 with a large dispersion (many folded records);
+ 18. one-CR calendar (AR(1) precision and log-likelihood vs dense), n_t = 0 refused, main q prior SD 0.5.
 
     OMP_NUM_THREADS=1 .venv/bin/python scripts/bq_core_selftest.py
 """
@@ -300,6 +301,36 @@ def main():
        f"folded share true {folded:.2f}, sampled {np.mean(g17['summary']):.2f}; L3 beta {b17.mean():.1f} +- {b17.std():.1f} "
        f"(halves {halves[0]:.1f}/{halves[1]:.1f}), oracle {mo:.1f} +- {so:.1f}; sigma0 L3 {s17.mean():.1f}, L1 on folded gamma "
        f"{np.exp(dr1[:, 0]).mean():.1f} (beta {c1[:, 0].mean():.1f}, different target)")
+    # 18: one-CR calendar (Codex 27 Nov): T = [1] for any phi; n_t < 1 refused; main q prior SD 0.5
+    rng18 = np.random.default_rng(SEED + 18)
+    e18 = 0.0
+    for n_t in (1, 2):
+        for sd, phi, ka in ((2.0, 0.7, 0.2), (1.7, -0.6, 0.4), (0.5, 0.95, -0.3)):
+            P, ld = B._ar1_precision(n_t, sd, phi, ka)
+            t = np.repeat(np.arange(n_t), 2)
+            hh = np.tile([0, 1], n_t)
+            Cd = sd ** 2 * phi ** np.abs(t[:, None] - t[None, :]) * np.where(hh[:, None] == hh[None, :], 1.0, ka)
+            e18 = max(e18, np.max(np.abs(np.linalg.inv(P) - Cd)), abs(ld - np.linalg.slogdet(Cd)[1]))
+    l18 = 0.0
+    for with_v in (False, True):
+        for with_beta in (False, True):
+            n = 14
+            fam = np.arange(n)
+            fam[[3, 7, 11]] = fam[[2, 6, 10]]
+            d18 = B.Design(t=np.zeros(n, int), h=rng18.integers(0, 2, n), s=rng18.uniform(0.05, 0.5, n), a=rng18.uniform(-1, 2, n),
+                           lphi=rng18.uniform(0, 1.5, n), cell=rng18.integers(0, 2, n), fam=fam, n_t=1, n_cell=2,
+                           with_v=with_v, with_beta=with_beta)
+            x = random_x(d18, rng18)
+            y = rng18.normal(0, 20, n)
+            l18 = max(l18, abs(B.loglik(d18, x, y) - dense_loglik(d18, x, y)) / abs(dense_loglik(d18, x, y)))
+    try:
+        B._ar1_precision(0, 1.0, 0.5, 0.1)
+        refused = False
+    except ValueError:
+        refused = True
+    ok("18. one-CR calendar: AR(1) precision/log-det = dense for any phi, log-likelihood = dense (u, u+v), n_t = 0 refused; "
+       "main prior q SD 0.5", e18 < 1e-12 and l18 < 1e-10 and refused and B.PRIOR["q_sd"] == 0.5,
+       f"precision/log-det {e18:.1e}, log-lik rel {l18:.1e}, n_t = 0 refused {refused}, q_sd {B.PRIOR['q_sd']}")
     # 7: timing on the real design structure (design columns only)
     try:
         sys.path.insert(0, str(ROOT / "scripts"))

@@ -1,0 +1,34 @@
+[OK] A. identical maps: every difference zero for raw, p1_source, balanced; C_fin >= 25 deg^2 areas [33.9, 33.9, 33.9]
+[OK] B. rotation relative to Carrington (2 h): persistence d_lon = shift, rotation-only difference much smaller shift -0.0639, d -0.0639, drot -0.00248
+[OK] B2. C_rot inside C_fin (numerical domain of dependence); persistence on C_rot sees the shift C_geo 72.0, C_fin 72.0, C_rot 63.1 deg2; persistence on C_rot -0.0639
+[OK] B3. 2-day gap: C_rot below 25 deg2 -> rot_coverage_insufficient, secondary NaN, main measured (d_lon = shift) C_fin 88.4, C_rot 0.0 deg2
+[OK] A2. identical maps at 1 h: C_rot inside C_fin, every secondary persistence difference zero C_rot / C_fin 0.917
+[OK] C. correlated pixel noise, no evolution: Var(dD) ratio rho 0.8 / rho 0 = 1 - rho = 0.2 (40 pairs each) ratio 0.142
+[OK] D. one polarity: balanced -> balance_polarity_missing; raw measured {'raw': 'ok', 'p1_source': 'ok', 'balanced': 'balance_polarity_missing'}
+[OK] E. small patch -> finite_coverage_insufficient 
+Traceback (most recent call last):
+  File "/home/gianluca/BL_v8_3_stable/scripts/sft_c_repeatability_selftest.py", line 312, in <module>
+    sys.exit(0 if main() else 1)
+  File "/home/gianluca/BL_v8_3_stable/scripts/sft_c_repeatability_selftest.py", line 187, in main
+    rJc = [r for r in CR.measure_pair(read, 7, k0, j1, kinds=("raw",))][0]
+  File "/home/gianluca/BL_v8_3_stable/scripts/sft_c_repeatability.py", line 122, in measure_pair
+    br1, bm1, h1 = read(harp, t_rec1)
+  File "/home/gianluca/BL_v8_3_stable/scripts/sft_observed_pilot.py", line 63, in read
+    br, h = geo.read_sharp(folder / f"{stem}.Br.fits")
+  File "/home/gianluca/BL_v8_3_stable/python/sharpbl/geometry.py", line 29, in read_sharp
+    with fits.open(path) as hl:
+  File "/home/gianluca/BL_v8_3_stable/.venv/lib/python3.10/site-packages/astropy/io/fits/hdu/hdulist.py", line 223, in fitsopen
+    return HDUList.fromfile(
+  File "/home/gianluca/BL_v8_3_stable/.venv/lib/python3.10/site-packages/astropy/io/fits/hdu/hdulist.py", line 487, in fromfile
+    return cls._readfrom(
+  File "/home/gianluca/BL_v8_3_stable/.venv/lib/python3.10/site-packages/astropy/io/fits/hdu/hdulist.py", line 1169, in _readfrom
+    fileobj = _File(
+  File "/home/gianluca/BL_v8_3_stable/.venv/lib/python3.10/site-packages/astropy/io/fits/file.py", line 218, in __init__
+    self._open_filename(fileobj, mode, overwrite)
+  File "/home/gianluca/BL_v8_3_stable/.venv/lib/python3.10/site-packages/astropy/io/fits/file.py", line 651, in _open_filename
+    self._file = open(self.name, IO_FITS_MODES[mode])
+FileNotFoundError: [Errno 2] No such file or directory: '/tmp/tmp4nxfeb2e/fits/2014/hmi.sharp_cea_720s.7.20140501_110000_TAI.Br.fits'
+
+real	0m13,897s
+user	0m13,182s
+sys	0m0,706s

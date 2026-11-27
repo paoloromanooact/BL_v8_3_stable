@@ -14,7 +14,8 @@ eliminated exactly (diagonal Schur complement), the AR(1) latents in a banded Ch
 Schur complement. The posterior of theta given psi is Gaussian; beta's conditional gives the Savage-Dickey ordinate.
 
 Prior (rev. 4 proposals): k ~ N(0, 40^2); beta ~ N(0, tau^2), tau = 10; sigma0 ~ HN(30); sigma_x ~ HN(10);
-sigma_f ~ HN(5); q ~ N(0, 1); z_phi, z_kappa ~ N(0, 1); sigma_v ~ HN(20) (or 5); z_phi_v, z_kappa_v ~ N(0, 1).
+sigma_f ~ HN(5); q ~ N(0, 0.5^2) (main; SD 1 as sensitivity, Codex 27 Nov); z_phi, z_kappa ~ N(0, 1);
+sigma_v ~ HN(20) (or 5); z_phi_v, z_kappa_v ~ N(0, 1).
 Sampling coordinates: log of every scale (Jacobian included), q and the z's as they are.
 
 Only numpy/scipy. No observed response is read here.
@@ -28,7 +29,7 @@ import numpy as np
 from scipy.linalg import cho_factor, cho_solve, cholesky_banded, cho_solve_banded, solve_banded, solve_triangular
 
 LOG2PI = math.log(2.0 * math.pi)
-PRIOR = dict(k_sd=40.0, beta_sd=10.0, sigma0_hn=30.0, sigma_x_hn=10.0, sigma_f_hn=5.0, q_sd=1.0, sigma_v_hn=20.0)
+PRIOR = dict(k_sd=40.0, beta_sd=10.0, sigma0_hn=30.0, sigma_x_hn=10.0, sigma_f_hn=5.0, q_sd=0.5, sigma_v_hn=20.0)
 
 
 @dataclass
@@ -113,14 +114,20 @@ def log_prior(d: Design, x):
 
 
 def _ar1_precision(n_t, sd, phi, kappa):
-    """Precision and log-determinant of the covariance sd^2 T(phi) (x) H(kappa), index t*2 + h."""
+    """Precision and log-determinant of the covariance sd^2 T(phi) (x) H(kappa), index t*2 + h.
+    One CR: T = [1] for any phi (stationary variance sd^2), so T^-1 = [1] and the phi term of the log-det vanishes."""
+    if n_t < 1:
+        raise ValueError(f"AR(1) calendar needs at least one CR, got n_t = {n_t}")
     om = 1.0 - phi * phi
-    Ti = np.zeros((n_t, n_t))
-    idx = np.arange(n_t)
-    Ti[idx, idx] = 1.0 + phi * phi
-    Ti[0, 0] = Ti[-1, -1] = 1.0
-    Ti[idx[:-1], idx[1:]] = Ti[idx[1:], idx[:-1]] = -phi
-    Ti /= om
+    if n_t == 1:
+        Ti = np.ones((1, 1))
+    else:
+        Ti = np.zeros((n_t, n_t))
+        idx = np.arange(n_t)
+        Ti[idx, idx] = 1.0 + phi * phi
+        Ti[0, 0] = Ti[-1, -1] = 1.0
+        Ti[idx[:-1], idx[1:]] = Ti[idx[1:], idx[:-1]] = -phi
+        Ti /= om
     ok = 1.0 - kappa * kappa
     Hi = np.array([[1.0, -kappa], [-kappa, 1.0]]) / ok
     logdet = 2 * n_t * math.log(sd * sd) + 2 * (n_t - 1) * math.log(om) + n_t * math.log(ok)

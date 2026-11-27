@@ -115,7 +115,9 @@ Proposte numeriche per la revisione, non parametri già congelati:
 - k_(c,h) ~ N(0,40²) gradi; nessuna imposizione del segno del coefficiente osservato.
 - beta in MQ ~ N(0,10²) gradi per unità di attività. Sensibilita predefinite: deviazioni 2,5; 5; 20; 40 gradi, con 10 principale. Stesse prior comuni in ogni confronto.
 - sigma0 ~ half-Normal(30 gradi), sigma_x ~ half-Normal(10 gradi), sigma_f ~ half-Normal(5 gradi).
-- q~N(0;1²), con sensibilita N(0;(0,5)²) nella scala log10 del flusso; z_phi,z_kappa~N(0,1).
+- q~N(0;(0,5)²) principale, con sensibilita N(0;1²), nella scala log10 del flusso (scelta proposta in 3b7903c e
+  confermata da Codex il 27 novembre; prima era il contrario); z_phi,z_kappa~N(0,1). Il costruttore `bq_core.PRIOR` usa
+  q_sd=0,5.
 - Probabilità a priori M0/MQ pari a 1/2, se vengono calcolate probabilità di modello.
 
 Tutte le densità e costanti di normalizzazione entrano nell'evidenza. Il protocollo definitivo conserva anche
