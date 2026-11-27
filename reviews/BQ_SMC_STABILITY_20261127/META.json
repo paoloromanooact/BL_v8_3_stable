@@ -1,0 +1,17 @@
+{
+  "status": "running",
+  "sources_sha256": {
+    "scripts/bq_smc_stability.py": "45fe2938d95ffb9ae07ae75ff3011968d3c1963d9e12ac15dd5ef13ef80ffe03",
+    "python/sharpbl/bq_smc.py": "2b29d6822a282b60510f516285899000a0f7ed8c902537664aff426bc65fac40",
+    "python/sharpbl/bq_core.py": "45b94e7862df4facdd6dac8fc65235308402bd5ed6e64e4e2a94ea0943eccc46",
+    "python/sharpbl/bq_cv.py": "ba6d673e93ed7ee796362dfb84e1da8c2b0f0fd4cddb82da9bfca6ceb0af9fa7",
+    "python/sharpbl/bq_cvpred.py": "eb09b1dc8a2af11dffe1a55560b463ca252f129690347fccf8df5a8be2ebac80",
+    "scripts/bq_woodbury_benchmark.py": "4c06f8851558e8e458c3c0cfd60dedc2b8325efada8c1677ce9edf9557df502c"
+  },
+  "seed0": 36400960,
+  "reps": 8,
+  "particles": 1000,
+  "sizes": "22,102,236,395",
+  "kinds": "L1,L2,L3",
+  "note": "synthetic response on the real T3 design (metadata only); development measurement at fixed psi, not a validation"
+}

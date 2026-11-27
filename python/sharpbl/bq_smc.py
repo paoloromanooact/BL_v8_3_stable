@@ -7,11 +7,14 @@ Target: log p(y_block | y_train, psi[, training precisions or training latent ti
   the block is absorbed in the variance of that record.
 - Records in order (CR, index). At record j, for each particle: predictive mean a.mu, variance c = a Sigma a + r_j.
   The block score accumulates log sum_i W_i^(j-1) p_i(y_j | prefix) with the prefix weights, BEFORE any resampling.
-  L1: exact Kalman with one particle (no randomness). L2: the record precision on a discrete measure given by the
-  generalised Gauss-Laguerre rule of Gamma(nu/2, nu/2) (n_quad nodes): the same weighted integrand gives the predictive
-  (its sum) and the conditional draw (its normalisation). This IS an approximation of the Gamma prior, declared and
-  measured against a finer rule. L3: the folded predictive with the predictive variance integrated, images added until
-  the certified tail bound T/S <= 1e-12; the preimage is then drawn from its discrete conditional.
+  L1: exact Kalman with one particle (no randomness). L2: the record precision on a discrete measure, a uniform grid
+  in u = log(lam) on [-30, 5] with trapezoid weights of the Gamma(nu/2, nu/2) density (Jacobian lam), mass 1
+  (n_quad = 200 points; revision of 27 Nov: the generalised Gauss-Laguerre rule used before had log errors of -1.1 at
+  20 and -26 at 50 residual scales with 64 nodes, the grid 3.6e-15 in reviews/BQ_L2_QUADRATURE_20261127/). The same
+  weighted integrand gives the predictive (its sum), the conditional draw (its normalisation) and the rejuvenation
+  draws. L3: ONE routine (images) builds the retained preimages, their weights and the certified bound T/S <= 1e-12
+  for the folded predictive (predictive variance integrated), for the proposal of the preimage and for the
+  rejuvenation draws; the reported max T/S covers all of them.
 - Resampling (systematic) when the ESS of the weights < N/2; then rejuvenation by data-augmentation Gibbs on the prefix
   (z | auxiliaries, then each auxiliary | z), which leaves the conditional of the auxiliaries given the prefix
   invariant (Del Moral, Doucet & Jasra 2006). L2 singleton-family records: b_k | z, lam_k, then lam_k | z, b_k.
@@ -23,7 +26,7 @@ import math
 
 import numpy as np
 from scipy.linalg import cho_solve, cho_solve_banded
-from scipy.special import gammaln, roots_genlaguerre
+from scipy.special import gammaln, log_ndtr
 
 from . import bq_core as B, bq_cv as CV, bq_cvpred as P
 
@@ -85,11 +88,20 @@ def _lse(v, axis=None):
     return np.squeeze(out, axis=axis) if axis is not None else float(out)
 
 
-def gamma_nodes(nu, n):
-    """Discrete measure (lam_k, log q_k) of Gamma(shape nu/2, rate nu/2) by generalised Gauss-Laguerre."""
+U_LO, U_HI = -30.0, 5.0
+
+
+def precision_measure(nu, n=200):
+    """Discrete measure (lam_k, log q_k) of Gamma(shape nu/2, rate nu/2): uniform grid in log(lam) on [U_LO, U_HI],
+    trapezoid weights of the density times the Jacobian lam, total mass 1."""
     a = nu / 2.0
-    u, w = roots_genlaguerre(n, a - 1.0)
-    return u / a, np.log(w) - gammaln(a)
+    u = np.linspace(U_LO, U_HI, n)
+    lw = a * math.log(a) - gammaln(a) + a * u - a * np.exp(u)
+    w = np.full(n, u[1] - u[0])
+    w[[0, -1]] *= 0.5
+    lq = lw + np.log(w)
+    m = lq.max()
+    return np.exp(u), lq - (m + math.log(np.exp(lq - m).sum()))
 
 
 def _kalman(mu, Sig, a, obs, r):
@@ -107,24 +119,48 @@ def _systematic(W, rng):
     return np.minimum(np.searchsorted(np.cumsum(W), u), N - 1)
 
 
-def _folded_images(g, mu, sd):
-    """Retained preimages and their log weights for N(.; mu, sd^2), with the certified tail bound."""
-    ls, ts = P.folded_logpdf_bounded(g, mu, sd)
+def images(g, mu, sd, tol=P.TAIL_TOL, budget=P.IMAGE_BUDGET):
+    """THE preimage routine (score, proposal and rejuvenation): retained preimages x of gamma (lattices g + L k and
+    180 - g + L k), their log weights log N(x; mu, sd^2), log S = log sum and the certified ratio T/S of the omitted to
+    the retained discrete density (per side and lattice sum_j f(d + jL) <= f(d) + survival(d/sd)/L). Images are added
+    symmetrically around the one nearest to mu until T/S <= tol; budget exhausted -> error."""
+    if not (-90.0 < g < 90.0 and sd > 0 and math.isfinite(mu)):
+        raise ValueError("folded density: gamma in (-90, 90), finite mean and positive sd required")
     lnorm = -0.5 * LOG2PI - math.log(sd)
-    out_x, out_l = [], []
+    L = P.L_PERIOD
+    xs, lws, bounds = [], [], []
     for base in (g, 180.0 - g):
-        k0 = round((mu - base) / P.L_PERIOD)
-        K = int(math.ceil(12 * sd / P.L_PERIOD)) + 2
-        x = base + P.L_PERIOD * np.arange(k0 - K, k0 + K + 1)
-        out_x.append(x)
-        out_l.append(lnorm - 0.5 * ((x - mu) / sd) ** 2)
-    x, lw = np.concatenate(out_x), np.concatenate(out_l)
-    return x, lw, ls, ts
+        k0 = round((mu - base) / L)
+        K = 0
+        while True:
+            x = base + L * np.arange(k0 - K, k0 + K + 1)
+            lw = lnorm - 0.5 * ((x - mu) / sd) ** 2
+            b = []
+            for kk in (k0 - K - 1, k0 + K + 1):
+                dist = abs(base + L * kk - mu)
+                b.append(np.logaddexp(lnorm - 0.5 * (dist / sd) ** 2, log_ndtr(-dist / sd) - math.log(L)))
+            S_, T_ = _lse(lw), _lse(np.array(b))
+            if T_ - S_ <= math.log(tol):
+                break
+            if 2 * K + 1 >= budget:
+                raise RuntimeError("folded density: image budget exhausted before the tail bound")
+            K = 2 * K + 1
+        xs.append(x)
+        lws.append(lw)
+        bounds.append(T_)
+    x, lw = np.concatenate(xs), np.concatenate(lws)
+    ls = _lse(lw)
+    return x, lw, ls, float(math.exp(_lse(np.array(bounds)) - ls))
+
+
+def _draw_image(x, lw, ls, u):
+    c = np.cumsum(np.exp(lw - ls))
+    return x[min(int((c < u).sum()), len(x) - 1)]
 
 
 # ---------------------------------------------------------------- SMC
 
-def smc_block(st, y_block, kind="L1", n_particles=1000, rng=None, nu=4.0, n_quad=64, ess_frac=0.5, n_rejuv=1):
+def smc_block(st, y_block, kind="L1", n_particles=1000, rng=None, nu=4.0, n_quad=200, ess_frac=0.5, n_rejuv=1):
     """Sequential estimate of log p(y_block | training, psi). y_block in the ORIGINAL block order (st['order'] is
     applied here). Returns dict(score, n_resample, ess_min, max_tail_ratio, n_particles)."""
     y = np.asarray(y_block, float)[st["order"]]
@@ -137,7 +173,7 @@ def smc_block(st, y_block, kind="L1", n_particles=1000, rng=None, nu=4.0, n_quad
     total, n_res, ess_min, tmax = 0.0, 0, float(N), 0.0
     scale = (nu - 2.0) / nu
     if kind == "L2":
-        lam_n, lq_n = gamma_nodes(nu, n_quad)
+        lam_n, lq_n = precision_measure(nu, n_quad)
     for j in range(nb):
         a = st["A"][j]
         pm = mu @ a
@@ -159,10 +195,9 @@ def smc_block(st, y_block, kind="L1", n_particles=1000, rng=None, nu=4.0, n_quad
             r = st["sig2"][j] + st["sf2_single"][j]
             lp, obs = np.empty(N), np.empty(N)
             for i in range(N):
-                xs, lw, ls, ts = _folded_images(y[j], pm[i], math.sqrt(c[i] + r))
+                xs, lw, ls, ts = images(y[j], pm[i], math.sqrt(c[i] + r))
                 lp[i], tmax = ls, max(tmax, ts)
-                pr = np.exp(lw - _lse(lw))
-                obs[i] = xs[min(int((np.cumsum(pr) < rng.uniform()).sum()), len(xs) - 1)]
+                obs[i] = _draw_image(xs, lw, ls, rng.uniform())
             aux[:, j] = obs
             rr = np.full(N, r)
         else:
@@ -179,9 +214,11 @@ def smc_block(st, y_block, kind="L1", n_particles=1000, rng=None, nu=4.0, n_quad
             aux, logW = aux[idx], np.full(N, -math.log(N))
             n_res += 1
             for _ in range(n_rejuv):
-                aux = _rejuvenate(st, y, aux, j, kind, rng, nu, lam_n if kind == "L2" else None, lq_n if kind == "L2" else None)
+                aux, tr = _rejuvenate(st, y, aux, j, kind, rng, nu, lam_n if kind == "L2" else None, lq_n if kind == "L2" else None)
+                tmax = max(tmax, tr)
             mu, Sig = _replay(st, y, aux, j, kind, nu, lam_n if kind == "L2" else None)
-    return dict(score=float(total), n_resample=n_res, ess_min=float(ess_min), max_tail_ratio=float(tmax), n_particles=N)
+    return dict(score=float(total), n_resample=n_res, ess_min=float(ess_min), max_tail_ratio=float(tmax), n_particles=N,
+                n_quad=n_quad if kind == "L2" else 0)
 
 
 def _obs_noise(st, y, aux, k, kind, nu, lam_n):
@@ -213,6 +250,7 @@ def _rejuvenate(st, y, aux, j, kind, rng, nu, lam_n, lq_n):
     z = mu + np.einsum("nij,nj->ni", L, rng.standard_normal(mu.shape))
     m = z @ st["A"][:j + 1].T                                   # (N, j+1) shared means of the prefix records
     out = aux.copy()
+    tmax = 0.0
     for k in range(j + 1):
         if kind == "L2":
             s2 = st["sig2"][k] * (nu - 2) / nu
@@ -231,7 +269,7 @@ def _rejuvenate(st, y, aux, j, kind, rng, nu, lam_n, lq_n):
         elif kind == "L3":
             sd = math.sqrt(st["sig2"][k] + st["sf2_single"][k])
             for i in range(N):
-                xs, lw, _, _ = _folded_images(y[k], m[i, k], sd)
-                pr = np.exp(lw - _lse(lw))
-                out[i, k] = xs[min(int((np.cumsum(pr) < rng.uniform()).sum()), len(xs) - 1)]
-    return out
+                xs, lw, ls, ts = images(y[k], m[i, k], sd)
+                tmax = max(tmax, ts)
+                out[i, k] = _draw_image(xs, lw, ls, rng.uniform())
+    return out, tmax

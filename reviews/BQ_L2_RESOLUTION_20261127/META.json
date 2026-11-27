@@ -1,0 +1,12 @@
+{
+  "module_sha256": "602e36f620291af3e977a27cafa8535f4392d522f93988955494fbd5477d3f90",
+  "script_sha256": "cf7d56a8e0da369fd1d19945003b8e9825be1e864dd7584db979a364ce67ec00",
+  "bench": "reviews/BQ_SMC_STABILITY_20261127",
+  "sizes": [
+    102,
+    236,
+    395
+  ],
+  "reps": 8,
+  "particles": 1000
+}

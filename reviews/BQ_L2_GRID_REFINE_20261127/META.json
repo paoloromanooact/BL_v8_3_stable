@@ -1,0 +1,9 @@
+{
+  "module_sha256": "602e36f620291af3e977a27cafa8535f4392d522f93988955494fbd5477d3f90",
+  "script_sha256": "0668b396a1fad94d9708fd161157e3702ca39805e0eb754c972146b68657ca55",
+  "size": 395,
+  "reps": 4,
+  "particles": 1000,
+  "n_quad": 400,
+  "paired_with": "reviews/BQ_L2_RESOLUTION_20261127/LOGGRID_REPLICATES.csv"
+}

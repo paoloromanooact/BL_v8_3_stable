@@ -4,8 +4,9 @@
     (built from the dense covariance of the training records), within 1e-8;
  2. L1: sequential Kalman score = analytic l(train + block) - l(train) (u and u+v, a family shared inside the block,
     singleton families absorbed), within 1e-8 absolute;
- 3. L2 on a 2-record block: SMC (8 replicates x 2000 particles) = exact sum over all node pairs of the SAME discrete
-    precision measure (64 nodes), each pair scored with the Gaussian core; the discretisation (64 vs 128 nodes) reported;
+ 3. L2 on a 2-record block with one record about 20 residual scales out (tail): SMC (8 replicates x 2000 particles) =
+    exact sum over all node pairs of the SAME discrete precision measure (log-lambda grid, 200 points), each pair scored
+    with the Gaussian core; the discretisation (100 vs 200 points) below 1e-8;
  4. L3 on 2 correlated records (same CR and hemisphere): SMC (8 replicates x 2000) = joint enumeration of the preimage
     pairs scored with the Gaussian core;
  5. rejuvenation preserves the prefix conditional: on a 14-record L2 block and a 6-record L3 block, runs with
@@ -27,7 +28,14 @@ import numpy as np
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "python"))
 sys.path.insert(0, str(ROOT / "scripts"))
-from sharpbl import bq_core as B, bq_cv as CV, bq_smc as S  # noqa: E402
+from sharpbl import bq_core as B, bq_cv as CV  # noqa: E402
+if len(sys.argv) > 1 and sys.argv[1] == "--module":           # scratch revision under test
+    import importlib.util
+    _sp = importlib.util.spec_from_file_location("sharpbl.bq_smc", sys.argv[2])
+    S = importlib.util.module_from_spec(_sp)
+    _sp.loader.exec_module(S)
+else:
+    from sharpbl import bq_smc as S  # noqa: E402
 from bq_core_selftest import synth_design, dense_cov  # noqa: E402
 
 SEED = 36_400_901
@@ -118,6 +126,7 @@ def main():
     y = np.random.default_rng(SEED + 4).normal(0, 20, d.n) + 6 * np.random.default_rng(SEED + 5).standard_t(4, d.n)
     train, ver = CV.cv_masks(d, (8, 11), 2)
     train, ver = two_record_block(d, train, ver)
+    y[np.flatnonzero(ver)[0]] += 250.0                                # tail record (~20 residual scales)
     lam_t = np.random.default_rng(SEED + 6).gamma(2.0, 0.5, int(train.sum()))
     st = S.block_state(d, train, ver, x0, y[train], lam_t, 0.5)
     both = train | ver
@@ -126,18 +135,18 @@ def main():
     lt = B.loglik(dt, x0, y[train], lam=lam_t, scale=0.5)
 
     def node_sum(n):
-        lam_n, lq = S.gamma_nodes(4.0, n)
+        lam_n, lq = S.precision_measure(4.0, n)
         out = []
         for a, b in itertools.product(range(n), range(n)):
             lam = np.empty(int(both.sum()))
             lam[pos_t], lam[pos_v] = lam_t, (lam_n[a], lam_n[b])
             out.append(lq[a] + lq[b] + B.loglik(dj, x0, y[both], lam=lam, scale=0.5) - lt)
         return lse(out)
-    ref64, ref128 = node_sum(64), node_sum(128)
+    ref64, ref128 = node_sum(200), node_sum(100)        # names kept: 200-point measure (used) and 100-point check
     reps = [S.smc_block(st, y[ver], "L2", 2000, np.random.default_rng(SEED + 10 + k))["score"] for k in range(8)]
     mean, se = float(np.mean(reps)), float(np.std(reps, ddof=1) / math.sqrt(len(reps)))
-    ok("3. L2, 2 records: SMC replicate mean = exact sum over the 64-node pairs within 4 SE (discretisation 64 vs 128 reported)",
-       abs(mean - ref64) <= 4 * se + 1e-12 and abs(ref64 - ref128) < 1e-3, f"SMC {mean:.5f} +- {se:.5f} vs {ref64:.5f}; 64 vs 128 nodes {ref64 - ref128:.1e}")
+    ok("3. L2, 2 records (one ~20 residual scales out): SMC replicate mean = exact sum over the 200-point pairs within 4 SE; 100 vs 200 points < 1e-8",
+       abs(mean - ref64) <= 4 * se + 1e-12 and abs(ref64 - ref128) < 1e-8, f"SMC {mean:.5f} +- {se:.5f} vs {ref64:.5f}; 200 vs 100 points {ref64 - ref128:.1e}")
     # 4. L3, two correlated records, joint enumeration
     d = synth_design(np.random.default_rng(SEED + 7), n_t=20, n=90)
     train, ver = CV.cv_masks(d, (8, 11), 2)
@@ -164,7 +173,7 @@ def main():
     reps = [S.smc_block(st, yv, "L3", 2000, np.random.default_rng(SEED + 30 + k)) for k in range(8)]
     sc = [r["score"] for r in reps]
     mean, se = float(np.mean(sc)), float(np.std(sc, ddof=1) / math.sqrt(len(sc)))
-    ok("4. L3, 2 correlated records: SMC replicate mean = joint enumeration within 4 SE; tail bound certified",
+    ok("4. L3, 2 correlated records: SMC replicate mean = joint enumeration within 4 SE; tail bound certified (one image routine)",
        abs(mean - enum) <= 4 * se + 1e-12 and max(r["max_tail_ratio"] for r in reps) <= 1e-12,
        f"SMC {mean:.5f} +- {se:.5f} vs {enum:.5f} ({len(lv)} pairs)")
     # 5. forced resampling + rejuvenation at every record vs plain runs (L2 with a shared family, L3)
@@ -196,8 +205,9 @@ def main():
     rF = [S.smc_block(st, gv, "L3", 1000, np.random.default_rng(SEED + 110 + k), ess_frac=1.01) for k in range(6)]
     fF = [r["score"] for r in rF]
     seA, seB = np.std(rP, ddof=1) / math.sqrt(len(rP)), np.std(fF, ddof=1) / math.sqrt(len(fF))
-    ok(f"5b. L3, {int(ver.sum())} records: forced resampling + rejuvenation = plain runs within 4 combined SE",
-       abs(np.mean(rP) - np.mean(fF)) <= 4 * math.hypot(seA, seB) and min(r["n_resample"] for r in rF) == int(ver.sum()) - 1,
+    ok(f"5b. L3, {int(ver.sum())} records: forced resampling + rejuvenation = plain runs within 4 combined SE; max T/S incl. rejuvenation <= 1e-12",
+       abs(np.mean(rP) - np.mean(fF)) <= 4 * math.hypot(seA, seB) and min(r["n_resample"] for r in rF) == int(ver.sum()) - 1
+       and max(r["max_tail_ratio"] for r in rF) <= 1e-12,
        f"plain {np.mean(rP):.4f} +- {seA:.4f} vs forced {np.mean(fF):.4f} +- {seB:.4f}")
     print(f"selftest: {sum(res)}/{len(res)}")
     return all(res)

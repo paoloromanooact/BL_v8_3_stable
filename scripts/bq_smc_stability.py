@@ -11,7 +11,9 @@ SEQUENTIAL steps (L3; the rejuvenation draws are not included), seconds per repl
 snapshot of the sources with SHA-256 (SOURCES/) and META with status running; every replicate is appended to
 REPLICATES.csv as soon as it ends (Codex review of the benchmark); SUMMARY and the final META at the end.
 L2 uses the 64-node discrete precision measure: the replicate spread is the Monte Carlo variability at 64 nodes, not
-the quadrature error (to be checked separately on tail cases). Seeds: 36_400_960 + 1000 * likelihood index + 100 * block index + replicate.
+the quadrature error (to be checked separately on tail cases). Seeds: 36_400_960 + 1000 * likelihood index + 100 * block index + replicate, with CANONICAL indices (L1 0, L2 1, L3 2;
+blocks of 22/102/236/395 records 0/1/2/3), independent of the --kinds and --sizes lists (fixed on 27 Nov: a run with
+--sizes 395 alone had used block index 0, unpaired with the full benchmark).
 
     OMP_NUM_THREADS=1 .venv/bin/python scripts/bq_smc_stability.py --out reviews/BQ_SMC_STABILITY_<date> [--reps 8] [--particles 1000]
 """
@@ -35,6 +37,8 @@ from sharpbl import bq_core as B, bq_cv as CV, bq_smc as S  # noqa: E402
 import bq_woodbury_benchmark as W  # noqa: E402  (design columns of the T3 catalogue, metadata only)
 
 SEED0 = 36_400_960
+KIND_INDEX = {"L1": 0, "L2": 1, "L3": 2}
+SIZE_INDEX = {22: 0, 102: 1, 236: 2, 395: 3}
 
 
 def sha(p):
@@ -106,7 +110,7 @@ def main():
                 st = S.block_state(d, train, ver, x3, th[train])
                 yv = g3[ver]
             for rep in range(a.reps):
-                seed = SEED0 + 1000 * li + 100 * bi + rep
+                seed = SEED0 + 1000 * KIND_INDEX[kind] + 100 * SIZE_INDEX[n] + rep
                 t0 = time.perf_counter()
                 r = S.smc_block(st, yv, kind, a.particles, np.random.default_rng(seed))
                 rows.append(dict(kind=kind, block=str(blk), records=n, D=st["D"], replicate=rep, particles=a.particles, seed=seed, score=r["score"],
