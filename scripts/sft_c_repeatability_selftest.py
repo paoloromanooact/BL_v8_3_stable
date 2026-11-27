@@ -20,7 +20,18 @@ K. (2) negative polarity only outside C_fin: balanced -> balance_polarity_missin
 L. (3) leading change at the +-180 seam (no spurious change) and with one polarity (undefined, not True);
 M. (4) weights and bootstrap after missing values: component -> pair target, evaluable components counted, no crash;
 N. (5) C_rot: N1 the numerical domain of dependence is exact (a perturbation outside it leaves the evolved field
-   bitwise unchanged); N2 a cell with 8 of 16 preimage sub-points on an invalid cell is not in C_rot.
+   bitwise unchanged); N2 a cell with 8 of 16 preimage sub-points on an invalid cell is not in C_rot;
+O. remapping recorded per instant on the full support: net flux and D kept, polarity fluxes not increased;
+P. a pair_key without component is refused in the summaries and the bootstrap;
+Q. fine grid 0.03 deg on the children of C_fin: same area; identical maps -> fine differences zero; the 2 h rotation
+   of test B -> fine d_lon = shift and a small grid_dd; a NaN pixel at t0 -> explicit fine status (no re-selection)
+   or a valid fine support; Q4 children() refuses a fine grid shifted by 1e-4 deg or truncated (no lost children);
+R. operational assembly on a synthetic candidates table: selection/exclusions, every pair measured once (an unreadable
+   map is a read_error status, never removed), denominators per kind and group (hemisphere, lag class, USFLUX tercile),
+   summaries and bootstrap per group, input manifest before/after, run validity; tercile tie exactly on q2 -> class 2;
+   R3 a failure after a successful read is technical_error, not read_error, and blocks the receipt; R4 all inputs good
+   -> run valid, a dropped or duplicated (pair_key, preparation) key detected; R5 metadata_eligible strings 'False'
+   excluded, other values refused, empty selection without crash and not valid; R6 real metadata terciles 28/27/27.
 
     OMP_NUM_THREADS=1 .venv/bin/python scripts/sft_c_repeatability_selftest.py
 """
@@ -309,6 +320,126 @@ def main():
     oldc, t2 = old_rotation_rule(b2, P0, gap2), CR.rotation_dependence(b2, P0, gap2)
     ok("N2. a cell whose preimage has 8 of 16 sub-points on an invalid cell: old rule covered, new rule excluded from C_rot",
        oldc[yy, j - 1] and t2[yy, j - 1], f"gap {gap2:.0f} s; old {bool(oldc[yy, j - 1])}, excluded {bool(t2[yy, j - 1])}")
+    # O: remapping report (identical maps of test A, raw): full-support net flux and D kept by the deposit
+    rO = rA0
+    tolO = 1e-12 * max(abs(rO["x0_phi_pos"]), abs(rO["x0_phi_neg"]))
+    ok("O. remapping recorded at both instants (raw, balanced = raw deposit): net flux and D kept on the full support, "
+       "polarity fluxes not increased by cancellation",
+       all(abs(rO[f"remap{j}_phi_net"]) <= tolO and abs(rO[f"remap{j}_D_g"]) <= 1e-12 * abs(rO["x0_D_g"]) + 1e-30
+           and rO[f"remap{j}_phi_pos"] <= tolO for j in (0, 1))
+       and all(r[f"remap0_{k}"] == rO[f"remap0_{k}"] for r in rA if r["kind"] == "balanced" for k in ("phi_pos", "lon_neg")),
+       f"d phi_pos {rO['remap0_phi_pos']:.3e}, d lon_pos {rO['remap0_lon_pos']:.2e}, d D {rO['remap0_D_g']:.1e}")
+    # Q: fine grid
+    qa = [r for r in rA if r["kind"] == "raw"][0]
+    ok("Q1. fine grid on the children of C_fin: same area (1e-9), identical maps -> fine differences zero for every preparation",
+       qa["fine_status"] == "ok" and abs(qa["area_fine"] / qa["area_C_fin"] - 1) < 1e-9
+       and all(r["fine_kind_status"] == "ok" and all(abs(r[f"fine_d_{k}"]) < 1e-12 * max(1.0, abs(r[f"fine_x0_{k}"]))
+                                                    for k in CR.OBS if np.isfinite(r[f"fine_x0_{k}"])) for r in rA),
+       f"areas {qa['area_C_fin']:.3f} / {qa['area_fine']:.3f}")
+    ok("Q2. 2 h rotation (test B): fine d_lon = shift, grid_dd small compared with the shift",
+       rB["fine_status"] == "ok" and abs(rB["fine_d_lon_pos"] - shift) < 0.15 * abs(shift) and abs(rB["grid_dd_lon_pos"]) < 0.1 * abs(shift),
+       f"fine d {rB['fine_d_lon_pos']:.4f}, grid_dd {rB['grid_dd_lon_pos']:.2e}, D grid_dd {rB['grid_dd_D_g']:.2e}")
+    ok("Q3. NaN pixel at t0 (test J2): fine status explicit or fine support valid; no re-selection (C_fin cells unchanged)",
+       rJ["fine_status"] in ("ok", "fine_support_invalid") and rJ["C_cells"] == rJc["C_cells"],
+       f"fine status {rJ['fine_status']}, invalid children {rJ['fine_cells_invalid']}")
+    # Q4: children() negative regressions (Codex counterexamples: shifted by 1e-4 deg, truncated to 80 %)
+    bq = CR.L.LocalBox((10.0, 12.0), (20.0, 22.0), 0.06, meridional=False, diffusion=False)
+    Cq = np.ones((bq.ny, bq.nx), bool)
+    refused = []
+    for fb in (CR.L.LocalBox((10.0001, 12.0001), (20.0, 22.0), 0.03, meridional=False, diffusion=False),
+               CR.L.LocalBox((10.0, 12.0), (20.0, 21.6), 0.03, meridional=False, diffusion=False)):
+        try:
+            CR.children(bq, fb, Cq)
+            refused.append(False)
+        except ValueError:
+            refused.append(True)
+    good = CR.children(bq, CR.L.LocalBox((10.0, 12.0), (20.0, 22.0), 0.03, meridional=False, diffusion=False), Cq)
+    ok("Q4. children(): fine grid shifted by 1e-4 deg refused, truncated fine grid refused, exact refinement keeps every child",
+       all(refused) and int(good.sum()) == 4 * int(Cq.sum()), f"refused {refused}")
+    # R: operational assembly (synthetic candidates and patches)
+    with tempfile.TemporaryDirectory() as tdr:
+        rows = []
+        spec = [(201, 12.0, 30.0, 1, 5e21, 11), (202, -14.0, 60.0, 2, 9e21, 12), (203, 18.0, 90.0, 1, 2e22, 13),
+                (204, -20.0, 120.0, 2, 4e21, 13), (205, 10.0, 150.0, 1, 1.5e22, 14), (206, -11.0, 180.0, 2, 7e21, 15)]
+        for harp, lat0, lon0, hours, fl, comp in spec:
+            ta = t0 + pd.Timedelta(days=harp - 200)
+            a = write_patch(tdr, harp, ta, lat0, lon0, bipole(lat0, lon0))
+            b = write_patch(tdr, harp, ta + pd.Timedelta(hours=hours), lat0, lon0, bipole(lat0, lon0))
+            rows.append(dict(node=harp, HARPNUM=harp, T_REC_a=a, T_REC_b=b, gap_ns=int(hours * 3600e9), area_deg2=50.0, family=harp,
+                             USFLUX_t0=fl, LON_FWT_t0=0.0, LAT_FWT_t0=lat0, pregraph_reasons="", component=comp, protected_component=False,
+                             metadata_eligible=True))
+        rows.append(dict(rows[0], node=900, HARPNUM=900, metadata_eligible=False, pregraph_reasons="geometry", component=900))
+        cand = pd.DataFrame(rows)
+        paths = CR.file_paths(Path(tdr) / "fits")
+        paths(206, rows[5]["T_REC_b"])[0].unlink()                    # pair 206: unreadable map at t1
+        prods, info = CR.assemble(cand, CR.OP.reader(Path(tdr) / "fits"), paths, n_boot=50)
+        M, Dn = prods["MEASUREMENTS"], prods["DENOMINATORS"]
+        dall = Dn[(Dn.group == "all")]
+        groups = set(Dn.group)
+        ok("R1. assembly: 6 selected, 1 excluded, 18 measurement rows (unreadable pair kept as read_error), denominators per "
+           "kind and group, summaries and bootstrap per group; missing input -> run not valid",
+           len(prods["SELECTION"]) == 6 and len(prods["EXCLUSIONS"]) == 1 and len(M) == 18 and M.pair_key.nunique() == 6
+           and (M[M.HARPNUM == 206].status.str.startswith("read_error")).all() and (dall.selected == 6).all()
+           and (dall.filter(like="failed_read_error").sum(axis=1) == 1).all()
+           and {"hemisphere=N", "hemisphere=S", "lag_class=le_1.5h", "lag_class=gt_1.5h_le_2h", "flux_tercile=1", "flux_tercile=3"} <= groups
+           and len(prods["SUMMARY"]) > 0 and (prods["BOOTSTRAP"].lo.isna()).all() and not info["run_valid"] and not info["all_inputs_present"],
+           f"groups {sorted(groups)[:8]}; info {dict((k, info[k]) for k in ('selected', 'components', 'run_valid', 'manifest_unchanged'))}")
+        tie = cand[cand.metadata_eligible].copy()
+        tie["USFLUX_t0"] = [1.0, 2.0, 3.0, 4.0, 5.0, 6.0]
+        tie = pd.concat([tie, tie.assign(node=tie.node + 1000, HARPNUM=tie.HARPNUM + 1000, USFLUX_t0=[7.0, 8.0, 9.0, 10.0, 11.0, 12.0])])
+        tie = pd.concat([tie, tie.iloc[:1].assign(node=5000, HARPNUM=5000, USFLUX_t0=13.0)])
+        st, _, tq = CR.selection(tie)                                  # n = 13: (n-1) 2/3 = 8, q2 = x[8] = 9 exactly
+        ok("R2. tercile tie exactly on q2 (n 13, q2 = 9 = a sample): that pair is class 2 (q1 < x <= q2)",
+           tq["tercile_q2"] == 9.0 and st[st.USFLUX_t0 == 9.0].flux_tercile.iloc[0] == "2", f"q {tq}")
+        good = cand[cand.HARPNUM != 206]
+        base_read = CR.OP.reader(Path(tdr) / "fits")
+
+        def no_tobs(h, t):                                            # read succeeds, the computation fails (KeyError)
+            br_, bm_, hh = base_read(h, t)
+            if int(h) == 203:
+                hh = dict(hh)
+                hh.pop("T_OBS")
+            return br_, bm_, hh
+        p3, i3 = CR.assemble(good, no_tobs, paths, n_boot=20)
+        M3 = p3["MEASUREMENTS"]
+        ok("R3. failure after a successful read -> technical_error (not read_error), the pair kept, run not valid",
+           (M3[M3.HARPNUM == 203].status == "technical_error:KeyError").all() and i3["technical_errors"] == 3 and i3["read_errors"] == 0
+           and not i3["run_valid"] and i3["measurement_keys_exact"], f"{M3[M3.HARPNUM == 203].status.tolist()}")
+        p4, i4 = CR.assemble(good, base_read, paths, n_boot=20)
+        M4 = p4["MEASUREMENTS"]
+        dropped = CR.measurement_keys_exact(M4.drop(index=M4.index[0]), p4["SELECTION"])
+        dup = CR.measurement_keys_exact(pd.concat([M4, M4.iloc[:1]]), p4["SELECTION"])
+        ok("R4. every input good -> run valid; a dropped or a duplicated (pair_key, preparation) key is detected",
+           i4["run_valid"] and i4["measurement_keys_exact"] and not dropped and not dup, f"info {i4}")
+        c5 = good.assign(metadata_eligible=["True", "False", "True", "False", "True", "False"])
+        s5, e5, _ = CR.selection(c5)
+        try:
+            CR.selection(good.assign(metadata_eligible=["True", "maybe", "True", "True", "True", "False"]))
+            bad5 = False
+        except ValueError:
+            bad5 = True
+        p5, i5 = CR.assemble(good.assign(metadata_eligible=False), base_read, paths, n_boot=20)
+        ok("R5. 'False' strings excluded, other values refused; empty selection: no crash, explicit empty products, not valid",
+           len(s5) == 3 and len(e5) == 3 and bad5 and i5["selected"] == 0 and not i5["run_valid"] and list(p5["SELECTION"].columns)[:3] == ["pair_key", "node", "HARPNUM"],
+           f"selected {len(s5)}, excluded {len(e5)}, empty info {i5['selected']} {i5['run_valid']}")
+    cand_real = pd.read_csv(CR.CANDIDATES)                            # metadata only (no pixel)
+    s6, _, q6 = CR.selection(cand_real)
+    f6 = np.sort(s6.USFLUX_t0.astype(float).to_numpy())
+    ok("R6. real metadata: q2 = x[54] exactly (integral rational index), classes 28/27/27, HARP 3098 pair in class 2",
+       q6["tercile_q2"] == f6[54] and s6.flux_tercile.value_counts().to_dict() == {"1": 28, "2": 27, "3": 27}
+       and s6[s6.pair_key.str.startswith("3098|2013.08.19_22")].flux_tercile.iloc[0] == "2", f"{q6} {s6.flux_tercile.value_counts().to_dict()}")
+    # P: pair_key without component
+    bad = dfm.assign(pair_key=["a", "b", "c", "zz"])
+    raised = []
+    for fn in (lambda: CR.summarise(bad.assign(**{f"d_{k}": np.nan for k in CR.OBS if k != "D_g"}, **{f"drot_{k}": np.nan for k in CR.OBS},
+                                               **{f"dpers_rot_{k}": np.nan for k in CR.OBS}, d_dD_over_SD=np.nan, d_phi_uns=np.nan), comps),
+               lambda: CR.bootstrap(bad, comps, "d_D_g", np.random.default_rng(1), n=10)):
+        try:
+            fn()
+            raised.append(False)
+        except ValueError:
+            raised.append(True)
+    ok("P. pair_key without component: refused in summarise and bootstrap (not treated as a missing value)", all(raised), str(raised))
     print(f"selftest: {sum(res)}/{len(res)}")
     return all(res)
 

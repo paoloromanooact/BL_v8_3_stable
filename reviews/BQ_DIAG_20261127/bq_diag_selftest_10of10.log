@@ -1,0 +1,15 @@
+[OK] 1. autocovariance FFT = direct sum at every lag 1.1e-16
+[OK] 2. classic R-hat formula on a hand example 
+[OK] 3. iid normal: R-hat < 1.01, bulk ESS within 12 % of N, tail ESS > 0.6 N, gate passes R-hat 1.0001, ESS bulk 16344, tail 15979
+[OK] 4. AR(1) phi 0.9: bulk ESS within 12 % of N (1 - phi)/(1 + phi) ESS 5492 vs 5263
+[OK] 5. one chain shifted by 0.5 SD: R-hat > 1.01, gate fails R-hat 1.026
+[OK] 6. one chain with three times the scale: bulk R-hat below folded, R-hat = folded > 1.01 bulk 0.9996, folded 1.1472
+[OK] 7. invariance under a monotone transform (exp): identical R-hat, bulk and tail ESS 1.00128 / 1.00128
+[OK] 8. Cauchy iid: rank R-hat < 1.01, bulk ESS within 12 % of N (classic R-hat on raw draws reported only) rank R-hat 1.0000, ESS 15874; classic on raw 1.000
+[OK] 9. odd length 7: halves are the first 3 and the last 3 draws (middle dropped) 
+[OK] 10. constant quantity -> status constant, gate fails; non-finite draws refused 
+selftest: 10/10
+
+real	0m0,479s
+user	0m0,437s
+sys	0m0,037s

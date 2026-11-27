@@ -4,7 +4,8 @@ Spec: docs/SFT_HMI_REPEATABILITY_PLAN_DRAFT.md. This file implements the measure
 CEA patches; --run is refused until the spec is frozen (no pixel of the real pairs is read here).
 - Pairs: consecutive local records of one HARP with 0 < Delta T_OBS <= 7200 s (selection and graph from the metadata
   closure, Codex bb23d3e); every listed pair is measured, no replacement on failure.
-- Grid 0.06 deg on the branch of the first CRVAL1; bounds = extent of the WCS centres of BOTH patches +- 1 deg.
+- Grid 0.06 deg on the branch of the first CRVAL1; lower bounds = minimum of the WCS centres of BOTH patches - 1 deg,
+  cells up to cover the maximum + 1 deg, rounded up (grid_range; before 27 Nov the last edge was rounded down).
 - Footprints per instant (revised after Codex b26c357, point 1): G = cells containing a pixel centre (any Br); V = cells
   of G that contain a valid centre (finite Br, |Br| <= 10000 G) and receive NO deposit weight from an invalid pixel
   (the effective stencil of LocalBox.deposit: linear weights between neighbouring cell centres). Invalid pixels are
@@ -24,16 +25,30 @@ CEA patches; --run is refused until the spec is frozen (no pixel of the real pai
   = C_fin minus every cell whose NUMERICAL domain of dependence over the gap touches a cell outside V0: per step of the
   TVD-minmod SSP-RK2 scheme a cell depends on 4 cells upstream and 2 downstream (rows with omega - omega_C = 0: none),
   so after n steps on [i - 4n, i + 2n] (mirrored for the other sign); cells beyond the box count as not valid. This is
-  the exact support of the scheme, not a sub-point rule: there is no partial coverage. It is much wider than the
+  the conservative POTENTIAL support of the scheme (Codex, 27 Nov), not the minimal support active on a given field,
+  and not a sub-point rule: there is no partial coverage. It guarantees neither the accuracy of the transport nor
+  isolation from measurement errors nor transfer to days. The balanced field is not necessarily balanced on C_rot (a
+  different domain) and is not rescaled again there. It is much wider than the
   physical displacement (n <= 12 at 2 h: up to 48 cells, 2.9 deg upstream), so C_rot < C_fin in general and multi-day
   gaps leave it empty. Persistence and rotation-only differences are both recomputed on C_rot; the main C_fin is
   unchanged. area(C_rot) < 25 deg^2 -> rot_status rot_coverage_insufficient.
+- Remapping (draft §4): for each instant and deposited preparation (raw, p1_source; balanced reports the raw deposit,
+  i.e. before balancing) the differences grid - pixels of the measures on the FULL support (sft_local.remap_report):
+  deposit conserves net flux and D there, while polarity fluxes and centroids may change by cancellation within cells.
+  Recorded as remap0_* / remap1_*, never corrected.
+- Fine grid (draft §4, numerical sensitivity): the same pixels deposited at 0.03 deg; support = the 2 x 2 children of
+  C_fin (same physical domain, no new selection; the fine and coarse edges must coincide). Observed coverage comes
+  from C_fin (at the pixel scale some fine cells hold no centre by aliasing); at the fine grid only the reach of
+  invalid pixels is checked: if one reaches a child cell (its centre cell or its fine deposit stencil) or a pixel falls
+  outside the fine deposit support, fine_status says so and nothing is re-selected. The balanced variant takes its factors on the fine support.
+  Recorded per preparation: fine_x0_*, fine_x1_*, fine_d_* and grid_dd_* = fine_d - d (preparation error of the
+  difference, not solar noise).
 - Summaries (point 4): for each quantity, the target is a component drawn among those with at least one finite value,
   then one of its pairs with a finite value: weights 1/(K_eval n_finite(component)), 0 for missing values. Mean,
   median, q10/q90, centred RMS, scaled MAD; circular statistics for the angles; lag classes (0, 1.5 h] and (1.5, 2 h];
   hemispheres; USFLUX(t0) metadata terciles; component bootstrap (2000 replicates, seed 36_300_001) over the
   evaluable components with the same weights; no interval with fewer than 10 evaluable components or if a replicate
-  fails (both counted).
+  fails (both counted). A pair_key without an assigned component is refused (ValueError), not taken as missing.
 """
 from __future__ import annotations
 
@@ -52,6 +67,7 @@ from sharpbl import geometry as geo, sft_core as C, sft_local as L  # noqa: E402
 import sft_observed_pilot as OP  # noqa: E402  (shared, already reviewed geometry: margins, coverage, domain, pixels)
 
 STEP, AREA_MIN, PAD_DEG = 0.06, 25.0, 1.0
+STEP_FINE = 0.03            # numerical sensitivity (draft §4): same physical support, children of C_fin
 SEED_BOOT, N_BOOT, MIN_COMPONENTS = 36_300_001, 2000, 10
 KINDS = ("raw", "p1_source", "balanced")
 OBS = ("D_g", "phi_pos", "phi_neg", "phi_net", "lat_pos", "lon_pos", "lat_neg", "lon_neg", "sep_deg", "tilt_deg", "lat_mean")
@@ -65,6 +81,11 @@ def diff(k, a, b):
     if k.startswith("lon_"):
         return OP.circ(b, a)
     return b - a
+
+
+def grid_range(lo, hi):
+    """Draft §4: cells from lo up to COVER hi, rounded up (LocalBox places edges at lo + k STEP up to its upper bound)."""
+    return lo, lo + math.ceil((hi - lo) / STEP - 1e-9) * STEP
 
 
 def deposit_stencil(box, lat, lon):
@@ -109,6 +130,17 @@ def balance_on(B, A, Cm):
     return np.where(B > 0, B * (pb / pp), B * (pb / nn)), (pb / pp, pb / nn)
 
 
+def children(box, fbox, Cm):
+    """2 x 2 children of the coarse cells in Cm on the fine box. The fine box must be exactly the 2 x 2 refinement
+    (shape 2ny x 2nx, every coarse edge a fine edge within 1e-9 deg ABSOLUTE, rtol 0): a shifted or truncated fine grid
+    is refused, so no selected child can be lost (Codex review C_FINE_REVIEW_20261127)."""
+    if (fbox.ny, fbox.nx) != (2 * box.ny, 2 * box.nx):
+        raise ValueError(f"fine grid {fbox.ny} x {fbox.nx} is not the 2 x 2 refinement of {box.ny} x {box.nx}")
+    if not (np.allclose(fbox.lat_e[::2], box.lat_e, rtol=0.0, atol=1e-9) and np.allclose(fbox.lon_e[::2], box.lon_e, rtol=0.0, atol=1e-9)):
+        raise ValueError("fine and coarse cell edges do not coincide")
+    return np.kron(Cm, np.ones((2, 2), bool))
+
+
 def leading_change(m0, m1):
     """Change of the leading polarity (P1 convention of measures: westmost, periodic); NaN unless both instants have
     both polarities."""
@@ -127,8 +159,9 @@ def measure_pair(read, harp, t_rec0, t_rec1, kinds=KINDS):
         lo, la = geo.lonlat_maps(h, br.shape)
         lons.append((lo - branch + 180.0) % 360.0 - 180.0 + branch)
         lats.append(la)
-    lat_rng = (max(-89.0, min(np.nanmin(lats[0]), np.nanmin(lats[1])) - PAD_DEG), min(89.0, max(np.nanmax(lats[0]), np.nanmax(lats[1])) + PAD_DEG))
-    lon_rng = (min(np.nanmin(lons[0]), np.nanmin(lons[1])) - PAD_DEG, max(np.nanmax(lons[0]), np.nanmax(lons[1])) + PAD_DEG)
+    lat_rng = grid_range(max(-89.0, min(np.nanmin(lats[0]), np.nanmin(lats[1])) - PAD_DEG),
+                         min(89.0, max(np.nanmax(lats[0]), np.nanmax(lats[1])) + PAD_DEG))
+    lon_rng = grid_range(min(np.nanmin(lons[0]), np.nanmin(lons[1])) - PAD_DEG, max(np.nanmax(lons[0]), np.nanmax(lons[1])) + PAD_DEG)
     m_lat, m_lon = OP.margins(gap_s / C.DAY, lat_rng)
     box = L.LocalBox(lat_rng, lon_rng, STEP, meridional=False, diffusion=False)
     base = dict(HARPNUM=harp, T_REC_0=t_rec0, T_REC_1=t_rec1, gap_s=gap_s, m_lat=m_lat, m_lon=m_lon)
@@ -148,23 +181,47 @@ def measure_pair(read, harp, t_rec0, t_rec1, kinds=KINDS):
         return [dict(base, kind=k, status="deposition_out_of_range", n_out=n_out) for k in kinds]
     if area < AREA_MIN:
         return [dict(base, kind=k, status="finite_coverage_insufficient") for k in kinds]
-    dep = {}
+    dep, remap = {}, {}
     for kind in sorted({"raw" if k == "balanced" else k for k in kinds}):       # balanced is derived from raw on C_fin
-        pair = []
-        for br, bm, h in ((br0, bm0, h0), (br1, bm1, h1)):
+        pair, rm = [], {}
+        for j, (br, bm, h) in enumerate(((br0, bm0, h0), (br1, bm1, h1))):
             la, lo, F, _, _, _ = OP.pixels(br, bm, h, branch, kind)
             B, n = box.deposit(la, lo, F)
             if B is None:                                        # cannot happen after the n_out check above
                 raise RuntimeError(f"deposit refused {n} points after the support check")
             pair.append(B)
-        dep[kind] = pair
+            rr = L.remap_report(C.field_measures(la, lo, F, np.ones(len(F)), box.r), box.measures(B))
+            rm.update({f"remap{j}_{k[2:]}": v for k, v in rr.items()})
+        dep[kind], remap[kind] = pair, rm
+    # fine-grid sensitivity on the children of C_fin (no new selection)
+    fbox = L.LocalBox(lat_rng, lon_rng, STEP_FINE, meridional=False, diffusion=False)
+    Cf = children(box, fbox, Cm)
+    # at the pixel scale some fine cells hold no centre (aliasing): observed coverage comes from C_fin; at the fine grid
+    # only the reach of invalid pixels (their centre cell and fine deposit stencil) is checked
+    f_taint, f_out = np.zeros((fbox.ny, fbox.nx), bool), 0
+    for br, bm, h in ((br0, bm0, h0), (br1, bm1, h1)):
+        _, _, _, LAT, LON, valid = OP.pixels(br, bm, h, branch, "raw")
+        pos = np.isfinite(LAT) & np.isfinite(LON)
+        la, lo, va = LAT[pos], LON[pos], valid[pos]
+        f_taint |= OP.coverage(fbox, la[~va], lo[~va])
+        cells, outside = deposit_stencil(fbox, la[~va], lo[~va])
+        for iy, ix in cells:
+            f_taint[iy, ix] = True
+        f_out += int(outside.sum()) + int(deposit_stencil(fbox, la[va], lo[va])[1].sum())
+    f_bad = int((Cf & f_taint).sum())
+    fine = dict(fine_status="fine_deposition_out_of_range" if f_out else ("fine_support_invalid" if f_bad else "ok"),
+                fine_cells_invalid=f_bad, area_fine=float((Cf * fbox.A).sum()) / fbox.r ** 2 * (180 / math.pi) ** 2)
+    fdep = {}
+    if fine["fine_status"] == "ok":
+        for kind in dep:
+            fdep[kind] = [fbox.deposit(*OP.pixels(br, bm, h, branch, kind)[:3])[0] for br, bm, h in ((br0, bm0, h0), (br1, bm1, h1))]
     rot_taint = rotation_dependence(box, V0, gap_s)
     Crot = Cm & ~rot_taint                                       # secondary support (rotation only)
     area_rot = float((Crot * box.A).sum()) / box.r ** 2 * (180 / math.pi) ** 2
     rot_ok = area_rot >= AREA_MIN
     out = []
     for kind in kinds:
-        rec = dict(base, kind=kind)
+        rec = dict(base, kind=kind, **remap["raw" if kind == "balanced" else kind], **fine)
         if kind == "balanced":
             (B0, f0), (B1, f1) = balance_on(dep["raw"][0], box.A, Cm), balance_on(dep["raw"][1], box.A, Cm)
             if B0 is None or B1 is None:
@@ -188,7 +245,24 @@ def measure_pair(read, harp, t_rec0, t_rec1, kinds=KINDS):
                    rot_status="ok" if rot_ok else "rot_coverage_insufficient",
                    **{f"drot_{k}": (diff(k, mr[k], m1r[k]) if rot_ok else np.nan) for k in OBS},
                    **{f"dpers_rot_{k}": (diff(k, m0r[k], m1r[k]) if rot_ok else np.nan) for k in OBS})
+        rec.update(fine_measures(fbox, Cf, fdep, kind, m0, m1) if fine["fine_status"] == "ok" else {})
         out.append(rec)
+    return out
+
+
+def fine_measures(fbox, Cf, fdep, kind, m0, m1):
+    """Measures at 0.03 deg on the children of C_fin and the difference fine - coarse of the pair difference."""
+    if kind == "balanced":
+        (F0, _), (F1, _) = balance_on(fdep["raw"][0], fbox.A, Cf), balance_on(fdep["raw"][1], fbox.A, Cf)
+        if F0 is None or F1 is None:
+            return dict(fine_kind_status="balance_polarity_missing")
+    else:
+        F0, F1 = fdep[kind]
+    f0, f1 = fbox.measures(F0, Cf), fbox.measures(F1, Cf)
+    out = dict(fine_kind_status="ok", **{f"fine_x0_{k}": f0[k] for k in OBS}, **{f"fine_x1_{k}": f1[k] for k in OBS})
+    for k in OBS:
+        out[f"fine_d_{k}"] = diff(k, f0[k], f1[k])
+        out[f"grid_dd_{k}"] = diff(k, diff(k, m0[k], m1[k]), out[f"fine_d_{k}"])
     return out
 
 
@@ -262,6 +336,14 @@ def angular_stats(x_deg, w, kind):
     return out
 
 
+def components_of(df, components):
+    """Component of every pair; a pair_key without an assigned component is refused (not a missing value)."""
+    comp = df.pair_key.map(components)
+    if comp.isna().any():
+        raise ValueError(f"pair_key without component: {list(df.pair_key[comp.isna()])[:5]}")
+    return comp.to_numpy()
+
+
 def component_weights(comp, x):
     """Weights of the target 'a component among those with a finite value, then one of its pairs with a finite value':
     1/(K_eval n_finite(component)) on finite values, 0 on missing ones; also returns K_eval."""
@@ -277,7 +359,7 @@ def component_weights(comp, x):
 def summarise(df, components):
     """df: ok rows of one kind; components: Series pair key -> component id (from the metadata graph). Weights per
     quantity as in component_weights (missing values do not move weight between components' pairs)."""
-    comp = df.pair_key.map(components).to_numpy()
+    comp = components_of(df, components)
     rows = []
     for prefix in ("d_", "drot_", "dpers_rot_"):
         for k in LINEAR:
@@ -302,7 +384,7 @@ def bootstrap(df, components, col, rng, n=N_BOOT):
     """Percentile 95 % interval of the weighted centred RMS of col: resample the evaluable components (at least one
     finite value) with replacement, weights 1/n_finite within each drawn component (the target of summarise). No
     interval with fewer than MIN_COMPONENTS evaluable components or if a replicate fails; both are counted."""
-    comp = df.pair_key.map(components).to_numpy()
+    comp = components_of(df, components)
     x = df[col].to_numpy(float)
     fin = np.isfinite(x)
     ids = np.unique(comp[fin])
@@ -325,6 +407,147 @@ def bootstrap(df, components, col, rng, n=N_BOOT):
     if info["n_rep_failed"]:
         return dict(info, lo=np.nan, hi=np.nan, note="failed replicates: no interval")
     return dict(info, lo=float(np.quantile(vals, 0.025)), hi=float(np.quantile(vals, 0.975)))
+
+
+# ---------------------------------------------------------------- operational assembly (synthetic only until the freeze)
+
+CANDIDATES = ROOT / "reviews/C_REPEATABILITY_METADATA_CLOSURE_20261125/AUDIT/CANDIDATES.csv"
+LAG_SPLIT_S = 5400.0                     # lag classes (0, 1.5 h] and (1.5 h, 2 h]
+BOOT_QUANTITIES = ("D_g", "dD_over_SD", "phi_net", "phi_uns", "lat_pos", "lat_neg", "sep_deg")
+GROUP_COLS = ("hemisphere", "lag_class", "flux_tercile")
+
+
+def file_paths(base):
+    from sharpbl.download_records import file_stem, record_dir
+
+    def paths(harp, t_rec):
+        folder, stem = record_dir(base, t_rec), file_stem(int(harp), t_rec)
+        return [folder / f"{stem}.{k}" for k in ("Br.fits", "bitmap.fits", "keys.json")]
+    return paths
+
+
+def tercile_bounds(f):
+    """Draft §4bis.6: linear quantile with rational index (n - 1) k / 3 on the sorted values; an integral index takes the
+    sample value itself (no floating-point index, no tolerance)."""
+    x = np.sort(np.asarray(f, float))
+    n = len(x)
+    out = []
+    for k in (1, 2):
+        i, r = divmod((n - 1) * k, 3)
+        out.append(float(x[i]) if r == 0 else float(x[i] + (x[i + 1] - x[i]) * (r / 3)))
+    return tuple(out)
+
+
+def eligible_flags(v):
+    """metadata_eligible: booleans, or the exact strings 'True' / 'False'; anything else stops the selection."""
+    out = []
+    for x in v:
+        if isinstance(x, (bool, np.bool_)):
+            out.append(bool(x))
+        elif x in ("True", "False"):
+            out.append(x == "True")
+        else:
+            raise ValueError(f"metadata_eligible must be a boolean or 'True'/'False', got {x!r}")
+    return np.array(out, bool)
+
+
+SEL_COLS = ["pair_key", "node", "HARPNUM", "T_REC_a", "T_REC_b", "gap_ns", "gap_meta_s", "component", "family", "USFLUX_t0",
+            "LAT_FWT_t0", "LON_FWT_t0", "hemisphere", "lag_class", "flux_tercile"]
+
+
+def selection(cand):
+    """SELECTION (metadata-eligible pairs, every one measured, no replacement) and EXCLUSIONS (the others, with their
+    recorded reasons). Groups from metadata only: hemisphere of LAT_FWT at t0, lag class from Delta T_OBS of the audit,
+    USFLUX(t0) terciles recomputed on the selection (classes 1 <= q1 < 2 <= q2 < 3; missing / non-positive -> 'missing')."""
+    c = cand.copy()
+    c["pair_key"] = c.HARPNUM.astype(int).astype(str) + "|" + c.T_REC_a + "|" + c.T_REC_b
+    if c.pair_key.duplicated().any():
+        raise ValueError("duplicate pair keys in the candidates")
+    el = eligible_flags(c.metadata_eligible)
+    sel = c[el].copy()
+    exc = c[~el][["pair_key", "node", "HARPNUM", "pregraph_reasons", "protected_component", "component"]].copy()
+    sel["gap_meta_s"] = sel.gap_ns.astype(float) / 1e9
+    sel["hemisphere"] = np.where(sel.LAT_FWT_t0 > 0, "N", np.where(sel.LAT_FWT_t0 < 0, "S", "missing"))
+    sel["lag_class"] = np.where(sel.gap_meta_s <= LAG_SPLIT_S, "le_1.5h", "gt_1.5h_le_2h")
+    f = sel.USFLUX_t0.astype(float)
+    good = np.isfinite(f) & (f > 0)
+    q1, q2 = tercile_bounds(f[good]) if good.any() else (np.nan, np.nan)
+    sel["flux_tercile"] = np.where(~good, "missing", np.where(f <= q1, "1", np.where(f <= q2, "2", "3")))
+    sel = sel.sort_values("pair_key").reset_index(drop=True)
+    sel = sel[SEL_COLS + [k for k in sel.columns if k not in SEL_COLS]] if len(sel) else pd.DataFrame(columns=SEL_COLS)
+    return sel, exc.sort_values("pair_key").reset_index(drop=True), dict(tercile_q1=float(q1), tercile_q2=float(q2))
+
+
+def manifest(sel, paths_fn):
+    import hashlib
+    rows = []
+    for _, r in sel.iterrows():
+        for side, t in (("t0", r.T_REC_a), ("t1", r.T_REC_b)):
+            for p in paths_fn(r.HARPNUM, t):
+                ex = Path(p).exists()
+                rows.append(dict(pair_key=r.pair_key, side=side, path=str(p), exists=ex,
+                                 sha256=hashlib.sha256(Path(p).read_bytes()).hexdigest() if ex else ""))
+    return pd.DataFrame(rows, columns=["pair_key", "side", "path", "exists", "sha256"])
+
+
+def measurement_keys_exact(meas, sel):
+    """Exactly one row per (pair_key, preparation) of the selection: no missing, extra or duplicated key."""
+    got = list(zip(meas.pair_key, meas.kind)) if len(meas) else []
+    want = {(p, k) for p in sel.pair_key for k in KINDS}
+    return bool(len(got) == len(set(got)) and set(got) == want)
+
+
+def assemble(cand, read, paths_fn, n_boot=N_BOOT):
+    """Products of one run (synthetic until the freeze): SELECTION, EXCLUSIONS, INPUT_MANIFEST, MEASUREMENTS,
+    DENOMINATORS, COMPONENTS, SUMMARY, BOOTSTRAP and run information. Every selected pair is measured once; a failure is
+    a status (read_error / technical_error), never a removal or a replacement."""
+    sel, exc, terc = selection(cand)
+    man0 = manifest(sel, paths_fn)
+    rows = []
+    for _, r in sel.iterrows():
+        fail = lambda st: [dict(HARPNUM=r.HARPNUM, T_REC_0=r.T_REC_a, T_REC_1=r.T_REC_b, kind=k, status=st) for k in KINDS]  # noqa: E731
+        try:                                                          # reading: both maps, before any computation
+            cache = {t: read(r.HARPNUM, t) for t in (r.T_REC_a, r.T_REC_b)}
+        except Exception as exc_:                                     # noqa: BLE001 (recorded as read_error)
+            got = fail(f"read_error:{type(exc_).__name__}")
+        else:
+            try:
+                got = measure_pair(lambda h, t: cache[t], r.HARPNUM, r.T_REC_a, r.T_REC_b)
+            except Exception as exc_:                                 # noqa: BLE001 (recorded, the run continues)
+                got = fail(f"technical_error:{type(exc_).__name__}")
+        rows += [dict(g, pair_key=r.pair_key) for g in got]
+    meas = pd.DataFrame(rows, columns=None if rows else ["pair_key", "kind", "status"])
+    meas = meas.merge(sel[["pair_key", "component", "hemisphere", "lag_class", "flux_tercile"]], on="pair_key", how="left", validate="many_to_one")
+    man1 = manifest(sel, paths_fn)
+    comps = sel.set_index("pair_key").component
+    den, summ, boot = [], [], []
+    for kind in KINDS:
+        mk = meas[meas.kind == kind]
+        for gname, part in [("all", mk)] + [(f"{c}={v}", x) for c in GROUP_COLS for v, x in mk.groupby(c, sort=True)]:
+            d = dict(kind=kind, group=gname, selected=int(len(part)), ok=int((part.status == "ok").sum()))
+            d.update({f"failed_{st}": int(n) for st, n in part.status[part.status != "ok"].value_counts().items()})
+            den.append(d)
+            okp = part[part.status == "ok"]
+            if len(okp):
+                sm = summarise(okp, comps)
+                summ.append(sm.assign(kind=kind, group=gname))
+                for q in BOOT_QUANTITIES:
+                    col = "d_dD_over_SD" if q == "dD_over_SD" else ("d_phi_uns" if q == "phi_uns" else f"d_{q}")
+                    b = bootstrap(okp, comps, col, np.random.default_rng(SEED_BOOT), n=n_boot)     # same seed per call: order-free
+                    boot.append(dict(kind=kind, group=gname, quantity=q, **b))
+    info = dict(selected=int(len(sel)), excluded=int(len(exc)), components=int(sel.component.nunique()), **terc,
+                manifest_unchanged=bool(man0[["path", "exists", "sha256"]].equals(man1[["path", "exists", "sha256"]])),
+                all_inputs_present=bool(man0.exists.all()), measured_pairs=int(meas.pair_key.nunique()),
+                measurement_keys_exact=measurement_keys_exact(meas, sel),
+                read_errors=int(meas.status.astype(str).str.startswith("read_error").sum()),
+                technical_errors=int(meas.status.astype(str).str.startswith("technical_error").sum()))
+    # draft §4bis.7: scientific statuses are admitted outcomes; reading/computing failures and any key mismatch are not
+    info["run_valid"] = bool(len(sel) > 0 and info["manifest_unchanged"] and info["all_inputs_present"] and info["measurement_keys_exact"]
+                             and info["read_errors"] == 0 and info["technical_errors"] == 0)
+    return dict(SELECTION=sel, EXCLUSIONS=exc, INPUT_MANIFEST=man0, MEASUREMENTS=meas, DENOMINATORS=pd.DataFrame(den).fillna(0),
+                COMPONENTS=sel.groupby("component").agg(n_pairs=("pair_key", "size"), harps=("HARPNUM", "nunique")).reset_index(),
+                SUMMARY=pd.concat(summ, ignore_index=True) if summ else pd.DataFrame(),
+                BOOTSTRAP=pd.DataFrame(boot)), info
 
 
 if __name__ == "__main__":

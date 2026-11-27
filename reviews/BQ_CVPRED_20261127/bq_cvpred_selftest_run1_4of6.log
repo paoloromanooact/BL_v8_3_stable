@@ -1,0 +1,11 @@
+[OK] 1. folded density with adaptive bound = long sum (1e-11), T/S <= 1e-12, integral 1, invalid inputs and budget refused max |log diff| 3.6e-15, max T/S 3.5e-15, integral 1.0000000000
+[FALLITO] 2. L1 (u): MC block score = analytic l(train+block) - l(train) within 4 MC SE MC -31.0367 +- 0.0543 vs -31.0829; block 7 records, shared family False, ESS w 333
+[FALLITO] 2. L1 (u+v): MC block score = analytic l(train+block) - l(train) within 4 MC SE MC -31.0857 +- 0.0779 vs -31.0461; block 7 records, shared family False, ESS w 221
+[OK] 3. L2: latents drawn + t density = latents integrated + block precisions drawn (Gamma(nu/2, nu/2)), within 4 combined SE -48.0413 +- 0.1108 vs -48.0526 +- 0.0454
+[OK] 4. L3: MC (latents drawn, preimages summed) = joint enumeration of the preimage pairs (Gaussian conditional) within 4 MC SE MC -10.5915 +- 0.0033 vs enumeration -10.5866 (324 pairs); max T/S 3.5e-13
+[OK] 5. score(): log-mean-exp and MC SE = bq_cv.log_mean_exp; weights ESS and largest share 
+selftest: 4/6
+
+real	0m11,196s
+user	0m11,166s
+sys	0m0,026s

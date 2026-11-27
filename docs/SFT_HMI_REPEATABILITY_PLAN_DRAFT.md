@@ -83,6 +83,50 @@ conservato: nessuna unita di calibrazione compare nella verifica.
   costituito dalle celle fini figlie di C_fin. Nessuna nuova selezione piu favorevole a griglia fine. Prima dei
   dati fissare nei test l'errore di preparazione rispetto alle scale del §5; non presentarlo come rumore solare.
 
+### 4bis. Scelte di implementazione accolte (27 novembre 2026)
+
+Trascritte da Claude dopo la revisione Codex `reviews/BQ_C_FIXES_REVIEW_20261127/REVIEW.md` (repository MWO), che
+le ha accolte; codice in `scripts/sft_c_repeatability.py` dal commit 1bc828a (punti 3 e il rifiuto del punto 5 nel delta
+successivo). Restano parte della bozza da rivedere
+e congelare.
+
+1. **Impronte e dominio.** Per istante: G = celle con almeno un centro di pixel; V = celle di G con un centro valido,
+   nessun centro invalido e nessun peso di deposito da un pixel invalido (stencil effettivo del deposito, solo pesi
+   non nulli). C_geo = erode(G0) ∩ G1, riportato. **C_fin = erode(V0) ∩ V1**: un buco invalido a t0 è trattato
+   come un bordo. Si conservano area geometrica, area valida iniziale, area finale e cause di perdita, con lo stesso
+   C_fin per entrambe le epoche e tutte le preparazioni. Non si scelgono margini diversi per recuperare regioni.
+2. **Bilanciamento.** Sul campo depositato: fattori per polarità calcolati su C_fin a ciascuna epoca, esportati e
+   applicati alla scatola intera; `balance_polarity_missing` se una polarità è vuota su C_fin. È una sensibilità sul
+   campo effettivamente misurato, non la misura P1 sui pixel né una correzione del principale grezzo. Il campo non è
+   necessariamente bilanciato su C_rot, e lì non si riscala.
+3. **Rimappatura.** Per epoca e preparazione depositata (grezzo, P1; il bilanciato riporta il deposito grezzo, prima
+   del bilanciamento) si registrano le differenze griglia − pixel sul supporto completo, senza correggerle.
+4. **C_rot.** È il supporto potenziale conservativo dello schema di trasporto effettivo (TVD-minmod, SSP-RK2, sola
+   rotazione): si escludono le celle il cui dominio di dipendenza numerico, [i − 4n, i + 2n] dopo n passi (specchiato
+   per la velocità negativa), tocca una cella fuori da V0. Non è il supporto minimo attivo, non garantisce
+   l'accuratezza del trasporto né la trasferibilità ai giorni. Si riporta l'area persa a 1–2 h. Nessun cambio di
+   solutore ora: un altro solutore richiederebbe verifica e specifica proprie.
+5. **Mancanti.** Per singola osservabile il bersaglio è una componente fra quelle con almeno un dato finito, poi una
+   sua coppia finita: pesi 1/(K_eval n_finite), stesse regole nel bootstrap. È un bersaglio condizionato alla
+   valutabilità, non un'imputazione né una prova che i mancanti siano casuali. Si esportano supporti e conteggi
+   effettivi per osservabile e preparazione. Una pair_key senza componente assegnata è rifiutata.
+6. **Terzili USFLUX (§6), definizione del quantile** (Codex, 27 novembre). Quantile lineare con indice razionale
+   (n − 1)k/3, k = 1, 2, sui valori ordinati validi: se l'indice è intero si usa direttamente il valore campionario,
+   altrimenti l'interpolazione lineare fra i due vicini; nessuna tolleranza. Confini inclusivi per la classe
+   inferiore: classe 1 se x ≤ q1, 2 se q1 < x ≤ q2, 3 se x > q2. Con le 82 coppie dell'audit metadati (n − 1)·2/3 = 54
+   è intero e q2 = x₅₄ = 1,38655·10²² Mx, l'USFLUX della coppia HARP 3098 (2013.08.19_22:00 → 2013.08.20_00:00), che va
+   in classe 2: classi 28/27/27. L'audit di sviluppo (`reviews/C_REPEATABILITY_METADATA_CLOSURE_20261125/`) riportava
+   28/26/28 perché il suo q2 era 1,3865499999999996·10²² per arrotondamento in virgola mobile; quei conteggi restano
+   conservati come registrati e sono **provvisori**; la regola qui sopra (decisione Codex del 27 novembre) li sostituisce.
+7. **Stati e ricevuta dell'assemblaggio.** Ogni coppia selezionata ha esattamente una riga per preparazione (grezza,
+   P1, bilanciata). Gli errori di lettura (`read_error:<tipo>`, sollevati leggendo una delle due mappe) sono distinti
+   da quelli di calcolo (`technical_error:<tipo>`, sollevati dopo una lettura riuscita). Gli stati scientifici
+   (`finite_coverage_insufficient`, `deposition_out_of_range`, `balance_polarity_missing`, gli stati secondari di C_rot
+   e della griglia fine) sono esiti ammessi e restano nei denominatori. Una corsa può avere una ricevuta solo se: la
+   selezione non è vuota, gli input esistono e il manifest è invariato a fine corsa, l'insieme delle chiavi
+   (pair_key, preparazione) è esattamente quello atteso, e nessuna riga ha `read_error` o `technical_error`.
+   `metadata_eligible` deve essere un booleano o le stringhe esatte "True"/"False": ogni altro valore ferma la selezione.
+
 ## 5. Osservabili e differenze
 
 Per ogni istante sullo stesso C_fin: D_C geografico in G, Phi+, Phi-, netto e unsigned in Mx, centroidi vettoriali

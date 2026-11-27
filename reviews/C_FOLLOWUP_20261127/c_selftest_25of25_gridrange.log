@@ -1,0 +1,26 @@
+[OK] A. identical maps: every difference zero for raw, p1_source, balanced; C_fin >= 25 deg^2 areas [33.9, 33.9, 33.9]
+[OK] B. rotation relative to Carrington (2 h): persistence d_lon = shift, rotation-only difference much smaller shift -0.0639, d -0.0639, drot -0.00248
+[OK] B2. C_rot inside C_fin (numerical domain of dependence); persistence on C_rot sees the shift C_geo 72.0, C_fin 72.0, C_rot 63.1 deg2; persistence on C_rot -0.0639
+[OK] B3. 2-day gap: C_rot below 25 deg2 -> rot_coverage_insufficient, secondary NaN, main measured (d_lon = shift) C_fin 88.4, C_rot 0.0 deg2
+[OK] A2. identical maps at 1 h: C_rot inside C_fin, every secondary persistence difference zero C_rot / C_fin 0.917
+[OK] C. correlated pixel noise, no evolution: Var(dD) ratio rho 0.8 / rho 0 = 1 - rho = 0.2 (40 pairs each) ratio 0.142
+[OK] D. one polarity: balanced -> balance_polarity_missing; raw measured {'raw': 'ok', 'p1_source': 'ok', 'balanced': 'balance_polarity_missing'}
+[OK] E. small patch -> finite_coverage_insufficient 
+[OK] J2. patch with one NaN (or above-cap) pixel at t0: C_fin loses its cells, C_geo does not; measures finite C_fin cells 9756 -> 9028 (NaN), 9028 (cap); C_geo 9756
+[OK] K. negative only outside C_fin: balanced -> balance_polarity_missing (the whole patch has both); raw measured, not rescaled (fluxes on C_fin = twin patch without the outside negative flux) balanced balance_polarity_missing; raw phi+ / twin 1.000000000000000, phi- 0.0
+[OK] K2. extra negative flux outside C_fin: balanced fluxes equal ON C_fin at both instants (factors from C_fin) raw phi+/phi- on C_fin 1.1337; balanced 1.000000000000000, factors +0.9410 -1.0668
+[OK] F. angular statistics at the seam: axial 89/-89 -> mean +-90, small SD; circular 359/1 -> mean 0, small SD axial mean 90.000 SD 1.000; circular mean -0.000 SD 1.000
+[OK] G. weights 1/(K n_component): two components (1 and 3 pairs) -> mean 1.5 mean 1.5
+[OK] H. bootstrap: no interval with < 10 components; percentile interval contains the point value otherwise point 0.828 in [0.469, 1.139]
+[OK] I. --run refused while the spec is not frozen 
+[OK] J1. one valid and one invalid centre in a cell: cell in G, not in V (old rule: in V); the invalid pixel's stencil cell (6,6) with a valid centre is not in V; an isolated valid cell is 
+[OK] L. leading change: seam (+179 / -179 -> 178.9 / 179.5, negative leading at both) no change (old: True); one polarity -> undefined (old: True) leading -1/-1, change False; one polarity nan
+[OK] M. missing values: component -> pair weights (mean 1.5, old rule 1.4), evaluable components counted (1 and 9 -> no interval, no crash), 15 with some missing -> interval, missing and failed replicates counted mean 1.5; components 1, 9, 15; interval [0.403, 0.977]
+[OK] N1. rotation-only transport over 2 h: perturbing only cells outside V0 leaves the field bitwise unchanged outside the computed domain of dependence (and changes it inside) steps 12, max change outside 0.0e+00, inside (valid cells) 3.9e+02; tainted valid cells 32703
+[OK] N2. a cell whose preimage has 8 of 16 sub-points on an invalid cell: old rule covered, new rule excluded from C_rot gap 3382 s; old True, excluded True
+[OK] O. remapping recorded at both instants (raw, balanced = raw deposit): net flux and D kept on the full support, polarity fluxes not increased by cancellation d phi_pos -3.805e+17, d lon_pos 2.05e-04, d D 0.0e+00
+[OK] Q1. fine grid on the children of C_fin: same area (1e-9), identical maps -> fine differences zero for every preparation areas 33.915 / 33.915
+[OK] Q2. 2 h rotation (test B): fine d_lon = shift, grid_dd small compared with the shift fine d -0.0639, grid_dd 1.02e-05, D grid_dd 1.21e-15
+[OK] Q3. NaN pixel at t0 (test J2): fine status explicit or fine support valid; no re-selection (C_fin cells unchanged) fine status ok, invalid children 0
+[OK] P. pair_key without component: refused in summarise and bootstrap (not treated as a missing value) [True, True]
+selftest: 25/25

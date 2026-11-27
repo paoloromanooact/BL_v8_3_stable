@@ -1,0 +1,4 @@
+block    7: (b) -35.104 +- 0.147, ESS    58.0, max 0.075, score_not_established  | direct -34.883 +- 0.031, ESS  771.7, ok
+block   45: (b) -233.265 +- 0.770, ESS     1.7, max 0.773, score_not_established  | direct -226.560 +- 0.633, ESS    2.4, score_not_established
+block  111: (b) -632.045 +- 0.998, ESS     1.0, max 0.998, score_not_established  | direct -560.886 +- 0.286, ESS   10.1, score_not_established
+block  197: (b) -1137.280 +- 0.999, ESS     1.0, max 0.999, score_not_established  | direct -1004.380 +- 0.538, ESS    3.3, score_not_established

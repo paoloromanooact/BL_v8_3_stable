@@ -1,0 +1,4 @@
+block    7 records: MC raw -37.795 +- 0.050 vs analytic -37.769; ESS weights 277.3 of 4000, max share 0.028; status ok
+block   45 records: MC raw -216.485 +- 0.266 vs analytic -215.068; ESS weights 12.0 of 4000, max share 0.176; status score_not_established
+block  111 records: MC raw -535.007 +- 0.610 vs analytic -532.383; ESS weights 2.6 of 4000, max share 0.608; status score_not_established
+block  197 records: MC raw -979.948 +- 0.996 vs analytic -971.982; ESS weights 1.0 of 4000, max share 0.997; status score_not_established

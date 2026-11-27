@@ -1,0 +1,21 @@
+[OK] pair recounted (identical): every key of the three preparations statuses ['ok', 'ok', 'ok'], rot ['ok'], fine ok
+[FALLITO] pair recounted (rotation 2 h at 40 deg): every key of the three preparations d_tilt_deg (raw): 5.671224101888583e-06 vs 5.6712226523814024e-06
+[OK] pair recounted (one polarity): every key of the three preparations statuses ['ok', 'ok', 'balance_polarity_missing'], rot ['ok'], fine ok
+[OK] pair recounted (small patch): every key of the three preparations statuses ['finite_coverage_insufficient', 'finite_coverage_insufficient', 'finite_coverage_insufficient'], rot [None], fine None
+[OK] pair recounted (NaN pixel at t0): every key of the three preparations statuses ['ok', 'ok', 'ok'], rot ['ok'], fine ok
+[OK] pair recounted (negative outside C_fin): every key of the three preparations statuses ['ok', 'ok', 'balance_polarity_missing'], rot ['ok'], fine ok
+[OK] pair recounted (extra negative outside C_fin): every key of the three preparations statuses ['ok', 'ok', 'ok'], rot ['ok'], fine ok
+[OK] refused: a 3-decimal change of d_lon_pos (1e-6 relative) 
+[OK] refused: a status 
+[OK] refused: a key dropped (remap0_phi_pos) 
+[OK] refused: a count (C_cells + 1) 
+[OK] refused: a fractional count (C_cells + 0.5) 
+[OK] refused: a balancing factor (1e-7 relative) 
+[OK] summaries: weights 1/(K_eval n_finite), weighted mean and lower quantiles = runner K_eval 14
+[OK] bootstrap over evaluable components, same seed: interval = runner [0.582209, 0.877454] vs [0.582209, 0.877454]
+[OK] C_rot: runner closed form [i-4n, i+2n] = own stage-by-stage propagation (t 0, 0.5 h, 1 h, 7000 s); own transport = runner transport max rel diff 1.5e-13, dt 600.0 vs 600.0
+selftest: 15/16
+
+real	0m4,889s
+user	0m4,756s
+sys	0m0,124s

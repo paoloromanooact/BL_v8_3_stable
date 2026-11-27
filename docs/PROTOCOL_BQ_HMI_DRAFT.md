@@ -197,6 +197,63 @@ Un controllo che condivide campioni/covarianze non e una validazione completamen
 Ripetere i fit per le prior di beta prescritte, oppure usare pesi solo con diagnostica di sovrapposizione
 ed ESS adeguati e regole fissate prima. Non riusare il posteriore tau=10 per tutte le tau senza controllo.
 
+## 6ter. Densità predittiva del blocco per L2 e L3 (definizione prima del codice)
+
+Trascritta da Claude il 27 novembre dalla revisione Codex di f17d230 (§2) e dalle verifiche successive
+(`reviews/BQ_CV_REFERENCE_20261127/`, `BQ_CV_MASK_RECOUNT_20261127/`, `BQ_L3_TAIL_REFERENCE_20261127/`,
+`BQ_PAIRED_MCSE_REFERENCE_20261127/` nel repository MWO). Bozza: le soglie indicate come proposte vanno decise
+prima del codice operativo.
+
+1. **Maschere.** Le stesse del §6 per ogni modello confrontato (L1, L2, L3; M0, MQ; con e senza v), salvate con gli
+   ID dei record per blocco e buffer. Verificate da Codex sul disegno T3 (2485 record, 10 blocchi, buffer 11 e 22)
+   senza leggere la risposta.
+2. **Estrazioni dal solo training.** Per ogni blocco si campiona il posteriore dato soltanto il training (in L2 con
+   le precisioni latenti del training, in L3 con i rami del training). Per ogni estrazione s si estraggono
+   **congiuntamente**: coefficienti θ; stati u (e v) ai CR della verifica, condizionati al training con il calendario
+   completo e i buffer; un effetto b_f per ogni famiglia della verifica, condiviso da tutti i suoi membri nel blocco.
+   Le famiglie della verifica sono escluse dal training, quindi b_f ~ N(0, σ_f²) con σ_f dell'estrazione. Nessun
+   latente condizionato alle risposte di verifica.
+3. **Densità condizionale del record**, con m_i = X_i θ + u + s_i v + b_f e σ_i = σ0 exp(q log10(Φ_i/10²¹ Mx)):
+   - L1: N(γ_i; m_i, σ_i²);
+   - L2: t4(γ_i; posizione m_i, scala σ_i √(2/4)), con la precisione del residuo di verifica integrata
+     analiticamente (σ_i è la SD marginale, non la scala della t);
+   - L3: somma su **tutte** le preimmagini di γ_i di N(·; m_i, σ_i²), con il limite della coda del riferimento Codex
+     (immagini aggiunte fino a T/S ≤ 10⁻¹²; budget esaurito → errore tecnico). Non si sceglie un ramo usando il
+     tilt di verifica.
+4. **Stimatore del blocco:** log[(1/S) Σ_s Π_{i∈blocco} p(γ_i | estrazione s)], con log-sum-exp. Non il prodotto
+   delle medie, né la media dei logaritmi, né la somma di predittive marginali (nel riferimento Codex queste scelte
+   cambiano il log score di 0,19 in L2 e di 0,05 in L3). In L1 il punteggio gaussiano analitico, con stati e
+   coefficienti integrati, resta il principale; lo stimatore Monte Carlo L1 serve da controllo dello stimatore
+   usato per L2 e L3.
+5. **Errore Monte Carlo e degenerazione.** Per blocco si riportano l'ESS dei pesi w_s ∝ Π_i p(γ_i | s), la quota del
+   peso massimo, il MCSE del log score con medie a blocchi per catena (riferimento appaiato Codex, confini delle
+   catene conservati) e la dispersione fra repliche indipendenti. Proposta, da decidere: ESS dei pesi ≥ 100 e MCSE del
+   log score ≤ 0,1 per blocco; altrimenti stato `score_not_established` per quel blocco, non un numero. Se lo
+   stimatore diretto degenera su blocchi grandi, si usa una fattorizzazione sequenziale p(y_B | train) =
+   Π_j p(y_j | train, y_<j) (per esempio importance resampling/SMC), scelta e verificata su casi piccoli **prima**
+   della classifica reale, mai dopo.
+6. **Verifiche prima dell'uso:** L1 Monte Carlo contro il riferimento denso analitico; L2 contro la quadratura
+   ridotta del riferimento Codex; L3 contro l'enumerazione congiunta su due record correlati; casi sintetici con una
+   famiglia condivisa nella verifica e con stati AR(1) fortemente persistenti.
+8. **Esito delle prime misure (27 novembre, sintetici,** `reviews/BQ_CVPRED_20261127/`**).** Lo stimatore diretto
+   (latenti estratti, densità condizionali per record) coincide con il valore analitico L1, con la seconda strada L2 e
+   con l'enumerazione L3 su blocchi piccoli, ma degenera al crescere del blocco: ESS dei pesi 277/12/2,6/1,0 per blocchi
+   L1 di 7/45/111/197 record, scarto −0,03/−1,4/−2,6/−8,0 con MCSE dichiarato sottostimato. Anche integrare i latenti
+   ed estrarre le precisioni L2 del blocco dalla loro prior degenera (ESS 58 già con 7 record). Per blocchi HMI di
+   ~250 record serve una fattorizzazione sequenziale record per record (per esempio SMC con latenti gaussiani integrati,
+   integrale unidimensionale della precisione L2 per quadratura, somma sulle preimmagini L3 per enumerazione, e
+   ringiovanimento), da specificare, verificare contro i riferimenti e misurare nei costi prima del codice operativo.
+   Filtri ESS ≥ 100 e MCSE ≤ 0,1 accolti da Codex come provvisori per le prove sintetiche; la loro stabilità va
+   verificata con repliche.
+9. **Blocchi non stabiliti (proposta, da decidere).** Il confronto fra candidati usa solo i blocchi stabiliti per
+   **tutti** i candidati confrontati; un blocco `score_not_established` per un candidato è escluso per tutti, mai
+   sostituito o ricalcolato con più estrazioni scelte guardando i punteggi. Si riportano numero, identità e
+   numerosità dei blocchi esclusi. Se ne restano meno di 8 su 10 (proposta), il confronto predittivo è
+   `comparison_not_established` e non si presenta una classifica.
+7. **Prodotti:** maschere con ID; per blocco, estrazione e catena il log Π_i p(γ_i | s); log-pesi, ESS, MCSE, stato
+   per blocco; T/S massimo per L3. Formato da allineare al prototipo di esportazione Codex
+   (`BQ_SYNTHETIC_L1_POINTWISE_V1`).
+
 ## 6bis. BIC: controllo secondario, con condizioni di applicabilita
 
 Aggiunto su richiesta dell'utente prima di qualsiasi fit BQ. Nel caso regolare classico:
