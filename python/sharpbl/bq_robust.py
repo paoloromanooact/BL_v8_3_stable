@@ -58,11 +58,13 @@ def _residual_sd(d, x, scale=1.0):
     return p["sigma0"] * np.exp(p["q"] * d.lphi) * math.sqrt(scale)
 
 
-def gibbs(d: B.Design, y, x0, n_warm, n_keep, rng, kind="L2", nu=NU, keep_theta=True, theta_init=None):
+def gibbs(d: B.Design, y, x0, n_warm, n_keep, rng, kind="L2", nu=NU, keep_theta=True, theta_init=None, keep_aux=False):
     """kind 'L2' (Student-t residuals) or 'L3' (folded latent tilt). Returns dict of saved psi draws, coefficient
     draws (theta), per-iteration summaries (mean lam for L2, share of non-identity branches for L3) and, for L3, the
     per-record count of branch changes in the saved phase. theta_init: starting latent tilts for L3 (preimages of
-    gamma; identity branch if None)."""
+    gamma; identity branch if None). keep_aux: also save, at every kept iteration, the auxiliary state that goes with the
+    saved psi at the end of the iteration (lam for L2, the latent tilts for L3), as needed to condition a block score on
+    the training posterior state (bq_smc.block_state)."""
     x = np.array(x0, float)
     scale = (nu - 2.0) / nu if kind == "L2" else 1.0
     lam = np.ones(d.n) if kind == "L2" else None
@@ -78,7 +80,7 @@ def gibbs(d: B.Design, y, x0, n_warm, n_keep, rng, kind="L2", nu=NU, keep_theta=
     if not np.isfinite(fx):
         raise ValueError("initial point has zero density")
     W = B.Widths(len(x), n_warm)
-    out = dict(psi=[], theta=[], summary=[], hits=0, switches=np.zeros(d.n, int))
+    out = dict(psi=[], theta=[], summary=[], hits=0, switches=np.zeros(d.n, int), aux=[])
     for it in range(n_warm + n_keep):
         W.update(it, x)
         x, fx, h = B.slice_sweep(logf, x, fx, W.w, rng)
@@ -102,6 +104,8 @@ def gibbs(d: B.Design, y, x0, n_warm, n_keep, rng, kind="L2", nu=NU, keep_theta=
             out["psi"].append(x.copy())
             if keep_theta:
                 out["theta"].append(theta)
+            if keep_aux:
+                out["aux"].append((lam if kind == "L2" else yy).copy())
             out["summary"].append(summ)
     return {k: (np.array(v) if isinstance(v, list) else v) for k, v in out.items()}
 

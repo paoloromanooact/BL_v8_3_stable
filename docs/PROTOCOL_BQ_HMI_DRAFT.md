@@ -261,6 +261,28 @@ prima del codice operativo.
    ricampionamento con un Gibbs a dati aumentati (z | ausiliari, ausiliari | z) che preserva la distribuzione
    condizionata al prefisso (Del Moral, Doucet & Jasra 2006). Precisione del punteggio da repliche indipendenti, non
    dalla sola ESS dopo il ricampionamento; costo e stabilità misurati fino a 395 record, il blocco HMI più grande.
+   *Aggiornamento 27 novembre:* schema accettato da Codex come base per la validazione sintetica a ψ fisso; in L2 la
+   misura discreta è ora una griglia uniforme in log λ (200 punti, pesi del trapezio), perché i 64 nodi di
+   Gauss–Laguerre sbagliavano il log-punteggio di 0,26 sul blocco di 395 record (`docs/BQ_SMC_DEVELOPMENT_20261127.md`).
+11. **Media sulle estrazioni di ψ in L2/L3 (decisione Codex, 27 novembre; numeri aperti).**
+   - *Punteggio.* Per ogni estrazione s di ψ (con il suo stato del training: λ del training in L2, tilt latenti del
+     training in L3), R_s stime SMC indipendenti della densità del blocco p̂_s,r; la stima per estrazione è la media
+     sulla scala della densità, p̂_s = (1/R_s) Σ_r p̂_s,r (log-mean-exp). Il punteggio del blocco è
+     log[(1/S) Σ_s p̂_s] (log-mean-exp). Si conservano catena, iterazione, seme della catena e semi SMC di ogni valore.
+     Ogni p̂_s,r è non distorta per la densità condizionale a ψ; il suo logaritmo no, quindi non si mediano log.
+   - *Errore totale.* MCSE del punteggio con medie a blocchi dentro ciascuna catena, sui contributi di densità
+     riscalati (exp(log p̂_s − max)), metodo delta; questo MCSE include già il rumore SMC. Su un sottoinsieme di
+     estrazioni fissato prima (per esempio un'estrazione su dieci di ogni catena) l'SMC si ripete con semi indipendenti
+     per stimare quanto pesa il rumore interno rispetto alla variabilità fra le ψ, e decidere se spendere il calcolo in
+     più estrazioni di ψ o in più particelle/repliche SMC.
+   - *Dimensionamento e costo.* Prima una prova sul blocco di 395 record per L2 e L3, con punti di controllo fissati
+     prima (per esempio 25, 50, 100, 200 estrazioni), un budget massimo (estrazioni e ore-core) e lo stato
+     `score_not_established` se a budget esaurito MCSE > 0,1 o ESS dei pesi < 100. Riferimento di costo: con circa
+     150 s per valutazione SMC, 100 estrazioni costano circa 4,2 h-core per blocco e modello, più il fit del training.
+     Il preventivo completo somma i costi dei singoli blocchi con i tempi **isolati** della configurazione scelta.
+   - *Aperti:* numero definitivo di estrazioni di ψ, di particelle e di repliche SMC per estrazione; si fissano dopo il
+     confronto particelle/repliche (`reviews/BQ_SMC_PARTICLES_VS_REPS_20261127/`) e la prova che separa il rumore SMC
+     dalla variabilità fra le ψ.
 7. **Prodotti:** maschere con ID; per blocco, estrazione e catena il log Π_i p(γ_i | s); log-pesi, ESS, MCSE, stato
    per blocco; T/S massimo per L3. Formato da allineare al prototipo di esportazione Codex
    (`BQ_SYNTHETIC_L1_POINTWISE_V1`).

@@ -92,6 +92,20 @@ canonici; ha riprodotto bit per bit le 6 righe già calcolate; sorgenti invariat
 
 - Con una replica da 1000 particelle il MCSE resta sotto 0,1 fino a 395 record (L2 0,068, L3 0,010), a ψ fisso; L2 è
   la parte più variabile e costosa sul blocco grande.
+- **Due quadrature L2, da tenere distinte** (blocco di 395 record, 8 repliche da 1000 particelle, stessi semi):
+
+  | Quadratura | sd fra repliche | s per replica | Condizione della misura del tempo |
+  |---|---|---|---|
+  | Gauss–Laguerre 64 nodi (benchmark) | 0,068 | 138 | isolata |
+  | griglia log λ 200 punti (confronto L2) | 0,073 | ~2200 | **in contesa** con il benchmark: non è un costo |
+  | griglia log λ 400 punti (controllo 200/400, 4 repliche) | 0,088 | 123–162 | isolata |
+
+  Il costo isolato della griglia a 200 punti si misura nel confronto particelle/repliche (sotto).
+- **Decisione Codex (27 novembre):** schema SMC accettato come base per la validazione sintetica a ψ fisso; griglia in
+  log λ adottata; 1000 particelle come riferimento. Dopo il pilota, sullo stesso blocco di 395 record, stessa risposta e
+  stesso ψ, con il `bq_smc` di 3383084: una replica da 2000 particelle contro due repliche indipendenti da 1000 (densità
+  mediate, poi log), misurando costo isolato, dispersione e ricampionamenti. La CV completa L2/L3 resta aperta finché
+  non è verificata la media sulle estrazioni di ψ.
 - La scelta fra più particelle e repliche mediate (log-mean-exp delle densità) e l'accettazione dello schema spettano a
   Codex; manca l'integrazione sulle estrazioni di ψ in L2/L3.
 - Lezione operativa: due corse SMC contemporanee hanno rallentato ciascuna di 3–10 volte (banda di memoria); da allora

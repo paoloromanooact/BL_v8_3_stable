@@ -36,6 +36,7 @@ docs/CODEX_NEXT_SESSION_20261125.md
 docs/CODEX_REVIEW_ARTEFACTS_REMOVED_2026-11-16.csv
 docs/CROSS_REVIEW_2026-11-14.md
 docs/C_BQ_DEVELOPMENT_20261127.md
+docs/C_FREEZE_PACKAGE_DRAFT_20261127.md
 docs/C_REPEATABILITY_METADATA_CLOSURE_20261125.md
 docs/C_REPEATABILITY_PRELIMINARY_CODE_REVIEW_20261125.md
 docs/DIAGNOSTIC_A_PLAN.md
@@ -1325,6 +1326,8 @@ reviews/A1_EMPTY_CASE_FIX_20261127/final_recount_41of41.log
 reviews/A1_EMPTY_CASE_FIX_20261127/final_runner_24of24.log
 reviews/A1_EMPTY_CASE_FIX_20261127/launch1_recount_36of36.log
 reviews/A1_EMPTY_CASE_FIX_20261127/launch1_runner_24of24.log
+reviews/A1_FREEZE_PREP_20261127/PROTOCOL_SFT_MAP_BIPOLE_PILOT_AMENDMENT_A1.md
+reviews/A1_FREEZE_PREP_20261127/README.md
 reviews/BQM_OVERLAP_INVENTORY_20261125/INVENTORY.json
 reviews/BQ_A1_CROSS_REVIEW_20261125/MATH_CHECKS.json
 reviews/BQ_A1_CROSS_REVIEW_20261125/math_probe.py
@@ -1335,6 +1338,17 @@ reviews/BQ_CVPRED_20261127/bq_cvpred_selftest_final.log
 reviews/BQ_CVPRED_20261127/bq_cvpred_selftest_run1_4of6.log
 reviews/BQ_CVPRED_20261127/degeneracy_option_b_L2.py
 reviews/BQ_CVPRED_20261127/degeneracy_probe.py
+reviews/BQ_CV_PSI_SMC_SMOKE_20261127/L1/CHECKPOINTS.csv
+reviews/BQ_CV_PSI_SMC_SMOKE_20261127/L1/DRAWS.csv
+reviews/BQ_CV_PSI_SMC_SMOKE_20261127/L1/META.json
+reviews/BQ_CV_PSI_SMC_SMOKE_20261127/L2/CHECKPOINTS.csv
+reviews/BQ_CV_PSI_SMC_SMOKE_20261127/L2/DECOMPOSITION.csv
+reviews/BQ_CV_PSI_SMC_SMOKE_20261127/L2/DRAWS.csv
+reviews/BQ_CV_PSI_SMC_SMOKE_20261127/L2/META.json
+reviews/BQ_CV_PSI_SMC_SMOKE_20261127/L3/CHECKPOINTS.csv
+reviews/BQ_CV_PSI_SMC_SMOKE_20261127/L3/DECOMPOSITION.csv
+reviews/BQ_CV_PSI_SMC_SMOKE_20261127/L3/DRAWS.csv
+reviews/BQ_CV_PSI_SMC_SMOKE_20261127/L3/META.json
 reviews/BQ_C_FIXES_20261127/bq_core_selftest_21of21.log
 reviews/BQ_C_FIXES_20261127/c_selftest_run1.log
 reviews/BQ_C_FIXES_20261127/c_selftest_run2.log
@@ -1370,6 +1384,7 @@ reviews/BQ_REV4_MATH_ORACLE_20261125/CHECKS.json
 reviews/BQ_SLICE_HITS_DIAGNOSTIC_20261125/RESULT.txt
 reviews/BQ_SLICE_HITS_DIAGNOSTIC_20261125/hits_diag.py
 reviews/BQ_SMC_20261127/REJUVENATION_CHECK.txt
+reviews/BQ_SMC_20261127/bq_core_selftest_after_keep_aux.log
 reviews/BQ_SMC_20261127/bq_smc_selftest_8of8.log
 reviews/BQ_SMC_20261127/bq_smc_selftest_integrated.log
 reviews/BQ_SMC_20261127/bq_smc_selftest_run1_6of7.log
@@ -1462,11 +1477,13 @@ reviews/SFT_INDEPENDENT_ORACLES_V1/SELFTEST.json
 reviews/SFT_INDEPENDENT_ORACLES_V1/SPHERICAL_MODES.csv
 reviews/SFT_INDEPENDENT_ORACLES_V1/UNIFORM_DECAY.csv
 reviews/SFT_OBSERVED_GEOMETRY_690ded3/HEADERS.json
+scripts/a1_freeze.py
 scripts/bl_sft_local_inventory.py
 scripts/bq_bridge_selftest.py
 scripts/bq_c_math_reference.py
 scripts/bq_concurrency_probe.py
 scripts/bq_core_selftest.py
+scripts/bq_cv_psi_smc.py
 scripts/bq_cvpred_selftest.py
 scripts/bq_design_counts.py
 scripts/bq_diag_selftest.py
@@ -1483,6 +1500,7 @@ scripts/bq_psi_average_check.py
 scripts/bq_psi_mcse_batches.py
 scripts/bq_sid_study.py
 scripts/bq_sizing_pilot.py
+scripts/bq_smc_particles_vs_reps.py
 scripts/bq_smc_selftest.py
 scripts/bq_smc_stability.py
 scripts/bq_woodbury_benchmark.py

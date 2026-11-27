@@ -1,0 +1,26 @@
+[OK] 1. log-likelihood banded+Schur = dense (u, u+v; with/without beta; 16 cases) max rel 6.2e-15
+[OK] 2. coefficient posterior given psi = dense Gaussian formula max rel 9.4e-14
+[OK] 3. AR(1) precision^-1 = sd^2 phi^|dt| kappa^[h!=h'] (negative phi), log-det 
+[OK] 4. slice sampler: correlated Gaussian mean and covariance mean [ 0.007 -0.005], cov [[0.94, 0.75], [0.75, 1.93]]
+[OK] 5a. Savage-Dickey (quadrature) = ratio of evidences (quadrature), nested M0/MQ with shared priors log BF0Q: evidences 0.16502, Savage-Dickey 0.16502
+[OK] 5b. sampled Savage-Dickey within Monte Carlo error (4 x naive SE, inflated x3 for autocorrelation) estimate 0.1674 +- 0.0030 vs 0.1650
+[OK] 6. recovery beta = -8 (short chain; posterior mean within 3 SD) mean -10.04, SD 1.83
+[OK] 6. recovery beta = +0 (short chain; posterior mean within 3 SD) mean 1.62, SD 1.98
+[OK] 6. recovery beta = +8 (short chain; posterior mean within 3 SD) mean 4.95, SD 1.78
+[OK] 8. CV blocks: 10 contiguous intervals covering the calendar, lengths differ by <= 1, remainder first lengths [23, 22, 22, 22, 22, 22, 22, 22, 22, 22]
+[OK] 9. CV masks: block, buffer of 11 CR and every family member of the verification excluded from training (also far away) 
+[OK] 10. block score given psi: l(train+ver) - l(train) = dense conditional Gaussian density (joint, not a sum of marginals) -122.557174 vs -122.557174; sum of independent prior marginals would give -123.84
+[OK] 11. end to end, beta = -15 (strong): MQ total block score > M0 (5 blocks, buffer 5, short chains) MQ -1516.0 +- 0.60, M0 -1555.3 +- 0.66
+[OK] 12. joint latent draw (u+v, families): coefficient mean/cov and shared part = dense posterior (within 4.5 MC SE) max |z| coeff 1.53
+[OK] 13. L3 folded density integrates to one on (-90, 90) (sigma 12/30/150/400, mu incl. 400) max error 6.7e-16
+[OK] 14. L3 branch draw: frequencies of the preimages 80 / 100 match the discrete conditional P(100) 0.5641 vs 0.5622
+[OK] 15. L2 Gibbs recovers beta = -8 on its own synthetic data (within 3 posterior SD) mean -6.96, SD 1.71; sigma0 14.5 (true 12.0); mean lam 1.000
+[OK] 16. L3 Gibbs recovers beta = -8 on its own synthetic data (within 3 posterior SD) mean -3.64, SD 4.94; sigma0 35.1 (true 35.0); share folded 0.006
+[OK] 17. L3 with large dispersion (sigma0 = 70, ~20 % folded): beta close to the oracle fit on the true latent tilt, sigma0 recovered, no drift between chain halves folded share true 0.21, sampled 0.17; L3 beta -3.3 +- 7.8 (halves -2.6/-4.1), oracle -9.8 +- 7.4; sigma0 L3 62.4, L1 on folded gamma 50.1 (beta -5.6, different target)
+[OK] 18. one-CR calendar: AR(1) precision/log-det = dense for any phi, log-likelihood = dense (u, u+v), n_t = 0 refused; main prior q SD 0.5 precision/log-det 3.6e-15, log-lik rel 2.3e-16, n_t = 0 refused True, q_sd 0.5
+[OK] 7. timing on the real design structure (synthetic y): per log-likelihood evaluation v=False: bandwidth 9, 10.9 ms; v=True: bandwidth 19, 37.2 ms
+selftest: 21/21
+
+real	2m38,751s
+user	2m31,925s
+sys	0m3,148s
