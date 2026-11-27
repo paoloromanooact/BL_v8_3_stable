@@ -1,0 +1,10 @@
+{
+  "sha256": "2f0c6191d97b14c513726bad38828ffb0ed1b3dd8d73b44e08bd207f7d0e9232",
+  "runner_sha256": "c9f25e10123494c96166d76b6a7b007e5a382a85f9e24b2a41361b96175ff504",
+  "recount_sha256": "6214132eb6454b0de4079904ee7c86360262d17ef80f37b692fcfa37bf734970",
+  "candidates_sha256": "86449cc2cef35ecce94caebb48b3728f8f8f7bf6cdbc9ed310e4a8018ae3aa85",
+  "freeze_commit": "9c02ee569f14f5f6f5414e680d30d23eb9fefb96",
+  "not_blind": "Non cieco rispetto ai metadati dell'audit (82 coppie, 79 componenti, emisferi, classi di lag, terzili USFLUX, collezioni e nomi dei file) e alle prove sintetiche dei selftest del runner e del riconteggio: nessun pixel delle coppie selezionate è stato letto, nessun byte dei loro FITS è stato hashato e nessuna misura di C è stata calcolata su dati osservati prima di questa ricevuta.",
+  "technical_go": "Codex, 27 novembre 2026, su 5ba703d e sul delta 9c02ee5 (risoluzione dei file nelle tre collezioni)",
+  "user_go": "utente, 27 novembre 2026"
+}
