@@ -1,0 +1,7 @@
+[OK] 1. Gaussian toy (3 dims, exact draws): bridge = closed-form evidence within 4 SE -45.98987 +- 0.00114 vs -45.99079
+[OK] 2. one-dimensional skewed posterior (log-scale of a half-normal scale): bridge = quadrature within 4 SE -39.67631 +- 0.00239 vs -39.67826
+[OK] 3. BQ model, one free coordinate: bridge = quadrature within 4 SE -569.59540 +- 0.00114 vs -569.59789
+[OK] 4. BQ model, six free coordinates: log BF_0Q bridge vs Savage-Dickey within 4 combined SE (SD SE x3 for autocorrelation) bridge -0.1508 +- 0.0538, Savage-Dickey -0.0548 +- 0.0104
+[OK] 5. Bridge estimates are invariant to the order of the chains 
+[OK] 6. paired SE: identical bridge and Savage-Dickey terms on the same draws cancel; invariant to the chain order cancel 0.00e+00; se 0.05962 vs 0.05962
+selftest: 6/6

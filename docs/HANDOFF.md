@@ -1,5 +1,13 @@
 # Cold restart — SHARP BL
 
+
+## BQ-HMI — errore Monte Carlo del bridge
+
+Il bridge conserva i confini delle catene nella stima dell'ESS e della varianza
+della media posteriore. Il selftest sintetico verifica l'invarianza a una
+permutazione delle catene. Rimane da integrare il MCSE appaiato della differenza
+bridge–Savage–Dickey e da valutare l'adattamento della proposta.
+
 ## BT: prima bozza di specifica, sola documentazione
 
 [BT-HMI rev.1](PROTOCOL_BT_HMI_DRAFT.md): persistenza, rotazione e SFT; dipolo/posizioni come osservabili da finalizzare, errore delle due mappe e discrepanza separati, selezione del controllo al massimo USFLUX e non cecita esplicite. Se la verifica del pilota viene gia letta, non puo diventare nuovamente cieca per BT. Sei scelte ancora aperte; nessun congelamento, codice o fit. Codex ha preparato il testo senza calcoli; Claude resta sui test BQ/A1/C. Riepilogo della prossima sessione aggiornato.

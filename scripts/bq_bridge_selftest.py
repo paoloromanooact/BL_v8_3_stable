@@ -5,6 +5,9 @@
 3. BQ model with one free coordinate (log sigma0, the others fixed): bridge from slice draws = quadrature.
 4. BQ model, all six coordinates free, small synthetic design: log BF_0Q from two bridges (M0, MQ) agrees with the
    Savage-Dickey estimate from the MQ draws within the combined errors. The two are not fully independent checks.
+5. Permuting correlated chains preserves the evidence, its standard error and the ESS used by the bridge.
+6. Paired SE of D = bridge - Savage-Dickey: Savage-Dickey terms equal to the bridge's posterior terms on the same draws
+   cancel (no posterior part left); the paired SE does not depend on the order of the chains.
 
     OMP_NUM_THREADS=1 .venv/bin/python scripts/bq_bridge_selftest.py
 """
@@ -96,6 +99,41 @@ def main():
     ok("4. BQ model, six free coordinates: log BF_0Q bridge vs Savage-Dickey within 4 combined SE (SD SE x3 for autocorrelation)",
        abs(lbf_bridge - lbf_sd) < 4 * math.hypot(se_bridge, 3 * se_sd) + 1e-3,
        f"bridge {lbf_bridge:.4f} +- {se_bridge:.4f}, Savage-Dickey {lbf_sd:.4f} +- {se_sd:.4f}")
+    # 5. Four independent AR(1) chains targeting a standard normal density.
+    noise = np.random.default_rng(36_411_990).normal(size=(4, 194))
+    correlated = noise.copy()
+    rho = 0.97
+    for i in range(1, correlated.shape[1]):
+        correlated[:, i] = rho * correlated[:, i - 1] + math.sqrt(1 - rho**2) * noise[:, i]
+
+    def standard_normal(x):
+        return -0.5 * (math.log(2 * math.pi) + x[0] ** 2)
+
+    def bridge_vector(chains):
+        result = BR.bridge_log_evidence(standard_normal, chains, np.random.default_rng(36_411_991))
+        return [result[key] for key in ("log_evidence", "se_log", "n1_eff")]
+
+    reordered = (2, 3, 0, 1)
+    ok("5. Bridge estimates are invariant to the order of the chains",
+       np.allclose(bridge_vector(list(correlated)), bridge_vector([correlated[i] for i in reordered]),
+                   rtol=1e-10, atol=1e-10))
+    # 6. paired SE on hand-made linearised terms (no fit)
+    rr = np.random.default_rng(36_411_992)
+    lens = [200, 160]
+    pos = [(c, n // 2 + k) for c, n in enumerate(lens) for k in range(n // 2)]
+    relp = rr.normal(0, 0.3, len(pos))
+    evq = dict(chain_lengths=lens, est_positions=pos, rel_post=relp, rel_var_prop=0.0, se_log=0.1)
+    ev0 = dict(se_log=0.0)
+    cancel = BR.paired_difference_se(ev0, evq, relp, pos)
+    sdp = [(c, k) for c, n in enumerate(lens) for k in range(0, n, 2)]
+    sdr = rr.normal(0, 0.3, len(sdp))
+    a1 = BR.paired_difference_se(dict(se_log=0.05), evq, sdr, sdp)
+    sw = lambda P: [(1 - c, k) for c, k in P]                         # noqa: E731  (chains swapped)
+    evs = dict(evq, chain_lengths=lens[::-1], est_positions=sw(pos))
+    a2 = BR.paired_difference_se(dict(se_log=0.05), evs, sdr, sw(sdp))
+    ok("6. paired SE: identical bridge and Savage-Dickey terms on the same draws cancel; invariant to the chain order",
+       cancel["var_post_paired"] < 1e-20 and abs(cancel["se"]) < 1e-10 and abs(a1["se"] - a2["se"]) < 1e-12 and a1["se"] > 0.05,
+       f"cancel {cancel['se']:.2e}; se {a1['se']:.5f} vs {a2['se']:.5f}")
     print(f"selftest: {sum(res)}/{len(res)}")
     return all(res)
 
