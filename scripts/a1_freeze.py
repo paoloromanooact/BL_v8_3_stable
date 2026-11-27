@@ -6,7 +6,8 @@ would be written.
   --execute text     write docs/PROTOCOL_SFT_MAP_BIPOLE_PILOT_AMENDMENT_A1.md (refused if it exists); then commit it.
   --execute receipt  after that commit: write docs/PROTOCOL_SFT_MAP_BIPOLE_PILOT_AMENDMENT_A1_FREEZE.json with sha256,
                      parent_sha256, parent_receipt_sha256, sft_core_sha256, freeze_commit (= HEAD, which must hold the
-                     A1 text with the same SHA; tracked tree clean) and not_blind; then run the runner's own A1 checks.
+                     A1 text with the same SHA; tracked tree clean) and not_blind, ONLY if the runner's own A1 checks
+                     pass on the receipt before it is written; otherwise stop with nothing written.
 """
 from __future__ import annotations
 
@@ -89,10 +90,15 @@ def main():
     if git("status", "--porcelain", "--untracked-files=no").stdout.strip():
         sys.exit("refused: tracked tree not clean")
     r = receipt(head)
+    # validate BEFORE writing (Codex, 27 Nov): the runner's own A1 checks and the gate's text/parent/core conditions
+    left = list(RN.a1_receipt_problems(r))
+    if not (sha(RN.A1) == r["sha256"] and r["parent_sha256"] == RN.PIN["protocol"]
+            and r["sft_core_sha256"] == sha(ROOT / "python/sharpbl/sft_core.py")):
+        left.append("A1 text, parent or transport code")
+    if left:
+        sys.exit("refused, nothing written: " + "; ".join(left))
     RN.A1_FREEZE.write_text(json.dumps(r, indent=2, ensure_ascii=False) + "\n")
-    left = RN.a1_receipt_problems(r)
-    core_ok = r["sft_core_sha256"] == sha(ROOT / "python/sharpbl/sft_core.py") and r["parent_sha256"] == RN.PIN["protocol"]
-    print(f"written {RN.A1_FREEZE.relative_to(ROOT)}; runner A1 checks: {left or 'none'}; core/parent {core_ok}; commit the receipt")
+    print(f"written {RN.A1_FREEZE.relative_to(ROOT)} after the runner's A1 checks passed; commit the receipt")
 
 
 if __name__ == "__main__":

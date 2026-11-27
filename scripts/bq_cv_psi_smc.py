@@ -7,9 +7,11 @@ each draw (draft rev. 4 §6ter.11; numbers of draws, particles and SMC replicate
 3) For draw s: R SMC estimates p_s,r with independent seeds (L1: the exact Kalman value, R = 1); log p_s = log-mean-exp
    over r. On a subset fixed beforehand (every `repeat_every`-th kept draw of each chain) R_extra further estimates
    are added for the decomposition "SMC noise within a draw vs variability between draws of psi".
-4) Checkpoints (numbers of evaluated draws fixed beforehand): score = log-mean-exp of log p_s; MC SE by batch means
-   WITHIN each chain on the rescaled densities exp(log p_s - max), delta method; weights ESS. Budget: maximum draws and
-   maximum hours; at the budget the status is score_not_established if MCSE > 0.1 or weights ESS < 100.
+4) Checkpoints (numbers of evaluated draws fixed beforehand, multiples of the number of chains: balanced chain
+   prefixes): score = log-mean-exp of log p_s; MC SE by batch means WITHIN each chain on the rescaled densities, with
+   every contribution of the score included (batches of nearly equal length); weights ESS. Budget: maximum draws
+   (multiple of the chains) and maximum hours, both stopping only at a balanced prefix; at the budget the status is
+   score_not_established if MCSE > 0.1 or weights ESS < 100.
 5) Every value is saved as soon as it is computed (DRAWS.csv: chain, iteration, chain seed, SMC seeds, log densities,
    resamplings, seconds); TRAINING.npz keeps psi and the auxiliary states; CHECKPOINTS.csv; DECOMPOSITION.csv; META.
 
@@ -54,21 +56,30 @@ def lme(v):
 
 
 def score_and_mcse(logp, chain, n_batches=10):
-    """log-mean-exp of the per-draw log densities and its MC SE by batch means within chains (rescaled densities)."""
+    """log-mean-exp of the per-draw log densities and its MC SE by batch means within chains, on the rescaled densities
+    exp(log p - max). EVERY contribution of the score enters the MC SE (Codex, 27 Nov): each chain is split into
+    contiguous batches of nearly equal length (np.array_split, no tail dropped) and the variance of the overall mean is
+    B/(B-1) sum_b (n_b/N)^2 (mean_b - mean)^2, which reduces to the usual batch-means formula for equal batches."""
     logp, chain = np.asarray(logp, float), np.asarray(chain)
     mx = logp.max()
     e = np.exp(logp - mx)
-    est = mx + math.log(e.mean())
-    bm = []
+    ybar = e.mean()
+    est = mx + math.log(ybar)
+    w = e / e.sum()
+    essw = float(1 / (w * w).sum())
+    sizes, means = [], []
     for c in np.unique(chain):
         ec = e[chain == c]
         nb = min(n_batches, len(ec) // 2)
         if nb < 2:
-            return est, np.nan, float(1 / ((e / e.sum()) ** 2).sum())
-        size = len(ec) // nb
-        bm += [ec[i * size:(i + 1) * size].mean() for i in range(nb)]
-    w = e / e.sum()
-    return float(est), float(np.std(bm, ddof=1) / math.sqrt(len(bm)) / e.mean()), float(1 / (w * w).sum())
+            return float(est), np.nan, essw
+        for b in np.array_split(ec, nb):
+            sizes.append(len(b))
+            means.append(b.mean())
+    sizes, means = np.array(sizes, float), np.array(means)
+    B, N = len(means), sizes.sum()
+    var = B / (B - 1) * float((((sizes / N) ** 2) * (means - ybar) ** 2).sum())
+    return float(est), float(math.sqrt(var) / ybar), essw
 
 
 def setup(a):
@@ -146,6 +157,8 @@ def main():
     pos = {i: j for c in per for j, i in enumerate(per[c])}               # position of draw i within its chain
     order = [i for row in zip(*per.values()) for i in row]
     cps = sorted(int(x) for x in a.checkpoints.split(","))
+    if any(c % a.chains for c in cps) or a.budget_draws % a.chains:
+        sys.exit("checkpoints and budget must be multiples of the number of chains (balanced chain prefixes)")
     rows, logp, chs, cprows = [], [], [], []
     t_start = time.perf_counter()
     status = "running"
@@ -176,8 +189,9 @@ def main():
         logp.append(main_lp)
         chs.append(cid[i])
         hours = (time.perf_counter() - t_start) / 3600
-        last = n_done == len(order) or n_done >= a.budget_draws or hours >= a.budget_hours
-        if n_done in cps or last:
+        balanced = n_done % a.chains == 0                                    # every chain has the same prefix length
+        last = balanced and (n_done == len(order) or n_done >= a.budget_draws or hours >= a.budget_hours)
+        if (n_done in cps and balanced) or last:
             sc, se, essw = score_and_mcse(logp, chs)
             cprows.append(dict(draws=n_done, score=sc, mcse=se, ess_weights=essw, hours=hours))
             pd.DataFrame([cprows[-1]]).to_csv(out / "CHECKPOINTS.csv", mode="a", header=not (out / "CHECKPOINTS.csv").exists(), index=False)
@@ -185,22 +199,26 @@ def main():
         if last:
             status = "ok" if (np.isfinite(se) and se <= MCSE_MAX and essw >= ESS_W_MIN) else "score_not_established"
             break
-    # 3) decomposition on the subset: SMC noise within a draw vs variability between draws (density scale, relative)
+    # 3) decomposition on the subset (diagnostic only; the total MC SE is the batch-means one): on ONE common scale
+    # (densities divided by exp(max over every replicate of the subset)), per draw i the mean m_i of its R_i SMC
+    # estimates and their variance s_i^2. The variance between the m_i still contains SMC noise: the variability
+    # between draws of psi is var(m_i) - mean(s_i^2 / R_i) (Codex, 27 Nov). Reported relative to mean(m_i)^2.
     dec = pd.DataFrame(rows)
     sub = dec[dec.n_extra > 0]
     if len(sub):
-        within, means = [], []
-        for v in sub.log_density_all:
-            v = np.array(json.loads(v))
-            m = v.max()
-            e = np.exp(v - m)
-            within.append(e.var(ddof=1) / e.mean() ** 2)              # relative variance of one SMC estimate
-            means.append(m + math.log(e.mean()))
-        lm = np.array(means)
-        em = np.exp(lm - lm.max())
-        pd.DataFrame([dict(subset_draws=len(sub), smc_rel_var_mean=float(np.mean(within)), between_rel_var=float(em.var(ddof=1) / em.mean() ** 2),
-                           smc_log_sd_mean=float(np.mean([np.std(json.loads(v), ddof=1) for v in sub.log_density_all])),
-                           between_log_sd=float(lm.std(ddof=1)))]).to_csv(out / "DECOMPOSITION.csv", index=False)
+        vals = [np.array(json.loads(v)) for v in sub.log_density_all]
+        M = max(float(v.max()) for v in vals)
+        e = [np.exp(v - M) for v in vals]
+        m = np.array([x.mean() for x in e])
+        s2 = np.array([x.var(ddof=1) for x in e])
+        R = np.array([len(x) for x in e], float)
+        mm = m.mean()
+        between_raw = float(m.var(ddof=1))
+        smc_part = float((s2 / R).mean())
+        pd.DataFrame([dict(subset_draws=len(sub), replicates_per_draw=float(R.mean()), smc_rel_var_single=float(s2.mean() / mm ** 2),
+                           smc_rel_var_in_means=smc_part / mm ** 2, between_means_rel_var_raw=between_raw / mm ** 2,
+                           between_psi_rel_var=(between_raw - smc_part) / mm ** 2,
+                           smc_log_sd_mean=float(np.mean([np.std(v, ddof=1) for v in vals])))]).to_csv(out / "DECOMPOSITION.csv", index=False)
     meta.update(status="completed", score_status=status, fit_seconds=t_fit, block=str(blk), records=int(ver.sum()),
                 sources_unchanged=all(sha(ROOT / k) == v for k, v in meta["sources_sha256"].items()))
     (out / "META.json").write_text(json.dumps(meta, indent=2) + "\n")

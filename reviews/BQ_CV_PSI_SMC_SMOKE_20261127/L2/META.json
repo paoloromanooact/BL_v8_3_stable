@@ -1,7 +1,7 @@
 {
   "status": "completed",
   "sources_sha256": {
-    "scripts/bq_cv_psi_smc.py": "ab31e072771e65143291bd94f36454fb0a00a945c04a1c0c0708b1b502bd9ea1",
+    "scripts/bq_cv_psi_smc.py": "89f479e77dd69240ef071ac9c9acd84a8067aa0defc20668c936d4a63882a380",
     "python/sharpbl/bq_smc.py": "602e36f620291af3e977a27cafa8535f4392d522f93988955494fbd5477d3f90",
     "python/sharpbl/bq_core.py": "45b94e7862df4facdd6dac8fc65235308402bd5ed6e64e4e2a94ea0943eccc46",
     "python/sharpbl/bq_robust.py": "0bd0916c9767b4f2f86d8dc748c06e2fcf9e6a05756cdd16992ba1668e29d0f3",
@@ -9,7 +9,7 @@
   },
   "args": {
     "kind": "L2",
-    "out": "/tmp/claude-1004/-home-gianluca-MWO-HMI-MDI-Polar-Flux-Signed-Sunspots/e7fed292-eee8-4387-bbbc-0aaa56464077/scratchpad/psi_smc_L2",
+    "out": "reviews/BQ_CV_PSI_SMC_SMOKE_20261127/L2",
     "size": 395,
     "synthetic_design": true,
     "chains": 2,
@@ -28,7 +28,7 @@
   "seed_smc": 36403500,
   "note": "development; synthetic responses; numbers of draws/particles/replicates open (draft \u00a76ter.11)",
   "score_status": "score_not_established",
-  "fit_seconds": 1.194831068161875,
+  "fit_seconds": 1.1486192517913878,
   "block": "(12, 15)",
   "records": 26,
   "sources_unchanged": true
