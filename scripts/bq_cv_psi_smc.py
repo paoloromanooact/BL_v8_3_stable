@@ -15,8 +15,16 @@ each draw (draft rev. 4 §6ter.11; numbers of draws, particles and SMC replicate
 5) Every value is saved as soon as it is computed (DRAWS.csv: chain, iteration, chain seed, SMC seeds, log densities,
    resamplings, seconds); TRAINING.npz keeps psi and the auxiliary states; CHECKPOINTS.csv; DECOMPOSITION.csv; META.
 
-Designs: the real T3 design (metadata only) with the synthetic responses of the SMC benchmark, block of `size` records,
-or --synthetic-design for small checks. Seeds: chain c 36_403_000 + 10 c; SMC estimate r of evaluated draw i
+Designs: the real T3 design (metadata only) or --synthetic-design for small checks. Model (27 Nov, for the comparison
+runs): --model M0 (no beta) or MQ, --v none or hn20 (half-normal 20 on sigma_v), the same prior otherwise. Block:
+--block-id k (index into bq_cv.cv_blocks, explicit) or, by default, the first block with --size records. Responses:
+--response bench (the SMC benchmark's synthetic responses, as before) or a generator G0-G4 of the identifiability pilot
+(G0 added here: beta = 0, no v; G1 beta = -5; G2 v AR(1); G3 both; G4 v tied to activity), replicate --response-rep,
+seed 36_405_000 + 1000 * generator index + response-rep, Gaussian noise; L3 folds them into (-90, 90]. Deadline:
+--deadline YYYY-MM-DDTHH:MM (local time) is absolute and covers the fit: before each chain of the training fit the run
+stops (status deadline_in_fit, nothing scored) if the remaining time is shorter than the longest chain so far (the
+first chain needs --deadline-margin-min); in the SMC phase it stops at the first balanced prefix with less than
+--deadline-margin-min minutes left. Fit and SMC seconds are recorded separately. Seeds: chain c 36_403_000 + 10 c; SMC estimate r of evaluated draw i
 36_403_500 + 100_000 r + i. The repeated subset is every `repeat_every`-th thinned draw of each chain (position
 0, repeat_every, 2 repeat_every, ... within the chain).
 
@@ -26,6 +34,8 @@ or --synthetic-design for small checks. Seeds: chain c 36_403_000 + 10 c; SMC es
 from __future__ import annotations
 
 import argparse
+import dataclasses
+import datetime as dtm
 import hashlib
 import json
 import math
@@ -41,7 +51,8 @@ sys.path.insert(0, str(ROOT / "python"))
 sys.path.insert(0, str(ROOT / "scripts"))
 from sharpbl import bq_core as B, bq_cv as CV, bq_robust as RB, bq_smc as S  # noqa: E402
 
-SEED_CHAIN, SEED_SMC = 36_403_000, 36_403_500
+SEED_CHAIN, SEED_SMC, SEED_RESP = 36_403_000, 36_403_500, 36_405_000
+GENS = ("G0", "G1", "G2", "G3", "G4")
 MCSE_MAX, ESS_W_MIN = 0.1, 100.0
 
 
@@ -82,22 +93,43 @@ def score_and_mcse(logp, chain, n_batches=10):
     return float(est), float(math.sqrt(var) / ybar), essw
 
 
+def fold(y):
+    return np.degrees(np.arcsin(np.sin(np.radians(y))))
+
+
 def setup(a):
     if a.synthetic_design:
         from bq_core_selftest import synth_design
         d = synth_design(np.random.default_rng(36_403_900), n_t=30, n=160)
-        blk = (12, 15)
+        blk, buf = (12, 15), 2
     else:
         import bq_smc_stability as BS
         d = BS.design()
-        blk = next(b for b in CV.cv_blocks(d.n_t) if int(CV.cv_masks(d, b, 11)[1].sum()) == a.size)
-    rng0 = np.random.default_rng(36_400_960)                         # the SMC benchmark's synthetic responses
-    y2 = rng0.normal(0, 25, d.n) + 8 * rng0.standard_t(4, d.n)
-    th = np.random.default_rng(36_400_961).normal(-5, 70, d.n)
-    g3 = np.degrees(np.arcsin(np.sin(np.radians(th))))
-    train, ver = CV.cv_masks(d, blk, 11 if not a.synthetic_design else 2)
-    y = g3 if a.kind == "L3" else y2
+        blk, buf = None, 11
+    prior = dict(d.prior, sigma_v_hn=20.0) if a.v == "hn20" else dict(d.prior)
+    d = dataclasses.replace(d, with_beta=(a.model == "MQ"), with_v=(a.v == "hn20"), prior=prior)
+    if a.block_id is not None:
+        blk = CV.cv_blocks(d.n_t)[a.block_id]
+    elif blk is None:
+        blk = next(b for b in CV.cv_blocks(d.n_t) if int(CV.cv_masks(d, b, buf)[1].sum()) == a.size)
+    if a.response == "bench":
+        rng0 = np.random.default_rng(36_400_960)                     # the SMC benchmark's synthetic responses
+        y2 = rng0.normal(0, 25, d.n) + 8 * rng0.standard_t(4, d.n)
+        g3 = fold(np.random.default_rng(36_400_961).normal(-5, 70, d.n))
+        y = g3 if a.kind == "L3" else y2
+    else:
+        import bq_identifiability_pilot as IP
+        IP.GEN.setdefault("G0", dict(beta=0.0, v=None))
+        D = dict(t=d.t, h=d.h, s=d.s, a=d.a, lphi=d.lphi, cell=d.cell, fam=d.fam, n_t=d.n_t)
+        y = IP.simulate(D, a.response, np.random.default_rng(SEED_RESP + 1000 * GENS.index(a.response) + a.response_rep))
+        y = fold(y) if a.kind == "L3" else y
+    train, ver = CV.cv_masks(d, blk, buf)
     return d, blk, train, ver, y
+
+
+def x_start(kind, with_v):
+    x0 = [math.log(20), -0.4, math.log(2.1), 0.9, -0.4, math.log(3)] if kind != "L3" else [math.log(60), 0.0, math.log(5), 0.9, -0.4, math.log(3)]
+    return np.array(x0 + ([math.log(5.0), 1.5, 0.3] if with_v else []))
 
 
 def main():
@@ -117,7 +149,21 @@ def main():
     ap.add_argument("--smc-reps", type=int, default=1)
     ap.add_argument("--repeat-every", type=int, default=10)
     ap.add_argument("--extra-reps", type=int, default=3)
+    ap.add_argument("--model", choices=("M0", "MQ"), default="MQ")
+    ap.add_argument("--v", choices=("none", "hn20"), default="none")
+    ap.add_argument("--block-id", type=int)
+    ap.add_argument("--response", choices=("bench",) + GENS, default="bench")
+    ap.add_argument("--response-rep", type=int, default=0)
+    ap.add_argument("--deadline", help="absolute local time YYYY-MM-DDTHH:MM, covering the fit")
+    ap.add_argument("--deadline-margin-min", type=float, default=10.0)
     a = ap.parse_args()
+    deadline = dtm.datetime.fromisoformat(a.deadline).timestamp() if a.deadline else math.inf
+    left = lambda: deadline - time.time()                                       # noqa: E731
+    if left() <= 60 * a.deadline_margin_min:
+        sys.exit("deadline too close: nothing started")
+    cps = sorted(int(x) for x in a.checkpoints.split(","))
+    if any(c % a.chains for c in cps) or a.budget_draws % a.chains:
+        sys.exit("checkpoints and budget must be multiples of the number of chains (balanced chain prefixes)")
     out = Path(a.out)
     if out.exists():
         sys.exit(f"{out} exists")
@@ -129,12 +175,20 @@ def main():
     (out / "META.json").write_text(json.dumps(meta, indent=2) + "\n")
     d, blk, train, ver, y = setup(a)
     dt = CV.subset(d, train)
-    x0 = np.array([math.log(20), -0.4, math.log(2.1), 0.9, -0.4, math.log(3)]) if a.kind != "L3" else \
-        np.array([math.log(60), 0.0, math.log(5), 0.9, -0.4, math.log(3)])
+    x0 = x_start(a.kind, d.with_v)
+    meta.update(block=str(blk), records=int(ver.sum()), training_records=int(train.sum()), model=a.model, v=a.v, response=a.response,
+                response_seed=None if a.response == "bench" else SEED_RESP + 1000 * GENS.index(a.response) + a.response_rep, deadline=a.deadline)
+    (out / "META.json").write_text(json.dumps(meta, indent=2) + "\n")
     # 1) training fit
     t0 = time.perf_counter()
-    psi, aux, cid, it = [], [], [], []
+    psi, aux, cid, it, chain_secs = [], [], [], [], []
     for c in range(a.chains):
+        need = max(chain_secs) if chain_secs else 60 * a.deadline_margin_min
+        if left() < need:
+            meta.update(status="deadline_in_fit", chains_done=c, fit_seconds_per_chain=chain_secs)
+            (out / "META.json").write_text(json.dumps(meta, indent=2) + "\n")
+            sys.exit(4)
+        tc = time.perf_counter()
         rng = np.random.default_rng(SEED_CHAIN + 10 * c)
         xs = x0 + rng.normal(0.0, 0.3, len(x0))
         if a.kind == "L1":
@@ -149,19 +203,19 @@ def main():
             aux.append(ax[k])
             cid.append(c)
             it.append(a.warm + k + 1)
+        chain_secs.append(time.perf_counter() - tc)
     t_fit = time.perf_counter() - t0
+    meta.update(fit_seconds=t_fit, fit_seconds_per_chain=chain_secs)
+    (out / "META.json").write_text(json.dumps(meta, indent=2) + "\n")
     np.savez(out / "TRAINING.npz", psi=np.array(psi), chain=np.array(cid), iteration=np.array(it),
              **({"aux": np.array(aux)} if a.kind != "L1" else {}))
     # 2) round-robin order
     per = {c: [i for i in range(len(psi)) if cid[i] == c] for c in range(a.chains)}
     pos = {i: j for c in per for j, i in enumerate(per[c])}               # position of draw i within its chain
     order = [i for row in zip(*per.values()) for i in row]
-    cps = sorted(int(x) for x in a.checkpoints.split(","))
-    if any(c % a.chains for c in cps) or a.budget_draws % a.chains:
-        sys.exit("checkpoints and budget must be multiples of the number of chains (balanced chain prefixes)")
     rows, logp, chs, cprows = [], [], [], []
     t_start = time.perf_counter()
-    status = "running"
+    status, stop = "running", None
     for n_done, i in enumerate(order, start=1):
         x, ax = psi[i], aux[i]
         if a.kind == "L1":
@@ -190,7 +244,9 @@ def main():
         chs.append(cid[i])
         hours = (time.perf_counter() - t_start) / 3600
         balanced = n_done % a.chains == 0                                    # every chain has the same prefix length
-        last = balanced and (n_done == len(order) or n_done >= a.budget_draws or hours >= a.budget_hours)
+        stop = ("all_draws" if n_done == len(order) else "budget_draws" if n_done >= a.budget_draws else "budget_hours" if hours >= a.budget_hours
+                else "deadline" if left() < 60 * a.deadline_margin_min else None)
+        last = balanced and stop is not None
         if (n_done in cps and balanced) or last:
             sc, se, essw = score_and_mcse(logp, chs)
             cprows.append(dict(draws=n_done, score=sc, mcse=se, ess_weights=essw, hours=hours))
@@ -219,7 +275,7 @@ def main():
                            smc_rel_var_in_means=smc_part / mm ** 2, between_means_rel_var_raw=between_raw / mm ** 2,
                            between_psi_rel_var=(between_raw - smc_part) / mm ** 2,
                            smc_log_sd_mean=float(np.mean([np.std(v, ddof=1) for v in vals])))]).to_csv(out / "DECOMPOSITION.csv", index=False)
-    meta.update(status="completed", score_status=status, fit_seconds=t_fit, block=str(blk), records=int(ver.sum()),
+    meta.update(status="completed", score_status=status, stop_reason=stop, smc_seconds=time.perf_counter() - t_start, draws_scored=len(logp),
                 sources_unchanged=all(sha(ROOT / k) == v for k, v in meta["sources_sha256"].items()))
     (out / "META.json").write_text(json.dumps(meta, indent=2) + "\n")
 

@@ -1,0 +1,2 @@
+subset_draws,replicates_per_draw,smc_rel_var_single,smc_rel_var_in_means,between_means_rel_var_raw,between_psi_rel_var,smc_log_sd_mean
+4,3.0,0.0,0.0,0.5399121274148868,0.5399121274148868,8.702335715267317e-15
