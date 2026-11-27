@@ -107,6 +107,7 @@ def gate():
         if not (sha(A1) == a1.get("sha256") and a1.get("parent_sha256") == PIN["protocol"]
                 and a1.get("sft_core_sha256") == sha(ROOT / "python/sharpbl/sft_core.py")):
             probs.append("amendment A1 text, parent or transport code")
+        probs += a1_receipt_problems(a1)
     if subprocess.run(["git", "status", "--porcelain", "--untracked-files=no"], cwd=ROOT, capture_output=True, text=True).stdout.strip():
         probs.append("tracked tree not clean")
     head = subprocess.run(["git", "show", f"HEAD:scripts/{Path(__file__).name}"], cwd=ROOT, capture_output=True)
@@ -114,6 +115,23 @@ def gate():
         probs.append("script differs from HEAD")
     if OUT.exists():
         probs.append("output directory exists (single run)")
+    return probs
+
+
+def a1_receipt_problems(a1):
+    """A1 §4 fields that must be in the A1 receipt (Codex review of f17d230): parent receipt SHA, freeze commit (an
+    ancestor of HEAD, holding this A1 text) and the non-blindness declaration."""
+    probs = []
+    if a1.get("parent_receipt_sha256") != PIN["receipt"]:
+        probs.append("A1 receipt: parent receipt SHA missing or different")
+    fc = str(a1.get("freeze_commit", ""))
+    blob = subprocess.run(["git", "show", f"{fc}:docs/{A1.name}"], cwd=ROOT, capture_output=True) if fc else None
+    anc = subprocess.run(["git", "merge-base", "--is-ancestor", fc, "HEAD"], cwd=ROOT).returncode == 0 if fc else False
+    if not (fc and anc and blob.returncode == 0 and hashlib.sha256(blob.stdout).hexdigest() == a1.get("sha256")):
+        probs.append("A1 receipt: freeze commit missing, not an ancestor of HEAD, or without this A1 text")
+    nb = a1.get("not_blind")
+    if not (isinstance(nb, str) and nb.strip()):                    # a non-empty text; null/false/0/[]/{} are refused
+        probs.append("A1 receipt: non-blindness declaration missing")
     return probs
 
 
@@ -331,6 +349,14 @@ def wquantile(x, w, q):
 
 
 RATIO_COLS = ["HARPNUM", "threshold", "representation", "transport", "time"]
+# explicit schemas, also for empty tables (no usable region: Codex review of f17d230)
+DIP_COLS = ["HARPNUM", "threshold", "representation", "transport", "time", "t_s"] + [c for _, c in LEVELS]
+RATIOS_KEEP = RATIO_COLS + [c for _, c in LEVELS] + [c + "_M" for _, c in LEVELS] + \
+    [f"{p}_{lev}" for lev, _ in LEVELS for p in ("thr", "elig", "r")] + ["dr_max", "ratio_status", "dD_numdiff", "sign_resolved"]
+SUMMARY_COLS = ["representation", "threshold", "transport", "time", "group", "n", "n_below_ratio_threshold", "n_ratio_unresolved",
+                "n_ratio_resolved", "ratio_threshold"] + [f"w_share_{st}" for st in ("below_ratio_threshold", "ratio_unresolved", "ratio_resolved")] + \
+    [f"{k}_{lab}" for k in ("dD_scaled", "abs_dD", "ratio") for lab in ("q10_w", "median_w", "q90_w", "median_unw")] + \
+    ["dD_numdiff_median_w", "dD_numdiff_max", "n_sign_unresolved", "same_sign_w", "same_sign_unw"]
 
 
 def ratio_table(regions, dips):
@@ -367,6 +393,9 @@ def ratio_table(regions, dips):
 
 
 def summarise(regions, dips):
+    """(SUMMARY, RATIOS); with no dipole (every region failed) both are empty with their explicit columns."""
+    if dips.empty or "D_scale" not in regions:
+        return pd.DataFrame(columns=SUMMARY_COLS), pd.DataFrame(columns=RATIOS_KEEP)
     B = ratio_table(regions, dips)
     rows = []
     groups = [("all", None)] + [(c, c) for c in ("multiplicity", "flux_class", "lat_band", "cell")]
@@ -395,9 +424,9 @@ def summarise(regions, dips):
                     r["same_sign_w"] = float((ws * same).sum() / ws.sum()) if sr.any() else np.nan
                     r["same_sign_unw"] = float(same.mean()) if sr.any() else np.nan
                 rows.append(r)
-    keep = RATIO_COLS + [c for _, c in LEVELS] + [c + "_M" for _, c in LEVELS] + \
-        [f"{p}_{lev}" for lev, _ in LEVELS for p in ("thr", "elig", "r")] + ["dr_max", "ratio_status", "dD_numdiff", "sign_resolved"]
-    return pd.DataFrame(rows), B[keep].sort_values(RATIO_COLS).reset_index(drop=True)
+    if rows and set().union(*rows) != set(SUMMARY_COLS):
+        raise RuntimeError("SUMMARY columns differ from the explicit schema")
+    return pd.DataFrame(rows, columns=SUMMARY_COLS), B[RATIOS_KEEP].sort_values(RATIO_COLS).reset_index(drop=True)
 
 
 PREFLIGHT_CENTRES = (5.0, 15.0, 30.0, 60.0)
@@ -577,17 +606,21 @@ def build(cat, read_maps, curves=True, n_cells=None):
         regs += a
         dips += b
         curv += c
-    regions, dipoles = pd.DataFrame(regs), pd.DataFrame(dips)
+    if dips and set().union(*dips) != set(DIP_COLS):
+        raise RuntimeError("DIPOLES columns differ from the explicit schema")
+    regions, dipoles = pd.DataFrame(regs), pd.DataFrame(dips, columns=DIP_COLS)
     summary, ratios = summarise(regions, dipoles)
     conv, num_status = convergence(regions, read_maps, n_cells)
     man1 = manifest(sample, read_maps.paths)
     manifest_ok = man0[["path", "exists", "sha256"]].equals(man1[["path", "exists", "sha256"]])
     cells = pop.groupby(["multiplicity", "flux_class", "lat_band"]).size().rename("N_cell").reset_index()
     valid = (num_status.startswith("ok")) and manifest_ok
+    n_ok = int(((regions.threshold == THRESHOLDS[0]) & (regions.status == "ok")).sum())
+    technical = "no_dipoles" if dipoles.empty else "ok"                  # propagated to META; the run is then not valid
     return dict(SAMPLE=sample, CELLS=cells, REGIONS=regions, DIPOLES=dipoles, CURVES=pd.DataFrame(curv, columns=["HARPNUM", "representation", "t_day", "D"]),
                 SUMMARY=summary, RATIOS=ratios, CONVERGENCE=conv, PREFLIGHT=pre, MANIFEST=man0, DENOMINATORS=denominators(sample, regions)), \
         dict(info, population=len(pop), sample=len(sample), n_cells=n_cells, numerical_status=num_status, manifest_unchanged=manifest_ok,
-             run_valid=bool(valid))
+             run_valid=bool(valid), technical_status=technical, regions_ok_100G=n_ok, dipole_rows=int(len(dipoles)))
 
 
 def run():
@@ -656,6 +689,68 @@ def synthetic_env(td, n_harp=60, seed=11):
     return pd.DataFrame(rows), fits_reader(td / "fits")
 
 
+def empty_case_readers(reader, keep=None):
+    """Synthetic readers for the no-usable-map regressions: every read raises OSError; every patch made unipolar (|Br|);
+    mixed: only HARP `keep` is read normally, the others raise OSError."""
+    def fail(harp, t_rec):
+        raise OSError("synthetic unreadable map")
+
+    def unipolar(harp, t_rec):
+        br, bm, h = reader(harp, t_rec)
+        return np.abs(br), bm, h
+
+    def mixed(harp, t_rec):
+        if int(harp) != keep:
+            raise OSError("synthetic unreadable map")
+        return reader(harp, t_rec)
+    for f in (fail, unipolar, mixed):
+        f.paths = reader.paths
+    return dict(read_error=fail, unipolar=unipolar, mixed=mixed)
+
+
+def selftest_empty(cat, reader, ok, n_cells=8):
+    """No usable map (Codex review of f17d230): both triggers and the mixed case run to the technical status, with
+    explicit schemas and every failure in the denominators. N = 8 without preflight: only these branches are exercised."""
+    keep = int(draw(population(cat)[0]).HARPNUM.iloc[0])
+    out = {}
+    for case, rd in empty_case_readers(reader, keep).items():
+        try:
+            prods, info = build(cat, rd, curves=False, n_cells=n_cells)
+        except Exception as exc:                                                  # the defect being fixed
+            ok(f"no usable map ({case}): build runs to the technical status", False, repr(exc))
+            continue
+        S, R, D, dn = prods["SAMPLE"], prods["REGIONS"], prods["DIPOLES"], prods["DENOMINATORS"]
+        sel = all(int(dn[dn.threshold == t].selected.sum()) == len(S) for t in THRESHOLDS)
+        schema = list(D.columns) == DIP_COLS and list(prods["SUMMARY"].columns) == SUMMARY_COLS and list(prods["RATIOS"].columns) == RATIOS_KEEP
+        if case == "read_error":
+            good = (R.status == "read_error:OSError").all() and D.empty and prods["SUMMARY"].empty and prods["RATIOS"].empty \
+                and int(dn.filter(like="failed_read_error").sum().sum()) == 2 * len(S)
+        elif case == "unipolar":
+            good = (R.status == "no_two_polarities").all() and D.empty and prods["SUMMARY"].empty and int(dn.region_ok.sum()) == 0
+        else:
+            good = set(D.HARPNUM) == {keep} and (R[R.HARPNUM != keep].status == "read_error:OSError").all() and len(prods["SUMMARY"]) > 0 \
+                and int(dn.filter(like="failed_read_error").sum().sum()) == 2 * (len(S) - 1)
+        empty_case = case != "mixed"
+        status_ok = (info["numerical_status"] == "no_usable_convergence_case" and info["technical_status"] == "no_dipoles"
+                     and not info["run_valid"]) if empty_case else (info["technical_status"] == "ok" and info["regions_ok_100G"] == 1
+                                                                    and info["run_valid"] == info["numerical_status"].startswith("ok"))
+        ok(f"no usable map ({case}): no crash; explicit schemas; failures kept in the denominators; technical status propagated",
+           good and sel and schema and status_ok,
+           f"statuses {R.status.value_counts().to_dict()}; numerical {info['numerical_status']}, technical {info['technical_status']}, "
+           f"valid {info['run_valid']}; dipole rows {len(D)}")
+        out[case] = (prods, info, rd)
+    p0 = a1_receipt_problems({})
+    good = dict(parent_receipt_sha256=PIN["receipt"], freeze_commit="HEAD", sha256="0" * 64, not_blind="declared")
+    p1 = a1_receipt_problems(good)
+    nb_msg = "A1 receipt: non-blindness declaration missing"
+    nb_bad = [v for v in (None, False, True, 0, 1.0, [], {}, "", "   ") if nb_msg not in a1_receipt_problems(dict(good, not_blind=v))]
+    ok("A1 receipt (§4): parent receipt SHA, freeze commit holding the A1 text and a non-empty TEXT non-blindness "
+       "declaration are mandatory (null/false/true/0/1.0/[]/{}/empty refused)",
+       len(p0) == 3 and p1 == ["A1 receipt: freeze commit missing, not an ancestor of HEAD, or without this A1 text"] and not nb_bad,
+       f"{p0} | {p1} | accepted wrongly {nb_bad}")
+    return out
+
+
 def selftest():
     res = []
 
@@ -665,6 +760,7 @@ def selftest():
 
     with tempfile.TemporaryDirectory() as td:
         cat, reader = synthetic_env(td)
+        selftest_empty(cat, reader, ok)
         prods, info = build(cat, reader, curves=False, n_cells=800)
         S, R, D, Su = prods["SAMPLE"], prods["REGIONS"], prods["DIPOLES"], prods["SUMMARY"]
         pop, _ = population(cat)

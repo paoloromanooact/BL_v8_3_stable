@@ -333,7 +333,8 @@ def _own_finish(samp, cells, reg_rows, profiles, models, curves):
                 for ts, B in zip(ct, mdl.evolve_many(P[:, sel], ct)):
                     for i, dv in zip(sel, mdl.dip(B)):
                         curves_rows.append(dict(HARPNUM=profiles[i][0], representation=profiles[i][2], t_day=ts / DAY, D=dv))
-    return samp, cells, regions, pd.DataFrame(dips), pd.DataFrame(curves_rows, columns=["HARPNUM", "representation", "t_day", "D"]), models
+    dcols = ["HARPNUM", "threshold", "representation", "transport", "time", "t_s", "D", "D_2N", "D_4N", "D_dthalf"]     # also when empty
+    return samp, cells, regions, pd.DataFrame(dips, columns=dcols), pd.DataFrame(curves_rows, columns=["HARPNUM", "representation", "t_day", "D"]), models
 
 
 _OWN_ADJ = {}
@@ -405,12 +406,14 @@ LEVCOL = {"N": "D", "2N": "D_2N", "4N": "D_4N", "dt_half": "D_dthalf"}
 
 
 def own_ratios(regions, dips):
+    if dips.empty or "D_scale" not in regions:                     # no usable region: empty, with the columns of RATIOS
+        return pd.DataFrame(columns=RATIOS_KEEP)
     reg = regions.set_index(["HARPNUM", "threshold"])
     key = ["HARPNUM", "threshold", "transport", "time"]
     Mi = dips[dips.representation == "M"].set_index(key)
     B = dips[dips.representation != "M"].copy()
     kk = list(zip(B.HARPNUM, B.threshold, B.transport, B.time))
-    B = B[[k in Mi.index for k in kk]].copy()
+    B = B[np.fromiter((k in Mi.index for k in kk), bool, len(kk))].copy()
     kk = list(zip(B.HARPNUM, B.threshold, B.transport, B.time))
     for c in LEVCOL.values():
         B[c + "_M"] = Mi.loc[kk, c].to_numpy(float)
@@ -452,8 +455,18 @@ def own_ratios(regions, dips):
     return B
 
 
+SUMMARY_OWN_COLS = ["representation", "threshold", "transport", "time", "group", "n", "n_below_ratio_threshold", "n_ratio_unresolved",
+                    "n_ratio_resolved", "ratio_threshold", "w_share_below_ratio_threshold", "w_share_ratio_unresolved",
+                    "w_share_ratio_resolved", "dD_scaled_q10_w", "dD_scaled_median_w", "dD_scaled_q90_w", "dD_scaled_median_unw",
+                    "abs_dD_q10_w", "abs_dD_median_w", "abs_dD_q90_w", "abs_dD_median_unw", "ratio_q10_w", "ratio_median_w",
+                    "ratio_q90_w", "ratio_median_unw", "dD_numdiff_median_w", "dD_numdiff_max", "n_sign_unresolved", "same_sign_w",
+                    "same_sign_unw"]
+
+
 def own_summary(regions, dips):
     B = own_ratios(regions, dips)
+    if B.empty:
+        return pd.DataFrame(columns=SUMMARY_OWN_COLS)
     rows = []
     for (rep, thr, tr, tm), g in B.groupby(["representation", "threshold", "transport", "time"], sort=True):
         parts = [("all", g)]
@@ -688,6 +701,46 @@ def guarded(fn):
         return False, f"comparison raised {type(exc).__name__}: {str(exc)[:120]}"
 
 
+def a1_receipt_issues(a1, run_head):
+    """A1 §4 receipt fields, own implementation: parent receipt SHA; freeze commit present, ancestor of the commit of the
+    RUN (META git_head, not the current HEAD) and holding the A1 text with the receipt SHA; non-empty text declaration."""
+    iss = []
+    if a1.get("parent_receipt_sha256") != RECEIPT_PIN:
+        iss.append("parent receipt SHA")
+    fc = a1.get("freeze_commit")
+    if not (isinstance(fc, str) and fc.strip()):
+        iss.append("freeze commit missing")
+    else:
+        if not (isinstance(run_head, str) and run_head.strip()
+                and subprocess.run(["git", "merge-base", "--is-ancestor", fc, run_head], cwd=ROOT, capture_output=True).returncode == 0):
+            iss.append("freeze commit not an ancestor of the run commit")
+        if git_blob_sha(fc, f"docs/{A1.name}") != a1.get("sha256"):
+            iss.append("A1 text at the freeze commit differs")
+    nb = a1.get("not_blind")
+    if not (isinstance(nb, str) and nb.strip()):
+        iss.append("non-blindness declaration missing")
+    return iss
+
+
+def technical_issues(info, regions, dips):
+    """META technical fields (A1, no usable map) recounted from the own REGIONS and DIPOLES: present, integral counts
+    equal, status 'no_dipoles' iff no dipole, and a run without dipoles is not valid."""
+    iss = []
+    exp = dict(technical_status="no_dipoles" if len(dips) == 0 else "ok",
+               regions_ok_100G=int(((regions.threshold == 100.0) & (regions.status == "ok")).sum()), dipole_rows=int(len(dips)))
+    for k, v in exp.items():
+        x = info.get(k, None)
+        if k == "technical_status":
+            good = isinstance(x, str) and x == v
+        else:
+            good = isinstance(x, int) and not isinstance(x, bool) and x == v
+        if not good:
+            iss.append(f"{k}: {x!r} vs own {v!r}")
+    if exp["technical_status"] == "no_dipoles" and info.get("run_valid") is not False:
+        iss.append("run without dipoles declared valid")
+    return iss
+
+
 def git_blob_sha(head, path):
     r = subprocess.run(["git", "show", f"{head}:{path}"], cwd=ROOT, capture_output=True)
     return hashlib.sha256(r.stdout).hexdigest() if r.returncode == 0 else None
@@ -736,6 +789,9 @@ def check(out=OUT, write=True, rec_dir=REC, data=None, outputs=None, info=None, 
         ok("amendment A1 frozen: text, receipt, parent; transport code at the run HEAD = A1 receipt = META", bool(a1)
            and sha(A1) == a1.get("sha256") == meta.get("a1_sha256") and sha(A1_FREEZE) == meta.get("a1_freeze_receipt_sha256")
            and a1.get("parent_sha256") == PIN and core_blob == a1.get("sft_core_sha256") == meta.get("sft_core_sha256"))
+        iss = a1_receipt_issues(a1, meta.get("git_head", ""))
+        ok("A1 receipt (§4): parent receipt SHA, freeze commit ancestor of the RUN commit holding this A1 text, non-empty "
+           "text non-blindness declaration", not iss, "; ".join(iss))
         ok("products: exact set and hashes", {p.name for p in Path(out).iterdir()} == PRODUCTS
            and all(sha(Path(out) / n) == h for n, h in meta["products_sha256"].items()) and set(meta["products_sha256"]) == PRODUCTS - {"META.json"})
         ok("run: script equal to the blob at the run HEAD; catalogue unchanged; seed",
@@ -778,6 +834,8 @@ def check(out=OUT, write=True, rec_dir=REC, data=None, outputs=None, info=None, 
     ok("REGIONS: statuses, fluxes, centroids, balancing, pixel dipoles, deposit statuses, Gaussian effective quantities", g[0], g[1])
     g = frames_match(outputs["DIPOLES"], dips, ["HARPNUM", "threshold", "representation", "transport", "time"])
     ok("DIPOLES: every representation, threshold, transport, tau factor and time (propagator matrices vs step loop)", g[0], g[1])
+    iss = technical_issues(info, regions, dips)
+    ok("META technical fields (technical_status, regions_ok_100G, dipole_rows) recounted; no dipoles -> not valid", not iss, "; ".join(iss))
     r100 = regions[(regions.threshold == 100.0) & (regions.status == "ok")]
     n_curves = N_CURVE_TIMES * sum(int((r100.get(f"{r}_status", pd.Series(dtype=object)) == "ok").sum()) for r in ("M", "B_point"))
     g = frames_match(outputs["CURVES"], curves, ["HARPNUM", "representation", "t_day"]) if len(outputs["CURVES"]) else (False, "empty")
@@ -789,8 +847,7 @@ def check(out=OUT, write=True, rec_dir=REC, data=None, outputs=None, info=None, 
                                      ["representation", "threshold", "transport", "time", "group"]))
     ok("SUMMARY: weighted and unweighted quantiles, ratio threshold, same-sign fractions; groups incl. the 18 cells", g[0], g[1])
     g = guarded(lambda: frames_match(outputs["RATIOS"], own_ratios(outputs["REGIONS"], outputs["DIPOLES"])[RATIOS_KEEP],
-                                     ["HARPNUM", "threshold", "representation", "transport", "time"], abs_cols=("dr_max",))
-                if len(outputs["RATIOS"]) else (False, "empty"))
+                                     ["HARPNUM", "threshold", "representation", "transport", "time"], abs_cols=("dr_max",)))
     ok("RATIOS (A1 2ter): levels N/2N/4N/dt_half, thresholds and eligibility per level, ratio and sign statuses", g[0], g[1])
     g = frames_match(outputs["DENOMINATORS"], own_denominators(regions), ["cell", "threshold"])
     ok("DENOMINATORS: per cell and threshold, selected, successes and failures by cause (integral counts)", g[0], g[1])
@@ -801,8 +858,8 @@ def check(out=OUT, write=True, rec_dir=REC, data=None, outputs=None, info=None, 
     if ("conv", n_run) not in memo:
         memo[("conv", n_run)] = own_convergence(regions, reader, n_run)
     oc, st = memo[("conv", n_run)]
-    g = frames_match(outputs["CONVERGENCE"], oc, ["HARPNUM", "representation", "transport", "refinement", "time"], abs_cols=("criterion",)) \
-        if len(outputs["CONVERGENCE"]) else (False, "empty")
+    g = guarded(lambda: frames_match(outputs["CONVERGENCE"], oc, ["HARPNUM", "representation", "transport", "refinement", "time"],
+                                     abs_cols=("criterion",)))
     ok("CONVERGENCE (A1 2.3): 4 transports, 2N and dt/2, criteria within 1e-8 absolute, pass flags", g[0], g[1])
     ok("convergence requirement met on the observed cases (else the run is not valid and the receipt is not complete)",
        st.startswith("ok") and st == info.get("numerical_status"), f"own {st} run {info.get('numerical_status')}")
@@ -823,6 +880,60 @@ def _finish(checks, real, write, rec_dir, out):
         (Path(rec_dir) / "RECEIPT.json").write_text(json.dumps(receipt, indent=2) + "\n")
     print(f"recount: {passed}/{len(checks)} (partial {not real})")
     return passed == len(checks)
+
+
+def selftest_a1_receipt(ok):
+    """A1 §4 receipt fields with the own checker: missing fields, non-text declarations, freeze commit not an ancestor of
+    the run commit (HEAD~1 as run, HEAD as freeze) vs an ancestor (HEAD~1 as freeze, HEAD as run)."""
+    head = subprocess.run(["git", "rev-parse", "HEAD"], cwd=ROOT, capture_output=True, text=True).stdout.strip()
+    prev = subprocess.run(["git", "rev-parse", "HEAD~1"], cwd=ROOT, capture_output=True, text=True).stdout.strip()
+    e0 = a1_receipt_issues({}, head)
+    good = dict(parent_receipt_sha256=RECEIPT_PIN, freeze_commit=prev, sha256="0" * 64, not_blind="declared")
+    nb_bad = [v for v in (None, False, True, 0, 1.0, [], {}, "", "   ")
+              if "non-blindness declaration missing" not in a1_receipt_issues(dict(good, not_blind=v), head)]
+    anc_ok = "freeze commit not an ancestor of the run commit" not in a1_receipt_issues(good, head)
+    anc_bad = "freeze commit not an ancestor of the run commit" in a1_receipt_issues(dict(good, freeze_commit=head), prev)
+    ok("A1 receipt (§4), own checker: missing fields reported; null/false/true/0/1.0/[]/{}/empty declaration refused; freeze "
+       "commit must be an ancestor of the RUN commit",
+       set(e0) == {"parent receipt SHA", "freeze commit missing", "non-blindness declaration missing"} and not nb_bad and anc_ok and anc_bad
+       and "A1 text at the freeze commit differs" in a1_receipt_issues(good, head),
+       f"{e0} | accepted wrongly {nb_bad} | ancestor ok {anc_ok}, non-ancestor refused {anc_bad}")
+
+
+def selftest_empty(Rn, cat, reader, pre, ok):
+    """No usable map (Codex review of f17d230): for both triggers and the mixed case, the runner's products after a CSV
+    round trip are read without crash, every product the recount recomputes matches, and the receipt is refused."""
+    import contextlib
+    import io
+    import tempfile
+    pre_ok = []
+    cases = Rn.selftest_empty(cat, reader, lambda n, c, i="": pre_ok.append(bool(c)))
+    need = ("SAMPLE", "REGIONS", "DIPOLES", "SUMMARY", "RATIOS", "DENOMINATORS", "MANIFEST", "CONVERGENCE")
+    for case in ("read_error", "unipolar", "mixed"):
+        if case not in cases:
+            ok(f"no usable map ({case}): runner products available", False, "runner build failed")
+            continue
+        prods, info, rd = cases[case]
+        with tempfile.TemporaryDirectory() as t2:
+            rt = {}
+            for k, v in prods.items():
+                v.to_csv(Path(t2) / f"{k}.csv", index=False)
+                try:
+                    rt[k] = pd.read_csv(Path(t2) / f"{k}.csv", low_memory=False, float_precision="round_trip")
+                except pd.errors.EmptyDataError:
+                    rt[k] = pd.DataFrame()
+        buf, crash, got = io.StringIO(), None, None
+        try:
+            with contextlib.redirect_stdout(buf):
+                got = check(write=False, data=(cat, rd), outputs=rt, info=dict(info), cache={"pre": pre})
+        except Exception as exc:                          # noqa: BLE001 (the defect being guarded against)
+            crash = exc
+        lines = buf.getvalue().splitlines()
+        matched = [n for n in need if any(ln.startswith(f"[OK] {n}") for ln in lines)]
+        refused_valid = any(ln.startswith("[FALLITO] run declared valid") for ln in lines)
+        ok(f"no usable map ({case}): recount reads the products without crash, recomputed products match, receipt refused",
+           all(pre_ok) and crash is None and got is False and len(matched) == len(need) and refused_valid,
+           f"crash {crash!r}; matched {matched}; " + " | ".join(ln[:90] for ln in lines if "FALLITO" in ln)[:300])
 
 
 def selftest():
@@ -920,6 +1031,13 @@ def selftest():
         ok("refused: convergence requirement not met although the values agree (no complete receipt)",
            not got and any(l.startswith("[OK] CONVERGENCE") for l in lines) and any(l.startswith("[FALLITO] convergence requirement") for l in lines),
            " | ".join(l[:110] for l in lines if "CONVERGENCE" in l or "convergence requirement" in l))
+        selftest_empty(Rn, cat, reader, memo["pre"], ok)
+        # META technical fields (Codex review of the empty-case fix): missing, altered, fractional, inconsistent
+        tamper("META technical field missing (dipole_rows)", None, None, {k: v for k, v in info.items() if k != "dipole_rows"})
+        tamper("META regions_ok_100G altered (+1)", None, None, dict(info, regions_ok_100G=info["regions_ok_100G"] + 1))
+        tamper("META dipole_rows fractional (+0.5)", None, None, dict(info, dipole_rows=info["dipole_rows"] + 0.5))
+        tamper("META technical_status no_dipoles with dipoles present", None, None, dict(info, technical_status="no_dipoles"))
+        selftest_a1_receipt(ok)
         # a map changed after the run is detected by the manifest re-read
         p0 = Path(rt["MANIFEST"].path.iloc[0])
         p0.write_bytes(p0.read_bytes() + b"x")

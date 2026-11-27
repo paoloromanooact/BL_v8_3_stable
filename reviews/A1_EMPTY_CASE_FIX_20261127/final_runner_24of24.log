@@ -1,0 +1,45 @@
+WARNING: AstropyDeprecationWarning: The indent function is deprecated and may be removed in a future version.
+        Use textwrap.indent() instead. [astropy.io.fits.hdu.hdulist]
+2026-11-27 10:19:13 - astropy - WARNING: AstropyDeprecationWarning: The indent function is deprecated and may be removed in a future version.
+        Use textwrap.indent() instead.
+WARNING: VerifyWarning: Error validating header for HDU #2 (note: Astropy uses zero-based indexing).
+    Header size is not multiple of 2880: 1
+There may be extra bytes after the last HDU or the file is corrupted. [astropy.io.fits.hdu.hdulist]
+2026-11-27 10:19:13 - astropy - WARNING: VerifyWarning: Error validating header for HDU #2 (note: Astropy uses zero-based indexing).
+    Header size is not multiple of 2880: 1
+There may be extra bytes after the last HDU or the file is corrupted.
+WARNING: AstropyDeprecationWarning: The indent function is deprecated and may be removed in a future version.
+        Use textwrap.indent() instead. [astropy.io.fits.hdu.hdulist]
+2026-11-27 10:20:53 - astropy - WARNING: AstropyDeprecationWarning: The indent function is deprecated and may be removed in a future version.
+        Use textwrap.indent() instead.
+WARNING: VerifyWarning: Error validating header for HDU #2 (note: Astropy uses zero-based indexing).
+    Header size is not multiple of 2880: 1
+There may be extra bytes after the last HDU or the file is corrupted. [astropy.io.fits.hdu.hdulist]
+2026-11-27 10:20:53 - astropy - WARNING: VerifyWarning: Error validating header for HDU #2 (note: Astropy uses zero-based indexing).
+    Header size is not multiple of 2880: 1
+There may be extra bytes after the last HDU or the file is corrupted.
+[OK] no usable map (read_error): no crash; explicit schemas; failures kept in the denominators; technical status propagated statuses {'read_error:OSError': 102}; numerical no_usable_convergence_case, technical no_dipoles, valid False; dipole rows 0
+[OK] no usable map (unipolar): no crash; explicit schemas; failures kept in the denominators; technical status propagated statuses {'no_two_polarities': 102}; numerical no_usable_convergence_case, technical no_dipoles, valid False; dipole rows 0
+[OK] no usable map (mixed): no crash; explicit schemas; failures kept in the denominators; technical status propagated statuses {'read_error:OSError': 100, 'ok': 2}; numerical convergence_failed, technical ok, valid False; dipole rows 210
+[OK] A1 receipt (§4): parent receipt SHA, freeze commit holding the A1 text and a non-empty TEXT non-blindness declaration are mandatory (null/false/true/0/1.0/[]/{}/empty refused) ['A1 receipt: parent receipt SHA missing or different', 'A1 receipt: freeze commit missing, not an ancestor of HEAD, or without this A1 text', 'A1 receipt: non-blindness declaration missing'] | ['A1 receipt: freeze commit missing, not an ancestor of HEAD, or without this A1 text'] | accepted wrongly []
+[OK] population: primary/both, valid_bl 1, family_rank 0, finite USFLUX; ordered by HARPNUM 
+[OK] draw: first 4 per cell in the order of default_rng(36_100_000).permutation; weights N/n, pi n/N 
+[OK] near-pole patch: M deposition_out_of_range (no clipping); single polarity: no_two_polarities; both kept in REGIONS in sample: 1, 1
+[OK] D_M(0) of the deposited profile = D of the balanced pixels (1e-12 of D_scale) 
+[OK] B_point(0) = 3 phibar/(4 pi R^2)(sin lat+ - sin lat-) (1e-12 of D_scale) 
+[OK] Gaussian sensitivities recorded with effective fluxes and centroids; only at 100 G 
+[OK] 300 G sensitivity recomputes the ingredients (fluxes differ from 100 G) 
+[OK] tau = 5 years as the factor exp(-t/tau) on the reference 
+[OK] every transport and time present for every successful representation 
+[OK] weighted quantile (lower): hand example 
+[OK] summary: one 'all' row per time with n, weighted quantiles and the ratio threshold; same-sign fraction at 3 years 
+[OK] A1 §2ter: adjoint weights reproduce the forward step sequence (N 800, reference; 1e-10 relative) 
+[OK] A1 §2ter: every B row has a ratio status; counts add up to n; levels 2N/4N/dt_half present; tau rows keep the ratios statuses {'ratio_resolved': 6651, 'below_ratio_threshold': 699}
+[OK] convergence (A1 §2.3): 3 regions x M/B_point x 4 transports x 2 refinements x all times; status ok and run valid max 7.3e-04
+[OK] denominators per cell and threshold: selected = sample size; failures by cause; cell summaries present 
+[OK] manifest: Br, bitmap and keys of every sampled record, with SHA-256; unchanged at the end 
+[OK] manifest detects a map changed during the run 
+[OK] convergence criterion not met -> status convergence_failed (run not valid) 
+[OK] technical error in a region recorded as technical_error:<type>, the run continues 
+[OK] A1 preflight on the actual code: N 400 fails on point bipoles, N 800 passes every synthetic case, transport, time; positivity and mass max criterion at N 800 3.3e-04
+selftest: 24/24

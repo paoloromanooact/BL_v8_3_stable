@@ -99,8 +99,8 @@ Restano invariati:
 **Alternative.**
 - (a) Tenere 10⁻⁶. La corsa reale rischia `convergence_failed` per ragioni di quasi-cancellazione, non di accuratezza.
 - (b) f = 10⁻¹: soglia assoluta 10⁻⁴ D_scale, più robusta ma meno severa sui rapporti vicino alla soglia.
-- (c) Ripetere il controllo osservato a 2N prima di dichiarare il fallimento. Per le delta non aiuta: lo scarto non
-  cala con N.
+- (c) Ripetere il controllo osservato a 2N prima di dichiarare il fallimento. Nei casi e nei raffinamenti sintetici
+  provati non è bastato per le delta, perché lo scarto non calava con N; non è dimostrato in generale.
 
 **Margine (va pesato nella decisione).**
 - Il massimo scarto assoluto del preflight a N 800 è 9,8·10⁻⁶ D_scale: il 98 % della soglia assoluta con f = 10⁻², il
@@ -172,3 +172,9 @@ dichiarata. Nessuna scelta si fa guardando i dipoli osservati.
 Ricevuta con: SHA di questo testo, del protocollo padre e della sua ricevuta, e del codice di trasporto
 (`python/sharpbl/sft_core.py`) al commit di congelamento; commit di congelamento; dichiarazione «non cieco rispetto alle
 prove sintetiche dell'upwind».
+Campi obbligatori della ricevuta, controllati dal gate del runner e dal riconteggio: `sha256`, `parent_sha256`,
+`parent_receipt_sha256`, `sft_core_sha256`, `freeze_commit` (antenato del commit della corsa, cioè di HEAD nel gate e
+del `git_head` di META nel riconteggio, e contenente questo testo con lo stesso SHA), `not_blind` (testo non vuoto).
+I campi tecnici di META (`technical_status`, `regions_ok_100G`, `dipole_rows`) sono ricontati dal riconteggio. Prima di qualsiasi dato, il runner porta lo stato tecnico (`technical_status`, `numerical_status`,
+`run_valid`) fino ai prodotti conservati anche quando nessuna mappa è utilizzabile; le tabelle vuote hanno colonne
+esplicite e i fallimenti restano nei denominatori.
