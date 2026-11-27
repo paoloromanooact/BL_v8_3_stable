@@ -1,0 +1,21 @@
+{
+  "status": "completed",
+  "sources_sha256": {
+    "scripts/bq_psi_average_check.py": "103327a50ddeb2355d2e2b25091ea7f42e7180480c6839f594aeea52e72f4cef",
+    "python/sharpbl/bq_core.py": "45b94e7862df4facdd6dac8fc65235308402bd5ed6e64e4e2a94ea0943eccc46",
+    "python/sharpbl/bq_cv.py": "ba6d673e93ed7ee796362dfb84e1da8c2b0f0fd4cddb82da9bfca6ceb0af9fa7",
+    "python/sharpbl/bq_diag.py": "3fb98640484da7fad6a9bb929807da84b14a701751b76ce3e4dfd3f4dfda2292",
+    "scripts/bq_smc_stability.py": "45fe2938d95ffb9ae07ae75ff3011968d3c1963d9e12ac15dd5ef13ef80ffe03",
+    "scripts/bq_woodbury_benchmark.py": "4c06f8851558e8e458c3c0cfd60dedc2b8325efada8c1677ce9edf9557df502c"
+  },
+  "seed_response": 36400960,
+  "seed_chains": 36400970,
+  "sizes": "22,102,236,395",
+  "chains": 4,
+  "warm": 300,
+  "keep": 500,
+  "thin": 5,
+  "batches": 10,
+  "note": "L1, synthetic response on the real T3 design (metadata only); development measurement, not a validation",
+  "sources_unchanged": true
+}

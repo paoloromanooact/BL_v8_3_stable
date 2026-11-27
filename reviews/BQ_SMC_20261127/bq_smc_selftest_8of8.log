@@ -1,0 +1,9 @@
+[OK] 1. block state (u): mean and covariance = dense Gaussian conditional (1e-8 relative) max rel 1.9e-15; D = 12 (6 states, 1 shared families)
+[OK] 2. L1 (u): sequential Kalman = analytic l(train+block) - l(train) (1e-8) -62.1652991499 vs -62.1652991499; block 13 records
+[OK] 1. block state (u+v): mean and covariance = dense Gaussian conditional (1e-8 relative) max rel 2.7e-15; D = 18 (12 states, 1 shared families)
+[OK] 2. L1 (u+v): sequential Kalman = analytic l(train+block) - l(train) (1e-8) -62.1279249402 vs -62.1279249402; block 13 records
+[OK] 3. L2, 2 records: SMC replicate mean = exact sum over the 64-node pairs within 4 SE (discretisation 64 vs 128 reported) SMC -10.50713 +- 0.00126 vs -10.50635; 64 vs 128 nodes 1.5e-04
+[OK] 4. L3, 2 correlated records: SMC replicate mean = joint enumeration within 4 SE; tail bound certified SMC -10.60286 +- 0.00021 vs -10.60281 (324 pairs)
+[OK] 5a. L2, 14 records (shared families 1): forced resampling + rejuvenation at every record = plain runs within 4 combined SE plain -64.0500 +- 0.0035 (0.1 s) vs forced -64.0361 +- 0.0027 (0.6 s, 13 resamplings)
+[OK] 5b. L3, 6 records: forced resampling + rejuvenation = plain runs within 4 combined SE plain -31.1815 +- 0.0012 vs forced -31.1818 +- 0.0013
+selftest: 8/8

@@ -248,8 +248,19 @@ prima del codice operativo.
 9. **Blocchi non stabiliti (proposta, da decidere).** Il confronto fra candidati usa solo i blocchi stabiliti per
    **tutti** i candidati confrontati; un blocco `score_not_established` per un candidato è escluso per tutti, mai
    sostituito o ricalcolato con più estrazioni scelte guardando i punteggi. Si riportano numero, identità e
-   numerosità dei blocchi esclusi. Se ne restano meno di 8 su 10 (proposta), il confronto predittivo è
-   `comparison_not_established` e non si presenta una classifica.
+   numerosità dei blocchi esclusi. Con 8 o 9 blocchi stabiliti il confronto è **parziale**: lo si dichiara tale e si
+   riporta la quota di record coperta. Sotto 8 su 10 il confronto predittivo è `comparison_not_established` e non si
+   presenta una classifica (soglia provvisoria accolta da Codex, da verificare sui sintetici).
+10. **Schema sequenziale (via Codex al prototipo, 27 novembre).** A ψ fisso: stato gaussiano esatto dal posteriore del
+   training su coefficienti, stati ai CR del blocco e famiglie condivise nel blocco; record in ordine (CR, indice). A
+   ogni record si accumula il log della predittiva media con i pesi del prefisso **prima** del ricampionamento, poi
+   aggiornamento di Kalman per particella. L1: Kalman esatto (riferimento analitico). L2: precisione su una misura
+   discreta di quadratura di Gauss–Laguerre generalizzata della Gamma(ν/2, ν/2), la stessa per l'integrale predittivo e
+   per il campionamento condizionale (approssimazione dichiarata e misurata contro una quadratura più fine). L3: somma
+   sulle preimmagini con la varianza predittiva integrata e il limite della coda. Ringiovanimento dopo il
+   ricampionamento con un Gibbs a dati aumentati (z | ausiliari, ausiliari | z) che preserva la distribuzione
+   condizionata al prefisso (Del Moral, Doucet & Jasra 2006). Precisione del punteggio da repliche indipendenti, non
+   dalla sola ESS dopo il ricampionamento; costo e stabilità misurati fino a 395 record, il blocco HMI più grande.
 7. **Prodotti:** maschere con ID; per blocco, estrazione e catena il log Π_i p(γ_i | s); log-pesi, ESS, MCSE, stato
    per blocco; T/S massimo per L3. Formato da allineare al prototipo di esportazione Codex
    (`BQ_SYNTHETIC_L1_POINTWISE_V1`).

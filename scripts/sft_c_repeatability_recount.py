@@ -12,8 +12,11 @@ selftest uses the runner only to produce the rows to be recounted). Own pieces:
 - C_rot: numerical domain of dependence by boolean propagation stage by stage (not the closed form [i-4n, i+2n]) and
   the rotation-only TVD-minmod SSP-RK2 transport rewritten;
 - component weights after missing values, linear and angular (axial / circular) statistics, the whole SUMMARY table of
-  the runner's summarise(), component bootstrap. Not yet: the operational products of assemble() (selection, manifest,
-  denominators, grouped summaries and bootstrap), to be recounted once their schema is agreed.
+  the runner's summarise(), component bootstrap;
+- the operational products of assemble() (own_assembly_check): selection, exclusions, groups and USFLUX terciles (own
+  rational-index quantile), exact (pair_key, preparation) keys, every pair re-measured (read_error expected when the
+  maps cannot be read), denominators, SUMMARY and BOOTSTRAP per preparation and group, input manifest re-hashed now,
+  run information and validity (draft §4bis.7).
 Declared dependencies: the P1 map reader and WCS (geometry.read_sharp, lonlat_maps, pixel_area_cm2) and the SHARP file
 naming (download_records), as the A1 recount. Definitions shared with the runner by construction (they are the spec):
 the rotation law (Snodgrass & Ulrich 1990, as P1d/P1e), the P1 tilt and leading convention, the margin constants.
@@ -538,6 +541,199 @@ def boot(comp, x, seed, n):
     return float(np.quantile(vals, 0.025)), float(np.quantile(vals, 0.975)), len(ids)
 
 
+# ---------------------------------------------------------------- operational products of assemble()
+
+KINDS3 = ("raw", "p1_source", "balanced")
+GROUPS = ("hemisphere", "lag_class", "flux_tercile")
+BOOT_Q = ("D_g", "dD_over_SD", "phi_net", "phi_uns", "lat_pos", "lat_neg", "sep_deg")
+N_BOOT_DEFAULT = 2000
+
+
+def own_selection(cand):
+    el = []
+    for v in cand.metadata_eligible:
+        if isinstance(v, (bool, np.bool_)):
+            el.append(bool(v))
+        elif v in ("True", "False"):
+            el.append(v == "True")
+        else:
+            raise ValueError(f"metadata_eligible {v!r}")
+    el = np.array(el, bool)
+    c = cand.assign(pair_key=[f"{int(h)}|{a}|{b}" for h, a, b in zip(cand.HARPNUM, cand.T_REC_a, cand.T_REC_b)])
+    sel, exc = c[el].copy(), c[~el].copy()
+    lat, gap = sel.LAT_FWT_t0.to_numpy(float), sel.gap_ns.to_numpy(float) / 1e9
+    sel["hemisphere"] = ["N" if x > 0 else ("S" if x < 0 else "missing") for x in lat]
+    sel["lag_class"] = ["le_1.5h" if g <= 5400.0 else "gt_1.5h_le_2h" for g in gap]
+    f = sel.USFLUX_t0.to_numpy(float)
+    good = np.isfinite(f) & (f > 0)
+    x = np.sort(f[good])
+    q = []
+    for k in (1, 2):
+        if not len(x):
+            q.append(np.nan)
+            continue
+        i, r = divmod((len(x) - 1) * k, 3)
+        q.append(float(x[i]) if r == 0 else float(x[i] + (x[i + 1] - x[i]) * (r / 3)))
+    sel["flux_tercile"] = ["missing" if not gd else ("1" if v <= q[0] else ("2" if v <= q[1] else "3")) for v, gd in zip(f, good)]
+    return sel, exc, q
+
+
+def _own_row(row, ours_keys):
+    """A MEASUREMENTS row as the runner's dict: keys absent from that pair's row appear as NaN in the table."""
+    out = {}
+    for k, v in row.items():
+        if k in ("pair_key", "component", "hemisphere", "lag_class", "flux_tercile"):
+            continue
+        if k in ours_keys or not (isinstance(v, float) and np.isnan(v)):
+            out[k] = v
+    return out
+
+
+def own_assembly_check(cand, read, paths_fn, prods, info, n_boot=N_BOOT_DEFAULT):
+    """Checks (name, ok, detail) of the products and run information of assemble(), with own code."""
+    import hashlib
+    checks = []
+    sel, exc, q = own_selection(cand)
+    S = prods["SELECTION"]
+    same_sel = set(S.pair_key) == set(sel.pair_key) and len(S) == len(sel)
+    grp = sel.set_index("pair_key")[["hemisphere", "lag_class", "flux_tercile", "component"]]
+    if same_sel:
+        th = S.set_index("pair_key")[["hemisphere", "lag_class", "flux_tercile", "component"]].astype(str).loc[grp.index]
+        same_sel = bool((th.to_numpy() == grp.astype(str).to_numpy()).all())
+    checks.append(("selection: pairs, groups and terciles (own rational index)", same_sel and set(prods["EXCLUSIONS"].pair_key) == set(exc.pair_key)
+                   and info.get("tercile_q1") == q[0] and info.get("tercile_q2") == q[1], f"q {q}"))
+    M = prods["MEASUREMENTS"]
+    got = list(zip(M.pair_key, M.kind))
+    want = {(p, k) for p in sel.pair_key for k in KINDS3}
+    keys_ok = len(got) == len(set(got)) and set(got) == want
+    checks.append(("measurement keys: one row per (pair_key, preparation)", keys_ok, f"{len(got)} rows, {len(want)} expected"))
+    bad = []
+    n_read, n_tech = 0, 0
+    for _, r in sel.iterrows():
+        rows = M[M.pair_key == r.pair_key]
+        try:
+            cache = {t: read(r.HARPNUM, t) for t in (r.T_REC_a, r.T_REC_b)}
+        except Exception as exc_:                                  # noqa: BLE001
+            want_st = f"read_error:{type(exc_).__name__}"
+            n_read += len(rows)
+            if not (rows.status == want_st).all():
+                bad.append(f"{r.pair_key}: expected {want_st}")
+            continue
+        try:
+            ours = recount_pair(lambda h, t: cache[t], r.HARPNUM, r.T_REC_a, r.T_REC_b)
+        except Exception as exc_:                                  # noqa: BLE001
+            want_st = f"technical_error:{type(exc_).__name__}"
+            n_tech += len(rows)
+            if not (rows.status == want_st).all():
+                bad.append(f"{r.pair_key}: expected {want_st}")
+            continue
+        ours = {o["kind"]: o for o in ours}
+        theirs = [_own_row(rr, set(ours.get(rr["kind"], {}))) for rr in rows.to_dict("records")]
+        g = rows_match(theirs, [ours[t["kind"]] for t in theirs]) if all(t["kind"] in ours for t in theirs) else (False, "kinds")
+        if not g[0]:
+            bad.append(f"{r.pair_key}: {g[1]}")
+    checks.append(("every pair re-measured (or the expected read/technical error)", not bad, "; ".join(bad[:3])))
+    comps = sel.set_index("pair_key").component
+    Mg = M.drop(columns=[c for c in GROUPS if c in M.columns]).merge(sel[["pair_key"] + list(GROUPS)], on="pair_key")
+    dmis, smis, bmis = [], [], []
+    Dt, St, Bt = prods["DENOMINATORS"], prods["SUMMARY"], prods["BOOTSTRAP"]
+    for kind in KINDS3:
+        mk = Mg[Mg.kind == kind]
+        parts = [("all", mk)] + [(f"{c}={v}", x) for c in GROUPS for v, x in mk.groupby(c, sort=True)]
+        for gname, part in parts:
+            d = dict(selected=int(len(part)), ok=int((part.status == "ok").sum()))
+            d.update({f"failed_{st}": int(n) for st, n in part.status[part.status != "ok"].value_counts().items()})
+            row = Dt[(Dt.kind == kind) & (Dt.group == gname)]
+            if len(row) != 1:
+                dmis.append(f"{kind}/{gname} missing")
+            else:
+                rr = row.iloc[0]
+                for col in [c for c in Dt.columns if c not in ("kind", "group")]:
+                    if float(rr[col]) != float(d.get(col, 0)):
+                        dmis.append(f"{kind}/{gname}/{col}")
+            okp = part[part.status == "ok"]
+            if len(okp):
+                ts = St[(St.kind == kind) & (St.group == gname)].drop(columns=["kind", "group"]).dropna(axis=1, how="all")
+                g = summary_match(ts, own_summary(okp, comps).dropna(axis=1, how="all"))
+                if not g[0]:
+                    smis.append(f"{kind}/{gname}: {g[1]}")
+                for qn in BOOT_Q:
+                    col = {"dD_over_SD": "d_dD_over_SD", "phi_uns": "d_phi_uns"}.get(qn, f"d_{qn}")
+                    lo, hi, kc = boot(okp.pair_key.map(comps).to_numpy(), okp[col].to_numpy(float), SEED_BOOT, n_boot)
+                    bt = Bt[(Bt.kind == kind) & (Bt.group == gname) & (Bt.quantity == qn)]
+                    same = len(bt) == 1 and int(bt.n_components.iloc[0]) == kc
+                    for mine, th in ((lo, bt.lo.iloc[0] if len(bt) else np.nan), (hi, bt.hi.iloc[0] if len(bt) else np.nan)):
+                        same = same and ((np.isnan(mine) and np.isnan(th)) or abs(mine - th) <= 1e-9 * max(1.0, abs(mine)))
+                    if not same:
+                        bmis.append(f"{kind}/{gname}/{qn}")
+    checks.append(("denominators per preparation and group", not dmis, "; ".join(dmis[:4])))
+    checks.append(("SUMMARY per preparation and group (own statistics)", not smis, "; ".join(smis[:3])))
+    checks.append(("BOOTSTRAP per preparation, group and quantity (own resampling, same seed)", not bmis, "; ".join(bmis[:4])))
+    man = []
+    for _, r in sel.iterrows():
+        for t in (r.T_REC_a, r.T_REC_b):
+            for pth in paths_fn(r.HARPNUM, t):
+                ex = Path(pth).exists()
+                man.append((str(pth), bool(ex), hashlib.sha256(Path(pth).read_bytes()).hexdigest() if ex else ""))
+    IM = prods["INPUT_MANIFEST"]
+    man_ok = sorted(man) == sorted(zip(IM.path.astype(str), IM.exists.astype(bool), IM.sha256.fillna("").astype(str)))
+    valid = bool(len(sel) > 0 and man_ok and all(e for _, e, _ in man) and keys_ok and n_read == 0 and n_tech == 0)
+    exp = dict(selected=len(sel), excluded=len(exc), components=int(sel.component.nunique()), read_errors=n_read, technical_errors=n_tech,
+               measurement_keys_exact=keys_ok, run_valid=valid)
+    wrong = [k for k, v in exp.items() if info.get(k) != v or isinstance(info.get(k), bool) != isinstance(v, bool)]
+    checks.append(("run information and validity recomputed (manifest re-hashed now)", man_ok and not wrong, f"wrong {wrong}; manifest {man_ok}"))
+    return checks
+
+
+# ---------------------------------------------------------------- products on disk and receipt
+
+PRODUCT_FILES = ("SELECTION.csv", "EXCLUSIONS.csv", "INPUT_MANIFEST.csv", "MEASUREMENTS.csv", "DENOMINATORS.csv", "COMPONENTS.csv",
+                 "SUMMARY.csv", "BOOTSTRAP.csv", "META.json")
+INFO_KEYS = ("selected", "excluded", "components", "tercile_q1", "tercile_q2", "manifest_unchanged", "all_inputs_present", "measured_pairs",
+             "measurement_keys_exact", "read_errors", "technical_errors", "run_valid")
+
+
+def _sha(p):
+    import hashlib
+    return hashlib.sha256(Path(p).read_bytes()).hexdigest()
+
+
+def check_products(out, cand, cand_path, read, paths_fn, n_boot=N_BOOT_DEFAULT, real=False, receipt_dir=None):
+    """Recount of the products WRITTEN to disk: exact file set, product hashes = META, candidates hash, then
+    own_assembly_check on the tables read back from CSV. A receipt is written only on the real path (real=True) and only
+    if every check passes; the selftest path is always partial."""
+    import json
+    out = Path(out)
+    checks = []
+    names = {p.name for p in out.iterdir()}
+    checks.append(("product set exact", names == set(PRODUCT_FILES), sorted(names ^ set(PRODUCT_FILES))))
+    try:
+        meta = json.loads((out / "META.json").read_text())
+    except (OSError, ValueError) as exc:
+        checks.append(("META readable", False, repr(exc)))
+        return checks, False
+    hs = meta.get("products_sha256", {})
+    checks.append(("product hashes = META", set(hs) == set(PRODUCT_FILES) - {"META.json"} and all((out / k).exists() and _sha(out / k) == v
+                                                                                                   for k, v in hs.items()), ""))
+    checks.append(("candidates table = META", meta.get("candidates_sha256") == _sha(cand_path), ""))
+    if not all(c[1] for c in checks):
+        return checks, False
+    rd = lambda n: pd.read_csv(out / n, low_memory=False, keep_default_na=True)          # noqa: E731
+    prods = {k[:-4]: rd(k) for k in PRODUCT_FILES if k.endswith(".csv")}
+    info = {k: meta.get(k) for k in INFO_KEYS}
+    checks += own_assembly_check(cand, read, paths_fn, prods, info, n_boot)
+    good = all(c[1] for c in checks)
+    if real and receipt_dir is not None:
+        if Path(receipt_dir).exists():
+            raise FileExistsError("receipt exists")
+        if good:
+            Path(receipt_dir).mkdir(parents=True)
+            (Path(receipt_dir) / "RECEIPT.json").write_text(json.dumps(dict(passed=len(checks), total=len(checks), checks=[list(map(str, c)) for c in checks],
+                                                                             recount_sha256=_sha(__file__),
+                                                                             outputs_sha256={p.name: _sha(p) for p in sorted(out.iterdir())}), indent=2) + "\n")
+    return checks, good
+
+
 # ---------------------------------------------------------------- selftest (synthetic only)
 
 def selftest():
@@ -617,6 +813,63 @@ def selftest():
             else:
                 got = rows_match(t, ours)
             ok(f"refused: {lab}", not got[0], got[1])
+    # operational assembly: own recount of assemble() products, a valid and a non-valid run, and tamperings
+    with tempfile.TemporaryDirectory() as tdr:
+        rows_c = []
+        for harp, lat0, lon0, hours, fl, comp in [(201, 12.0, 30.0, 1, 5e21, 11), (202, -14.0, 60.0, 2, 9e21, 12), (203, 18.0, 90.0, 1, 2e22, 13),
+                                                  (204, -20.0, 120.0, 2, 4e21, 13), (205, 10.0, 150.0, 1, 1.5e22, 14), (206, -11.0, 180.0, 2, 7e21, 15)]:
+            ta = t0 + pd.Timedelta(days=harp - 200)
+            a = T.write_patch(tdr, harp, ta, lat0, lon0, T.bipole(lat0, lon0))
+            b = T.write_patch(tdr, harp, ta + pd.Timedelta(hours=hours), lat0, lon0, T.bipole(lat0, lon0))
+            rows_c.append(dict(node=harp, HARPNUM=harp, T_REC_a=a, T_REC_b=b, gap_ns=int(hours * 3600e9), area_deg2=50.0, family=harp,
+                               USFLUX_t0=fl, LON_FWT_t0=0.0, LAT_FWT_t0=lat0, pregraph_reasons="", component=comp, protected_component=False,
+                               metadata_eligible=True))
+        rows_c.append(dict(rows_c[0], node=900, HARPNUM=900, metadata_eligible=False, pregraph_reasons="geometry", component=900))
+        cand = pd.DataFrame(rows_c)
+        rd, paths = CR.OP.reader(Path(tdr) / "fits"), CR.file_paths(Path(tdr) / "fits")
+        good = cand[cand.HARPNUM != 206]
+        pg, ig = CR.assemble(good, rd, paths, n_boot=50)
+        cg = own_assembly_check(good, rd, paths, pg, ig, n_boot=50)
+        ok("assembly, valid run: every product and the run validity recounted", all(c[1] for c in cg) and ig["run_valid"],
+           " | ".join(f"{c[0][:30]}: {c[2]}" for c in cg if not c[1]))
+        paths(206, rows_c[5]["T_REC_b"])[0].unlink()
+        pb, ib = CR.assemble(cand, rd, paths, n_boot=50)
+        cb = own_assembly_check(cand, rd, paths, pb, ib, n_boot=50)
+        ok("assembly, missing map: read_error recounted, run not valid, products recounted", all(c[1] for c in cb) and not ib["run_valid"],
+           " | ".join(f"{c[0][:30]}: {c[2]}" for c in cb if not c[1]))
+        for lab, key, fn in (("a MEASUREMENTS row dropped", "MEASUREMENTS", lambda t: t.drop(index=t.index[0])),
+                             ("a denominator altered", "DENOMINATORS", lambda t: t.assign(ok=t.ok.where(t.index != t.index[0], t.ok.iloc[0] + 1))),
+                             ("a tercile class altered", "SELECTION", lambda t: t.assign(flux_tercile=t.flux_tercile.where(t.index != 0, "9"))),
+                             ("a SUMMARY mean altered (1e-6)", "SUMMARY", lambda t: t.assign(mean=t["mean"].where(t.index != t["mean"].abs().idxmax(), t["mean"] * (1 + 1e-6)))),
+                             ("a BOOTSTRAP component count altered", "BOOTSTRAP", lambda t: t.assign(n_components=t.n_components.where(t.index != 0, t.n_components.iloc[0] + 1)))):
+            tp = dict(pg)
+            tp[key] = fn(pg[key].copy())
+            c_ = own_assembly_check(good, rd, paths, tp, ig, n_boot=50)
+            ok(f"refused (assembly): {lab}", not all(c[1] for c in c_))
+        c_ = own_assembly_check(good, rd, paths, pg, dict(ig, run_valid=False), n_boot=50)
+        ok("refused (assembly): run validity declared differently", not all(c[1] for c in c_))
+        # products written to disk by the runner and recounted from the CSV files
+        cpath = Path(tdr) / "CANDIDATES.csv"
+        good.to_csv(cpath, index=False)
+        outp = Path(tdr) / "RUN"
+        CR.write_products(pg, ig, outp, cpath, extra=dict(synthetic=True))
+        try:
+            CR.write_products(pg, ig, outp, cpath)
+            again = False
+        except FileExistsError:
+            again = True
+        cw, gw = check_products(outp, good, cpath, rd, paths, n_boot=50)
+        ok("products on disk: written atomically, overwrite refused, recounted from the CSV files (hashes, every product, validity)",
+           gw and again, " | ".join(f"{c[0][:30]}: {c[2]}" for c in cw if not c[1]))
+        m_ = outp / "DENOMINATORS.csv"
+        txt = m_.read_text()
+        m_.write_text(txt.replace(",", ";", 1) if "," in txt else txt + " ")
+        cw2, gw2 = check_products(outp, good, cpath, rd, paths, n_boot=50)
+        ok("refused (products): a CSV changed after the run (hash = META)", not gw2)
+        m_.write_text(txt)
+        (outp / "EXTRA.csv").write_text("x\n1\n")
+        cw3, gw3 = check_products(outp, good, cpath, rd, paths, n_boot=50)
+        ok("refused (products): an extra file in the product set", not gw3)
     # summaries: weights after missing values and bootstrap, against the runner's functions
     rng = np.random.default_rng(5)
     n = 40

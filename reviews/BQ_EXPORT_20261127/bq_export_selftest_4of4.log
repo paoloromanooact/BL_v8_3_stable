@@ -1,0 +1,9 @@
+[OK] u: bundle from real slice chains verified by the independent dense recount (Codex) max abs errors {'log_lik': 5.115907697472721e-13, 'log_prior': 8.881784197001252e-16, 'coef_mean': 1.9397816686250735e-12, 'coef_cov': 4.149569576838985e-11, 'log_beta_zero': 3.552713678800501e-15}
+[OK] u+v: bundle from real slice chains verified by the independent dense recount (Codex) max abs errors {'log_lik': 1.7053025658242404e-12, 'log_prior': 3.552713678800501e-15, 'coef_mean': 2.4211743721025414e-12, 'coef_cov': 2.751221472863108e-11, 'log_beta_zero': 1.0036416142611415e-13}
+[OK] refused by the independent recount: one log-likelihood moved by 1e-6 (manifest refreshed) ValueError: log_lik mismatch at chain=c0 draw=0
+[OK] existing destination refused 
+selftest: 4/4
+
+real	0m9,850s
+user	0m8,979s
+sys	0m0,547s

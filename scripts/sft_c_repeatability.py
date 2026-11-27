@@ -550,6 +550,39 @@ def assemble(cand, read, paths_fn, n_boot=N_BOOT):
                 BOOTSTRAP=pd.DataFrame(boot)), info
 
 
+PRODUCTS = ("SELECTION", "EXCLUSIONS", "INPUT_MANIFEST", "MEASUREMENTS", "DENOMINATORS", "COMPONENTS", "SUMMARY", "BOOTSTRAP")
+SPEC = ROOT / "docs/SFT_HMI_REPEATABILITY_PLAN_DRAFT.md"
+FREEZE = ROOT / "docs/SFT_HMI_REPEATABILITY_FREEZE.json"          # does not exist until the freeze
+
+
+def _sha(p):
+    import hashlib
+    return hashlib.sha256(Path(p).read_bytes()).hexdigest()
+
+
+def write_products(prods, info, out, cand_path, extra=None):
+    """Products of one run: every table as CSV in a temporary sibling directory, then META.json (run information,
+    SHA-256 of every product, of the candidates table, of the code and of the spec, git HEAD), then an atomic rename to
+    `out`. An existing destination is refused (no overwrite)."""
+    import json
+    import os
+    import subprocess
+    import tempfile
+    out = Path(out)
+    if out.exists():
+        raise FileExistsError(f"{out} exists (single run, no overwrite)")
+    tmp = Path(tempfile.mkdtemp(prefix=f".{out.name}.tmp-", dir=out.parent))
+    for k in PRODUCTS:
+        prods[k].to_csv(tmp / f"{k}.csv", index=False)
+    head = subprocess.run(["git", "rev-parse", "HEAD"], cwd=ROOT, capture_output=True, text=True).stdout.strip()
+    meta = dict(info, products_sha256={f"{k}.csv": _sha(tmp / f"{k}.csv") for k in PRODUCTS}, candidates_sha256=_sha(cand_path),
+                runner_sha256=_sha(__file__), observed_pilot_sha256=_sha(OP.__file__), sft_local_sha256=_sha(L.__file__),
+                sft_core_sha256=_sha(C.__file__), spec_sha256=_sha(SPEC), git_head=head, seed_boot=SEED_BOOT, n_boot=N_BOOT, **(extra or {}))
+    (tmp / "META.json").write_text(json.dumps(meta, indent=2, default=float) + "\n")
+    os.replace(tmp, out)
+    return meta
+
+
 if __name__ == "__main__":
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--run", action="store_true")
