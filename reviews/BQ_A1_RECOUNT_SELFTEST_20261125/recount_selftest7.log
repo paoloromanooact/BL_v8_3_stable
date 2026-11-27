@@ -1,0 +1,39 @@
+/home/gianluca/BL_v8_3_stable/scripts/sft_map_bipole_pilot_recount.py:413: PerformanceWarning: indexing past lexsort depth may impact performance.
+  B = B[[k in Mi.index for k in kk]].copy()
+/home/gianluca/BL_v8_3_stable/scripts/sft_map_bipole_pilot_recount.py:413: PerformanceWarning: indexing past lexsort depth may impact performance.
+  B = B[[k in Mi.index for k in kk]].copy()
+[OK] synthetic run recounted in full (own preflight, propagators, Gaussians, summaries, denominators, manifest, convergence) 
+[OK] refused: a 3-year dipole moved by 1e-7 relative
+[OK] refused: a dipole row dropped
+[OK] refused: a duplicated key (one row replaced by a copy of another)
+[OK] refused: a sampled HARP replaced
+[OK] refused: a weight
+[OK] refused: a SAMPLE column dropped (USFLUX)
+[OK] refused: a REGIONS column dropped (D_pix_raw)
+[OK] refused: a deposit status
+[OK] refused: a Gaussian effective flux
+[OK] refused: empty curves
+[OK] refused: truncated curves (last day of one region dropped)
+[OK] refused: a weighted median
+[OK] refused: a same-sign fraction
+[OK] refused: cell summaries dropped
+[OK] refused: a fractional count (n + 0.5)
+[OK] refused: a fractional denominator (selected + 0.5)
+[OK] refused: a failure moved between causes
+[OK] refused: a ratio status (resolved -> unresolved)
+[OK] refused: a 4N dipole moved by 1e-6 relative
+[OK] refused: a resolved-ratio count
+[OK] refused: the 2N level column dropped from RATIOS
+[OK] refused: a convergence criterion
+[OK] refused: convergence rows of one transport dropped
+[OK] refused: a preflight criterion moved by 1e-6 absolute
+[OK] refused: a preflight case dropped
+[OK] refused: run N different from the first passing N (400 instead of 800)
+[OK] refused: a manifest hash
+[OK] refused: a manifest row dropped
+[OK] refused: run declared not valid (convergence_failed)
+[OK] refused: manifest changed during the run
+[OK] refused: convergence requirement not met although the values agree (no complete receipt) [OK] CONVERGENCE (A1 2.3): 4 transports, 2N and dt/2, criteria within 1e-8 absolute, pass flags  | [FALLITO] convergence requirement met on the observed cases (else the run is not valid and the receipt is not 
+[OK] refused: a map file changed after the run (manifest hash re-read) 
+selftest: 33/33
+exit 0

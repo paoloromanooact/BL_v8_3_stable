@@ -1,0 +1,114 @@
+{
+  "mwo_r4_isolated": {
+    "records": 5223,
+    "first_day": "1974-01-02",
+    "last_day": "2012-11-26",
+    "by_cycle_hemisphere": {
+      "20N": 53,
+      "20S": 78,
+      "21N": 595,
+      "21S": 657,
+      "22N": 779,
+      "22S": 901,
+      "23N": 839,
+      "23S": 934,
+      "24N": 229,
+      "24S": 158
+    },
+    "by_epoch": {
+      "E1": 38,
+      "E2": 693,
+      "E3": 566,
+      "E4": 371,
+      "E5": 1208,
+      "E6": 135,
+      "E7": 45,
+      "E8": 2167
+    },
+    "by_resolution": {
+      "R1": 4816,
+      "R2": 310,
+      "R3": 75,
+      "R0": 22
+    },
+    "noaa_label_suffixes": {
+      "": 4569,
+      "m": 236,
+      "a": 207,
+      "b": 74,
+      "n": 62,
+      "c": 25,
+      "o": 15,
+      "d": 12,
+      "p": 10,
+      "e": 5,
+      "q": 3,
+      "f": 2,
+      "s": 2,
+      "r": 1
+    }
+  },
+  "white_light_bridge": {
+    "status": {
+      "ok": 4694,
+      "wl_fewer_than_two_spots": 340,
+      "wl_one_side_empty": 189
+    },
+    "ok_by_cycle": {
+      "20": 120,
+      "21": 1129,
+      "22": 1466,
+      "23": 1623,
+      "24": 356
+    },
+    "unmatched_to_r4": 0
+  },
+  "mwo_hmi_matched_S2": {
+    "records": 153,
+    "first_day": "2010-05-04",
+    "last_day": "2012-11-24",
+    "by_hemisphere": {
+      "S": 80,
+      "N": 73
+    },
+    "distinct_noaa": 153
+  },
+  "hmi_T3_design_vs_mwo": {
+    "design_records": 2485,
+    "with_noaa": 2020,
+    "noaa_in_mwo_r4": 249,
+    "noaa_in_S2_matched": 153,
+    "by_cycle_in_mwo": {
+      "24": 249
+    }
+  },
+  "mdi": {
+    "full_catalogue": "not built (decision pending after Q4)",
+    "pilot_L2_records": 360,
+    "pilot_L2_status": {
+      "no_magnetogram": 174,
+      "ok": 133,
+      "window_outside_mu_domain": 47,
+      "no_image": 6
+    },
+    "pilot_L2_main_status": {
+      "ok": 133,
+      "window_outside_mu_domain": 47
+    },
+    "pilot_noaa_in_mwo_r4": 292,
+    "mwo_identity_rows": {
+      "MWO pilot": 267,
+      "R4 epoch_hemisphere": 32
+    }
+  },
+  "inputs_sha256": {
+    "results/MWO_TILT_CATALOGUE_RELEASE/MWO_TILT_CATALOGUE_ISOLATED_1974_2012.csv": "5b35116ae8dcc58f68eeeff452281e62a37169b6c92f9050ab1da65c64c9a373",
+    "results/MWO_TILT_CATALOGUE_RELEASE/COMPARISONS/WL_TILTS.csv": "9e4721a60b1ecb8c65d803ee5c271bcb284d8d43d3ec55a73b6453ed9728ae8e",
+    "results/MWO_TILT_CATALOGUE_RELEASE/COMPARISONS/S2_P1_MATCHED.csv": "29d5c279c24baab273c83b60b0706c4e08c07b66342e1b798854eff76a28d001",
+    "results/P1/P1_SBL_CATALOG_BY_HARP.csv": "67dc6a74a27b44f9ddd958f5a5dcc972a564300af89444c781665926ca0488af",
+    "results/MDI_PILOT_L2/L2_RECORDS.csv": "ed6861a4b7a1e27e53465fcd3f55ebc28c408789174c36cbf7afe091c7d53882",
+    "results/MDI_PILOT_MWO_IDENTITY/ROWS.csv": "fc4fcc7770d2585f09014df68b765df401c8f9129de35bc5d9caa3a94e87dfc7"
+  },
+  "script_sha256": "e0124b13667824cd07873d7fdf13b8a6ae4b7bd9edcf617aeabdbbb2e386da75",
+  "note": "metadata/status columns only; counts of shared records, not estimates"
+}

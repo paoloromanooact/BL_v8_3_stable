@@ -58,14 +58,18 @@ def _residual_sd(d, x, scale=1.0):
     return p["sigma0"] * np.exp(p["q"] * d.lphi) * math.sqrt(scale)
 
 
-def gibbs(d: B.Design, y, x0, n_warm, n_keep, rng, kind="L2", nu=NU, keep_theta=True):
+def gibbs(d: B.Design, y, x0, n_warm, n_keep, rng, kind="L2", nu=NU, keep_theta=True, theta_init=None):
     """kind 'L2' (Student-t residuals) or 'L3' (folded latent tilt). Returns dict of saved psi draws, coefficient
-    draws (theta), and per-iteration summaries (mean lam for L2, share of non-identity branches for L3)."""
+    draws (theta), per-iteration summaries (mean lam for L2, share of non-identity branches for L3) and, for L3, the
+    per-record count of branch changes in the saved phase. theta_init: starting latent tilts for L3 (preimages of
+    gamma; identity branch if None)."""
     x = np.array(x0, float)
     scale = (nu - 2.0) / nu if kind == "L2" else 1.0
     lam = np.ones(d.n) if kind == "L2" else None
     obs = np.asarray(y, float)
-    yy = obs.copy()                                  # L3: current latent tilt (identity branch at the start)
+    yy = obs.copy() if theta_init is None else np.asarray(theta_init, float).copy()   # L3: current latent tilt
+    if kind == "L3" and not np.allclose(np.degrees(np.arcsin(np.sin(np.radians(yy)))), obs, atol=1e-9):
+        raise ValueError("theta_init is not a preimage of gamma")
 
     def logf_factory():
         return lambda z: B.log_prior(d, z) + B.loglik(d, z, yy, lam=lam, scale=scale)
@@ -74,7 +78,7 @@ def gibbs(d: B.Design, y, x0, n_warm, n_keep, rng, kind="L2", nu=NU, keep_theta=
     if not np.isfinite(fx):
         raise ValueError("initial point has zero density")
     W = B.Widths(len(x), n_warm)
-    out = dict(psi=[], theta=[], summary=[], hits=0)
+    out = dict(psi=[], theta=[], summary=[], hits=0, switches=np.zeros(d.n, int))
     for it in range(n_warm + n_keep):
         W.update(it, x)
         x, fx, h = B.slice_sweep(logf, x, fx, W.w, rng)
@@ -87,7 +91,10 @@ def gibbs(d: B.Design, y, x0, n_warm, n_keep, rng, kind="L2", nu=NU, keep_theta=
             lam = rng.gamma((nu + 1.0) / 2.0, 2.0 / (nu + e * e / s2))
             summ = float(lam.mean())
         else:
-            yy = draw_branches(obs, mean, _residual_sd(d, x), rng)
+            new = draw_branches(obs, mean, _residual_sd(d, x), rng)
+            if it >= n_warm:
+                out["switches"] += np.abs(new - yy) > 1e-9
+            yy = new
             summ = float(np.mean(np.abs(yy - obs) > 1e-9))
         logf = logf_factory()
         fx = logf(x)
@@ -97,3 +104,28 @@ def gibbs(d: B.Design, y, x0, n_warm, n_keep, rng, kind="L2", nu=NU, keep_theta=
                 out["theta"].append(theta)
             out["summary"].append(summ)
     return {k: (np.array(v) if isinstance(v, list) else v) for k, v in out.items()}
+
+
+def preimage_init(g, kind, rng):
+    """Starting latent tilts for multi-start L3 chains: 'identity' (theta = gamma), 'fold_high' (|gamma| > 60 taken on
+    the reflected branch 180 - |gamma| with the sign of gamma), 'random' (identity or reflected branch at random)."""
+    g = np.asarray(g, float)
+    refl = np.sign(g) * 180.0 - g
+    if kind == "identity":
+        return g.copy()
+    if kind == "fold_high":
+        return np.where(np.abs(g) > 60.0, refl, g)
+    if kind == "random":
+        return np.where(rng.uniform(size=len(g)) < 0.5, refl, g)
+    raise ValueError(kind)
+
+
+def split_rhat(chains):
+    """Split R-hat (Gelman et al.) of a scalar from equal-length chains: array (n_chains, n_draws)."""
+    c = np.asarray(chains, float)
+    h = c.shape[1] // 2
+    s = np.concatenate([c[:, :h], c[:, h:2 * h]], axis=0)
+    n = s.shape[1]
+    w = s.var(axis=1, ddof=1).mean()
+    b = n * s.mean(axis=1).var(ddof=1)
+    return float(np.sqrt(((n - 1) / n * w + b / n) / w)) if w > 0 else np.nan

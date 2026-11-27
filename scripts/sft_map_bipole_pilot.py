@@ -49,6 +49,7 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
+from scipy.linalg import solve_banded
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "python"))
@@ -73,6 +74,8 @@ A1_FREEZE = ROOT / "docs/PROTOCOL_SFT_MAP_BIPOLE_PILOT_AMENDMENT_A1_FREEZE.json"
 INPUTS_EXPECTED = frozenset({"results/P1/P1_SBL_CATALOG_BY_HARP.csv", "python/sharpbl/geometry.py", "python/sharpbl/measure.py",
                              "python/sharpbl/cycle.py", "docs/BL_SFT_HMI_INVENTORY.md"})
 CONV_TOL, N_CHOICES = 1e-3, (400, 800, 1600)
+RATIO_RES = 0.01             # A1 §2ter: maximum ratio difference between grid levels for a resolved ratio
+LEVELS = (("N", "D"), ("2N", "D_2N"), ("4N", "D_4N"), ("dt_half", "D_dthalf"))
 CONV_FLOOR = 1e-2           # A1 §2 (draft, to be decided by the review): floor of the criterion as a fraction of D_scale (parent: 1e-6)
 CAT_COLS = ["HARPNUM", "T_REC", "role", "valid_bl", "family_rank", "NOAA_NUM", "USFLUX", "LAT_FWT", "d_axial_g", "d_axial_bal_g",
             "d_cm", "tilt_deg", "phi_pos_mx", "phi_neg_mx"]
@@ -174,10 +177,10 @@ def representations(ing, threshold, model):
     """Initial cell fluxes per representation: dict name -> (cell flux or None, status, extra fields)."""
     reps = {}
     cf, nout = C.deposit_linear(ing["s_pix"], ing["F_bal"], model.s)
-    reps["M"] = (cf, "ok" if cf is not None else "deposition_out_of_range", dict(n_out=nout))
+    reps["M"] = (cf, "ok" if cf is not None else "deposition_out_of_range", dict(n_out=nout), (ing["s_pix"], ing["F_bal"]))
     sp, fp = C.point_bipole(ing["lat_pos"], ing["lat_neg"], ing["phibar"])
     cf, nout = C.deposit_linear(sp, fp, model.s)
-    reps["B_point"] = (cf, "ok" if cf is not None else "deposition_out_of_range", dict(n_out=nout))
+    reps["B_point"] = (cf, "ok" if cf is not None else "deposition_out_of_range", dict(n_out=nout), (sp, fp))
     if threshold == THRESHOLDS[0]:
         r = ing["r_cm"]
         sig_area = (math.degrees(math.sqrt(ing["area_pos"] / (2 * math.pi * r * r))), math.degrees(math.sqrt(ing["area_neg"] / (2 * math.pi * r * r))))
@@ -186,11 +189,12 @@ def representations(ing, threshold, model):
             # cap around the midpoint (implementation choice: the protocol requires them but does not fix their grid)
             lp_, fp_ = C.gaussian_component_cells((ing["lon_pos"], ing["lat_pos"]), sp_, ing["phibar"], r_cm=r)
             ln_, fn_ = C.gaussian_component_cells((ing["lon_neg"], ing["lat_neg"]), sn_, -ing["phibar"], r_cm=r)
-            cf, nout = C.deposit_linear(np.sin(np.radians(np.r_[lp_, ln_])), np.r_[fp_, fn_], model.s)
+            src = (np.sin(np.radians(np.r_[lp_, ln_])), np.r_[fp_, fn_])
+            cf, nout = C.deposit_linear(*src, model.s)
             e = C.gaussian_bipole((ing["lon_pos"], ing["lat_pos"]), (ing["lon_neg"], ing["lat_neg"]), sp_, sn_, ing["phibar"], r_cm=r)["effective"]
             reps[name] = (cf, "ok" if cf is not None else "deposition_out_of_range",
                           dict(n_out=nout, sigma_pos=sp_, sigma_neg=sn_, eff_phi_pos=e["phi_pos"], eff_phi_neg=e["phi_neg"],
-                               eff_lon_pos=e["lon_pos"], eff_lat_pos=e["lat_pos"], eff_lon_neg=e["lon_neg"], eff_lat_neg=e["lat_neg"]))
+                               eff_lon_pos=e["lon_pos"], eff_lat_pos=e["lat_pos"], eff_lon_neg=e["lon_neg"], eff_lat_neg=e["lat_neg"]), src)
     return reps
 
 
@@ -221,26 +225,97 @@ def _region(base, row, br, bm, h, models, curve_times):
         reg.update({k: ing[k] for k in ("phi_pos", "phi_neg", "phibar", "imbalance", "lon_pos", "lat_pos", "lon_neg", "lat_neg",
                                         "area_pos", "area_neg", "D_pix_raw", "D_pix_bal", "D_scale")})
         reps = representations(ing, thr, models[REF])
-        for name, (cf, st, extra) in reps.items():
+        for name, (cf, st, extra, src) in reps.items():
             reg.update({f"{name}_status": st, **{f"{name}_{k}": v for k, v in extra.items()}})
             if cf is None:
                 continue
+            n = models[REF].n
             for tname, mdl in models.items():
                 b0 = mdl.profile(cf)
                 outs = mdl.evolve(b0, [t for _, t in TIMES])
-                for (tl, ts), b in zip(TIMES, outs):
-                    dips.append(dict(HARPNUM=row["HARPNUM"], threshold=thr, representation=name, transport=tname, time=tl, t_s=ts,
-                                     D=mdl.dipole(b)))
+                lev = level_dipoles(src, n, tname)
+                rows = [dict(HARPNUM=row["HARPNUM"], threshold=thr, representation=name, transport=tname, time=tl, t_s=ts,
+                             D=mdl.dipole(b), **{c: lev[k][j] for k, c in LEVELS[1:]})
+                        for j, ((tl, ts), b) in enumerate(zip(TIMES, outs))]
+                dips += rows
                 if tname == REF:
                     for tau_y, lab in TAUS:
-                        for (tl, ts), b in zip(TIMES, outs):
-                            dips.append(dict(HARPNUM=row["HARPNUM"], threshold=thr, representation=name, transport=lab, time=tl, t_s=ts,
-                                             D=mdl.dipole(b) * float(C.decay_factor(ts, tau_y * C.YEAR))))
+                        for r in rows:
+                            f = float(C.decay_factor(r["t_s"], tau_y * C.YEAR))
+                            dips.append(dict(r, transport=lab, **{c: r[c] * f for _, c in LEVELS}))
                     if thr == THRESHOLDS[0] and name in ("M", "B_point") and curve_times is not None:
                         for ts, b in zip(curve_times, mdl.evolve(b0, curve_times)):
                             curves.append(dict(HARPNUM=row["HARPNUM"], representation=name, t_day=ts / C.DAY, D=mdl.dipole(b)))
         regions.append(reg)
     return regions, dips, curves
+
+
+# ---------------------------------------------------------------- grid levels for the ratio resolution (A1 §2ter)
+
+_ADJ, _GRIDS = {}, {}
+
+
+def _adjoint_step(m, dt):
+    """Transpose of one Crank-Nicolson step S = (I - hL)^-1 (I + hL): S^T g = (I + hL)^T (I - hL)^-T g."""
+    h = 0.5 * dt
+    ab = np.zeros((3, m.n))
+    ab[0, 1:] = -h * m.lo[1:]                     # (A^T)[j, j+1] = A[j+1, j]
+    ab[1] = 1.0 - h * m.di
+    ab[2, :-1] = -h * m.up[:-1]                   # (A^T)[j+1, j] = A[j, j+1]
+
+    def step(g):
+        x = solve_banded((1, 1), ab, g)
+        out = x + h * m.di * x
+        out[1:] += h * m.up[:-1] * x[:-1]
+        out[:-1] += h * m.lo[1:] * x[1:]
+        return out
+    return step
+
+
+def adjoint_weights(n, transport, half=False):
+    """Rows g_j with D(t_j) = g_j . b0 for the exact step sequence of SFT1D.evolve at TIMES (same step rule, counts
+    and remainders), obtained by applying the transposed steps backwards to the dipole weights 1.5 s ds."""
+    key = (n, transport, half)
+    if key not in _ADJ:
+        m = C.SFT1D(n=n, **TRANSPORTS[transport])
+        dt = min(C.DAY, m.dt_max)                     # the step SFT1D.evolve uses at this N
+        if half:
+            dt = 0.5 * dt                             # halved step: half of the effective step (A1 §2)
+        plan, t = [], 0.0
+        for _, target in TIMES:
+            k = int(np.floor((target - t) / dt * (1 + 1e-12)))
+            rem = target - (t + k * dt)
+            plan.append((k, rem if rem > 1e-9 * dt else 0.0))
+            t = target
+        full = _adjoint_step(m, dt)
+        G = []
+        for j in range(len(TIMES)):
+            g = 1.5 * m.s * m.ds
+            for k, rem in reversed(plan[:j + 1]):
+                if rem:
+                    g = _adjoint_step(m, rem)(g)
+                for _ in range(k):
+                    g = full(g)
+            G.append(g)
+        _ADJ[key] = np.array(G)
+    return _ADJ[key]
+
+
+def grid(n):
+    if n not in _GRIDS:
+        _GRIDS[n] = C.SFT1D(n=n)
+    return _GRIDS[n]
+
+
+def level_dipoles(src, n, transport):
+    """D at TIMES on 2N, 4N and N with the halved step, from the deposit inputs (s, flux) of a representation;
+    NaN where the deposit is out of the support (it cannot fail on a finer grid if it succeeded on N)."""
+    out = {}
+    for lab, nn, half in (("2N", 2 * n, False), ("4N", 4 * n, False), ("dt_half", n, True)):
+        g = grid(nn)
+        cf, _ = C.deposit_linear(src[0], src[1], g.s)
+        out[lab] = adjoint_weights(nn, transport, half) @ g.profile(cf) if cf is not None else np.full(len(TIMES), np.nan)
+    return out
 
 
 # ---------------------------------------------------------------- summaries (§8)
@@ -255,38 +330,74 @@ def wquantile(x, w, q):
     return float(x[o][np.searchsorted(cw, q - 1e-12)])
 
 
-def summarise(regions, dips):
-    reg = regions[["HARPNUM", "threshold", "status", "D_scale", "weight", "multiplicity", "flux_class", "lat_band"]].copy()
+RATIO_COLS = ["HARPNUM", "threshold", "representation", "transport", "time"]
+
+
+def ratio_table(regions, dips):
+    """Per row (B representation, threshold, transport, time): dipoles of B and M on the four grid levels, the ratio
+    threshold 0.1 m(t) recomputed on each level (same population: M at 100 G, reference transport, weights N/n),
+    eligibility, ratios, ratio status, dD/D_scale numerical indicator and the sign status (A1 §2ter)."""
+    reg = regions[["HARPNUM", "threshold", "D_scale", "weight", "multiplicity", "flux_class", "lat_band"]]
     d = dips.merge(reg, on=["HARPNUM", "threshold"], how="left")
-    M = d[d.representation == "M"][["HARPNUM", "threshold", "transport", "time", "D"]].rename(columns={"D": "D_M"})
+    mcols = [c for _, c in LEVELS]
+    M = d[d.representation == "M"][RATIO_COLS[:2] + RATIO_COLS[3:] + mcols].rename(columns={c: c + "_M" for c in mcols})
     B = d[d.representation != "M"].merge(M, on=["HARPNUM", "threshold", "transport", "time"], how="inner")
+    ref_m = d[(d.representation == "M") & (d.threshold == THRESHOLDS[0]) & (d.transport == REF)]
+    for lev, c in LEVELS:
+        thr = {t: 0.1 * wquantile(g[c].abs(), g.weight, 0.5) for t, g in ref_m.groupby("time")}
+        B[f"thr_{lev}"] = B.time.map(thr)
+        B[f"elig_{lev}"] = (B[f"thr_{lev}"] > 0) & (B[c + "_M"].abs() >= B[f"thr_{lev}"])
+        B[f"r_{lev}"] = (B[c] - B[c + "_M"]) / B[c + "_M"].abs()
+    finite = np.isfinite(B[[c for _, c in LEVELS] + [c + "_M" for _, c in LEVELS]].to_numpy(float)).all(axis=1)
+    el = B[[f"elig_{lev}" for lev, _ in LEVELS]].to_numpy(bool)
+    diffs = np.column_stack([(B.r_2N - B.r_N).abs(), (B.r_4N - B.r_2N).abs(), (B.r_dt_half - B.r_N).abs()])
+    B["dr_max"] = np.where(el.all(axis=1), diffs.max(axis=1), np.nan)
+    B["ratio_status"] = np.where(~finite, "ratio_unresolved", np.where(~el.any(axis=1), "below_ratio_threshold",
+                                 np.where(el.all(axis=1) & (diffs <= RATIO_RES).all(axis=1), "ratio_resolved", "ratio_unresolved")))
+    B["ratio"] = np.where(B.ratio_status == "ratio_resolved", B.r_N, np.nan)
     B["dD"] = B.D - B.D_M
     B["dD_scaled"] = B.dD / B.D_scale
-    ref_m = d[(d.representation == "M") & (d.threshold == THRESHOLDS[0]) & (d.transport == REF)]
-    thr_t = {t: 0.1 * wquantile(g.D.abs(), g.weight, 0.5) for t, g in ref_m.groupby("time")}
-    B["ratio_threshold"] = B.time.map(thr_t)
-    B["ratio"] = np.where((B.ratio_threshold > 0) & (B.D_M.abs() >= B.ratio_threshold), B.dD / B.D_M.abs(), np.nan)
-    rows = []
+    B["dD_numdiff"] = np.max(np.column_stack([((B[c] - B[c + "_M"]) - B.dD).abs() for _, c in LEVELS[1:]]), axis=1) / B.D_scale
+    sb = np.sign(B[[c for _, c in LEVELS]].to_numpy(float))
+    sm = np.sign(B[[c + "_M" for _, c in LEVELS]].to_numpy(float))
+    B["sign_resolved"] = finite & (sb == sb[:, :1]).all(axis=1) & (sm == sm[:, :1]).all(axis=1) & (sb[:, 0] != 0) & (sm[:, 0] != 0)
+    B["same_sign"] = np.sign(B.D) == np.sign(B.D_M)
     B["cell"] = B.multiplicity + "|" + B.flux_class.astype(int).astype(str) + "|" + B.lat_band
+    return B
+
+
+def summarise(regions, dips):
+    B = ratio_table(regions, dips)
+    rows = []
     groups = [("all", None)] + [(c, c) for c in ("multiplicity", "flux_class", "lat_band", "cell")]
     for (rep, thr, tr, tm), g in B.groupby(["representation", "threshold", "transport", "time"], sort=True):
         for gname, col in groups:
             parts = [("all", g)] if col is None else [(f"{col}={v}", x) for v, x in g.groupby(col)]
             for label, x in parts:
                 w = x.weight.to_numpy(float)
-                defined = x.ratio.notna().to_numpy()
-                r = dict(representation=rep, threshold=thr, transport=tr, time=tm, group=label, n=len(x), n_ratio=int(defined.sum()),
-                         ratio_threshold=thr_t.get(tm, np.nan))
-                for key, vals, ww in (("dD_scaled", x.dD_scaled, w), ("abs_dD", x.dD.abs(), w), ("ratio", x.ratio[defined], w[defined])):
+                res = (x.ratio_status == "ratio_resolved").to_numpy()
+                r = dict(representation=rep, threshold=thr, transport=tr, time=tm, group=label, n=len(x),
+                         n_below_ratio_threshold=int((x.ratio_status == "below_ratio_threshold").sum()),
+                         n_ratio_unresolved=int((x.ratio_status == "ratio_unresolved").sum()), n_ratio_resolved=int(res.sum()),
+                         ratio_threshold=float(x.thr_N.iloc[0]))
+                for st in ("below_ratio_threshold", "ratio_unresolved", "ratio_resolved"):
+                    r[f"w_share_{st}"] = float((w * (x.ratio_status == st).to_numpy()).sum() / w.sum())
+                for key, vals, ww in (("dD_scaled", x.dD_scaled, w), ("abs_dD", x.dD.abs(), w), ("ratio", x.ratio[res], w[res])):
                     for q, lab in ((0.1, "q10"), (0.5, "median"), (0.9, "q90")):
                         r[f"{key}_{lab}_w"] = wquantile(vals, ww, q)
                     r[f"{key}_median_unw"] = float(np.median(vals)) if len(vals) else np.nan
+                r["dD_numdiff_median_w"] = wquantile(x.dD_numdiff, w, 0.5)
+                r["dD_numdiff_max"] = float(x.dD_numdiff.max())
                 if tm == "3y":
-                    same = (np.sign(x.D) == np.sign(x.D_M)).to_numpy()
-                    r["same_sign_w"] = float((w * same).sum() / w.sum()) if len(x) else np.nan
-                    r["same_sign_unw"] = float(same.mean()) if len(x) else np.nan
+                    sr = x.sign_resolved.to_numpy(bool)
+                    same, ws = x.same_sign.to_numpy(bool)[sr], w[sr]
+                    r["n_sign_unresolved"] = int((~sr).sum())
+                    r["same_sign_w"] = float((ws * same).sum() / ws.sum()) if sr.any() else np.nan
+                    r["same_sign_unw"] = float(same.mean()) if sr.any() else np.nan
                 rows.append(r)
-    return pd.DataFrame(rows), B
+    keep = RATIO_COLS + [c for _, c in LEVELS] + [c + "_M" for _, c in LEVELS] + \
+        [f"{p}_{lev}" for lev, _ in LEVELS for p in ("thr", "elig", "r")] + ["dr_max", "ratio_status", "dD_numdiff", "sign_resolved"]
+    return pd.DataFrame(rows), B[keep].sort_values(RATIO_COLS).reset_index(drop=True)
 
 
 PREFLIGHT_CENTRES = (5.0, 15.0, 30.0, 60.0)
@@ -324,7 +435,7 @@ def _preflight_profiles(model):
 def refined_dipoles(cf_fn, n, half_step, transport):
     m = C.SFT1D(n=n, **transport)
     if half_step:
-        m.dt_max = 0.5 * m.dt_max
+        m.dt_max = 0.5 * min(C.DAY, m.dt_max)          # half of the effective step min(1 day, dt_max) (A1 §2)
     cf = cf_fn(m)
     outs = m.evolve(m.profile(cf), [t for _, t in TIMES])
     return [m.dipole(b) for b in outs], outs
@@ -467,14 +578,14 @@ def build(cat, read_maps, curves=True, n_cells=None):
         dips += b
         curv += c
     regions, dipoles = pd.DataFrame(regs), pd.DataFrame(dips)
-    summary, _ = summarise(regions, dipoles)
+    summary, ratios = summarise(regions, dipoles)
     conv, num_status = convergence(regions, read_maps, n_cells)
     man1 = manifest(sample, read_maps.paths)
     manifest_ok = man0[["path", "exists", "sha256"]].equals(man1[["path", "exists", "sha256"]])
     cells = pop.groupby(["multiplicity", "flux_class", "lat_band"]).size().rename("N_cell").reset_index()
     valid = (num_status.startswith("ok")) and manifest_ok
     return dict(SAMPLE=sample, CELLS=cells, REGIONS=regions, DIPOLES=dipoles, CURVES=pd.DataFrame(curv, columns=["HARPNUM", "representation", "t_day", "D"]),
-                SUMMARY=summary, CONVERGENCE=conv, PREFLIGHT=pre, MANIFEST=man0, DENOMINATORS=denominators(sample, regions)), \
+                SUMMARY=summary, RATIOS=ratios, CONVERGENCE=conv, PREFLIGHT=pre, MANIFEST=man0, DENOMINATORS=denominators(sample, regions)), \
         dict(info, population=len(pop), sample=len(sample), n_cells=n_cells, numerical_status=num_status, manifest_unchanged=manifest_ok,
              run_valid=bool(valid))
 
@@ -487,7 +598,7 @@ def run():
     prods, info = build(cat, fits_reader())
     tmp = Path(tempfile.mkdtemp(prefix=".SFT_MAP_BIPOLE_PILOT.tmp-", dir=OUT.parent))
     for k, v in prods.items():
-        v.to_csv(tmp / (f"{k}.csv.gz" if k in ("DIPOLES", "CURVES") else f"{k}.csv"), index=False)
+        v.to_csv(tmp / (f"{k}.csv.gz" if k in ("DIPOLES", "CURVES", "RATIOS") else f"{k}.csv"), index=False)
     fz = json.loads(FREEZE.read_text())
     meta = dict(protocol_sha256=sha(PROTOCOL), freeze_receipt_sha256=sha(FREEZE), freeze_commit=fz["freeze_commit"],
                 script_sha256=sha(__file__), sft_core_sha256=sha(ROOT / "python/sharpbl/sft_core.py"), catalogue_sha256=sha(CATALOGUE),
@@ -600,6 +711,19 @@ def selftest():
         a = Su[(Su.group == "all") & (Su.representation == "B_point") & (Su.threshold == 100.0) & (Su.transport == REF)]
         ok("summary: one 'all' row per time with n, weighted quantiles and the ratio threshold; same-sign fraction at 3 years",
            len(a) == len(TIMES) and a.ratio_threshold.notna().all() and a[a.time == "3y"].same_sign_w.notna().all())
+        Ra = prods["RATIOS"]
+        b0 = np.random.default_rng(3).normal(size=800)
+        m8 = C.SFT1D(n=800, **TRANSPORTS[REF])
+        fwd = np.array([m8.dipole(b) for b in m8.evolve(b0, [t for _, t in TIMES])])
+        ok("A1 §2ter: adjoint weights reproduce the forward step sequence (N 800, reference; 1e-10 relative)",
+           np.max(np.abs(adjoint_weights(800, REF) @ b0 - fwd)) <= 1e-10 * np.max(np.abs(fwd)))
+        tsum = Su.n_below_ratio_threshold + Su.n_ratio_unresolved + Su.n_ratio_resolved
+        taus = Ra[Ra.transport.isin([lab for _, lab in TAUS])].merge(Ra[Ra.transport == REF], on=["HARPNUM", "threshold", "representation", "time"],
+                                                                         suffixes=("", "_ref"))
+        ok("A1 §2ter: every B row has a ratio status; counts add up to n; levels 2N/4N/dt_half present; tau rows keep the ratios",
+           Ra.ratio_status.isin(["below_ratio_threshold", "ratio_unresolved", "ratio_resolved"]).all() and (tsum == Su.n).all()
+           and Ra[["D_2N", "D_4N", "D_dthalf"]].notna().all().all() and np.allclose(taus.r_N, taus.r_N_ref, rtol=1e-12, equal_nan=True),
+           f"statuses {Ra.ratio_status.value_counts().to_dict()}")
         cv = prods["CONVERGENCE"]
         ok("convergence (A1 §2.3): 3 regions x M/B_point x 4 transports x 2 refinements x all times; status ok and run valid",
            len(cv) == 3 * 2 * 4 * 2 * len(TIMES) and info["numerical_status"] == "ok" and info["run_valid"], f"max {cv.criterion.max():.1e}")

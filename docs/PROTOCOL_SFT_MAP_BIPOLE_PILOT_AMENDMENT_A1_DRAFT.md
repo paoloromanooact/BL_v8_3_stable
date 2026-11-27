@@ -46,7 +46,8 @@ Restano invariati:
    - Casi: bipoli puntiformi bilanciati centrati a |λ| = 5°, 15°, 30° e 60° (separazione 2°, tilt 10°), le gaussiane
      della sensibilità di forma con σ = 2° e 4° sugli stessi centri, impulsi in una sola cella.
    - Tutti e quattro i trasporti della griglia; tutti i tempi del §7.
-   - Raffinamenti: N 400 → 800 e passo dimezzato, separatamente.
+   - Raffinamenti: N 400 → 800 e passo dimezzato, separatamente. Il passo dimezzato è la metà del passo effettivo,
+     ½·min(1 giorno, 0,9·2/max_i(−L_ii)), a ogni N, anche quando il limite non è attivo. La stessa regola vale nel §2ter.
    - Criterio: |D_fine − D_coarse| ≤ 10⁻³·max(|D_fine|, f·D_scale), con **f = 10⁻²** al posto di 10⁻⁶ (vedi §2bis:
      è un allentamento della soglia minima, dichiarato e deciso dalla revisione).
    - Positività: nessun valore sotto −10⁻¹²·max sugli impulsi e su ciascuna polarità da sola. Massa entro 10⁻¹²·Σ|F|.
@@ -82,14 +83,17 @@ Restano invariati:
 - Gli scarti assoluti restano ≤ 1,6·10⁻⁵ D_scale a N 400 e ≤ 1·10⁻⁵ D_scale a N 800.
 - **Causa.** Il bipolo puntiforme è fatto di due delta non risolte dalla griglia. Lo scarto con N oscilla secondo la
   posizione delle delta rispetto ai centri cella e cala lentamente: per lo stesso caso, N 3200 contro 1600 dà ancora
-  1,5·10⁻³. Quando D si avvicina a zero, il criterio relativo diventa irraggiungibile a qualunque N praticabile.
+  1,5·10⁻³. Quando D si avvicina a zero, il criterio relativo non si è raggiunto alle risoluzioni provate. Questo
+  indica una difficoltà numerica in quei casi: non prova che sia irraggiungibile a ogni N, né esclude da solo un
+  errore del codice.
   La rappresentazione M converge regolarmente, al secondo ordine (2,5·10⁻⁴ → 6,5·10⁻⁵).
 
 **Proposta.**
 - Soglia minima f = 10⁻²: lo scarto deve stare sotto 10⁻³ in relativo quando |D| ≥ 1 % di D_scale, e sotto 10⁻⁵ D_scale
   in assoluto quando |D| è più piccolo.
-- Con 10⁻⁵ D_scale, l'errore numerico resta due ordini sotto la risoluzione con cui si leggono dD_scaled e i rapporti
-  sopra la soglia 0,1·m(t).
+- Questo **non** garantisce l'accuratezza dei rapporti: il denominatore 0,1·m(t) è comune, mentre D_scale è della
+  regione. Il controesempio algebrico di Codex mostra un rapporto che cambia di 0,45 con f = 10⁻². Per questo la
+  risoluzione dei rapporti e dei segni si verifica regione per regione (§2ter).
 - Lo stesso f vale per il preflight e per i casi osservati. Il riconteggio lo applica identico.
 
 **Alternative.**
@@ -105,35 +109,57 @@ Restano invariati:
 - Con f = 10⁻² la corsa reale può quindi cadere in `convergence_failed` per poco.
 - Con f = 10⁻¹ l'errore ammesso vicino alla soglia dei rapporti è più largo, ma quello effettivo resta quello misurato e
   registrato in CONVERGENCE.csv.
-- Codex decide f prima del congelamento. Il codice lo tiene in un'unica costante `CONV_FLOOR`, identica nel runner e
-  nel riconteggio; ora vale 10⁻² solo come segnaposto.
+- Decisione proposta da Codex (459f141): f = 10⁻², dichiarato come tolleranza assoluta 10⁻⁵ D_scale sullo scarto fra
+  griglie, insieme alla regola del §2ter; non 10⁻¹. Il codice lo tiene nella costante `CONV_FLOOR`, identica nel
+  runner e nel riconteggio.
 
 **Conseguenza sull'N.** Con f = 10⁻² il preflight passa a N 800, non a 400. Il pilota gira quindi a N 800 per tutte le
 rappresentazioni e i trasporti, come prevede la regola del punto 2.
 
-## 2ter. Rapporti numericamente non risolti (proposta, in risposta alla nota di Codex sulla tolleranza)
+## 2ter. Rapporti e segni: risoluzione numerica per regione (rev. dopo la revisione Codex 459f141)
 
-Un criterio che rispetta la soglia su D non garantisce la precisione dei rapporti dD/|D_M| quando |D_M| e piccolo
-rispetto a D_scale. Il denominatore minimo 0,1·m(t) e comune, mentre D_scale e della regione. Controesempio algebrico
-di Codex: con f = 10⁻² un rapporto puo cambiare di 0,45.
+Lo scarto fra due griglie è un **indicatore di sensibilità numerica**, non un errore garantito rispetto alla
+soluzione esatta. Nessuna quantità qui sotto è un bound dimostrato.
 
-**Regola proposta, fissata prima dei dati.**
-- Per ogni regione, rappresentazione B, trasporto e tempo, l'errore ammesso di un dipolo e
-  ε(D) = 10⁻³·max(|D|, f·D_scale).
-- Il limite ammesso sul rapporto r = (D_B − D_M)/|D_M| e
-  e_r = (ε(D_B) + ε(D_M)·(1 + |r|)) / |D_M|.
-- Se e_r > 0,01, il rapporto ha stato `ratio_numerically_unresolved`:
-  - non entra nei quantili dei rapporti;
-  - si conta in una colonna n_ratio_unresolved per ogni riga della sintesi;
-  - la regione resta in tutti gli altri prodotti (D, dD/D_scale, segni);
-  - m(t) e la soglia 0,1·m(t) non cambiano.
-- dD/D_scale ha errore ammesso ≤ 2·10⁻³·max(|D|/D_scale, f), riportato insieme ai quantili.
+**Griglie.** Per ogni regione, soglia, rappresentazione, trasporto e tempo che entrano nei riepiloghi si calcola D
+su quattro livelli:
+- N (quello della corsa);
+- 2N;
+- 4N;
+- N con passo dimezzato.
 
-**Limiti dichiarati.**
-- ε e il limite garantito dal requisito solo dove la convergenza e stata verificata (preflight e tre regioni
-  osservate). Per le altre regioni e un'assunzione, dichiarata.
-- La regola e scritta, ma non e ancora nel codice: il runner e il riconteggio la implementano solo dopo che la
-  revisione ne approva la forma.
+Il costo resta basso grazie al problema aggiunto, che dà i pesi g_t con D(t) = g_t·b₀ per ogni griglia e trasporto.
+È una scelta di calcolo e non cambia la regola. I fattori τ si applicano a tutti i livelli. D a 2N, 4N e passo
+dimezzato si conservano in DIPOLES.
+
+**Rapporti.**
+- A ogni livello si ricalcolano m(t) e la soglia 0,1·m(t), con la stessa popolazione e definizione (M a 100 G,
+  trasporto di riferimento, pesi N/n), e poi l'ammissibilità |D_M| ≥ 0,1·m(t).
+- Stato `below_ratio_threshold`: non ammissibile a tutti i livelli.
+- Stato `ratio_resolved`: ammissibile a tutti i livelli e |r_2N − r_N|, |r_4N − r_2N| e |r_N,dt/2 − r_N| tutti ≤ 0,01.
+- Stato `ratio_unresolved` negli altri casi, compreso quello in cui l'ammissibilità cambia fra i livelli.
+- I quantili dei rapporti usano solo i risolti. Ogni riga della sintesi riporta n_below_ratio_threshold,
+  n_ratio_unresolved e n_ratio_resolved, con le quote pesate.
+- La regione resta in D, dD/D_scale e nei denominatori di selezione.
+- 0,01 è una soglia sullo scarto fra griglie, non un errore assoluto.
+
+**Indicatore per dD/D_scale.** Per ogni riga, max sui livelli di |dD_livello − dD_N|/D_scale, riportato nella
+sintesi (mediana pesata e massimo). È un indicatore, non un errore garantito.
+
+**Segni a 3 anni.**
+- Stato `sign_unresolved` se il segno di D_B o di D_M cambia fra i livelli.
+- La frazione di segni concordi usa solo i risolti; si riporta n_sign_unresolved.
+
+**Per completezza del testo.** Se si avessero veri bound |δM| ≤ e_M e |δB| ≤ e_B con |M| > e_M, varrebbe
+|δr| ≤ [e_B + e_M(1+|r|)]/(|M| − e_M), e il rapporto sarebbe non risolto se |M| ≤ e_M. Qui non si dispone di quei
+bound: la formula non si applica come garanzia.
+
+**Che cosa resta invariato.**
+- Il requisito globale di convergenza (preflight e tre regioni osservate, §2) resta bloccante.
+- La non risoluzione di singoli rapporti o segni è uno stato distinto e non invalida la corsa.
+- f resta 10⁻², dichiarato come tolleranza assoluta 10⁻⁵ D_scale sullo scarto fra griglie del criterio globale.
+- f non si sceglie guardando i risultati osservati.
+- Una cella può restare senza quantile dei rapporti.
 
 ## 3. Che cosa non cambia
 

@@ -1,0 +1,12 @@
+{
+  "seed": 36400401,
+  "warm": 300,
+  "keep": 900,
+  "split_rhat": {
+    "beta": 0.9991192263528547,
+    "log_sigma0": 1.0104758477697473,
+    "folded_share": 1.018708716455462
+  },
+  "true_folded_share": 0.226,
+  "note": "synthetic only; one diagnostic, not a proof of exploration"
+}

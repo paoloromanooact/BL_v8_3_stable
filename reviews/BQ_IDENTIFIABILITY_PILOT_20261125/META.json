@@ -1,0 +1,48 @@
+{
+  "seed": 36400301,
+  "reps": 4,
+  "warm": 200,
+  "keep": 400,
+  "generators": {
+    "G1": {
+      "beta": -5.0,
+      "v": null
+    },
+    "G2": {
+      "beta": 0.0,
+      "v": "ar1"
+    },
+    "G3": {
+      "beta": -5.0,
+      "v": "ar1"
+    },
+    "G4": {
+      "beta": 0.0,
+      "v": "activity"
+    }
+  },
+  "true": {
+    "sigma0": 20.0,
+    "q": -0.4,
+    "sigma_x": 2.1,
+    "phi": 0.75,
+    "kappa": -0.42,
+    "sigma_f": 3.0,
+    "k": [
+      23.0,
+      25.0,
+      21.0,
+      22.0
+    ],
+    "sigma_v": 10.0,
+    "phi_v": 0.95,
+    "kappa_v": 0.5,
+    "c_act": -5.0
+  },
+  "fits": [
+    "MQ_no_v",
+    "MQ_v_hn5",
+    "MQ_v_hn20"
+  ],
+  "note": "pilot, not the frozen study; synthetic responses only"
+}

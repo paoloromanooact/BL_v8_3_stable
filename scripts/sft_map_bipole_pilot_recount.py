@@ -37,7 +37,7 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
-from scipy.linalg import solve
+from scipy.linalg import solve, solve_banded
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "python"))
@@ -53,18 +53,18 @@ TIMES = (("0", 0.0), ("27d", 27 * DAY), ("0.5y", 0.5 * YEAR), ("1y", YEAR), ("3y
 GRID = [(e, d) for e in (350.0, 466.8) for d in (0.025, 0.041)]
 REF = (466.8, 0.025)
 P_EXP, OMEGA_UNUSED = 2.33, None
-PRODUCTS = {"SAMPLE.csv", "CELLS.csv", "REGIONS.csv", "DIPOLES.csv.gz", "CURVES.csv.gz", "SUMMARY.csv", "CONVERGENCE.csv", "PREFLIGHT.csv",
+PRODUCTS = {"SAMPLE.csv", "CELLS.csv", "REGIONS.csv", "DIPOLES.csv.gz", "CURVES.csv.gz", "SUMMARY.csv", "RATIOS.csv.gz", "CONVERGENCE.csv", "PREFLIGHT.csv",
             "MANIFEST.csv", "DENOMINATORS.csv", "META.json"}
 CAT_COLS = ["HARPNUM", "T_REC", "role", "valid_bl", "family_rank", "NOAA_NUM", "USFLUX", "LAT_FWT", "d_axial_g", "d_axial_bal_g",
             "d_cm", "tilt_deg", "phi_pos_mx", "phi_neg_mx"]
 RECEIPT_PIN = "a5f289876fef388b86be17e813e2c3d8578bdb170cb51392e7eb40a8a3f9f849"
 A1, A1_FREEZE = ROOT / "docs/PROTOCOL_SFT_MAP_BIPOLE_PILOT_AMENDMENT_A1.md", ROOT / "docs/PROTOCOL_SFT_MAP_BIPOLE_PILOT_AMENDMENT_A1_FREEZE.json"
 CONV_TOL, N_CHOICES, CENTRES = 1e-3, (400, 800, 1600), (5.0, 15.0, 30.0, 60.0)
-CONV_FLOOR = 1e-2
+CONV_FLOOR, RATIO_RES = 1e-2, 0.01
 INPUTS_EXPECTED = {"results/P1/P1_SBL_CATALOG_BY_HARP.csv", "python/sharpbl/geometry.py", "python/sharpbl/measure.py", "python/sharpbl/cycle.py",
                    "docs/BL_SFT_HMI_INVENTORY.md"}
 EXACT = {"HARPNUM", "valid_bl", "family_rank", "NOAA_NUM", "flux_class", "perm_rank", "N_cell", "n_cell", "n_pos", "n_neg", "n", "n_ratio",
-         "selected", "region_ok", "N"}
+         "selected", "region_ok", "N", "n_below_ratio_threshold", "n_ratio_unresolved", "n_ratio_resolved", "n_sign_unresolved"}
 
 
 def sha(p):
@@ -286,8 +286,9 @@ def _own_region(base, br, bm, h, models, profiles):
                 reg.update({k: ing[k] for k in ("phi_pos", "phi_neg", "phibar", "imbalance", "lon_pos", "lat_pos", "lon_neg", "lat_neg",
                                                 "area_pos", "area_neg", "D_pix_raw", "D_pix_bal", "D_scale")})
                 m0 = models[tname(*REF)]
-                reps = {"M": m0.deposit(ing["s"], ing["F"]),
-                        "B_point": m0.deposit(np.sin(np.radians([ing["lat_pos"], ing["lat_neg"]])), np.array([ing["phibar"], -ing["phibar"]]))}
+                srcs = {"M": (ing["s"], ing["F"]),
+                        "B_point": (np.sin(np.radians([ing["lat_pos"], ing["lat_neg"]])), np.array([ing["phibar"], -ing["phibar"]]))}
+                reps = {k: m0.deposit(*v) for k, v in srcs.items()}
                 extras = {"M": {}, "B_point": {}}
                 if thr == 100.0:
                     r = ing["r"]
@@ -295,14 +296,15 @@ def _own_region(base, br, bm, h, models, profiles):
                     for name, (sp, sn) in (("B_gauss_area", sa), ("B_gauss_2deg", (2.0, 2.0)), ("B_gauss_4deg", (4.0, 4.0))):
                         zp, fp = gauss_cells(ing["lon_pos"], ing["lat_pos"], sp, ing["phibar"], r)
                         zn, fn = gauss_cells(ing["lon_neg"], ing["lat_neg"], sn, -ing["phibar"], r)
-                        reps[name] = m0.deposit(np.r_[zp, zn], np.r_[fp, fn])
+                        srcs[name] = (np.r_[zp, zn], np.r_[fp, fn])
+                        reps[name] = m0.deposit(*srcs[name])
                         extras[name] = dict(sigma_pos=sp, sigma_neg=sn, **gauss_effective((ing["lon_pos"], ing["lat_pos"]), (ing["lon_neg"], ing["lat_neg"]),
                                                                                           sp, sn, ing["phibar"], r))
                 for name, (prof, nout) in reps.items():
                     reg.update({f"{name}_status": "ok" if prof is not None else "deposition_out_of_range", f"{name}_n_out": nout,
                                 **{f"{name}_{k}": v for k, v in extras[name].items()}})
                     if prof is not None:
-                        profiles.append((row.HARPNUM, thr, name, prof))
+                        profiles.append((row.HARPNUM, thr, name, prof, srcs[name]))
             reg_rows.append(reg)
     return reg_rows
 
@@ -314,13 +316,17 @@ def _own_finish(samp, cells, reg_rows, profiles, models, curves):
         P = np.stack([p[3] for p in profiles], axis=1)
         for tn, mdl in models.items():
             outs = mdl.evolve_many(P, [t for _, t in TIMES])
-            for (tl, ts), B in zip(TIMES, outs):
+            lev = own_levels(profiles, P, tn, mdl.n)
+            for j, ((tl, ts), B) in enumerate(zip(TIMES, outs)):
                 Dv = mdl.dip(B)
-                for (h_, thr, rep, _), dv in zip(profiles, Dv):
-                    dips.append(dict(HARPNUM=h_, threshold=thr, representation=rep, transport=tn, time=tl, t_s=ts, D=dv))
+                for i, ((h_, thr, rep, _, _), dv) in enumerate(zip(profiles, Dv)):
+                    vals = dict(D=dv, D_2N=lev["2N"][j, i], D_4N=lev["4N"][j, i], D_dthalf=lev["dt_half"][j, i])
+                    dips.append(dict(HARPNUM=h_, threshold=thr, representation=rep, transport=tn, time=tl, t_s=ts, **vals))
                     if tn == tname(*REF):
                         for tau, lab in ((5.0, "ref_tau5y"), (10.0, "ref_tau10y")):
-                            dips.append(dict(HARPNUM=h_, threshold=thr, representation=rep, transport=lab, time=tl, t_s=ts, D=dv * math.exp(-ts / (tau * YEAR))))
+                            f = math.exp(-ts / (tau * YEAR))
+                            dips.append(dict(HARPNUM=h_, threshold=thr, representation=rep, transport=lab, time=tl, t_s=ts,
+                                             **{k: v * f for k, v in vals.items()}))
             if tn == tname(*REF) and curves:
                 sel = [i for i, p in enumerate(profiles) if p[1] == 100.0 and p[2] in ("M", "B_point")]
                 ct = [d * DAY for d in range(0, 1096)] + [3 * YEAR]
@@ -328,6 +334,61 @@ def _own_finish(samp, cells, reg_rows, profiles, models, curves):
                     for i, dv in zip(sel, mdl.dip(B)):
                         curves_rows.append(dict(HARPNUM=profiles[i][0], representation=profiles[i][2], t_day=ts / DAY, D=dv))
     return samp, cells, regions, pd.DataFrame(dips), pd.DataFrame(curves_rows, columns=["HARPNUM", "representation", "t_day", "D"]), models
+
+
+_OWN_ADJ = {}
+
+
+def own_adjoint(e, d, n):
+    """Own transposed Crank-Nicolson sweep at TIMES on the grid n (used for 4N): bands taken from the own dense L."""
+    key = (e, d, n)
+    if key not in _OWN_ADJ:
+        m = model(e, d, n)
+        dg, sup, sub = np.diag(m.L).copy(), np.diag(m.L, 1).copy(), np.diag(m.L, -1).copy()   # L[j,j+1], L[j+1,j]
+
+        def lt(x):                                   # L^T x: (L^T)[j,j+1] = L[j+1,j], (L^T)[j,j-1] = L[j-1,j]
+            y = dg * x
+            y[:-1] += sub * x[1:]
+            y[1:] += sup * x[:-1]
+            return y
+
+        def stepper(h):
+            ab = np.zeros((3, m.n))
+            ab[0, 1:] = -h * sub
+            ab[1] = 1.0 - h * dg
+            ab[2, :-1] = -h * sup
+            return lambda g: (lambda x: x + h * lt(x))(solve_banded((1, 1), ab, g))
+        plan, t = [], 0.0
+        for _, target in TIMES:
+            k = int(np.floor((target - t) / m.dt * (1 + 1e-12)))
+            rem = target - (t + k * m.dt)
+            plan.append((k, rem))
+            t = target
+        full, rows = stepper(0.5 * m.dt), []
+        for j in range(len(TIMES)):
+            g = 1.5 * m.s * m.ds
+            for k, rem in plan[j::-1]:
+                if rem > 1e-9 * m.dt:
+                    g = stepper(0.5 * rem)(g)
+                for _ in range(k):
+                    g = full(g)
+            rows.append(g)
+        _OWN_ADJ[key] = np.array(rows)
+    return _OWN_ADJ[key]
+
+
+def own_levels(profiles, P, tn, n):
+    """D on 2N (own propagators), N with the halved step (own propagators) and 4N (own adjoint): arrays (times, profiles)."""
+    e, d = next((e, d) for e, d in GRID if tname(e, d) == tn)
+    tt = [t for _, t in TIMES]
+
+    def dep(mm):
+        cols = [mm.deposit(*p[4])[0] for p in profiles]
+        return np.stack([c if c is not None else np.full(mm.n, np.nan) for c in cols], axis=1)
+    m2, mh, m4 = model(e, d, 2 * n), model(e, d, n, half=True), model(e, d, 4 * n)
+    return {"2N": np.array([m2.dip(B) for B in m2.evolve_many(dep(m2), tt)]),
+            "dt_half": np.array([mh.dip(B) for B in mh.evolve_many(P, tt)]),
+            "4N": own_adjoint(e, d, 4 * n) @ dep(m4)}
 
 
 def own_wq(x, w, q):
@@ -339,45 +400,93 @@ def own_wq(x, w, q):
     return float(x[o][int(np.argmax(c >= q - 1e-12))])
 
 
-def own_summary(regions, dips):
+LEV = ("N", "2N", "4N", "dt_half")
+LEVCOL = {"N": "D", "2N": "D_2N", "4N": "D_4N", "dt_half": "D_dthalf"}
+
+
+def own_ratios(regions, dips):
     reg = regions.set_index(["HARPNUM", "threshold"])
-    M = dips[dips.representation == "M"].set_index(["HARPNUM", "threshold", "transport", "time"]).D
-    rows = []
-    ref_m = dips[(dips.representation == "M") & (dips.threshold == 100.0) & (dips.transport == tname(*REF))]
-    thr_t = {}
-    for t, g in ref_m.groupby("time"):
-        w = reg.loc[list(zip(g.HARPNUM, g.threshold)), "weight"].to_numpy()
-        thr_t[t] = 0.1 * own_wq(np.abs(g.D), w, 0.5)
+    key = ["HARPNUM", "threshold", "transport", "time"]
+    Mi = dips[dips.representation == "M"].set_index(key)
     B = dips[dips.representation != "M"].copy()
-    keys = list(zip(B.HARPNUM, B.threshold, B.transport, B.time))
-    B["D_M"] = [M.get(k, np.nan) for k in keys]
-    B = B[B.D_M.notna()]
+    kk = list(zip(B.HARPNUM, B.threshold, B.transport, B.time))
+    B = B[[k in Mi.index for k in kk]].copy()
+    kk = list(zip(B.HARPNUM, B.threshold, B.transport, B.time))
+    for c in LEVCOL.values():
+        B[c + "_M"] = Mi.loc[kk, c].to_numpy(float)
     rk = list(zip(B.HARPNUM, B.threshold))
     for c in ("D_scale", "weight", "multiplicity", "flux_class", "lat_band"):
         B[c] = reg.loc[rk, c].to_numpy()
+    ref_m = dips[(dips.representation == "M") & (dips.threshold == 100.0) & (dips.transport == tname(*REF))]
+    for lv in LEV:
+        c = LEVCOL[lv]
+        thr = {}
+        for t, g in ref_m.groupby("time"):
+            w = reg.loc[list(zip(g.HARPNUM, g.threshold)), "weight"].to_numpy()
+            thr[t] = 0.1 * own_wq(np.abs(g[c]), w, 0.5)
+        B[f"thr_{lv}"] = B.time.map(thr)
+        B[f"elig_{lv}"] = (B[f"thr_{lv}"] > 0) & (B[c + "_M"].abs() >= B[f"thr_{lv}"])
+        B[f"r_{lv}"] = (B[c] - B[c + "_M"]) / B[c + "_M"].abs()
+    vals = B[[LEVCOL[l] for l in LEV] + [LEVCOL[l] + "_M" for l in LEV]].to_numpy(float)
+    fin = np.isfinite(vals).all(axis=1)
+    E = np.column_stack([B[f"elig_{l}"].to_numpy(bool) for l in LEV])
+    dr = np.column_stack([np.abs(B.r_2N - B.r_N), np.abs(B.r_4N - B.r_2N), np.abs(B.r_dt_half - B.r_N)])
+    status = []
+    for f_, e_, d_ in zip(fin, E, dr):
+        if not f_:
+            status.append("ratio_unresolved")
+        elif not e_.any():
+            status.append("below_ratio_threshold")
+        elif e_.all() and (d_ <= RATIO_RES).all():
+            status.append("ratio_resolved")
+        else:
+            status.append("ratio_unresolved")
+    B["ratio_status"] = status
+    B["dr_max"] = np.where(E.all(axis=1), dr.max(axis=1), np.nan)
     B["dD"] = B.D - B.D_M
     B["dD_scaled"] = B.dD / B.D_scale
-    B["rt"] = B.time.map(thr_t)
-    B["ratio"] = np.where((B.rt > 0) & (B.D_M.abs() >= B.rt), B.dD / B.D_M.abs(), np.nan)
+    B["dD_numdiff"] = np.max([np.abs((B[LEVCOL[l]] - B[LEVCOL[l] + "_M"]) - B.dD) for l in LEV[1:]], axis=0) / B.D_scale
+    sb, sm = np.sign(vals[:, :4]), np.sign(vals[:, 4:])
+    B["sign_resolved"] = fin & np.all(sb == sb[:, [0]], axis=1) & np.all(sm == sm[:, [0]], axis=1) & (sb[:, 0] != 0) & (sm[:, 0] != 0)
     B["cell"] = [f"{a}|{int(b)}|{c}" for a, b, c in zip(B.multiplicity, B.flux_class, B.lat_band)]
+    return B
+
+
+def own_summary(regions, dips):
+    B = own_ratios(regions, dips)
+    rows = []
     for (rep, thr, tr, tm), g in B.groupby(["representation", "threshold", "transport", "time"], sort=True):
         parts = [("all", g)]
         for col in ("multiplicity", "flux_class", "lat_band", "cell"):
             parts += [(f"{col}={v}", x) for v, x in g.groupby(col)]
         for label, x in parts:
             w = x.weight.to_numpy(float)
-            de = x.ratio.notna().to_numpy()
-            r = dict(representation=rep, threshold=thr, transport=tr, time=tm, group=label, n=len(x), n_ratio=int(de.sum()), ratio_threshold=thr_t.get(tm, np.nan))
-            for key, vals, ww in (("dD_scaled", x.dD_scaled.to_numpy(), w), ("abs_dD", x.dD.abs().to_numpy(), w), ("ratio", x.ratio.to_numpy()[de], w[de])):
+            st = x.ratio_status.to_numpy()
+            res = st == "ratio_resolved"
+            rv = (x.D - x.D_M).to_numpy() / np.abs(x.D_M.to_numpy())
+            r = dict(representation=rep, threshold=thr, transport=tr, time=tm, group=label, n=len(x),
+                     n_below_ratio_threshold=int((st == "below_ratio_threshold").sum()), n_ratio_unresolved=int((st == "ratio_unresolved").sum()),
+                     n_ratio_resolved=int(res.sum()), ratio_threshold=float(x.thr_N.iloc[0]))
+            for k_ in ("below_ratio_threshold", "ratio_unresolved", "ratio_resolved"):
+                r[f"w_share_{k_}"] = float(w[st == k_].sum() / w.sum())
+            for key, v, ww in (("dD_scaled", x.dD_scaled.to_numpy(), w), ("abs_dD", x.dD.abs().to_numpy(), w), ("ratio", rv[res], w[res])):
                 for q, lab in ((0.1, "q10"), (0.5, "median"), (0.9, "q90")):
-                    r[f"{key}_{lab}_w"] = own_wq(vals, ww, q)
-                r[f"{key}_median_unw"] = float(np.median(vals)) if len(vals) else np.nan
+                    r[f"{key}_{lab}_w"] = own_wq(v, ww, q)
+                r[f"{key}_median_unw"] = float(np.median(v)) if len(v) else np.nan
+            r["dD_numdiff_median_w"] = own_wq(x.dD_numdiff.to_numpy(), w, 0.5)
+            r["dD_numdiff_max"] = float(np.max(x.dD_numdiff))
             if tm == "3y":
-                same = np.sign(x.D.to_numpy()) == np.sign(x.D_M.to_numpy())
-                r["same_sign_w"] = float((w * same).sum() / w.sum())
-                r["same_sign_unw"] = float(same.mean())
+                sr = x.sign_resolved.to_numpy(bool)
+                same = (np.sign(x.D.to_numpy()) == np.sign(x.D_M.to_numpy()))[sr]
+                r["n_sign_unresolved"] = int((~sr).sum())
+                r["same_sign_w"] = float((w[sr] * same).sum() / w[sr].sum()) if sr.any() else np.nan
+                r["same_sign_unw"] = float(same.mean()) if sr.any() else np.nan
             rows.append(r)
     return pd.DataFrame(rows)
+
+
+RATIOS_KEEP = ["HARPNUM", "threshold", "representation", "transport", "time", "D", "D_2N", "D_4N", "D_dthalf", "D_M", "D_2N_M", "D_4N_M",
+               "D_dthalf_M"] + [f"{p}_{l}" for l in LEV for p in ("thr", "elig", "r")] + ["dr_max", "ratio_status", "dD_numdiff", "sign_resolved"]
 
 
 def own_point(m, lp, ln, phi):
@@ -571,6 +680,14 @@ def frames_match(a, b, key, tol=1e-9, abs_cols=()):
     return True, ""
 
 
+def guarded(fn):
+    """Run a comparison; any exception on malformed products is a refusal with its type, not a crash."""
+    try:
+        return fn()
+    except Exception as exc:                              # noqa: BLE001 (recorded as a failed check)
+        return False, f"comparison raised {type(exc).__name__}: {str(exc)[:120]}"
+
+
 def git_blob_sha(head, path):
     r = subprocess.run(["git", "show", f"{head}:{path}"], cwd=ROOT, capture_output=True)
     return hashlib.sha256(r.stdout).hexdigest() if r.returncode == 0 else None
@@ -592,8 +709,8 @@ def fits_read(harp, t_rec):
 
 
 fits_read.paths = fits_paths
-CSV_PRODUCTS = {k: (f"{k}.csv.gz" if k in ("DIPOLES", "CURVES") else f"{k}.csv")
-                for k in ("SAMPLE", "CELLS", "REGIONS", "DIPOLES", "CURVES", "SUMMARY", "CONVERGENCE", "PREFLIGHT", "MANIFEST", "DENOMINATORS")}
+CSV_PRODUCTS = {k: (f"{k}.csv.gz" if k in ("DIPOLES", "CURVES", "RATIOS") else f"{k}.csv")
+                for k in ("SAMPLE", "CELLS", "REGIONS", "DIPOLES", "CURVES", "SUMMARY", "RATIOS", "CONVERGENCE", "PREFLIGHT", "MANIFEST", "DENOMINATORS")}
 N_CURVE_TIMES = 1097
 
 
@@ -666,8 +783,15 @@ def check(out=OUT, write=True, rec_dir=REC, data=None, outputs=None, info=None, 
     g = frames_match(outputs["CURVES"], curves, ["HARPNUM", "representation", "t_day"]) if len(outputs["CURVES"]) else (False, "empty")
     ok("CURVES: mandatory; daily reference curves of M and B_point at 100 G, exact row count", g[0] and len(outputs["CURVES"]) == n_curves > 0,
        f"{g[1]} rows {len(outputs['CURVES'])} expected {n_curves}")
-    g = frames_match(outputs["SUMMARY"], own_summary(outputs["REGIONS"], outputs["DIPOLES"]), ["representation", "threshold", "transport", "time", "group"])
+    # summaries recomputed from THEIR regions and dipoles: a malformed product (duplicate keys, missing columns) must be
+    # refused, never crash the check
+    g = guarded(lambda: frames_match(outputs["SUMMARY"], own_summary(outputs["REGIONS"], outputs["DIPOLES"]),
+                                     ["representation", "threshold", "transport", "time", "group"]))
     ok("SUMMARY: weighted and unweighted quantiles, ratio threshold, same-sign fractions; groups incl. the 18 cells", g[0], g[1])
+    g = guarded(lambda: frames_match(outputs["RATIOS"], own_ratios(outputs["REGIONS"], outputs["DIPOLES"])[RATIOS_KEEP],
+                                     ["HARPNUM", "threshold", "representation", "transport", "time"], abs_cols=("dr_max",))
+                if len(outputs["RATIOS"]) else (False, "empty"))
+    ok("RATIOS (A1 2ter): levels N/2N/4N/dt_half, thresholds and eligibility per level, ratio and sign statuses", g[0], g[1])
     g = frames_match(outputs["DENOMINATORS"], own_denominators(regions), ["cell", "threshold"])
     ok("DENOMINATORS: per cell and threshold, selected, successes and failures by cause (integral counts)", g[0], g[1])
     mf = own_manifest(samp, reader.paths)
@@ -762,11 +886,17 @@ def selftest():
         tamper("a fractional count (n + 0.5)", "SUMMARY", lambda t: t.assign(n=t.n.astype(float).where(t.index != 0, t.n.iloc[0] + 0.5)))
         tamper("a fractional denominator (selected + 0.5)", "DENOMINATORS", lambda t: t.assign(selected=t.selected.astype(float).where(t.index != 0, t.selected.iloc[0] + 0.5)))
         tamper("a failure moved between causes", "DENOMINATORS", lambda t: t.assign(region_ok=t.region_ok.where(t.index != 0, t.region_ok.iloc[0] + 1)))
+        Rt = rt["RATIOS"]
+        j0 = Rt.index[Rt.ratio_status == "ratio_resolved"][0] if (Rt.ratio_status == "ratio_resolved").any() else Rt.index[0]
+        tamper("a ratio status (resolved -> unresolved)", "RATIOS", lambda t: t.assign(ratio_status=t.ratio_status.where(t.index != j0, "ratio_unresolved")))
+        tamper("a 4N dipole moved by 1e-6 relative", "DIPOLES", lambda t: t.assign(D_4N=t.D_4N.where(t.index != i0, t.D_4N * (1 + 1e-6))))
+        tamper("a resolved-ratio count", "SUMMARY", lambda t: t.assign(n_ratio_resolved=t.n_ratio_resolved.where(t.index != 0, t.n_ratio_resolved.iloc[0] + 1)))
+        tamper("the 2N level column dropped from RATIOS", "RATIOS", lambda t: t.drop(columns=["r_2N"]))
         tamper("a convergence criterion", "CONVERGENCE", lambda t: t.assign(criterion=t.criterion.where(t.index != 0, 0.5)))
         tamper("convergence rows of one transport dropped", "CONVERGENCE", lambda t: t[t.transport != t.transport.iloc[0]])
         tamper("a preflight criterion moved by 1e-6 absolute", "PREFLIGHT", lambda t: t.assign(criterion=t.criterion.where(t.index != 0, t.criterion.iloc[0] + 1e-6)))
         tamper("a preflight case dropped", "PREFLIGHT", lambda t: t.drop(index=t.index[0]))
-        tamper("run N different from the first passing N", None, None, inf=dict(info, n_cells=800))
+        tamper("run N different from the first passing N (400 instead of 800)", None, None, inf=dict(info, n_cells=400))
         tamper("a manifest hash", "MANIFEST", lambda t: t.assign(sha256=t.sha256.where(t.index != 0, "0" * 64)))
         tamper("a manifest row dropped", "MANIFEST", lambda t: t.drop(index=t.index[0]))
         tamper("run declared not valid (convergence_failed)", None, None, inf=dict(info, numerical_status="convergence_failed", run_valid=False))
@@ -774,7 +904,9 @@ def selftest():
         # convergence requirement: the same failing table on both sides is still refused
         global CONV_TOL
         saved = CONV_TOL, Rn.CONV_TOL
-        CONV_TOL = Rn.CONV_TOL = 1e-15
+        # 1e-12: far above the round-off criteria at t = 0 (~1e-15) and far below the real ones (>= ~1e-10), so that
+        # the pass flags cannot flip between the two implementations (1e-15 sat on the round-off level)
+        CONV_TOL = Rn.CONV_TOL = 1e-12
         try:
             t_bad, st_bad = Rn.convergence(prods["REGIONS"], reader, info["n_cells"])
             memo_bad = {k: v for k, v in memo.items() if k != ("conv", info["n_cells"])}
@@ -786,7 +918,8 @@ def selftest():
             CONV_TOL, Rn.CONV_TOL = saved
         lines = buf.getvalue().splitlines()
         ok("refused: convergence requirement not met although the values agree (no complete receipt)",
-           not got and any(l.startswith("[OK] CONVERGENCE") for l in lines) and any(l.startswith("[FALLITO] convergence requirement") for l in lines))
+           not got and any(l.startswith("[OK] CONVERGENCE") for l in lines) and any(l.startswith("[FALLITO] convergence requirement") for l in lines),
+           " | ".join(l[:110] for l in lines if "CONVERGENCE" in l or "convergence requirement" in l))
         # a map changed after the run is detected by the manifest re-read
         p0 = Path(rt["MANIFEST"].path.iloc[0])
         p0.write_bytes(p0.read_bytes() + b"x")

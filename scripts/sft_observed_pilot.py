@@ -101,8 +101,13 @@ def domain(box, P0, P1, m_lat, m_lon):
 
 # ---------------------------------------------------------------- fields
 
+class BalanceUnavailable(ValueError):
+    """Balancing needs both polarities among the selected pixels (otherwise: status balance_unavailable)."""
+
+
 def pixels(br, bm, h, branch, kind):
-    """(lat, lon on the branch, flux Mx, P1-selection mask) for the field preparation `kind`."""
+    """(lat, lon on the branch, flux Mx, P1-selection mask) for the field preparation `kind`. For 'balanced' with an
+    empty polarity it raises BalanceUnavailable: no silent rescaling of the other polarity."""
     lon, lat = geo.lonlat_maps(h, br.shape)
     lon = (lon - branch + 180.0) % 360.0 - 180.0 + branch
     area = geo.pixel_area_cm2(h)
@@ -112,6 +117,8 @@ def pixels(br, bm, h, branch, kind):
     F = np.where(fin, br * area, 0.0)
     if kind == "balanced":
         pp, nn = F[fin & (br > 0)].sum(), -F[fin & (br < 0)].sum()
+        if not (pp > 0 and nn > 0):
+            raise BalanceUnavailable("one polarity is empty")
         pb = 0.5 * (pp + nn)
         F = np.where(br > 0, F * pb / pp, F * pb / nn)
     return lat[fin], lon[fin], F[fin], lat, lon, np.isfinite(br) & (np.abs(br) <= measure.MAX_ABS_BR_G)
@@ -181,8 +188,12 @@ def run_pair(row, read, transports=TRANSPORTS, kinds=("raw", "p1_source", "balan
     rot_box = L.LocalBox(lat_rng, lon_rng, STEP, meridional=False, diffusion=False)
     base = dict(HARPNUM=row["HARPNUM"], gap_s=gap_s, m_lat=m_lat, m_lon=m_lon)
     for kind in kinds:
-        la0, lo0, F0, LAT0, LON0, fin0 = pixels(br0, bm0, h0, branch, kind)
-        la1, lo1, F1, LAT1, LON1, fin1 = pixels(br1, bm1, h1, branch, kind)
+        try:
+            la0, lo0, F0, LAT0, LON0, fin0 = pixels(br0, bm0, h0, branch, kind)
+            la1, lo1, F1, LAT1, LON1, fin1 = pixels(br1, bm1, h1, branch, kind)
+        except BalanceUnavailable:
+            out.append(dict(base, kind=kind, status="balance_unavailable"))
+            continue
         P0, P1 = coverage(rot_box, LAT0[fin0], LON0[fin0]), coverage(rot_box, LAT1[fin1], LON1[fin1])
         Cm, area = domain(rot_box, P0, P1, m_lat, m_lon)
         rec = dict(base, kind=kind, area_C=area)
@@ -369,6 +380,31 @@ def synthetic_pairs(td, n=8, seed=5):
     return pairs, reader(td / "fits")
 
 
+def synthetic_one_polarity(td, harp=99):
+    """A pair (dt 1 day) with a single positive polarity: for the balance_unavailable regression."""
+    from astropy.io import fits
+    t0 = pd.Timestamp("2016-01-10 00:00:00")
+    trecs = []
+    for t in (t0, t0 + pd.Timedelta(days=1)):
+        trec = t.strftime("%Y.%m.%d_%H:%M:%S") + "_TAI"
+        h = dict(CTYPE1="CRLN-CEA", CTYPE2="CRLT-CEA", CUNIT1="degree", CUNIT2="degree", CRPIX1=300.5, CRPIX2=200.5, CRVAL1=100.0,
+                 CRVAL2=12.0, CDELT1=0.03, CDELT2=0.03, CROTA2=0.0, RSUN_REF=696000000, T_REC=trec, T_OBS=trec, CRLN_OBS=100.0, CRLT_OBS=0.0)
+        hdr = fits.Header()
+        for k, v in h.items():
+            hdr[k] = v
+        lon, lat = geo.lonlat_maps(hdr, (399, 599))
+        br = 900 * np.exp(-(((lon - 100.0 + 180) % 360 - 180) ** 2 + (lat - 12.0) ** 2) / (2 * 0.5 ** 2))
+        bm = np.where(br > 50, 34.0, 1.0)
+        folder = record_dir(Path(td) / "fits", trec)
+        folder.mkdir(parents=True, exist_ok=True)
+        stem = file_stem(harp, trec)
+        fits.HDUList([fits.PrimaryHDU(), fits.ImageHDU(br)]).writeto(folder / f"{stem}.Br.fits", overwrite=True)
+        fits.HDUList([fits.PrimaryHDU(), fits.ImageHDU(bm.astype(np.float32))]).writeto(folder / f"{stem}.bitmap.fits", overwrite=True)
+        (folder / f"{stem}.keys.json").write_text(json.dumps(h))
+        trecs.append(trec)
+    return dict(HARPNUM=harp, T_REC_p=trecs[0], T_REC_c=trecs[1])
+
+
 def selftest():
     res = []
 
@@ -397,6 +433,15 @@ def selftest():
         ok("emergence (odd HARP): observed flux outside the advected mask is positive and reported",
            r3.obs_flux_outside_advected > 0, f"{r3.obs_flux_outside_advected / r3.obs_flux_on_C:.3f} of the flux on C")
         ok("balanced sensitivity computed on both instants; P1-style measures recorded", (R.kind == "balanced").any() and R[R.kind == "raw"].p1_D_t0.notna().all())
+        # regression (review 25 Nov): one polarity -> balanced unavailable, raw flux NOT halved
+        one = synthetic_one_polarity(td)
+        r1p = {r["kind"]: r for r in run_pair(one, read, transports=small, kinds=("raw", "balanced"))}
+        br_, bm_, h_ = read(one["HARPNUM"], one["T_REC_p"])
+        la_, lo_, F_, _, _, _ = pixels(br_, bm_, h_, float(h_["CRVAL1"]), "raw")
+        full = float(np.nansum(np.where(np.isfinite(br_) & (np.abs(br_) <= measure.MAX_ABS_BR_G), br_, 0.0)) * geo.pixel_area_cm2(h_))
+        ok("one polarity: balanced -> balance_unavailable; raw measured and its pixel flux equals the full map flux (not halved)",
+           r1p["balanced"]["status"] == "balance_unavailable" and r1p["raw"]["status"] == "ok" and abs(F_.sum() - full) <= 1e-12 * full
+           and r1p["raw"]["obs_phi_pos"] > 0.9 * full, f"raw pixel flux / full {F_.sum() / full:.12f}; on C {r1p['raw']['obs_phi_pos'] / full:.3f}")
         # draw and split
         rng = np.random.default_rng(2)
         pool = pd.DataFrame(dict(HARPNUM=np.arange(1, 121), gap_d=rng.uniform(1, 4.5, 120), NOAA_NUM=rng.choice([0, 1, 2], 120),
