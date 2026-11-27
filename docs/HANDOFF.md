@@ -1,5 +1,18 @@
 # Cold restart — SHARP BL
 
+## Regola operativa condivisa — CPU e banda di memoria
+
+Dal 27 novembre 2026, Codex e Claude scelgono il parallelismo in base al
+lavoro completato per ora, misurato separatamente per ogni tipo di calcolo.
+Usare un thread numerico per processo: `OMP_NUM_THREADS=1`,
+`OPENBLAS_NUM_THREADS=1` e `MKL_NUM_THREADS=1`. Evitare che carichi pesanti
+si contendano la banda di memoria.
+
+- **SMC BQ L2/L3:** una corsa alla volta. Per la coda del weekend usare
+  `--procs 1` e per il preventivo usare i tempi in isolamento.
+- **Campionatore slice S-ID:** 12 processi a un thread, in isolamento, sulla
+  macchina provata. Se cambia il carico o la macchina, rimisurare la resa
+  prima di cambiare il numero di processi.
 
 ## BQ-HMI — errore Monte Carlo del bridge
 

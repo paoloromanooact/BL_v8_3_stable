@@ -1,9 +1,9 @@
-"""BQ-HMI synthetic weekend queue (programme of 27 Nov 2026, Codex): pilot gate first, then the manifest jobs of each
-likelihood that passed. Synthetic responses only (draft protocol, nothing frozen).
+"""BQ-HMI synthetic weekend queue (programme of 27 Nov 2026, Codex): pilot only by default.
+With --extend, run the manifest jobs of each likelihood that passed. Synthetic responses only (draft protocol, nothing frozen).
 
 1) Pilot: block 8, G1, M0 and MQ without v, for L2 and L3 (4 runs, concurrent). When both models of a likelihood have
    ended, the manifest's check_pilot_gate.py decides (training diagnostics, MCSE <= 0.1, weights ESS >= 100, provenance
-   recounted by check_run.py); only a likelihood that is ready admits its other manifest jobs. A failed likelihood
+   recounted by check_run.py); only --extend and a passing gate admit the other manifest jobs. A failed likelihood
    stops there (no automatic correction: the cause is decided by hand).
 2) Jobs of the admitted likelihoods in manifest order (block_order, generator, model); the pilot runs are reused.
    Every run ends with check_run.py (manifest, provenance, recomputed score).
@@ -42,6 +42,7 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--manifest", required=True)
     ap.add_argument("--out", required=True)
+    ap.add_argument("--extend", action="store_true", help="run additional manifest jobs after a passing pilot")
     ap.add_argument("--procs", type=int, default=4)
     ap.add_argument("--hard-deadline", default="2026-11-30T09:00")
     ap.add_argument("--no-new-after", default="2026-11-30T06:00")
@@ -107,8 +108,10 @@ def main():
             gate[k] = g.returncode == 0
             (out / f"GATE_{k}.json").write_text(g.stdout or g.stderr)
             log(f"gate {k}: {'READY' if gate[k] else 'NOT READY'} {(g.stdout or g.stderr).strip()[:300]}")
-            if gate[k]:
+            if gate[k] and a.extend:
                 queue += [j for j in jobs if j["likelihood"] == k and j not in pilot[k]]
+            elif gate[k]:
+                log(f"{k}: pilot complete; further jobs require --extend")
         # pilot runs that could not complete (exit without META completed) also close the gate
         for k in ("L2", "L3"):
             if k not in gate and all((out / name(j)).exists() for j in pilot[k]) and not any(name(j) in running for j in pilot[k]) \

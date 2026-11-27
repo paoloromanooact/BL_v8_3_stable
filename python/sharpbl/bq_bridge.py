@@ -94,24 +94,28 @@ def bridge_log_evidence(logq, chains, rng, n_prop=None, tol=1e-10, max_iter=1000
     iid_ratio_variance = float(scaled_ratios.var(ddof=1)) / n1
     n1e = n1 * iid_ratio_variance / ratio_mean_variance if ratio_mean_variance > 0 else float(n1)
     ls1, ls2 = math.log(n1e / (n1e + n2)), math.log(n2 / (n1e + n2))
+
+    def h(x):                                                   # one step of the iteration on log r
+        return (logsumexp(l2 - np.logaddexp(ls1 + l2, ls2 + x)) - math.log(n2)
+                - logsumexp(-np.logaddexp(ls1 + l1, ls2 + x)) + math.log(n1))
     lr, conv = float(np.median(l1)), False
     for it in range(max_iter):
-        num = logsumexp(l2 - np.logaddexp(ls1 + l2, ls2 + lr)) - math.log(n2)
-        den = logsumexp(-np.logaddexp(ls1 + l1, ls2 + lr)) - math.log(n1)
-        new = num - den
+        new = h(lr)
         if abs(new - lr) < tol:
             lr, conv = new, True
             break
         lr = new
     f1 = np.exp(l2 - np.logaddexp(ls1 + l2, ls2 + lr))
     f2 = np.exp(lr - np.logaddexp(ls1 + l1, ls2 + lr))      # scaled by r: the relative variance is unchanged
+    eps = 1e-5
+    slope = (h(lr + eps) - h(lr - eps)) / (2 * eps)            # h'(log r) at the fixed point
     rv_prop = f1.var(ddof=1) / (n2 * f1.mean() ** 2)
     rv_post = posterior_mean_variance(f2, chain_sizes) / f2.mean() ** 2
     re2 = rv_prop + rv_post
     pos = [(c, len(chains[c]) // 2 + k) for c, h in enumerate(chain_sizes) for k in range(h)]
     return dict(log_evidence=lr, se_log=math.sqrt(re2), iterations=it + 1, converged=conv, n1=n1, n1_eff=n1e, n2=n2,
                 rel_post=f2 / f2.mean() - 1.0, est_positions=pos, chain_lengths=[len(c) for c in chains], rel_var_prop=rv_prop,
-                rel_var_post=rv_post)
+                rel_var_post=rv_post, fp_slope=float(slope), fp_factor=float(1.0 / (1.0 - slope)))
 
 
 def savage_dickey_terms(cond, beta_sd):
@@ -122,7 +126,7 @@ def savage_dickey_terms(cond, beta_sd):
     return math.log(o.mean()) + math.log(math.sqrt(2 * math.pi) * beta_sd), o / o.mean() - 1.0
 
 
-def paired_difference_se(ev_m0, ev_mq, sd_rel, sd_positions):
+def paired_difference_se(ev_m0, ev_mq, sd_rel, sd_positions, fixed_point=False):
     """MC SE of D = (log Z_M0 - log Z_MQ) - log BF_SD when the bridge of MQ and Savage-Dickey use the same MQ chains.
 
     Delta method on both estimators: d log Z ~ mean_j (f1_j / mean f1 - 1) - mean_i (f2_i / mean f2 - 1) (proposal
@@ -131,18 +135,31 @@ def paired_difference_se(ev_m0, ev_mq, sd_rel, sd_positions):
     sd_rel / N_SD at the Savage-Dickey draws, and Var(sum of g) is taken from within-chain batch means (chain boundaries
     kept), so their covariance enters. Added independently: the proposal part of the MQ bridge and the whole RE^2 of the
     M0 bridge (its chains are separate). The effect of fitting the proposal on the same chains is NOT in the formula.
+    With fixed_point=True the MQ terms are multiplied by its fp_factor = 1 / (1 - h'(log r)) and the M0 variance by
+    fp_factor^2 (full delta method of the fixed point log r = h(log r), where the RE formula holds the weights at r).
+    Malformed inputs are refused (ValueError): lengths that differ, duplicated positions, positions outside the chains.
     Returns dict(se, se_unpaired_naive, var_post_paired, var_prop_mq, var_m0)."""
-    lengths = ev_mq["chain_lengths"]
+    lengths = [int(n) for n in ev_mq["chain_lengths"]]
+    for lab, rel, P in (("Savage-Dickey", sd_rel, sd_positions), ("bridge", ev_mq["rel_post"], ev_mq["est_positions"])):
+        P = [(int(c), int(k)) for c, k in P]
+        if len(rel) != len(P):
+            raise ValueError(f"{lab}: {len(rel)} terms for {len(P)} positions")
+        if len(set(P)) != len(P):
+            raise ValueError(f"{lab}: duplicated positions")
+        if any(not (0 <= c < len(lengths) and 0 <= k < lengths[c]) for c, k in P):
+            raise ValueError(f"{lab}: position outside the chains")
     g = [np.zeros(n) for n in lengths]
     n1 = len(ev_mq["rel_post"])
+    fq = ev_mq["fp_factor"] if fixed_point else 1.0
+    f0 = ev_m0["fp_factor"] if fixed_point else 1.0
     for (c, k), v in zip(ev_mq["est_positions"], ev_mq["rel_post"]):
-        g[c][k] += v / n1
+        g[c][k] += fq * v / n1
     ns = len(sd_rel)
     for (c, k), v in zip(sd_positions, sd_rel):
         g[c][k] -= v / ns
     allg = np.concatenate(g)
     var_post = posterior_mean_variance(allg, lengths) * len(allg) ** 2
-    var_prop, var_m0 = ev_mq["rel_var_prop"], ev_m0["se_log"] ** 2
+    var_prop, var_m0 = fq ** 2 * ev_mq["rel_var_prop"], f0 ** 2 * ev_m0["se_log"] ** 2
     naive = var_m0 + ev_mq["se_log"] ** 2 + float(np.var(sd_rel, ddof=1)) / ns
     return dict(se=math.sqrt(var_post + var_prop + var_m0), se_unpaired_naive=math.sqrt(naive), var_post_paired=var_post,
                 var_prop_mq=var_prop, var_m0=var_m0)

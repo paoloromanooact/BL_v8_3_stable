@@ -3,8 +3,8 @@
   "reps": 30,
   "procs": 6,
   "sources_sha256": {
-    "scripts/bq_bridge_paired_check.py": "3a3901a1d7414f1258e4f1f8fe7286c16696ecca533edfe0fb66534104df800d",
-    "python/sharpbl/bq_bridge.py": "5ad7811d65ef1acd52dd32169ab508a5040235b7ca014ca4b832bbcfb5cd07ff",
+    "scripts/bq_bridge_paired_check.py": "05bc96a9abc522f4064506a589bb6cec6358e7137d6234a7c0ad097bdeb1e147",
+    "python/sharpbl/bq_bridge.py": "f722d1b60e84fc6c621f62d379d059167d16b18cb5940782d0d8ae396c3f3f41",
     "python/sharpbl/bq_core.py": "45b94e7862df4facdd6dac8fc65235308402bd5ed6e64e4e2a94ea0943eccc46",
     "scripts/bq_core_selftest.py": "42670e16929e1b4435b7fe78d5ed89cb63f4e121421dfa4c37a947f377c61936"
   },

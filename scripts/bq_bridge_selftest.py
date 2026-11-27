@@ -8,6 +8,7 @@
 5. Permuting correlated chains preserves the evidence, its standard error and the ESS used by the bridge.
 6. Paired SE of D = bridge - Savage-Dickey: Savage-Dickey terms equal to the bridge's posterior terms on the same draws
    cancel (no posterior part left); the paired SE does not depend on the order of the chains.
+7. The paired SE refuses malformed Savage-Dickey positions (length mismatch, duplicates, out of range).
 
     OMP_NUM_THREADS=1 .venv/bin/python scripts/bq_bridge_selftest.py
 """
@@ -134,6 +135,15 @@ def main():
     ok("6. paired SE: identical bridge and Savage-Dickey terms on the same draws cancel; invariant to the chain order",
        cancel["var_post_paired"] < 1e-20 and abs(cancel["se"]) < 1e-10 and abs(a1["se"] - a2["se"]) < 1e-12 and a1["se"] > 0.05,
        f"cancel {cancel['se']:.2e}; se {a1['se']:.5f} vs {a2['se']:.5f}")
+    refused = []
+    for bad in ((sdr[:-1], sdp), (sdr[:2], [sdp[0], sdp[0]]), (sdr[:1], [(0, 10_000)]), (sdr[:1], [(5, 0)])):
+        try:
+            BR.paired_difference_se(dict(se_log=0.05), evq, *bad)
+            refused.append(False)
+        except ValueError:
+            refused.append(True)
+    ok("7. paired SE refuses malformed draws: more terms than positions, duplicated positions, index or chain out of range",
+       all(refused), str(refused))
     print(f"selftest: {sum(res)}/{len(res)}")
     return all(res)
 

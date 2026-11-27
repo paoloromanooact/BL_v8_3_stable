@@ -11,7 +11,9 @@ and the share of replicates with |D - mean D| <= 2 SE. The predicted SE is adequ
 adaptation effect is the difference between the variants (empirical sd and mean of D).
 
 Seeds (zone 36_411_000-939; outside 36_405_000-36_409_999 of the weekend generators G0-G4): reference runs 36_411_000 + k (MQ) and 36_411_050 + k (M0); replicate r chains
-36_411_100 + 10 r + k (MQ) and 36_411_500 + 10 r + k (M0), proposal draws 36_411_900 + r (r < 40).
+36_411_100 + 10 r + k (MQ) and 36_411_500 + 10 r + k (M0), proposal draws 36_411_900 + r (MQ) and 36_411_950 + r (M0),
+distinct streams per model (Codex, 27 Nov; the same seed for the fixed and adapted variants of one model), r < 40.
+Also reported: the SE with the fixed-point factor 1 / (1 - h'(log r)) of each bridge (paired_difference_se(fixed_point=True)).
 
     OMP_NUM_THREADS=1 .venv/bin/python scripts/bq_bridge_paired_check.py --out <dir> [--reps 30 --procs 6]
 """
@@ -71,11 +73,13 @@ def replicate(job):
     for variant in ("adapted", "fixed"):
         ev = {}
         for name, d, ch in (("MQ", dq, cq), ("M0", d0, c0)):
-            ev[name] = BR.bridge_log_evidence(lambda z: B.log_post(d, z, yv), ch, np.random.default_rng(36_411_900 + r),
+            ev[name] = BR.bridge_log_evidence(lambda z: B.log_post(d, z, yv), ch, np.random.default_rng((36_411_900 if name == "MQ" else 36_411_950) + r),
                                               proposal=None if variant == "adapted" else ref[name])
         p = BR.paired_difference_se(ev["M0"], ev["MQ"], rel, pos)
+        pf = BR.paired_difference_se(ev["M0"], ev["MQ"], rel, pos, fixed_point=True)
         rows.append(dict(rep=r, variant=variant, lbf_bridge=ev["M0"]["log_evidence"] - ev["MQ"]["log_evidence"], lbf_sd=lsd,
-                         D=ev["M0"]["log_evidence"] - ev["MQ"]["log_evidence"] - lsd, se_paired=p["se"], se_naive=p["se_unpaired_naive"],
+                         D=ev["M0"]["log_evidence"] - ev["MQ"]["log_evidence"] - lsd, se_paired=p["se"], se_paired_fp=pf["se"],
+                         fp_factor_mq=ev["MQ"]["fp_factor"], fp_factor_m0=ev["M0"]["fp_factor"], se_naive=p["se_unpaired_naive"],
                          var_post_paired=p["var_post_paired"], var_prop_mq=p["var_prop_mq"], var_m0=p["var_m0"],
                          converged=bool(ev["M0"]["converged"] and ev["MQ"]["converged"])))
     return rows
@@ -107,7 +111,9 @@ def main():
     for v, x in t.groupby("variant"):
         dm = x.D.mean()
         summ.append(dict(variant=v, reps=len(x), mean_D=dm, sd_D=x.D.std(ddof=1), mean_se_paired=x.se_paired.mean(),
-                         ratio_sd_over_se=x.D.std(ddof=1) / x.se_paired.mean(), mean_se_naive=x.se_naive.mean(),
+                         ratio_sd_over_se=x.D.std(ddof=1) / x.se_paired.mean(), mean_se_paired_fp=x.se_paired_fp.mean(),
+                         ratio_sd_over_se_fp=x.D.std(ddof=1) / x.se_paired_fp.mean(), fp_factor_mq_mean=x.fp_factor_mq.mean(),
+                         fp_factor_m0_mean=x.fp_factor_m0.mean(), mean_se_naive=x.se_naive.mean(),
                          within_2se=float((abs(x.D - dm) <= 2 * x.se_paired).mean()), mean_lbf_bridge=x.lbf_bridge.mean(),
                          sd_lbf_bridge=x.lbf_bridge.std(ddof=1), all_converged=bool(x.converged.all())))
     s = pd.DataFrame(summ)
