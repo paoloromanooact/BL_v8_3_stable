@@ -1,0 +1,28 @@
+2026-11-27T15:04:44+01:00
+5ba703d8adf6c73a3303fc99ff26df402a766b6d
+29518e9c8981eff3ed52822a959c4374a442e621ac39c7fc28e3300c13c1ef23  scripts/bq_sizing_pilot.py
+45b94e7862df4facdd6dac8fc65235308402bd5ed6e64e4e2a94ea0943eccc46  python/sharpbl/bq_core.py
+3fb98640484da7fad6a9bb929807da84b14a701751b76ce3e4dfd3f4dfda2292  python/sharpbl/bq_diag.py
+done G2_r0_MQ_no_v_c0.npz
+done G2_r0_MQ_no_v_c2.npz
+done G2_r0_MQ_no_v_c1.npz
+done G2_r0_MQ_no_v_c3.npz
+done G2_r0_MQ_v_hn20_c0.npz
+done G2_r0_MQ_v_hn20_c1.npz
+done G2_r0_MQ_v_hn20_c2.npz
+done G2_r0_MQ_v_hn20_c3.npz
+         fit  draws_per_chain  fits  passes  rhat_max  ess_bulk_min  ess_tail_min
+0    MQ_no_v              250     8       5  1.016008    189.319468    223.197633
+1    MQ_no_v              500     8       5  1.007502    288.759595    413.999612
+2    MQ_no_v             1000     8       8  1.007074    622.542764   1000.363335
+3  MQ_v_hn20              250    11       0  1.033464     99.216889     93.643155
+4  MQ_v_hn20              500    11       5  1.009542    209.628239    178.140705
+5  MQ_v_hn20             1000    11      10  1.007843    530.824996    338.144493
+  gen  rep        fit  draws_per_chain  log_bf0q      mcse  p_beta_neg  p_beta_neg_mcse  uncertain_p  uncertain_bf  seconds_per_chain_full
+0  G2    0    MQ_no_v              250  1.574593  0.005120    0.302167         0.002553        False         False              228.328330
+1  G2    0    MQ_no_v              500  1.574185  0.003366    0.302012         0.001740        False         False              228.328330
+2  G2    0    MQ_no_v             1000  1.575820  0.002635    0.302949         0.001352        False         False              228.328330
+3  G2    0  MQ_v_hn20              250  1.511546  0.005376    0.325558         0.003316        False         False              678.678067
+4  G2    0  MQ_v_hn20              500  1.516974  0.004246    0.329196         0.002408        False         False              678.678067
+5  G2    0  MQ_v_hn20             1000  1.518976  0.002883    0.331981         0.001680        False         False              678.678067
+2026-11-27T15:16:15+01:00

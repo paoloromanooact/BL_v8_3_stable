@@ -1,0 +1,9 @@
+waiting for the G3 trial 2026-11-27 15:24:48
+start; HEAD 20a673de8e147f647779ceb72f26a5f3540e19b1 2026-11-27 15:54:49
+e1be7534e0c56c7457c0084e47fbc0475a7bc29ec74a5c6d0af6bfabcc09d7c2  docs/SFT_HMI_REPEATABILITY_FREEZE.json
+2f0c6191d97b14c513726bad38828ffb0ed1b3dd8d73b44e08bd207f7d0e9232  docs/SFT_HMI_REPEATABILITY_PLAN_DRAFT.md
+c9f25e10123494c96166d76b6a7b007e5a382a85f9e24b2a41361b96175ff504  scripts/sft_c_repeatability.py
+6214132eb6454b0de4079904ee7c86360262d17ef80f37b692fcfa37bf734970  scripts/sft_c_repeatability_recount.py
+run end exit 0 2026-11-27 15:57:40
+recount end exit 0 2026-11-27 16:01:07
+C queue completed 2026-11-27 16:01:07

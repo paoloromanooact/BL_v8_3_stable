@@ -1,0 +1,18 @@
+2026-11-27T15:20:43+01:00
+9c02ee569f14f5f6f5414e680d30d23eb9fefb96
+29518e9c8981eff3ed52822a959c4374a442e621ac39c7fc28e3300c13c1ef23  scripts/bq_sizing_pilot.py
+45b94e7862df4facdd6dac8fc65235308402bd5ed6e64e4e2a94ea0943eccc46  python/sharpbl/bq_core.py
+3fb98640484da7fad6a9bb929807da84b14a701751b76ce3e4dfd3f4dfda2292  python/sharpbl/bq_diag.py
+done G3_r0_MQ_v_hn20_c2.npz
+done G3_r0_MQ_v_hn20_c3.npz
+done G3_r0_MQ_v_hn20_c0.npz
+done G3_r0_MQ_v_hn20_c1.npz
+         fit  draws_per_chain  fits  passes  rhat_max  ess_bulk_min  ess_tail_min
+0  MQ_v_hn20              500    11       9  1.014332    275.158751    376.624959
+1  MQ_v_hn20             1000    11       9  1.021845    446.676669    893.117201
+2  MQ_v_hn20             1500    11      11  1.006149    728.073684   1383.623400
+  gen  rep        fit  draws_per_chain  log_bf0q      mcse  p_beta_neg  p_beta_neg_mcse  uncertain_p  uncertain_bf  seconds_per_chain_full
+0  G3    0  MQ_v_hn20              500 -4.501793  0.015225    0.999791         0.000004        False         False              771.936468
+1  G3    0  MQ_v_hn20             1000 -4.509302  0.009674    0.999792         0.000002        False         False              771.936468
+2  G3    0  MQ_v_hn20             1500 -4.503229  0.007523    0.999790         0.000002        False         False              771.936468
+2026-11-27T15:33:54+01:00

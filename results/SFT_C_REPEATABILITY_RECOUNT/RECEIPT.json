@@ -1,0 +1,116 @@
+{
+  "passed": 19,
+  "total": 19,
+  "checks": [
+    [
+      "product set exact",
+      "True",
+      "[]"
+    ],
+    [
+      "product hashes = META",
+      "True",
+      ""
+    ],
+    [
+      "candidates table = META",
+      "True",
+      ""
+    ],
+    [
+      "META carries the freeze receipt hash",
+      "True",
+      ""
+    ],
+    [
+      "META spec_sha256 = receipt sha256",
+      "True",
+      "2f0c6191d97b vs 2f0c6191d97b"
+    ],
+    [
+      "META runner_sha256 = receipt runner_sha256",
+      "True",
+      "c9f25e101234 vs c9f25e101234"
+    ],
+    [
+      "META candidates_sha256 = receipt candidates_sha256",
+      "True",
+      "86449cc2cef3 vs 86449cc2cef3"
+    ],
+    [
+      "freeze commit ancestor of the run commit in META",
+      "True",
+      "9c02ee569f -> 20a673de8e"
+    ],
+    [
+      "selection: pairs, groups and terciles (own rational index)",
+      "True",
+      "q [4.907442e+21, 1.38655e+22]"
+    ],
+    [
+      "measurement keys: one row per (pair_key, preparation)",
+      "True",
+      "246 rows, 246 expected"
+    ],
+    [
+      "every pair re-measured (or the expected read/technical error)",
+      "True",
+      ""
+    ],
+    [
+      "denominators per preparation and group",
+      "True",
+      ""
+    ],
+    [
+      "SUMMARY per preparation and group (own statistics)",
+      "True",
+      ""
+    ],
+    [
+      "BOOTSTRAP per preparation, group and quantity (own resampling, same seed)",
+      "True",
+      ""
+    ],
+    [
+      "BOOTSTRAP_BLOCKS of 6 CR (own CR numbering and resampling, same seed)",
+      "True",
+      ""
+    ],
+    [
+      "TRIPLES (own linking)",
+      "True",
+      "1 own vs 1"
+    ],
+    [
+      "YEARS (own counts)",
+      "True",
+      "27 own vs 27"
+    ],
+    [
+      "run information and validity recomputed (manifest re-hashed now)",
+      "True",
+      "wrong []; manifest True"
+    ],
+    [
+      "run valid (declared and recounted): a receipt only for a valid run",
+      "True",
+      "declared True"
+    ]
+  ],
+  "recount_sha256": "6214132eb6454b0de4079904ee7c86360262d17ef80f37b692fcfa37bf734970",
+  "outputs_sha256": {
+    "BOOTSTRAP.csv": "19c4dac16aaacf6d603e345df758d648def49e894073549b0f75b441c7b88fd2",
+    "BOOTSTRAP_BLOCKS.csv": "a7a4a8eb50cf9d71183e521f3715e7d75ea261ac47179aa53d728cd0e53f8b7b",
+    "COMPONENTS.csv": "3cea192ccdeca9cc0035c5b6e2217af9e13a4d8bca49da20e9ec9e6b45c4e98f",
+    "DENOMINATORS.csv": "0a3087dbf715ab676c3ec6a84b9723afb798cdfb31d5f5cdf4cc7b8781dd3b08",
+    "EXCLUSIONS.csv": "4a36d2224229a488d398d329fc89cc33a1a98ccae346fdf7c60e004f4f9223ee",
+    "INPUT_MANIFEST.csv": "51e75c21de6cf49d0496f74760207cd51b80662ec4e47f48f3a162b52054a8e8",
+    "MEASUREMENTS.csv": "d3b50d3e6f4cad06aca535aef1f553772e9d328de31782ce84b0c3c49d94f318",
+    "META.json": "7e6c2535088f6d0f835875d8e87ef6c8639afec18e0ccb0498b856042f4ffdd8",
+    "SELECTION.csv": "4fe75685bc7a8efeadf22f455d7b6874c2c9572b1a6bde5441af1ab10a7475cb",
+    "SUMMARY.csv": "88b195386e960b87e3b17fe3aee76c030530a2eae2676d238e83d0afd853025f",
+    "TRIPLES.csv": "c62632cd1992c205f5f71c7945c59f78225fdab07d6832a890f59d9a4d3a8a5b",
+    "YEARS.csv": "759e79be67c66fe01ec3d2ae5a2769fbbb9a65ab65cce901bbb408048bfa290d"
+  }
+}

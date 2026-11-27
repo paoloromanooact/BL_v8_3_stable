@@ -1,0 +1,27 @@
+{
+  "status": "completed",
+  "sources_sha256": {
+    "scripts/bq_sizing_pilot.py": "29518e9c8981eff3ed52822a959c4374a442e621ac39c7fc28e3300c13c1ef23",
+    "python/sharpbl/bq_core.py": "45b94e7862df4facdd6dac8fc65235308402bd5ed6e64e4e2a94ea0943eccc46",
+    "python/sharpbl/bq_diag.py": "3fb98640484da7fad6a9bb929807da84b14a701751b76ce3e4dfd3f4dfda2292",
+    "scripts/bq_identifiability_pilot.py": "2066891094d75433906409a3d9c6cb7c6e3eaa5a991c2726ecca2c60d7723ff3",
+    "scripts/bq_woodbury_benchmark.py": "4c06f8851558e8e458c3c0cfd60dedc2b8325efada8c1677ce9edf9557df502c"
+  },
+  "seed0": 36404000,
+  "reps": 1,
+  "warm": 300,
+  "keep": 1000,
+  "procs": 8,
+  "gens": "1",
+  "fits": [
+    "MQ_no_v",
+    "MQ_v_hn20"
+  ],
+  "checkpoints": [
+    250,
+    500,
+    1000
+  ],
+  "note": "sizing pilot, development (not the registered study); synthetic responses on the T3 design, metadata only",
+  "sources_unchanged": true
+}

@@ -1,0 +1,20 @@
+[OK] product set exact []
+[OK] product hashes = META 
+[OK] candidates table = META 
+[OK] META carries the freeze receipt hash 
+[OK] META spec_sha256 = receipt sha256 2f0c6191d97b vs 2f0c6191d97b
+[OK] META runner_sha256 = receipt runner_sha256 c9f25e101234 vs c9f25e101234
+[OK] META candidates_sha256 = receipt candidates_sha256 86449cc2cef3 vs 86449cc2cef3
+[OK] freeze commit ancestor of the run commit in META 9c02ee569f -> 20a673de8e
+[OK] selection: pairs, groups and terciles (own rational index) q [4.907442e+21, 1.38655e+22]
+[OK] measurement keys: one row per (pair_key, preparation) 246 rows, 246 expected
+[OK] every pair re-measured (or the expected read/technical error) 
+[OK] denominators per preparation and group 
+[OK] SUMMARY per preparation and group (own statistics) 
+[OK] BOOTSTRAP per preparation, group and quantity (own resampling, same seed) 
+[OK] BOOTSTRAP_BLOCKS of 6 CR (own CR numbering and resampling, same seed) 
+[OK] TRIPLES (own linking) 1 own vs 1
+[OK] YEARS (own counts) 27 own vs 27
+[OK] run information and validity recomputed (manifest re-hashed now) wrong []; manifest True
+[OK] run valid (declared and recounted): a receipt only for a valid run declared True
+recount: 19/19; receipt written
