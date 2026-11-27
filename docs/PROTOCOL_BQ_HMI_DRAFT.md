@@ -280,6 +280,8 @@ prima del codice operativo.
      `score_not_established` se a budget esaurito MCSE > 0,1 o ESS dei pesi < 100. Riferimento di costo: con circa
      150 s per valutazione SMC, 100 estrazioni costano circa 4,2 h-core per blocco e modello, più il fit del training.
      Il preventivo completo somma i costi dei singoli blocchi con i tempi **isolati** della configurazione scelta.
+     Preventivo provvisorio (da aggiornare): `docs/BQ_SMC_DEVELOPMENT_20261127.md` §8, ordine di grandezza circa 190 h-core
+     per M0/MQ × {senza v, v HN20} × {L2, L3} con 100 estrazioni e buffer 11.
    - *Aperti:* numero definitivo di estrazioni di ψ, di particelle e di repliche SMC per estrazione; si fissano dopo il
      confronto particelle/repliche (`reviews/BQ_SMC_PARTICLES_VS_REPS_20261127/`) e la prova che separa il rumore SMC
      dalla variabilità fra le ψ.

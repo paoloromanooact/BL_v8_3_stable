@@ -128,3 +128,40 @@ canonici; ha riprodotto bit per bit le 6 righe già calcolate; sorgenti invariat
 - Fasi decise da Codex.
 - Pilota di dimensionamento `scripts/bq_sizing_pilot.py` in coda dopo il benchmark; la lunghezza delle catene si
   fissa sui suoi risultati.
+
+## 8. Preventivo provvisorio della validazione incrociata L2/L3 (27 novembre, da aggiornare)
+
+Base: tempi SMC **isolati** del benchmark (1 replica, 1000 particelle, solo u), interpolati in log-log fra i blocchi
+misurati (22/102/236/395 record) per i 10 blocchi T3 a buffer 11 (244, 336, 352, 236, 72, 22, 102, 363, 395, 363
+record). In L2 i tempi sono quelli dei 64 nodi di Gauss–Laguerre: il costo isolato della griglia a 200 punti arriverà
+dal confronto particelle/repliche (configurazione A). L'interpolazione fra 236 e 395 record è incerta, perché lì
+iniziano i ricampionamenti (il costo L2 cresce di circa 13 volte).
+
+| | Somma sui 10 blocchi, una valutazione | 50 estrazioni di ψ | 100 | 200 |
+|---|---|---|---|---|
+| L2 | 484 s | 6,7 h-core | 13,4 h-core | 26,9 h-core |
+| L3 | 533 s | 7,4 h-core | 14,8 h-core | 29,6 h-core |
+
+Si aggiungono:
+- **fit del training** per blocco: 4 catene × circa 900 iterazioni a circa 0,12 s, quindi circa 7 min per blocco e
+  1,2 h-core per modello con solo u;
+- **modelli con v:** stato SMC più grande (D da circa 100 a circa 145; costo SMC circa × 2) e catene circa 3,5 volte
+  più lente (0,30 contro 0,086 s per iterazione);
+- **candidati:** M0 e MQ, senza v e con v HN20, eventualmente HN5 come sensibilità.
+
+Ordine di grandezza con 100 estrazioni, buffer 11, M0/MQ × {senza v, v HN20}:
+- L2 circa 29 + 62 h-core;
+- L3 circa 32 + 68 h-core;
+- **totale circa 190 h-core**;
+- con il buffer 22 come sensibilità, circa il doppio.
+
+L'SMC è limitato dalla banda di memoria (§5): la resa in parallelo va misurata con una prova dedicata prima di stimare
+la durata reale. Con una resa ipotetica di circa 3 si hanno circa 2,5–3 giorni per il buffer principale.
+
+Leve, da decidere **prima** e senza guardare i punteggi:
+- numero di estrazioni di ψ, fissato dal MCSE ai punti di controllo della prova sul blocco grande;
+- particelle o repliche secondo il confronto in coda;
+- meno particelle sui blocchi piccoli, che hanno già sd fra repliche ≤ 0,02;
+- ordine dei modelli.
+
+I budget definitivi restano aperti (decisione Codex) fino ai risultati del pilota e del confronto particelle/repliche.
