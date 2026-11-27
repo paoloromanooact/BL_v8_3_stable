@@ -1,0 +1,48 @@
+[OK] pair recounted (identical): every key of the three preparations statuses ['ok', 'ok', 'ok'], rot ['ok'], fine ok
+[OK] pair recounted (rotation 2 h at 40 deg): every key of the three preparations statuses ['ok', 'ok', 'ok'], rot ['ok'], fine ok
+[OK] pair recounted (one polarity): every key of the three preparations statuses ['ok', 'ok', 'balance_polarity_missing'], rot ['ok'], fine ok
+[OK] pair recounted (small patch): every key of the three preparations statuses ['finite_coverage_insufficient', 'finite_coverage_insufficient', 'finite_coverage_insufficient'], rot [None], fine None
+[OK] pair recounted (NaN pixel at t0): every key of the three preparations statuses ['ok', 'ok', 'ok'], rot ['ok'], fine ok
+[OK] pair recounted (negative outside C_fin): every key of the three preparations statuses ['ok', 'ok', 'balance_polarity_missing'], rot ['ok'], fine ok
+[OK] pair recounted (extra negative outside C_fin): every key of the three preparations statuses ['ok', 'ok', 'ok'], rot ['ok'], fine ok
+[OK] SUMMARY (raw): every row and column of the runner's summarise() incl. axial and circular statistics 6 pairs
+[OK] refused: one SUMMARY weighted mean moved by 1e-6 relative 
+[OK] SUMMARY (p1_source): every row and column of the runner's summarise() incl. axial and circular statistics 6 pairs
+[OK] SUMMARY (balanced): every row and column of the runner's summarise() incl. axial and circular statistics 4 pairs
+[OK] refused: a flux mean of 1e20 Mx set to 0 with a second moment of 1e40 Mx^2 (scales by unit) 
+[OK] refused: a 3-decimal change of d_lon_pos (1e-6 relative) d_lon_pos (raw): -0.0638798591582908 vs -0.06387979527849552
+[OK] refused: a status rot_status: 'rot_coverage_insufficient' vs 'ok'
+[OK] refused: a key dropped (remap0_phi_pos) keys ['remap0_phi_pos'] (raw)
+[OK] refused: a count (C_cells + 1) C_cells (exact): 26120 vs 26119
+[OK] refused: a fractional count (C_cells + 0.5) C_cells (exact): 26119.5 vs 26119
+[OK] refused: a balancing factor (1e-7 relative) bal_fpos_0 (balanced): 0.9374237328645693 vs 0.9374236391222053
+[OK] refused: a count given as a boolean (C_cells = True) C_cells: a boolean is not a count (True vs 1)
+[OK] refused: a list value d_lon_pos: non-scalar value (list / float)
+[OK] refused: a dict value status: non-scalar value (dict / str)
+[OK] assembly, valid run: every product and the run validity recounted 
+[OK] assembly, missing map: read_error recounted, run not valid, products recounted 
+[OK] refused (assembly): a MEASUREMENTS row dropped 
+[OK] refused (assembly): a denominator altered 
+[OK] refused (assembly): a tercile class altered 
+[OK] refused (assembly): a SUMMARY mean altered (1e-6) 
+[OK] refused (assembly): a BOOTSTRAP component count altered 
+[OK] refused (assembly): run validity declared differently 
+[OK] refused (assembly): a TRIPLES link added TRIPLES (own linking)
+[OK] refused (assembly): a YEARS count altered YEARS (own counts)
+[OK] refused (assembly): a BOOTSTRAP_BLOCKS block count altered BOOTSTRAP_BLOCKS of 6 CR (own CR numberi
+[OK] refused (assembly): a quality group altered every pair re-measured (or the expected 
+[OK] refused (assembly): a mu mean altered (1e-6) every pair re-measured (or the expected 
+[OK] assembly with QUALITY (hex strings): quality groups, both0 / not_both0 and every product recounted 
+[OK] CR numbering: own (astropy JD) = runner (pandas JD) on 5 dates incl. the CR 1690 boundary; 6-CR blocks of the valid run recounted [1689, 1690, 2096, 2147, 2292]
+[OK] products on disk: written atomically, overwrite refused, recounted from the CSV files (hashes, every product, validity) 
+[OK] refused (products): a CSV changed after the run (hash = META) 
+[OK] refused (products): an extra file in the product set 
+[OK] provenance: META SHA of spec, runner, candidates = receipt and freeze commit (HEAD~1) ancestor of the run commit -> pass; each mismatch refused {'META spec SHA differs from the receipt': ['META spec_sha256 = receip'], 'META runner SHA differs from the receipt': ['META runner_sha256 = rece'], 'freeze commit not an ancestor of the run commit': ['freeze commit ance
+[OK] refused (products): META without the receipt hash, even with every product recounted 
+[OK] real path without a freeze receipt: refused, no receipt written 
+[OK] validity: a map present but unreadable -> read_error, run_valid false, every product reproduced faithfully, yet refused with no receipt written (only the validity check fails) ['run valid (declared and recounted): a receipt only for a valid run']
+[OK] collections: own resolution finds the moved record (same paths as the runner, same maps); a copy of its keys in the first collection -> reported maps True; same paths True; u_ok []; dup ['e/fits/UNRESOLVED/hmi.sharp_cea_720s.204.20140505_100000_TAI.keys.json', 'ea_720s.204.20140505_100000_TAI.Br.fits: three files not in one folder']
+[OK] summaries: weights 1/(K_eval n_finite), weighted mean and lower quantiles = runner K_eval 14
+[OK] bootstrap over evaluable components, same seed: interval = runner [0.582209, 0.877454] vs [0.582209, 0.877454]
+[OK] C_rot: runner closed form [i-4n, i+2n] = own stage-by-stage propagation (t 0, 0.5 h, 1 h, 7000 s); own transport = runner transport max rel diff 1.5e-13, dt 600.0 vs 600.0
+selftest: 47/47

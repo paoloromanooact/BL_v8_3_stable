@@ -8,10 +8,10 @@ codice non fa ancora, perché Codex possa decidere in una lettura. Nessun pixel 
 
 | Oggetto | Percorso | SHA-256 |
 |---|---|---|
-| Specifica (rev. 3 + §4bis, con §4bis.8) | docs/SFT_HMI_REPEATABILITY_PLAN_DRAFT.md | d32a9a5f53bf7f5c4aa478cacf41df8f1f393a344ebbbcdcbe959927135b7a17 |
-| Runner | scripts/sft_c_repeatability.py | 0f03ec8fd8f8f0a2a700dbd014eb6313941b767a1459969e90f29b230db807a1 |
-| Selftest del runner | scripts/sft_c_repeatability_selftest.py | 79f77fec6d4692b8df35cdcb86f55dc0e0bd9411b07895877812b26229518c69 |
-| Riconteggio indipendente | scripts/sft_c_repeatability_recount.py | 0d11490e5f1e9901089d92d8ca1dae3df2b2779e527b72d5c4cde7abe0f56914 |
+| Specifica (rev. 3 + §4bis, con §4bis.8) | docs/SFT_HMI_REPEATABILITY_PLAN_DRAFT.md | 2f0c6191d97b14c513726bad38828ffb0ed1b3dd8d73b44e08bd207f7d0e9232 |
+| Runner | scripts/sft_c_repeatability.py | c9f25e10123494c96166d76b6a7b007e5a382a85f9e24b2a41361b96175ff504 |
+| Selftest del runner | scripts/sft_c_repeatability_selftest.py | 123a98ecc9510e0f43f9753cc0306ca2a7e6a2edb4e1a377c1438437b6032ad9 |
+| Riconteggio indipendente | scripts/sft_c_repeatability_recount.py | 6214132eb6454b0de4079904ee7c86360262d17ef80f37b692fcfa37bf734970 |
 | Candidati (audit metadati) | reviews/C_REPEATABILITY_METADATA_CLOSURE_20261125/AUDIT/CANDIDATES.csv | 86449cc2cef35ecce94caebb48b3728f8f8f7bf6cdbc9ed310e4a8018ae3aa85 |
 | Geometria condivisa | scripts/sft_observed_pilot.py | dec3c4cea56e9c11760751fe050a424c02481d80b53aacc54657d9bcda972ffb |
 | Box locale | python/sharpbl/sft_local.py | 4598f0330a044421f4208832b804799400555c0a87792a20fea100109b83a647 |
@@ -51,7 +51,7 @@ selezionati; il loro SHA entra nell'INPUT_MANIFEST prima di ogni misura.
   git HEAD); la sovrascrittura è rifiutata.
 - **Riconteggio indipendente** (codice proprio): ogni chiave di ogni coppia, SUMMARY completo con scale per unità,
   bootstrap, terzili, denominatori, manifest ricalcolato, validità; prodotti riletti dai CSV.
-- **Esiti:** selftest del runner 38/38, riconteggio 46/46 (42/42 prima dei due controlli Codex del 27 novembre: ricevuta solo per corsa valida, con il caso di una mappa presente ma illeggibile; provenienza META ↔ ricevuta e freeze_commit antenato del git_head del META; il primo giro dopo i controlli si è fermato per un TypeError nel test, log conservato) (log in `reviews/C_FREEZE_ITEMS_20261127/`), comprese le
+- **Esiti:** selftest del runner 39/39, riconteggio 47/47 dopo la correzione delle collezioni (sotto); prima: runner 38/38, riconteggio 46/46 (42/42 prima dei due controlli Codex del 27 novembre: ricevuta solo per corsa valida, con il caso di una mappa presente ma illeggibile; provenienza META ↔ ricevuta e freeze_commit antenato del git_head del META; il primo giro dopo i controlli si è fermato per un TypeError nel test, log conservato) (log in `reviews/C_FREEZE_ITEMS_20261127/`), comprese le
   manomissioni rifiutate (riga tolta, denominatore, classe di terzile, media, bootstrap, validità dichiarata, CSV
   cambiato, file in più, terna aggiunta, conteggio per anno, numero di blocchi, gruppo QUALITY, μ). Il primo giro del
   selftest del runner era 37/38: la data di prova del confine CR 1690 era sbagliata di due giorni nel test (25 invece
@@ -70,7 +70,7 @@ specifica. Elenco originale conservato sotto.
 | 4 Blocchi 6 CR | prodotto BOOTSTRAP_BLOCKS, seme 36_300_002, CR dalla regola sinodica media |
 | 5 Anni | prodotto YEARS; **rinviato** il confronto col bacino del pilota osservativo (bacino non ancora congelato; nota propria, solo metadati) |
 | 6 μ | mu_mean_j e mu_offdisk_cells_j in MEASUREMENTS |
-| 7 Copie | ogni record deve risolvere a un solo file Br/bitmap/keys sotto `data/sharp/fits` (runner e riconteggio, codice distinto) |
+| 7 Copie | ogni record deve risolvere a un solo file Br/bitmap/keys nelle tre collezioni dell'audit `data/sharp/{fits, fits_p3, test_20240508}`, con i tre file nella stessa cartella (runner e riconteggio, codice distinto). **Correzione dopo il via tecnico a 5ba703d:** la versione approvata cercava solo in `fits`, dove stanno 264 dei 492 riferimenti; gli altri 228 sono in `fits_p3`; nessun file selezionato è in due collezioni (verifica sui nomi). Il primo e il terzo giro dei selftest dopo la correzione avevano errori nei test (attesa sui doppi, ordine di un confronto); log conservati |
 
 ### Elenco originale (prima del 27 novembre pomeriggio)
 

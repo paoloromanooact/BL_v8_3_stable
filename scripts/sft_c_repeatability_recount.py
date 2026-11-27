@@ -639,14 +639,23 @@ def own_block_boot(comp, x, cblk, seed, n):
     return float(np.quantile(vals, 0.025)), float(np.quantile(vals, 0.975)), len(blocks), len(ids)
 
 
-def own_unique_files(base, sel, paths_fn):
-    """Every record file of the selection exists once under base (os.walk; no glob)."""
+def own_unique_files(roots, sel, paths_fn):
+    """Every record file of the selection exists once in all the collections (os.walk; no glob) and the three files of
+    a record share one folder."""
     import os
     seen = {}
-    for dp, _, fs in os.walk(base):
-        for f in fs:
-            seen[f] = seen.get(f, 0) + 1
-    return [str(p) for _, r in sel.iterrows() for t in (r.T_REC_a, r.T_REC_b) for p in paths_fn(r.HARPNUM, t) if seen.get(Path(p).name, 0) != 1]
+    for root in ([roots] if isinstance(roots, (str, Path)) else roots):
+        for dp, _, fs in os.walk(root):
+            for f in fs:
+                seen[f] = seen.get(f, 0) + 1
+    bad = []
+    for _, r in sel.iterrows():
+        for t in (r.T_REC_a, r.T_REC_b):
+            ps = paths_fn(r.HARPNUM, t)
+            bad += [str(p) for p in ps if seen.get(Path(p).name, 0) != 1 or not Path(p).exists()]
+            if len({os.path.realpath(Path(p).parent) for p in ps}) != 1:
+                bad.append(f"{Path(ps[0]).name}: three files not in one folder")
+    return bad
 
 
 def _own_row(row, ours_keys):
@@ -874,20 +883,34 @@ FREEZE = ROOT / "docs/SFT_HMI_REPEATABILITY_FREEZE.json"
 OUT = ROOT / "results/SFT_C_REPEATABILITY"
 RECEIPT_DIR = ROOT / "results/SFT_C_REPEATABILITY_RECOUNT"
 CANDIDATES = ROOT / "reviews/C_REPEATABILITY_METADATA_CLOSURE_20261125/AUDIT/CANDIDATES.csv"
-FITS_BASE = ROOT / "data/sharp/fits"
+FITS_ROOTS = [ROOT / "data/sharp/fits", ROOT / "data/sharp/fits_p3", ROOT / "data/sharp/test_20240508"]   # metadata-audit collections
 
 
-def own_paths(base):
-    from sharpbl.download_records import file_stem, record_dir        # declared dependency: SHARP file naming
+def own_index(roots):
+    import os
+    seen = {}
+    for root in roots:
+        for dp, _, fs in os.walk(root):
+            for f in fs:
+                seen.setdefault(f, []).append(Path(dp) / f)
+    return seen
+
+
+def own_paths(roots, seen=None):
+    """Each SHARP file name (declared dependency: download_records naming) -> its single copy in the collections; a
+    missing or repeated name -> a path that does not resolve to one copy (own_unique_files reports it)."""
+    from sharpbl.download_records import file_stem
+    seen = own_index(roots) if seen is None else seen
 
     def paths(harp, t_rec):
-        folder, stem = record_dir(base, t_rec), file_stem(int(harp), t_rec)
-        return [folder / f"{stem}.{k}" for k in ("Br.fits", "bitmap.fits", "keys.json")]
+        stem = file_stem(int(harp), t_rec)
+        return [seen[n][0] if len(seen.get(n, [])) == 1 else Path(roots[0]) / "UNRESOLVED" / n
+                for n in (f"{stem}.Br.fits", f"{stem}.bitmap.fits", f"{stem}.keys.json")]
     return paths
 
 
-def own_reader(base):
-    pf = own_paths(base)
+def own_reader(roots, seen=None):
+    pf = own_paths(roots, seen)
 
     def read(harp, t_rec):
         p = pf(harp, t_rec)
@@ -910,10 +933,11 @@ def real_check():
         return f"repeatability C recount: {OUT} missing"
     cand = pd.read_csv(CANDIDATES)
     sel, _, _ = own_selection(cand)
-    dup = own_unique_files(FITS_BASE, sel, own_paths(FITS_BASE))
+    seen = own_index(FITS_ROOTS)
+    dup = own_unique_files(FITS_ROOTS, sel, own_paths(FITS_ROOTS, seen))
     if dup:
         return "repeatability C recount: record files not unique or missing: " + "; ".join(dup[:5])
-    checks, good = check_products(OUT, cand, CANDIDATES, own_reader(FITS_BASE), own_paths(FITS_BASE), real=True, receipt_dir=RECEIPT_DIR,
+    checks, good = check_products(OUT, cand, CANDIDATES, own_reader(FITS_ROOTS, seen), own_paths(FITS_ROOTS, seen), real=True, receipt_dir=RECEIPT_DIR,
                                   receipt=(fz, _sha(FREEZE)))
     for c in checks:
         print(f"[{'OK' if c[1] else 'FALLITO'}] {c[0]} {str(c[2])[:200]}")
@@ -1125,6 +1149,30 @@ def selftest():
            (pu["MEASUREMENTS"][pu["MEASUREMENTS"].HARPNUM == 205].status.str.startswith("read_error")).all() and not iu["run_valid"]
            and iu["all_inputs_present"] and all(c[1] for c in cu) and not gw6 and not rdir2.exists()
            and failed6 == ["run valid (declared and recounted): a receipt only for a valid run"], str(failed6))
+        # several collections (data/sharp/{fits, fits_p3, ...}): own resolution of the record files
+        import shutil as _sh
+        roots = [Path(tdr) / "fits", Path(tdr) / "fits_p3"]
+        t204 = rows_c[3]["T_REC_a"]
+        before = rd(204, t204)
+        moved = []
+        for p_ in paths(204, t204):
+            dst = Path(tdr) / "fits_p3" / p_.parent.name / p_.name
+            dst.parent.mkdir(parents=True, exist_ok=True)
+            _sh.move(str(p_), dst)
+            moved.append(dst)
+        selg = own_selection(good)[0]
+        selg = selg[selg.HARPNUM != 205]                                   # 205 has the unreadable map of the previous test
+        op = own_paths(roots)
+        mine = own_reader(roots)(204, t204)
+        u_ok = own_unique_files(roots, selg, op)
+        same_paths = [str(x) for x in op(204, t204)] == [str(x) for x in CR.resolved_paths(roots)(204, t204)]   # before the copy below
+        _sh.copy(moved[2], paths(204, t204)[2])
+        u_dup = own_unique_files(roots, selg, own_paths(roots))
+        ok("collections: own resolution finds the moved record (same paths as the runner, same maps); a copy of its keys "
+           "in the first collection -> reported",
+           u_ok == [] and same_paths
+           and np.array_equal(before[0], mine[0], equal_nan=True) and any("keys.json" in x for x in u_dup) and all(".204.2014" in x for x in u_dup),
+           f"maps {np.array_equal(before[0], mine[0], equal_nan=True)}; same paths {same_paths}; u_ok {u_ok[:2]}; dup {[x[-70:] for x in u_dup]}")
     # summaries: weights after missing values and bootstrap, against the runner's functions
     rng = np.random.default_rng(5)
     n = 40

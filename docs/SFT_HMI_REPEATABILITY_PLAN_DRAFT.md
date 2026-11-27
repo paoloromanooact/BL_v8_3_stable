@@ -149,9 +149,15 @@ e congelare.
       preparazione. **Rinviato:** il confronto dai metadati con il bacino del pilota osservativo per flusso,
       latitudine e LCM, perché quel bacino non è ancora un campione congelato. Si farà in una nota propria, dai soli
       metadati, senza leggere i prodotti di C e senza scegliere pesi; il congelamento di C non lo presuppone.
-   6. **Unicità dei file (§1).** Nel layout adottato (`data/sharp/fits/<anno>/`, nomi di download_records) ogni
-      record selezionato deve corrispondere a esattamente un file Br, bitmap e keys in tutto l'albero sotto la base;
-      un nome assente o presente due volte ferma la corsa prima di ogni pixel (runner e, indipendentemente, riconteggio).
+   6. **Unicità dei file (§1).** I file si cercano nelle tre collezioni dell'audit dei metadati,
+      `data/sharp/{fits, fits_p3, test_20240508}` (nomi di download_records). Ogni record selezionato deve
+      corrispondere a esattamente un file Br, bitmap e keys in tutte le collezioni insieme, con i tre file nella stessa
+      cartella (keys.json si legge accanto a Br); si legge quella copia. Un nome assente o presente più di una volta,
+      anche con byte identici, ferma la corsa prima di ogni pixel: nessuna precedenza implicita fra collezioni (runner
+      e, con codice proprio, riconteggio). Verifica sui soli nomi, 27 novembre: i 489 file distinti delle 82 coppie
+      stanno 264 in `fits` e 228 in `fits_p3` (conteggi per riferimento, con ripetizioni), nessuno in due collezioni.
+      La prima versione di questa voce (8556b24, approvata a 5ba703d) cercava solo in `data/sharp/fits` e avrebbe
+      fermato la corsa: corretto prima del congelamento.
    7. **Entrata `--run` e ricevuta di congelamento.** `docs/SFT_HMI_REPEATABILITY_FREEZE.json` con sha256 (questa
       specifica), runner_sha256, recount_sha256, candidates_sha256, freeze_commit e not_blind (testo non vuoto). Il
       runner legge i FITS solo se: la ricevuta ha tutti i campi; specifica, runner, riconteggio e candidati hanno gli

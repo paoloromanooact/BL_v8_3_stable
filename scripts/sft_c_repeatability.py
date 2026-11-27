@@ -3,7 +3,8 @@
 Spec: docs/SFT_HMI_REPEATABILITY_PLAN_DRAFT.md. This file implements the measurement and the summaries on synthetic
 CEA patches; --run reads the real pairs only through gate() (the C freeze receipt with spec, runner, recount and
 candidates SHA, freeze commit ancestor of HEAD holding the spec, non-blindness text, clean tree, script = HEAD blob, no
-existing output) and after unique_file_problems() (every record file exactly once under data/sharp/fits).
+existing output) and after unique_file_problems() (every record file exactly once in the three collections of the
+metadata audit, data/sharp/{fits, fits_p3, test_20240508}, the three files of a record in one folder).
 - Pairs: consecutive local records of one HARP with 0 < Delta T_OBS <= 7200 s (selection and graph from the metadata
   closure, Codex bb23d3e); every listed pair is measured, no replacement on failure.
 - Grid 0.06 deg on the branch of the first CRVAL1; lower bounds = minimum of the WCS centres of BOTH patches - 1 deg,
@@ -442,7 +443,7 @@ BOOT_QUANTITIES = ("D_g", "dD_over_SD", "phi_net", "phi_uns", "lat_pos", "lat_ne
 GROUP_COLS = ("hemisphere", "lag_class", "flux_tercile", "quality")
 SEED_BOOT_BLOCKS = 36_300_002            # block bootstrap of 6 CR (draft §6 sensitivity), restarted per call
 CR_BLOCK = 6
-FITS_BASE = ROOT / "data/sharp/fits"
+FITS_ROOTS = tuple(ROOT / "data/sharp" / c for c in ("fits", "fits_p3", "test_20240508"))   # collections of the metadata audit
 OUT = ROOT / "results/SFT_C_REPEATABILITY"
 
 
@@ -608,20 +609,58 @@ def years(meas):
     return g[cols]
 
 
-def unique_file_problems(base, sel, paths_fn):
-    """Draft §1 / package item 7: in the adopted layout every record must resolve to exactly one Br, bitmap and keys
-    file; another copy with the same name anywhere under `base` is a problem (stop before any pixel)."""
+def file_index(roots):
+    """File name -> every path with that name under the given collections."""
+    idx = {}
+    for root in ([roots] if isinstance(roots, (str, Path)) else roots):
+        for p in Path(root).rglob("*"):
+            if p.is_file():
+                idx.setdefault(p.name, []).append(p)
+    return idx
+
+
+def resolved_paths(roots, idx=None):
+    """paths_fn over several collections: each SHARP file name resolves to its single copy; a missing or repeated name
+    gives the path under the first collection (then unique_file_problems stops the run before any pixel)."""
+    from sharpbl.download_records import file_stem, record_dir
+    roots = [roots] if isinstance(roots, (str, Path)) else list(roots)
+    idx = file_index(roots) if idx is None else idx
+
+    def paths(harp, t_rec):
+        stem = file_stem(int(harp), t_rec)
+        out = []
+        for k in ("Br.fits", "bitmap.fits", "keys.json"):
+            found = idx.get(f"{stem}.{k}", [])
+            out.append(found[0] if len(found) == 1 else record_dir(Path(roots[0]), t_rec) / f"{stem}.{k}")
+        return out
+    return paths
+
+
+def reader_from(paths_fn):
+    """Map reader on resolved paths (geometry.read_sharp adds the keys.json of the same folder to the header)."""
+    def read(harp, t_rec):
+        p = paths_fn(harp, t_rec)
+        br, h = geo.read_sharp(p[0])
+        bm, _ = geo.read_sharp(p[1])
+        return br, bm, h
+    return read
+
+
+def unique_file_problems(roots, sel, paths_fn):
+    """Draft §1 / package item 7: every selected record must resolve to exactly one Br, bitmap and keys file in all the
+    collections (no copy with the same name anywhere, discordant or not: no implicit precedence), the path used being
+    that copy, and its three files in one folder (keys.json is read next to Br). A problem stops before any pixel."""
     probs = []
-    names = {}
-    for p in Path(base).rglob("*"):
-        if p.is_file():
-            names.setdefault(p.name, []).append(p)
+    names = file_index(roots)
     for _, r in sel.iterrows():
         for t in (r.T_REC_a, r.T_REC_b):
-            for p in paths_fn(r.HARPNUM, t):
+            ps = paths_fn(r.HARPNUM, t)
+            for p in ps:
                 found = names.get(Path(p).name, [])
                 if len(found) != 1 or Path(found[0]).resolve() != Path(p).resolve():
                     probs.append(f"{Path(p).name}: {len(found)} copies")
+            if len({Path(p).resolve().parent for p in ps}) != 1:
+                probs.append(f"{Path(ps[0]).name}: the three files are not in one folder")
     return probs
 
 
@@ -762,11 +801,11 @@ def run():
         sys.exit("repeatability C --run refused: " + "; ".join(probs))
     cand = pd.read_csv(CANDIDATES)
     sel, _, _ = selection(cand)
-    paths = file_paths(FITS_BASE)
-    uniq = unique_file_problems(FITS_BASE, sel, paths)
+    paths = resolved_paths(FITS_ROOTS)
+    uniq = unique_file_problems(FITS_ROOTS, sel, paths)
     if uniq:
         sys.exit("refused before any pixel: " + "; ".join(uniq[:5]))
-    prods, info = assemble(cand, OP.reader(FITS_BASE), paths)
+    prods, info = assemble(cand, reader_from(paths), paths)
     meta = write_products(prods, info, OUT, CANDIDATES, extra=dict(freeze_receipt_sha256=_sha(FREEZE)))
     print(f"written {OUT}; run valid {meta['run_valid']}")
     return 0 if meta["run_valid"] else 3

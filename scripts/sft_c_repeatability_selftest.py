@@ -479,6 +479,31 @@ def main():
         dupl = CR.unique_file_problems(Path(tdr) / "fits", p4["SELECTION"], paths)
         ok("S6. unique files: every selected record resolves to one Br, bitmap, keys file; a second copy anywhere under the "
            "base is reported (stop before any pixel)", clean == [] and len(dupl) == 1 and "2 copies" in dupl[0], str(dupl))
+        shutil.rmtree(Path(tdr) / "fits/copy")
+        roots = [Path(tdr) / "fits", Path(tdr) / "fits_p3"]               # the record of HARP 201 at t0 moved to a second collection
+        t201 = rows[0]["T_REC_a"]
+        before = base_read(201, t201)
+        moved = []
+        for p_ in paths(201, t201):
+            dst = Path(tdr) / "fits_p3" / p_.parent.name / p_.name
+            dst.parent.mkdir(parents=True, exist_ok=True)
+            shutil.move(str(p_), dst)
+            moved.append(dst)
+        rp = CR.resolved_paths(roots)
+        after = CR.reader_from(rp)(201, t201)
+        multi_ok = CR.unique_file_problems(roots, p4["SELECTION"], rp)
+        shutil.copy(moved[1], paths(201, t201)[1])                        # same bitmap name in both collections
+        multi_dup = CR.unique_file_problems(roots, p4["SELECTION"], CR.resolved_paths(roots))
+        paths(201, t201)[1].unlink()
+        (Path(tdr) / "fits_p3/other").mkdir()
+        shutil.move(str(moved[0]), Path(tdr) / "fits_p3/other" / moved[0].name)  # Br in another folder of the same collection
+        split = CR.unique_file_problems(roots, p4["SELECTION"], CR.resolved_paths(roots))
+        ok("S6b. several collections: a record in the second one resolves there and reads the same maps; the same name in two "
+           "collections -> refused; Br and keys in different folders -> refused",
+           multi_ok == [] and rp(201, t201)[0] == moved[0] and np.array_equal(before[0], after[0], equal_nan=True)
+           and np.array_equal(before[1], after[1], equal_nan=True) and any("bitmap.fits: 2 copies" in x for x in multi_dup)
+           and all(".201.2014" in x for x in multi_dup)
+           and len(split) == 1 and "one folder" in split[0], f"{multi_dup} | {split}")
     old_fz = CR.FREEZE
     with tempfile.TemporaryDirectory() as tdz:
         CR.FREEZE = Path(tdz) / "FREEZE.json"
