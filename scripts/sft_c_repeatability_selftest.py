@@ -39,6 +39,7 @@ from __future__ import annotations
 
 import json
 import math
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -422,6 +423,75 @@ def main():
         ok("R5. 'False' strings excluded, other values refused; empty selection: no crash, explicit empty products, not valid",
            len(s5) == 3 and len(e5) == 3 and bad5 and i5["selected"] == 0 and not i5["run_valid"] and list(p5["SELECTION"].columns)[:3] == ["pair_key", "node", "HARPNUM"],
            f"selected {len(s5)}, excluded {len(e5)}, empty info {i5['selected']} {i5['run_valid']}")
+        # S (C freeze items 2-7): mu of C_fin, QUALITY groups, triples, years, 6-CR block bootstrap, unique files
+        M4ok = M4[(M4.kind == "raw") & (M4.status == "ok")]
+        lat_of = {int(h): la for h, la, *_ in spec}
+        dmu = [abs(r_.mu_mean_0 - math.cos(math.radians(lat_of[int(r_.HARPNUM)]))) for r_ in M4ok.itertuples()]
+        far = CR.mu_stats(bx, np.ones((bx.ny, bx.nx), bool), dict(CRLN_OBS=21.0 + 180.0, CRLT_OBS=0.0))
+        ok("S1. mu of C_fin: observer at the patch centre -> mean mu = cos(lat) within 0.01, no off-disk cell; observer 180 deg "
+           "away -> every cell off-disk, mean NaN; missing observer keys -> (NaN, -1)",
+           len(dmu) == 5 and max(dmu) < 0.01 and (M4ok.mu_offdisk_cells_0 == 0).all() and (M4ok.mu_offdisk_cells_1 == 0).all()
+           and np.isnan(far[0]) and far[1] == bx.ny * bx.nx and np.isnan(CR.mu_stats(bx, np.ones((bx.ny, bx.nx), bool), {})[0]),
+           f"max |dmu| {max(dmu):.4f}; far {far}")
+
+        def with_quality(h, t):                                       # QUALITY 0 everywhere, 1024 at t1 of HARP 202
+            br_, bm_, hh = base_read(h, t)
+            hh = dict(hh)
+            hh["QUALITY"] = 1024 if (int(h) == 202 and t == rows[1]["T_REC_b"]) else 0
+            return br_, bm_, hh
+        p7, i7 = CR.assemble(good, with_quality, paths, n_boot=20)
+        M7, D7 = p7["MEASUREMENTS"], p7["DENOMINATORS"]
+        qg = M7.groupby("HARPNUM").quality.first().to_dict()
+        ok("S2. QUALITY from the headers: HARP 202 not_both0, the others both0, no header key -> missing; group quality=both0 "
+           "with 4 pairs per preparation; measures identical to the run without QUALITY",
+           qg == {201: "both0", 202: "not_both0", 203: "both0", 204: "both0", 205: "both0"} and (M4.quality == "missing").all()
+           and (D7[D7.group == "quality=both0"].selected == 4).all() and i7["run_valid"]
+           and np.allclose(M7.d_D_g.to_numpy(float), M4.d_D_g.to_numpy(float), equal_nan=True), str(qg))
+        tsel = pd.DataFrame(dict(pair_key=["a", "b", "c", "d"], HARPNUM=[1, 1, 1, 2], T_REC_a=["t0", "t1", "t5", "t0"], T_REC_b=["t1", "t2", "t6", "t1"]))
+        tr = CR.triples(tsel)
+        yr = p4["YEARS"]
+        ok("S3/S5. triples: HARP 1 t0->t1->t2 is the only link (t5->t6 and HARP 2 are not); years: selected and ok per "
+           "preparation sum to the selection",
+           len(tr) == 1 and tr.iloc[0][["T_REC_0", "T_REC_1", "T_REC_2", "pair_key_1", "pair_key_2"]].tolist() == ["t0", "t1", "t2", "a", "b"]
+           and len(CR.triples(tsel.iloc[:0])) == 0 and (yr.groupby("kind").selected.sum() == 5).all() and (yr.groupby("kind").ok.sum() <= 5).all(),
+           f"{len(tr)} triples; years {yr.to_dict('records')[:2]}")
+        cr_a, cr_b = CR.carrington_rotation("1979.12.27_20:15:00_TAI"), CR.carrington_rotation("1979.12.27_20:00:00_TAI")
+        rng_ = np.random.default_rng(7)
+        nb = 60
+        dfb = pd.DataFrame(dict(pair_key=[f"p{i}" for i in range(nb)], x=rng_.normal(0, 1, nb)))
+        cmp_ = pd.Series([i // 2 for i in range(nb)], index=dfb.pair_key)       # 30 components of 2 pairs
+        blk12 = pd.Series([c // 3 for c in range(30)], index=range(30))          # 10 blocks of 3 components
+        blk4 = pd.Series([c // 8 for c in range(30)], index=range(30))           # 4 blocks
+        b1 = CR.bootstrap_blocks(dfb, cmp_, blk12, "x", np.random.default_rng(CR.SEED_BOOT_BLOCKS), n=300)
+        b2 = CR.bootstrap_blocks(dfb, cmp_, blk12, "x", np.random.default_rng(CR.SEED_BOOT_BLOCKS), n=300)
+        b3 = CR.bootstrap_blocks(dfb, cmp_, blk4, "x", np.random.default_rng(CR.SEED_BOOT_BLOCKS), n=300)
+        sd_pt = CR.summarise(dfb.rename(columns=dict(x="d_D_g")).assign(**{f"d_{k}": 0.0 for k in CR.OBS if k != "D_g"},
+                             **{f"drot_{k}": np.nan for k in CR.OBS}, **{f"dpers_rot_{k}": np.nan for k in CR.OBS}, d_dD_over_SD=0.0, d_phi_uns=0.0), cmp_)
+        ok("S4. CR numbering: 1979-12-27 20:15 -> 1690, 20:00 -> 1689 (JD 2444235.34 = 20:09.6); block bootstrap: 10 blocks -> interval, same seed -> "
+           "same interval; 4 blocks -> no interval; blocks of the real selection = block of the first CR of each component",
+           cr_a == 1690 and cr_b == 1689 and b1["n_blocks"] == 10 and b1["lo"] < b1["hi"] and b1 == b2 and np.isnan(b3["lo"])
+           and b3["n_blocks"] == 4 and set(CR.component_blocks(p4["SELECTION"]).index) == set(p4["SELECTION"].component),
+           f"CR {cr_a}/{cr_b}; b1 {b1}; sd rows {len(sd_pt)}")
+        clean = CR.unique_file_problems(Path(tdr) / "fits", p4["SELECTION"], paths)
+        src = paths(201, rows[0]["T_REC_a"])[0]
+        (Path(tdr) / "fits/copy").mkdir()
+        shutil.copy(src, Path(tdr) / "fits/copy" / src.name)
+        dupl = CR.unique_file_problems(Path(tdr) / "fits", p4["SELECTION"], paths)
+        ok("S6. unique files: every selected record resolves to one Br, bitmap, keys file; a second copy anywhere under the "
+           "base is reported (stop before any pixel)", clean == [] and len(dupl) == 1 and "2 copies" in dupl[0], str(dupl))
+    old_fz = CR.FREEZE
+    with tempfile.TemporaryDirectory() as tdz:
+        CR.FREEZE = Path(tdz) / "FREEZE.json"
+        CR.FREEZE.write_text(json.dumps(dict(sha256="x", not_blind="")))
+        g1 = CR.gate()
+        CR.FREEZE.write_text(json.dumps(dict(sha256="0" * 64, runner_sha256="0" * 64, recount_sha256="0" * 64, candidates_sha256="0" * 64,
+                                             freeze_commit="0" * 40, not_blind="")))
+        g2 = CR.gate()
+    CR.FREEZE = old_fz
+    ok("S7. gate: a receipt without its fields is refused field by field; wrong SHA, a commit that is not an ancestor and an "
+       "empty non-blindness declaration are each refused", any("runner_sha256" in x for x in g1)
+       and sum("differs from the current file" in x for x in g2) == 4 and any("freeze commit" in x for x in g2)
+       and any("non-blindness" in x for x in g2), f"{g1} | {g2}")
     cand_real = pd.read_csv(CR.CANDIDATES)                            # metadata only (no pixel)
     s6, _, q6 = CR.selection(cand_real)
     f6 = np.sort(s6.USFLUX_t0.astype(float).to_numpy())

@@ -126,6 +126,40 @@ e congelare.
    selezione non è vuota, gli input esistono e il manifest è invariato a fine corsa, l'insieme delle chiavi
    (pair_key, preparazione) è esattamente quello atteso, e nessuna riga ha `read_error` o `technical_error`.
    `metadata_eligible` deve essere un booleano o le stringhe esatte "True"/"False": ogni altro valore ferma la selezione.
+8. **Voci del §1, §2.2 e §6 completate prima del congelamento** (Codex, 27 novembre: "completa le voci 1–6 o dichiara i
+   rinvii"). Tutte descrittive: nessuna cambia misure, selezione, pesi o regole di validità del §4bis.1–7.
+   1. **QUALITY (§2.2).** Letta dagli header dei due record (keys.json, intero o stringa esadecimale DRMS) prima di
+      ogni pixel; colonne quality_0, quality_1 e gruppo `quality` = both0 / not_both0 / missing, riepilogato come
+      gli altri gruppi. La sensibilità "sole coppie con entrambi QUALITY 0" è il gruppo both0; nessun nuovo
+      significato al bit 128, nessun filtro aggiunto.
+   2. **μ geometrico (§6).** Per ciascun istante, con l'osservatore a (CRLN_OBS, CRLT_OBS) dell'header:
+      μ = sin B0 sin φ + cos B0 cos φ cos(λ − L0) al centro di ogni cella di C_fin; mu_mean_j = media pesata per area
+      sulle celle con μ > 0, mu_offdisk_cells_j = numero di celle di C_fin con μ ≤ 0. Chiavi mancanti → NaN e −1.
+      Non è la correzione LOS di Br; nessuna inferenza strumentale.
+   3. **Terne locali (§6).** Prodotto TRIPLES: per una stessa HARP, le coppie selezionate in cui la fine di una è
+      l'inizio dell'altra (t → t1 → t2). Sono collegamenti fra coppie già ammesse, non nuove repliche; nessuna
+      differenza t → t2 entra nel principale.
+   4. **Bootstrap a blocchi di 6 CR (§6, sensibilità).** Prodotto BOOTSTRAP_BLOCKS. Numero di rotazione di Carrington
+      dalla regola sinodica media CR = ⌊1690 + (JD − 2444235,34)/27,2753⌋ sul T_REC_a (TAI trattato come UTC: l'errore
+      di 37 s è irrilevante per blocchi di 6 CR); blocco = ⌊CR/6⌋ della prima CR di ogni componente, che resta intera
+      nel suo blocco. Si ricampionano i blocchi valutabili con reinserimento, stessi pesi del bootstrap principale,
+      2000 repliche, seme 36_300_002 riavviato a ogni chiamata (zona 36_300_000–999; nessun altro seme in C oltre a
+      36_300_001). Nessun intervallo con meno di 10 blocchi valutabili o con una replica fallita.
+   5. **Distribuzione per anno (§6).** Prodotto YEARS: coppie selezionate e misurate ok per anno di T_REC_0 e
+      preparazione. **Rinviato:** il confronto dai metadati con il bacino del pilota osservativo per flusso,
+      latitudine e LCM, perché quel bacino non è ancora un campione congelato. Si farà in una nota propria, dai soli
+      metadati, senza leggere i prodotti di C e senza scegliere pesi; il congelamento di C non lo presuppone.
+   6. **Unicità dei file (§1).** Nel layout adottato (`data/sharp/fits/<anno>/`, nomi di download_records) ogni
+      record selezionato deve corrispondere a esattamente un file Br, bitmap e keys in tutto l'albero sotto la base;
+      un nome assente o presente due volte ferma la corsa prima di ogni pixel (runner e, indipendentemente, riconteggio).
+   7. **Entrata `--run` e ricevuta di congelamento.** `docs/SFT_HMI_REPEATABILITY_FREEZE.json` con sha256 (questa
+      specifica), runner_sha256, recount_sha256, candidates_sha256, freeze_commit e not_blind (testo non vuoto). Il
+      runner legge i FITS solo se: la ricevuta ha tutti i campi; specifica, runner, riconteggio e candidati hanno gli
+      SHA della ricevuta; freeze_commit è antenato di HEAD e contiene questa specifica con lo stesso SHA; l'albero
+      tracciato è pulito; il runner è uguale al suo blob in HEAD; `results/SFT_C_REPEATABILITY` non esiste. META porta
+      lo SHA della ricevuta. Il riconteggio `--check` richiede la stessa ricevuta (proprio SHA e candidati), il suo
+      SHA nel META e l'unicità dei file, e scrive `results/SFT_C_REPEATABILITY_RECOUNT/RECEIPT.json` solo se tutti i
+      controlli passano.
 
 ## 5. Osservabili e differenze
 
@@ -230,8 +264,8 @@ Nests restano sospesi; non entra in C o BQ una classificazione non ancora costru
    imporre rho=0 ai dati. Aggiungere il caso rho=0,8 a 1 h e rho=0 ai giorni, stessa varianza singola:
    la scala della differenza breve e sqrt(0,2) della scala ai giorni, anche senza evoluzione.
    Nessun solutore SFT e necessario per il principale di C.
-4. Corse reali su codice e input conservati: SELECTION/EXCLUSIONS, INPUT_MANIFEST, MEASUREMENTS, DIFFERENCES,
-   COMPONENTS, SUMMARY, BOOTSTRAP e META, con colonne e chiavi esatte e hash all'inizio/fine. Destinazioni nuove,
+4. Corse reali su codice e input conservati: SELECTION/EXCLUSIONS, INPUT_MANIFEST, MEASUREMENTS (le differenze sono
+   colonne delle misure), DENOMINATORS, COMPONENTS, SUMMARY, BOOTSTRAP, BOOTSTRAP_BLOCKS, TRIPLES, YEARS e META (§4bis.8), con colonne e chiavi esatte e hash all'inizio/fine. Destinazioni nuove,
    nessuna sovrascrittura dei prodotti precedenti; salvataggio prima della lettura.
 5. Riconteggio da FITS con propria misura e regole di riepilogo; la dipendenza dal lettore/WCS P1, se condivisa,
    e dichiarata. Ricevuta completa legata al META e ai prodotti; nessuna lettura del rapporto di risultati prima

@@ -1,5 +1,6 @@
 """Independent recount of repeatability C (spec docs/SFT_HMI_REPEATABILITY_PLAN_DRAFT.md rev. 3 + §4bis, NOT frozen).
-Synthetic only: --check on real products is refused until the spec, the runner and this recount are frozen.
+--check on the real products only with the C freeze receipt (this file and the candidates = receipt; META carries the
+receipt hash; every record file unique); the receipt RECEIPT.json is written only if every check passes.
 
 Own code; it imports neither scripts/sft_c_repeatability.py nor sft_observed_pilot.py, sft_local.py or sft_core.py (the
 selftest uses the runner only to produce the rows to be recounted). Own pieces:
@@ -16,7 +17,9 @@ selftest uses the runner only to produce the rows to be recounted). Own pieces:
 - the operational products of assemble() (own_assembly_check): selection, exclusions, groups and USFLUX terciles (own
   rational-index quantile), exact (pair_key, preparation) keys, every pair re-measured (read_error expected when the
   maps cannot be read), denominators, SUMMARY and BOOTSTRAP per preparation and group, input manifest re-hashed now,
-  run information and validity (draft §4bis.7).
+  run information and validity (draft §4bis.7);
+- spec §4bis.8: QUALITY of both records and its group, geometric mu of C_fin (unit vectors), TRIPLES, YEARS and the
+  6-CR block bootstrap (CR numbering with astropy JD), unique record files (os.walk).
 Declared dependencies: the P1 map reader and WCS (geometry.read_sharp, lonlat_maps, pixel_area_cm2) and the SHARP file
 naming (download_records), as the A1 recount. Definitions shared with the runner by construction (they are the spec):
 the rotation law (Snodgrass & Ulrich 1990, as P1d/P1e), the P1 tilt and leading convention, the margin constants.
@@ -263,6 +266,16 @@ class Rotation:
 
 # ---------------------------------------------------------------- one pair
 
+def own_mu(g, Cm, h):
+    """mu = r_cell . r_observer (unit vectors), area-weighted over the C_fin cells with mu > 0; cells with mu <= 0."""
+    if "CRLN_OBS" not in h or "CRLT_OBS" not in h:
+        return np.nan, -1
+    LO, LA = np.meshgrid(g.lon, g.lat)
+    mu = unit(LO, LA) @ unit(np.array(float(h["CRLN_OBS"])), np.array(float(h["CRLT_OBS"])))
+    on = Cm & (mu > 0)
+    return (float((mu[on] * g.A[on]).sum() / g.A[on].sum()) if on.any() else np.nan), int((Cm & ~(mu > 0)).sum())
+
+
 def recount_pair(read, harp, t0, t1, kinds=("raw", "p1_source", "balanced")):
     (br0, bm0, h0), (br1, bm1, h1) = read(harp, t0), read(harp, t1)
     tt = [pd.Timestamp(str(h["T_OBS"]).replace("_TAI", "").replace(".", "-", 2).replace("_", " ")) for h in (h0, h1)]
@@ -290,6 +303,8 @@ def recount_pair(read, harp, t0, t1, kinds=("raw", "p1_source", "balanced")):
     Cm = erode(GV[0][1], ky, kx) & GV[1][1]
     area = g.area_deg2(Cm)
     base.update(area_C_geo=g.area_deg2(Cgeo), area_C_fin=area, C_geo_cells=int(Cgeo.sum()), C_cells=int(Cm.sum()))
+    for j, h in enumerate((h0, h1)):
+        base[f"mu_mean_{j}"], base[f"mu_offdisk_cells_{j}"] = own_mu(g, Cm, h)
     if n_out:
         return [dict(base, kind=k, status="deposition_out_of_range", n_out=n_out) for k in kinds]
     if area < AREA_MIN:
@@ -365,7 +380,8 @@ def recount_pair(read, harp, t0, t1, kinds=("raw", "p1_source", "balanced")):
 
 # ---------------------------------------------------------------- comparison
 
-EXACT_INT = ("C_cells", "C_geo_cells", "fine_cells_invalid", "n_out", "leading_0", "leading_1", "HARPNUM")
+EXACT_INT = ("C_cells", "C_geo_cells", "fine_cells_invalid", "n_out", "leading_0", "leading_1", "HARPNUM", "mu_offdisk_cells_0",
+             "mu_offdisk_cells_1")
 
 
 def family_scale(key, sc):
@@ -544,7 +560,8 @@ def boot(comp, x, seed, n):
 # ---------------------------------------------------------------- operational products of assemble()
 
 KINDS3 = ("raw", "p1_source", "balanced")
-GROUPS = ("hemisphere", "lag_class", "flux_tercile")
+GROUPS = ("hemisphere", "lag_class", "flux_tercile", "quality")
+SEED_BLOCKS, CR_BLOCK = 36_300_002, 6
 BOOT_Q = ("D_g", "dD_over_SD", "phi_net", "phi_uns", "lat_pos", "lat_neg", "sep_deg")
 N_BOOT_DEFAULT = 2000
 
@@ -578,11 +595,65 @@ def own_selection(cand):
     return sel, exc, q
 
 
+def own_quality(h):
+    v = h.get("QUALITY") if hasattr(h, "get") else None
+    if v is None:
+        return np.nan
+    try:
+        if isinstance(v, str):
+            t = v.strip().lower()
+            return float(int(t[2:], 16)) if t.startswith("0x") else float(int(t))
+        return float(v)
+    except (TypeError, ValueError):
+        return np.nan
+
+
+def own_cr(t_rec):
+    """Carrington rotation from the mean synodic rule (spec): JD by astropy (TAI taken as UTC, as the spec)."""
+    from astropy.time import Time
+    d, t = str(t_rec).replace("_TAI", "").split("_")
+    jd = Time(d.replace(".", "-") + "T" + t, scale="utc").jd
+    return math.floor(1690 + (jd - 2444235.34) / 27.2753)
+
+
+def own_block_boot(comp, x, cblk, seed, n):
+    """Bootstrap of the 6-CR blocks (spec draft §6): same rule and same random sequence as the spec defines."""
+    fin = np.isfinite(x)
+    ids = sorted(set(comp[fin].tolist()))
+    blocks = sorted({cblk[c] for c in ids})
+    if len(blocks) < MIN_COMPONENTS:
+        return np.nan, np.nan, len(blocks), len(ids)
+    rng = np.random.default_rng(seed)
+    members = {b: [c for c in ids if cblk[c] == b] for b in blocks}
+    rows = {c: np.flatnonzero(fin & (comp == c)) for c in ids}
+    vals = []
+    for _ in range(n):
+        idx, wi = [], []
+        for b in rng.choice(np.array(blocks), len(blocks), replace=True):
+            for c in members[b]:
+                idx.append(rows[c])
+                wi.append(np.full(len(rows[c]), 1.0 / len(rows[c])))
+        idx, wi = np.concatenate(idx), np.concatenate(wi)
+        m = (wi * x[idx]).sum() / wi.sum()
+        vals.append(math.sqrt((wi * (x[idx] - m) ** 2).sum() / wi.sum()))
+    return float(np.quantile(vals, 0.025)), float(np.quantile(vals, 0.975)), len(blocks), len(ids)
+
+
+def own_unique_files(base, sel, paths_fn):
+    """Every record file of the selection exists once under base (os.walk; no glob)."""
+    import os
+    seen = {}
+    for dp, _, fs in os.walk(base):
+        for f in fs:
+            seen[f] = seen.get(f, 0) + 1
+    return [str(p) for _, r in sel.iterrows() for t in (r.T_REC_a, r.T_REC_b) for p in paths_fn(r.HARPNUM, t) if seen.get(Path(p).name, 0) != 1]
+
+
 def _own_row(row, ours_keys):
     """A MEASUREMENTS row as the runner's dict: keys absent from that pair's row appear as NaN in the table."""
     out = {}
     for k, v in row.items():
-        if k in ("pair_key", "component", "hemisphere", "lag_class", "flux_tercile"):
+        if k in ("pair_key", "component", "hemisphere", "lag_class", "flux_tercile", "quality", "quality_0", "quality_1"):
             continue
         if k in ours_keys or not (isinstance(v, float) and np.isnan(v)):
             out[k] = v
@@ -609,8 +680,10 @@ def own_assembly_check(cand, read, paths_fn, prods, info, n_boot=N_BOOT_DEFAULT)
     checks.append(("measurement keys: one row per (pair_key, preparation)", keys_ok, f"{len(got)} rows, {len(want)} expected"))
     bad = []
     n_read, n_tech = 0, 0
+    qual = {}
     for _, r in sel.iterrows():
         rows = M[M.pair_key == r.pair_key]
+        qual[r.pair_key] = "missing"
         try:
             cache = {t: read(r.HARPNUM, t) for t in (r.T_REC_a, r.T_REC_b)}
         except Exception as exc_:                                  # noqa: BLE001
@@ -618,7 +691,17 @@ def own_assembly_check(cand, read, paths_fn, prods, info, n_boot=N_BOOT_DEFAULT)
             n_read += len(rows)
             if not (rows.status == want_st).all():
                 bad.append(f"{r.pair_key}: expected {want_st}")
+            if "quality" in rows and not (rows.quality.astype(str) == "missing").all():
+                bad.append(f"{r.pair_key}: quality of an unread pair")
             continue
+        q0, q1 = own_quality(cache[r.T_REC_a][2]), own_quality(cache[r.T_REC_b][2])
+        qual[r.pair_key] = "missing" if (np.isnan(q0) or np.isnan(q1)) else ("both0" if q0 == 0 == q1 else "not_both0")
+        for col, v in (("quality_0", q0), ("quality_1", q1)):
+            tv = rows[col].astype(float).to_numpy() if col in rows else np.array([np.inf])
+            if not all((np.isnan(v) and np.isnan(x)) or x == v for x in tv):
+                bad.append(f"{r.pair_key}: {col}")
+        if "quality" not in rows or not (rows.quality.astype(str) == qual[r.pair_key]).all():
+            bad.append(f"{r.pair_key}: quality group")
         try:
             ours = recount_pair(lambda h, t: cache[t], r.HARPNUM, r.T_REC_a, r.T_REC_b)
         except Exception as exc_:                                  # noqa: BLE001
@@ -634,7 +717,14 @@ def own_assembly_check(cand, read, paths_fn, prods, info, n_boot=N_BOOT_DEFAULT)
             bad.append(f"{r.pair_key}: {g[1]}")
     checks.append(("every pair re-measured (or the expected read/technical error)", not bad, "; ".join(bad[:3])))
     comps = sel.set_index("pair_key").component
-    Mg = M.drop(columns=[c for c in GROUPS if c in M.columns]).merge(sel[["pair_key"] + list(GROUPS)], on="pair_key")
+    Mg = M.drop(columns=[c for c in GROUPS if c in M.columns]).merge(sel[["pair_key"] + list(GROUPS[:3])], on="pair_key")
+    Mg["quality"] = Mg.pair_key.map(qual)
+    first_cr = {}
+    for _, r in sel.iterrows():
+        first_cr[r.component] = min(first_cr.get(r.component, 10 ** 9), own_cr(r.T_REC_a))
+    cblk = {c: v // CR_BLOCK for c, v in first_cr.items()}
+    BB = prods.get("BOOTSTRAP_BLOCKS", pd.DataFrame(columns=["kind", "group", "quantity"]))
+    bbmis = []
     dmis, smis, bmis = [], [], []
     Dt, St, Bt = prods["DENOMINATORS"], prods["SUMMARY"], prods["BOOTSTRAP"]
     for kind in KINDS3:
@@ -666,9 +756,33 @@ def own_assembly_check(cand, read, paths_fn, prods, info, n_boot=N_BOOT_DEFAULT)
                         same = same and ((np.isnan(mine) and np.isnan(th)) or abs(mine - th) <= 1e-9 * max(1.0, abs(mine)))
                     if not same:
                         bmis.append(f"{kind}/{gname}/{qn}")
+                    lo2, hi2, nb2, nc2 = own_block_boot(okp.pair_key.map(comps).to_numpy(), okp[col].to_numpy(float), cblk, SEED_BLOCKS, n_boot)
+                    bt2 = BB[(BB.kind == kind) & (BB.group == gname) & (BB.quantity == qn)]
+                    same2 = len(bt2) == 1 and int(bt2.n_blocks.iloc[0]) == nb2 and int(bt2.n_components.iloc[0]) == nc2
+                    for mine, th in ((lo2, bt2.lo.iloc[0] if len(bt2) else np.nan), (hi2, bt2.hi.iloc[0] if len(bt2) else np.nan)):
+                        same2 = same2 and ((np.isnan(mine) and np.isnan(float(th))) or abs(mine - float(th)) <= 1e-9 * max(1.0, abs(mine)))
+                    if not same2:
+                        bbmis.append(f"{kind}/{gname}/{qn}")
     checks.append(("denominators per preparation and group", not dmis, "; ".join(dmis[:4])))
     checks.append(("SUMMARY per preparation and group (own statistics)", not smis, "; ".join(smis[:3])))
     checks.append(("BOOTSTRAP per preparation, group and quantity (own resampling, same seed)", not bmis, "; ".join(bmis[:4])))
+    checks.append(("BOOTSTRAP_BLOCKS of 6 CR (own CR numbering and resampling, same seed)", not bbmis and len(BB) == len(Bt), "; ".join(bbmis[:4])))
+    # triples: links among the selected pairs of one HARP (end of one = start of the other)
+    starts = {(int(r.HARPNUM), str(r.T_REC_a)): r for _, r in sel.iterrows()}
+    own_tr = sorted((int(r.HARPNUM), str(r.T_REC_a), str(r.T_REC_b), str(starts[(int(r.HARPNUM), str(r.T_REC_b))].T_REC_b), r.pair_key,
+                     starts[(int(r.HARPNUM), str(r.T_REC_b))].pair_key) for _, r in sel.iterrows() if (int(r.HARPNUM), str(r.T_REC_b)) in starts)
+    TR = prods.get("TRIPLES", pd.DataFrame(columns=["HARPNUM", "T_REC_0", "T_REC_1", "T_REC_2", "pair_key_1", "pair_key_2"]))
+    th_tr = sorted((int(a), str(b), str(c), str(d), str(e), str(f)) for a, b, c, d, e, f in
+                   zip(TR.HARPNUM, TR.T_REC_0, TR.T_REC_1, TR.T_REC_2, TR.pair_key_1, TR.pair_key_2))
+    checks.append(("TRIPLES (own linking)", own_tr == th_tr, f"{len(own_tr)} own vs {len(th_tr)}"))
+    yrs = {}
+    for _, r in M.iterrows():
+        k = (str(r.kind), int(str(r.T_REC_0)[:4]))
+        s_, o_ = yrs.get(k, (0, 0))
+        yrs[k] = (s_ + 1, o_ + int(r.status == "ok"))
+    YR = prods.get("YEARS", pd.DataFrame(columns=["kind", "year", "selected", "ok"]))
+    th_y = {(str(a), int(b)): (int(c), int(d)) for a, b, c, d in zip(YR.kind, YR.year, YR.selected, YR.ok)}
+    checks.append(("YEARS (own counts)", th_y == yrs and len(YR) == len(yrs), f"{len(yrs)} own vs {len(YR)}"))
     man = []
     for _, r in sel.iterrows():
         for t in (r.T_REC_a, r.T_REC_b):
@@ -688,7 +802,7 @@ def own_assembly_check(cand, read, paths_fn, prods, info, n_boot=N_BOOT_DEFAULT)
 # ---------------------------------------------------------------- products on disk and receipt
 
 PRODUCT_FILES = ("SELECTION.csv", "EXCLUSIONS.csv", "INPUT_MANIFEST.csv", "MEASUREMENTS.csv", "DENOMINATORS.csv", "COMPONENTS.csv",
-                 "SUMMARY.csv", "BOOTSTRAP.csv", "META.json")
+                 "SUMMARY.csv", "BOOTSTRAP.csv", "BOOTSTRAP_BLOCKS.csv", "TRIPLES.csv", "YEARS.csv", "META.json")
 INFO_KEYS = ("selected", "excluded", "components", "tercile_q1", "tercile_q2", "manifest_unchanged", "all_inputs_present", "measured_pairs",
              "measurement_keys_exact", "read_errors", "technical_errors", "run_valid")
 
@@ -732,6 +846,59 @@ def check_products(out, cand, cand_path, read, paths_fn, n_boot=N_BOOT_DEFAULT, 
                                                                              recount_sha256=_sha(__file__),
                                                                              outputs_sha256={p.name: _sha(p) for p in sorted(out.iterdir())}), indent=2) + "\n")
     return checks, good
+
+
+FREEZE = ROOT / "docs/SFT_HMI_REPEATABILITY_FREEZE.json"
+OUT = ROOT / "results/SFT_C_REPEATABILITY"
+RECEIPT_DIR = ROOT / "results/SFT_C_REPEATABILITY_RECOUNT"
+CANDIDATES = ROOT / "reviews/C_REPEATABILITY_METADATA_CLOSURE_20261125/AUDIT/CANDIDATES.csv"
+FITS_BASE = ROOT / "data/sharp/fits"
+
+
+def own_paths(base):
+    from sharpbl.download_records import file_stem, record_dir        # declared dependency: SHARP file naming
+
+    def paths(harp, t_rec):
+        folder, stem = record_dir(base, t_rec), file_stem(int(harp), t_rec)
+        return [folder / f"{stem}.{k}" for k in ("Br.fits", "bitmap.fits", "keys.json")]
+    return paths
+
+
+def own_reader(base):
+    pf = own_paths(base)
+
+    def read(harp, t_rec):
+        p = pf(harp, t_rec)
+        br, h = geo.read_sharp(p[0])
+        bm, _ = geo.read_sharp(p[1])
+        return br, bm, h
+    return read
+
+
+def real_check():
+    """Recount of the real run: only with the C freeze receipt, whose recount_sha256 must be this file and whose
+    candidates_sha256 must be the candidates table; META must carry the receipt hash; every record file unique."""
+    import json
+    if not FREEZE.exists():
+        return "repeatability C recount: freeze receipt missing; --check refused"
+    fz = json.loads(FREEZE.read_text())
+    if fz.get("recount_sha256") != _sha(__file__) or fz.get("candidates_sha256") != _sha(CANDIDATES):
+        return "repeatability C recount: this file or the candidates differ from the receipt; --check refused"
+    if not OUT.exists():
+        return f"repeatability C recount: {OUT} missing"
+    meta = json.loads((OUT / "META.json").read_text())
+    if meta.get("freeze_receipt_sha256") != _sha(FREEZE):
+        return "repeatability C recount: META does not carry this freeze receipt"
+    cand = pd.read_csv(CANDIDATES)
+    sel, _, _ = own_selection(cand)
+    dup = own_unique_files(FITS_BASE, sel, own_paths(FITS_BASE))
+    if dup:
+        return "repeatability C recount: record files not unique or missing: " + "; ".join(dup[:5])
+    checks, good = check_products(OUT, cand, CANDIDATES, own_reader(FITS_BASE), own_paths(FITS_BASE), real=True, receipt_dir=RECEIPT_DIR)
+    for c in checks:
+        print(f"[{'OK' if c[1] else 'FALLITO'}] {c[0]} {str(c[2])[:200]}")
+    print(f"recount: {sum(c[1] for c in checks)}/{len(checks)}; receipt {'written' if good else 'NOT written'}")
+    return 0 if good else 1
 
 
 # ---------------------------------------------------------------- selftest (synthetic only)
@@ -848,6 +1015,32 @@ def selftest():
             ok(f"refused (assembly): {lab}", not all(c[1] for c in c_))
         c_ = own_assembly_check(good, rd, paths, pg, dict(ig, run_valid=False), n_boot=50)
         ok("refused (assembly): run validity declared differently", not all(c[1] for c in c_))
+        for lab, key, fn in (("a TRIPLES link added", "TRIPLES", lambda t: pd.concat([t, pd.DataFrame([dict(HARPNUM=201, T_REC_0="a", T_REC_1="b",
+                                                                                                         T_REC_2="c", pair_key_1="x", pair_key_2="y")])])),
+                             ("a YEARS count altered", "YEARS", lambda t: t.assign(ok=t.ok + (t.index == 0))),
+                             ("a BOOTSTRAP_BLOCKS block count altered", "BOOTSTRAP_BLOCKS", lambda t: t.assign(n_blocks=t.n_blocks + (t.index == 0))),
+                             ("a quality group altered", "MEASUREMENTS", lambda t: t.assign(quality=t.quality.where(t.index != 0, "both0"))),
+                             ("a mu mean altered (1e-6)", "MEASUREMENTS", lambda t: t.assign(mu_mean_0=t.mu_mean_0 * (1 + 1e-6 * (t.index == 0))))):
+            tp = dict(pg)
+            tp[key] = fn(pg[key].copy())
+            c_ = own_assembly_check(good, rd, paths, tp, ig, n_boot=50)
+            ok(f"refused (assembly): {lab}", not all(c[1] for c in c_), " | ".join(c[0][:40] for c in c_ if not c[1]))
+
+        def rd_q(h, t):                                                # QUALITY as DRMS hex strings, non-zero for HARP 203 at t1
+            br_, bm_, hh = rd(h, t)
+            hh = dict(hh)
+            hh["QUALITY"] = "0x00000400" if (int(h) == 203 and t == rows_c[2]["T_REC_b"]) else "0x00000000"
+            return br_, bm_, hh
+        pq, iq = CR.assemble(good, rd_q, paths, n_boot=50)
+        cq = own_assembly_check(good, rd_q, paths, pq, iq, n_boot=50)
+        ok("assembly with QUALITY (hex strings): quality groups, both0 / not_both0 and every product recounted",
+           all(c[1] for c in cq) and set(pq["MEASUREMENTS"].quality) == {"both0", "not_both0"} and own_quality({"QUALITY": " 0x10 "}) == 16.0
+           and np.isnan(own_quality({})), " | ".join(f"{c[0][:30]}: {c[2]}" for c in cq if not c[1]))
+        trs = [f"{y}.{m:02d}.{d:02d}_{hh:02d}:{mm:02d}:00_TAI" for y, m, d, hh, mm in
+               [(1979, 12, 27, 20, 0), (1979, 12, 27, 20, 15), (2010, 5, 1, 0, 0), (2014, 2, 28, 23, 48), (2024, 12, 31, 12, 12)]]
+        ok("CR numbering: own (astropy JD) = runner (pandas JD) on 5 dates incl. the CR 1690 boundary; 6-CR blocks of the "
+           "valid run recounted", [own_cr(t) for t in trs] == [CR.carrington_rotation(t) for t in trs] and own_cr(trs[0]) == 1689
+           and own_cr(trs[1]) == 1690, str([own_cr(t) for t in trs]))
         # products written to disk by the runner and recounted from the CSV files
         cpath = Path(tdr) / "CANDIDATES.csv"
         good.to_csv(cpath, index=False)
@@ -909,5 +1102,5 @@ if __name__ == "__main__":
     gr.add_argument("--check", action="store_true")
     a = ap.parse_args()
     if a.check:
-        sys.exit("repeatability C recount: the spec, the runner and this recount are not frozen; --check refused")
+        sys.exit(real_check())
     sys.exit(0 if selftest() else 1)

@@ -1,7 +1,9 @@
 """Repeatability C (draft rev. 3, NOT frozen): observed short-lag differences of the SFT observables. Synthetic only.
 
 Spec: docs/SFT_HMI_REPEATABILITY_PLAN_DRAFT.md. This file implements the measurement and the summaries on synthetic
-CEA patches; --run is refused until the spec is frozen (no pixel of the real pairs is read here).
+CEA patches; --run reads the real pairs only through gate() (the C freeze receipt with spec, runner, recount and
+candidates SHA, freeze commit ancestor of HEAD holding the spec, non-blindness text, clean tree, script = HEAD blob, no
+existing output) and after unique_file_problems() (every record file exactly once under data/sharp/fits).
 - Pairs: consecutive local records of one HARP with 0 < Delta T_OBS <= 7200 s (selection and graph from the metadata
   closure, Codex bb23d3e); every listed pair is measured, no replacement on failure.
 - Grid 0.06 deg on the branch of the first CRVAL1; lower bounds = minimum of the WCS centres of BOTH patches - 1 deg,
@@ -49,6 +51,13 @@ CEA patches; --run is refused until the spec is frozen (no pixel of the real pai
   hemispheres; USFLUX(t0) metadata terciles; component bootstrap (2000 replicates, seed 36_300_001) over the
   evaluable components with the same weights; no interval with fewer than 10 evaluable components or if a replicate
   fails (both counted). A pair_key without an assigned component is refused (ValueError), not taken as missing.
+- Descriptive additions of draft §6 (spec §4bis.8): QUALITY of both records from the headers and the group
+  quality = both0 / not_both0 / missing (the QUALITY = 0 sensitivity of §2.2 is the group both0); geometric mu of C_fin
+  at both instants (mu_mean_j, area-weighted over cells with mu > 0, and mu_offdisk_cells_j; not a LOS correction);
+  TRIPLES (links t -> t+1 -> t+2 among the selected pairs of one HARP, not new replicates); YEARS (pairs per year of
+  T_REC_0 and preparation); BOOTSTRAP_BLOCKS (sensitivity: non-overlapping blocks of 6 Carrington rotations, mean
+  synodic rule, each component in the block of its first CR, seed 36_300_002 restarted per call, no interval with
+  fewer than 10 evaluable blocks).
 """
 from __future__ import annotations
 
@@ -141,6 +150,20 @@ def children(box, fbox, Cm):
     return np.kron(Cm, np.ones((2, 2), bool))
 
 
+def mu_stats(box, Cm, h):
+    """Area-weighted mean of mu = cos(heliocentric angle) over the C_fin cells on the disk, with the observer at
+    (CRLN_OBS, CRLT_OBS) of the header, and the number of C_fin cells with mu <= 0. Descriptive only (draft §6): not the
+    LOS correction of Br, no instrumental inference. Missing observer keys -> (NaN, -1)."""
+    if "CRLN_OBS" not in h or "CRLT_OBS" not in h:
+        return np.nan, -1
+    L0, B0 = math.radians(float(h["CRLN_OBS"])), math.radians(float(h["CRLT_OBS"]))
+    LAT, LON = np.meshgrid(np.radians(box.lat), np.radians(box.lon), indexing="ij")
+    mu = math.sin(B0) * np.sin(LAT) + math.cos(B0) * np.cos(LAT) * np.cos(LON - L0)
+    on = Cm & (mu > 0)
+    mean = float((mu * box.A)[on].sum() / box.A[on].sum()) if on.any() else np.nan
+    return mean, int((Cm & (mu <= 0)).sum())
+
+
 def leading_change(m0, m1):
     """Change of the leading polarity (P1 convention of measures: westmost, periodic); NaN unless both instants have
     both polarities."""
@@ -177,6 +200,8 @@ def measure_pair(read, harp, t_rec0, t_rec1, kinds=KINDS):
     Cgeo, area_geo = OP.domain(box, G0, G1, m_lat, m_lon)
     Cm, area = OP.domain(box, V0, V1, m_lat, m_lon)
     base.update(area_C_geo=area_geo, area_C_fin=area, C_geo_cells=int(Cgeo.sum()), C_cells=int(Cm.sum()))
+    for j, h in enumerate((h0, h1)):                                  # draft §6: geometric mu of C_fin (descriptive)
+        base[f"mu_mean_{j}"], base[f"mu_offdisk_cells_{j}"] = mu_stats(box, Cm, h)
     if n_out:
         return [dict(base, kind=k, status="deposition_out_of_range", n_out=n_out) for k in kinds]
     if area < AREA_MIN:
@@ -414,7 +439,11 @@ def bootstrap(df, components, col, rng, n=N_BOOT):
 CANDIDATES = ROOT / "reviews/C_REPEATABILITY_METADATA_CLOSURE_20261125/AUDIT/CANDIDATES.csv"
 LAG_SPLIT_S = 5400.0                     # lag classes (0, 1.5 h] and (1.5 h, 2 h]
 BOOT_QUANTITIES = ("D_g", "dD_over_SD", "phi_net", "phi_uns", "lat_pos", "lat_neg", "sep_deg")
-GROUP_COLS = ("hemisphere", "lag_class", "flux_tercile")
+GROUP_COLS = ("hemisphere", "lag_class", "flux_tercile", "quality")
+SEED_BOOT_BLOCKS = 36_300_002            # block bootstrap of 6 CR (draft §6 sensitivity), restarted per call
+CR_BLOCK = 6
+FITS_BASE = ROOT / "data/sharp/fits"
+OUT = ROOT / "results/SFT_C_REPEATABILITY"
 
 
 def file_paths(base):
@@ -497,30 +526,133 @@ def measurement_keys_exact(meas, sel):
     return bool(len(got) == len(set(got)) and set(got) == want)
 
 
+def quality_group(h0, h1):
+    """QUALITY of the two records from their headers (read before any pixel): 'both0', 'not_both0' or 'missing'."""
+    q = []
+    for h in (h0, h1):
+        try:
+            v = h["QUALITY"]
+            v = v.strip() if isinstance(v, str) else v                                  # DRMS may give '0x00000000'
+            q.append(float(int(v, 16 if v.lower().startswith("0x") else 10)) if isinstance(v, str) else float(v))
+        except (KeyError, TypeError, ValueError, AttributeError):
+            q.append(np.nan)
+    grp = "missing" if not np.isfinite(q).all() else ("both0" if q[0] == 0 and q[1] == 0 else "not_both0")
+    return dict(quality_0=q[0], quality_1=q[1], quality=grp)
+
+
+def carrington_rotation(t_rec):
+    """Carrington rotation number of a T_REC (mean synodic rule 1690 + (JD - 2444235.34) / 27.2753; TAI taken as UTC;
+    used only to group pairs into blocks of 6 CR for a sensitivity bootstrap)."""
+    t = pd.Timestamp(str(t_rec).replace("_TAI", "").replace(".", "-", 2).replace("_", " "))
+    return int(math.floor(1690 + (t.to_julian_date() - 2444235.34) / 27.2753))
+
+
+def component_blocks(sel):
+    """Block of 6 CR of every component: the block of the first CR of its pairs (draft §6)."""
+    if not len(sel):
+        return pd.Series(dtype=int)
+    cr = sel.T_REC_a.map(carrington_rotation)
+    first = cr.groupby(sel.component.to_numpy()).min()
+    return (first // CR_BLOCK).astype(int)
+
+
+def bootstrap_blocks(df, components, cblock, col, rng, n=N_BOOT):
+    """Sensitivity: resample the non-overlapping blocks of 6 CR (each component whole, in the block of its first CR)
+    with replacement; weights 1/n_finite within each component as in bootstrap(); no interval with fewer than
+    MIN_COMPONENTS evaluable blocks or a failed replicate."""
+    comp = components_of(df, components)
+    x = df[col].to_numpy(float)
+    fin = np.isfinite(x)
+    ids = np.unique(comp[fin])
+    blk = {c: int(cblock[c]) for c in ids}
+    blocks = np.unique([blk[c] for c in ids])
+    info = dict(n_blocks=int(len(blocks)), n_components=int(len(ids)), n_rep_failed=0)
+    if len(blocks) < MIN_COMPONENTS:
+        return dict(info, lo=np.nan, hi=np.nan, note=f"fewer than {MIN_COMPONENTS} evaluable blocks: no interval")
+    members = {b: [c for c in ids if blk[c] == b] for b in blocks}
+    by = {c: np.flatnonzero(fin & (comp == c)) for c in ids}
+    vals = []
+    for _ in range(n):
+        pick = [c for b in rng.choice(blocks, len(blocks), replace=True) for c in members[b]]
+        idx = np.concatenate([by[c] for c in pick])
+        wi = np.concatenate([np.full(len(by[c]), 1.0 / len(by[c])) for c in pick])
+        m = np.average(x[idx], weights=wi)
+        v = math.sqrt(np.average((x[idx] - m) ** 2, weights=wi))
+        if math.isfinite(v):
+            vals.append(v)
+        else:
+            info["n_rep_failed"] += 1
+    if info["n_rep_failed"]:
+        return dict(info, lo=np.nan, hi=np.nan, note="failed replicates: no interval")
+    return dict(info, lo=float(np.quantile(vals, 0.025)), hi=float(np.quantile(vals, 0.975)))
+
+
+def triples(sel):
+    """Local triples t -> t+1 -> t+2 of one HARP among the selected pairs (draft §6): links between pairs already
+    admitted, not new replicates."""
+    cols = ["HARPNUM", "T_REC_0", "T_REC_1", "T_REC_2", "pair_key_1", "pair_key_2"]
+    if not len(sel):
+        return pd.DataFrame(columns=cols)
+    m = sel.merge(sel, left_on=["HARPNUM", "T_REC_b"], right_on=["HARPNUM", "T_REC_a"], suffixes=("_1", "_2"))
+    return pd.DataFrame(dict(HARPNUM=m.HARPNUM, T_REC_0=m.T_REC_a_1, T_REC_1=m.T_REC_b_1, T_REC_2=m.T_REC_b_2, pair_key_1=m.pair_key_1,
+                             pair_key_2=m.pair_key_2), columns=cols).sort_values(["HARPNUM", "T_REC_0"]).reset_index(drop=True)
+
+
+def years(meas):
+    """Distribution per year of T_REC_0 and preparation: selected pairs and pairs measured ok (draft §6)."""
+    cols = ["kind", "year", "selected", "ok"]
+    if not len(meas):
+        return pd.DataFrame(columns=cols)
+    y = meas.assign(year=meas.T_REC_0.astype(str).str[:4].astype(int))
+    g = y.groupby(["kind", "year"]).agg(selected=("pair_key", "size"), ok=("status", lambda s_: int((s_ == "ok").sum()))).reset_index()
+    return g[cols]
+
+
+def unique_file_problems(base, sel, paths_fn):
+    """Draft §1 / package item 7: in the adopted layout every record must resolve to exactly one Br, bitmap and keys
+    file; another copy with the same name anywhere under `base` is a problem (stop before any pixel)."""
+    probs = []
+    names = {}
+    for p in Path(base).rglob("*"):
+        if p.is_file():
+            names.setdefault(p.name, []).append(p)
+    for _, r in sel.iterrows():
+        for t in (r.T_REC_a, r.T_REC_b):
+            for p in paths_fn(r.HARPNUM, t):
+                found = names.get(Path(p).name, [])
+                if len(found) != 1 or Path(found[0]).resolve() != Path(p).resolve():
+                    probs.append(f"{Path(p).name}: {len(found)} copies")
+    return probs
+
+
 def assemble(cand, read, paths_fn, n_boot=N_BOOT):
-    """Products of one run (synthetic until the freeze): SELECTION, EXCLUSIONS, INPUT_MANIFEST, MEASUREMENTS,
-    DENOMINATORS, COMPONENTS, SUMMARY, BOOTSTRAP and run information. Every selected pair is measured once; a failure is
+    """Products of one run (synthetic until the freeze): SELECTION, EXCLUSIONS, INPUT_MANIFEST, MEASUREMENTS (with
+    QUALITY and the geometric mu of C_fin), DENOMINATORS, COMPONENTS, SUMMARY, BOOTSTRAP, BOOTSTRAP_BLOCKS (6 CR), TRIPLES,
+    YEARS and run information. Every selected pair is measured once; a failure is
     a status (read_error / technical_error), never a removal or a replacement."""
     sel, exc, terc = selection(cand)
     man0 = manifest(sel, paths_fn)
     rows = []
     for _, r in sel.iterrows():
         fail = lambda st: [dict(HARPNUM=r.HARPNUM, T_REC_0=r.T_REC_a, T_REC_1=r.T_REC_b, kind=k, status=st) for k in KINDS]  # noqa: E731
+        qual = dict(quality_0=np.nan, quality_1=np.nan, quality="missing")
         try:                                                          # reading: both maps, before any computation
             cache = {t: read(r.HARPNUM, t) for t in (r.T_REC_a, r.T_REC_b)}
         except Exception as exc_:                                     # noqa: BLE001 (recorded as read_error)
             got = fail(f"read_error:{type(exc_).__name__}")
         else:
+            qual = quality_group(cache[r.T_REC_a][2], cache[r.T_REC_b][2])
             try:
                 got = measure_pair(lambda h, t: cache[t], r.HARPNUM, r.T_REC_a, r.T_REC_b)
             except Exception as exc_:                                 # noqa: BLE001 (recorded, the run continues)
                 got = fail(f"technical_error:{type(exc_).__name__}")
-        rows += [dict(g, pair_key=r.pair_key) for g in got]
-    meas = pd.DataFrame(rows, columns=None if rows else ["pair_key", "kind", "status"])
+        rows += [dict(g, pair_key=r.pair_key, **qual) for g in got]
+    meas = pd.DataFrame(rows, columns=None if rows else ["pair_key", "kind", "status", "T_REC_0", "quality"])
     meas = meas.merge(sel[["pair_key", "component", "hemisphere", "lag_class", "flux_tercile"]], on="pair_key", how="left", validate="many_to_one")
     man1 = manifest(sel, paths_fn)
     comps = sel.set_index("pair_key").component
-    den, summ, boot = [], [], []
+    cblock = component_blocks(sel)
+    den, summ, boot, bblk = [], [], [], []
     for kind in KINDS:
         mk = meas[meas.kind == kind]
         for gname, part in [("all", mk)] + [(f"{c}={v}", x) for c in GROUP_COLS for v, x in mk.groupby(c, sort=True)]:
@@ -535,6 +667,8 @@ def assemble(cand, read, paths_fn, n_boot=N_BOOT):
                     col = "d_dD_over_SD" if q == "dD_over_SD" else ("d_phi_uns" if q == "phi_uns" else f"d_{q}")
                     b = bootstrap(okp, comps, col, np.random.default_rng(SEED_BOOT), n=n_boot)     # same seed per call: order-free
                     boot.append(dict(kind=kind, group=gname, quantity=q, **b))
+                    bb = bootstrap_blocks(okp, comps, cblock, col, np.random.default_rng(SEED_BOOT_BLOCKS), n=n_boot)
+                    bblk.append(dict(kind=kind, group=gname, quantity=q, **bb))
     info = dict(selected=int(len(sel)), excluded=int(len(exc)), components=int(sel.component.nunique()), **terc,
                 manifest_unchanged=bool(man0[["path", "exists", "sha256"]].equals(man1[["path", "exists", "sha256"]])),
                 all_inputs_present=bool(man0.exists.all()), measured_pairs=int(meas.pair_key.nunique()),
@@ -547,10 +681,11 @@ def assemble(cand, read, paths_fn, n_boot=N_BOOT):
     return dict(SELECTION=sel, EXCLUSIONS=exc, INPUT_MANIFEST=man0, MEASUREMENTS=meas, DENOMINATORS=pd.DataFrame(den).fillna(0),
                 COMPONENTS=sel.groupby("component").agg(n_pairs=("pair_key", "size"), harps=("HARPNUM", "nunique")).reset_index(),
                 SUMMARY=pd.concat(summ, ignore_index=True) if summ else pd.DataFrame(),
-                BOOTSTRAP=pd.DataFrame(boot)), info
+                BOOTSTRAP=pd.DataFrame(boot), BOOTSTRAP_BLOCKS=pd.DataFrame(bblk), TRIPLES=triples(sel), YEARS=years(meas)), info
 
 
-PRODUCTS = ("SELECTION", "EXCLUSIONS", "INPUT_MANIFEST", "MEASUREMENTS", "DENOMINATORS", "COMPONENTS", "SUMMARY", "BOOTSTRAP")
+PRODUCTS = ("SELECTION", "EXCLUSIONS", "INPUT_MANIFEST", "MEASUREMENTS", "DENOMINATORS", "COMPONENTS", "SUMMARY", "BOOTSTRAP",
+            "BOOTSTRAP_BLOCKS", "TRIPLES", "YEARS")
 SPEC = ROOT / "docs/SFT_HMI_REPEATABILITY_PLAN_DRAFT.md"
 FREEZE = ROOT / "docs/SFT_HMI_REPEATABILITY_FREEZE.json"          # does not exist until the freeze
 
@@ -583,10 +718,64 @@ def write_products(prods, info, out, cand_path, extra=None):
     return meta
 
 
+RECEIPT_FIELDS = ("sha256", "runner_sha256", "recount_sha256", "candidates_sha256", "freeze_commit", "not_blind")
+
+
+def gate():
+    """Provenance before any map is read (model of the A1 gate): the C freeze receipt with every field, the spec, the
+    runner, the recount and the candidates equal to the receipt, the freeze commit an ancestor of HEAD holding the spec
+    with the same SHA, a text non-blindness declaration, a clean tracked tree, this script equal to its HEAD blob and no
+    existing output."""
+    import json
+    import subprocess
+    if not FREEZE.exists():
+        return ["C freeze receipt missing (spec not frozen)"]
+    fz = json.loads(FREEZE.read_text())
+    probs = [f"receipt field missing: {k}" for k in RECEIPT_FIELDS if k not in fz]
+    if probs:
+        return probs
+    for k, path in (("sha256", SPEC), ("runner_sha256", Path(__file__)), ("recount_sha256", ROOT / "scripts/sft_c_repeatability_recount.py"),
+                    ("candidates_sha256", CANDIDATES)):
+        if fz[k] != _sha(path):
+            probs.append(f"{k} differs from the current file")
+    fc = str(fz["freeze_commit"])
+    blob = subprocess.run(["git", "show", f"{fc}:{SPEC.relative_to(ROOT)}"], cwd=ROOT, capture_output=True)
+    anc = subprocess.run(["git", "merge-base", "--is-ancestor", fc, "HEAD"], cwd=ROOT, capture_output=True).returncode == 0
+    import hashlib
+    if not (fc and anc and blob.returncode == 0 and hashlib.sha256(blob.stdout).hexdigest() == fz["sha256"]):
+        probs.append("freeze commit missing, not an ancestor of HEAD, or without this spec")
+    if not (isinstance(fz["not_blind"], str) and fz["not_blind"].strip()):
+        probs.append("non-blindness declaration missing")
+    if subprocess.run(["git", "status", "--porcelain", "--untracked-files=no"], cwd=ROOT, capture_output=True, text=True).stdout.strip():
+        probs.append("tracked tree not clean")
+    head = subprocess.run(["git", "show", f"HEAD:scripts/{Path(__file__).name}"], cwd=ROOT, capture_output=True)
+    if head.returncode != 0 or hashlib.sha256(head.stdout).hexdigest() != _sha(__file__):
+        probs.append("script differs from HEAD")
+    if OUT.exists():
+        probs.append("output directory exists (single run)")
+    return probs
+
+
+def run():
+    probs = gate()
+    if probs:
+        sys.exit("repeatability C --run refused: " + "; ".join(probs))
+    cand = pd.read_csv(CANDIDATES)
+    sel, _, _ = selection(cand)
+    paths = file_paths(FITS_BASE)
+    uniq = unique_file_problems(FITS_BASE, sel, paths)
+    if uniq:
+        sys.exit("refused before any pixel: " + "; ".join(uniq[:5]))
+    prods, info = assemble(cand, OP.reader(FITS_BASE), paths)
+    meta = write_products(prods, info, OUT, CANDIDATES, extra=dict(freeze_receipt_sha256=_sha(FREEZE)))
+    print(f"written {OUT}; run valid {meta['run_valid']}")
+    return 0 if meta["run_valid"] else 3
+
+
 if __name__ == "__main__":
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--run", action="store_true")
     a = ap.parse_args()
     if a.run:
-        sys.exit("repeatability C: the spec is not frozen; --run refused")
+        sys.exit(run())
     print("use scripts/sft_c_repeatability_selftest.py")
