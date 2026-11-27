@@ -1,0 +1,47 @@
+2026-11-27 17:14:48 start; HEAD 82ce71338cd6b0aacd37147d0ef20fc5b4f31cf3; driver deadline 2026-11-27T20:09; no new run after 2026-11-27T19:14
+2026-11-27 17:14:48 launch b8_G1_r0_L2_M0_none (running 1/1)
+2026-11-27 17:15:18 end b8_G1_r0_L2_M0_none exit 0; check exit 0
+2026-11-27 17:15:18 launch b8_G1_r0_L2_MQ_none (running 1/1)
+2026-11-27 17:15:48 end b8_G1_r0_L2_MQ_none exit 0; check exit 0
+2026-11-27 17:15:48 gate L2: READY {"kind": "L2", "ready": true}
+2026-11-27 17:15:48 L2: pilot complete; further jobs require --extend
+2026-11-27 17:15:48 launch b8_G1_r0_L3_M0_none (running 1/1)
+2026-11-27 17:16:18 end b8_G1_r0_L3_M0_none exit 0; check exit 0
+2026-11-27 17:16:18 launch b8_G1_r0_L3_MQ_none (running 1/1)
+2026-11-27 17:16:48 end b8_G1_r0_L3_MQ_none exit 0; check exit 0
+2026-11-27 17:16:48 gate L3: NOT READY {"kind": "L3", "ready": false}
+2026-11-27 17:16:48 queue completed; gates {'L2': True, 'L3': False}
+2026-11-27 17:16:48 start; HEAD 82ce71338cd6b0aacd37147d0ef20fc5b4f31cf3; driver deadline 2026-11-27T20:09; no new run after 2026-11-27T19:14
+2026-11-27 17:16:48 gate L2: READY {"kind": "L2", "ready": true}
+2026-11-27 17:16:48 gate L3: NOT READY {"kind": "L3", "ready": false}
+2026-11-27 17:16:48 skip b8_G1_r0_L2_M0_none: directory exists
+2026-11-27 17:16:48 skip b8_G1_r0_L2_MQ_none: directory exists
+2026-11-27 17:16:48 skip b8_G1_r0_L3_M0_none: directory exists
+2026-11-27 17:16:48 skip b8_G1_r0_L3_MQ_none: directory exists
+2026-11-27 17:16:48 launch b5_G0_r0_L2_M0_none (running 1/1)
+2026-11-27 17:17:18 end b5_G0_r0_L2_M0_none exit 0; check exit 0
+2026-11-27 17:17:18 launch b5_G0_r0_L2_MQ_none (running 1/1)
+2026-11-27 17:17:48 end b5_G0_r0_L2_MQ_none exit 0; check exit 0
+2026-11-27 17:17:48 launch b5_G1_r0_L2_M0_none (running 1/1)
+2026-11-27 17:18:18 end b5_G1_r0_L2_M0_none exit 0; check exit 0
+2026-11-27 17:18:18 launch b5_G1_r0_L2_MQ_none (running 1/1)
+2026-11-27 17:18:48 end b5_G1_r0_L2_MQ_none exit 0; check exit 0
+2026-11-27 17:18:48 launch b6_G0_r0_L2_M0_none (running 1/1)
+2026-11-27 17:19:18 end b6_G0_r0_L2_M0_none exit 0; check exit 0
+2026-11-27 17:19:18 launch b6_G0_r0_L2_MQ_none (running 1/1)
+2026-11-27 17:19:48 end b6_G0_r0_L2_MQ_none exit 0; check exit 0
+2026-11-27 17:19:48 launch b6_G1_r0_L2_M0_none (running 1/1)
+2026-11-27 17:20:18 end b6_G1_r0_L2_M0_none exit 0; check exit 0
+2026-11-27 17:20:18 launch b6_G1_r0_L2_MQ_none (running 1/1)
+2026-11-27 17:20:48 end b6_G1_r0_L2_MQ_none exit 0; check exit 0
+2026-11-27 17:20:48 block 3: worst case 0.0 h, 1.9 h left before the last start
+2026-11-27 17:20:48 block 3 admitted
+2026-11-27 17:20:48 launch b3_G0_r0_L2_M0_none (running 1/1)
+2026-11-27 17:21:18 end b3_G0_r0_L2_M0_none exit 0; check exit 0
+2026-11-27 17:21:18 launch b3_G0_r0_L2_MQ_none (running 1/1)
+2026-11-27 17:21:48 end b3_G0_r0_L2_MQ_none exit 0; check exit 0
+2026-11-27 17:21:48 launch b3_G1_r0_L2_M0_none (running 1/1)
+2026-11-27 17:22:18 end b3_G1_r0_L2_M0_none exit 0; check exit 0
+2026-11-27 17:22:18 launch b3_G1_r0_L2_MQ_none (running 1/1)
+2026-11-27 17:22:48 end b3_G1_r0_L2_MQ_none exit 0; check exit 0
+2026-11-27 17:22:48 queue completed; gates {'L2': True, 'L3': False}

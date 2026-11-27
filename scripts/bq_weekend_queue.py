@@ -43,6 +43,9 @@ def main():
     ap.add_argument("--manifest", required=True)
     ap.add_argument("--out", required=True)
     ap.add_argument("--extend", action="store_true", help="run additional manifest jobs after a passing pilot")
+    ap.add_argument("--blocks", default="", help="with --extend: committed blocks, in this order (default: the whole manifest)")
+    ap.add_argument("--next", type=int, help="with --extend: block admitted after --blocks only if it fits entirely")
+    ap.add_argument("--reserve", type=int, help="with --extend: block admitted instead of --next if --next does not fit")
     ap.add_argument("--procs", type=int, default=4)
     ap.add_argument("--hard-deadline", default="2026-11-30T09:00")
     ap.add_argument("--no-new-after", default="2026-11-30T06:00")
@@ -78,6 +81,39 @@ def main():
         except (OSError, ValueError):
             return a.procs
 
+    committed = [int(b) for b in a.blocks.split(",") if b.strip()] or None
+    decided = a.next is None and a.reserve is None
+
+    def block_jobs(k, blocks):
+        """Manifest jobs of likelihood k in the given blocks (block order as given, then manifest order); pilots excluded."""
+        sel = [j for j in jobs if j["likelihood"] == k and j not in pilot[k]]
+        if blocks is None:
+            return sel
+        return [j for b in blocks for j in sel if int(j["block_id"]) == b]
+
+    def cost_hours(block):
+        """Worst-case hours of a whole block for the admitted likelihoods, from the runs completed so far: seconds per SMC
+        evaluation per verification record and fit seconds measured per likelihood, cap of 200 draws + 10 % controls."""
+        tot = 0.0
+        for k in [k for k, v in gate.items() if v]:
+            sec = ev = 0.0
+            fits = []
+            for d in out.iterdir():
+                m = d / "META.json"
+                if not (d.is_dir() and m.exists()):
+                    continue
+                meta = json.loads(m.read_text())
+                if meta.get("status") != "completed" or meta.get("args", {}).get("kind") != k or not (d / "DRAWS.csv").exists():
+                    continue
+                rows = list(csv.DictReader((d / "DRAWS.csv").open()))
+                sec += float(meta["smc_seconds"])
+                ev += sum(int(r["n_main"]) + int(r["n_extra"]) for r in rows) * int(meta["records"])
+                fits.append(float(meta["fit_seconds"]))
+            rate, fit = sec / ev, sum(fits) / len(fits)
+            for j in block_jobs(k, [block]):
+                tot += (1.1 * 200 * rate * int(j["n_verify"]) + fit) / 3600
+        return tot
+
     def done(j):
         m = out / name(j) / "META.json"
         return m.exists() and json.loads(m.read_text()).get("status") == "completed"
@@ -109,7 +145,7 @@ def main():
             (out / f"GATE_{k}.json").write_text(g.stdout or g.stderr)
             log(f"gate {k}: {'READY' if gate[k] else 'NOT READY'} {(g.stdout or g.stderr).strip()[:300]}")
             if gate[k] and a.extend:
-                queue += [j for j in jobs if j["likelihood"] == k and j not in pilot[k]]
+                queue += block_jobs(k, committed)
             elif gate[k]:
                 log(f"{k}: pilot complete; further jobs require --extend")
         # pilot runs that could not complete (exit without META completed) also close the gate
@@ -135,6 +171,19 @@ def main():
                             time.time())
             log(f"launch {key} (running {len(running)}/{procs()})")
         pilots_open = any(k not in gate for k in ("L2", "L3"))
+        if not running and not queue and not pilots_open and a.extend and not decided and any(gate.values()):
+            decided = True                                     # after the committed blocks: time and status only, never scores
+            left = (no_new - time.time()) / 3600
+            for b in [x for x in (a.next, a.reserve) if x is not None]:
+                need = cost_hours(b)
+                log(f"block {b}: worst case {need:.1f} h, {left:.1f} h left before the last start")
+                if need <= left:
+                    queue += [j for k in ("L2", "L3") if gate.get(k) for j in block_jobs(k, [b])]
+                    log(f"block {b} admitted")
+                    break
+            else:
+                log("no further block fits entirely: stop")
+            continue
         if not running and not queue and not pilots_open:
             break
         if not running and (time.time() >= no_new or hard - time.time() <= 60 * a.margin_min):
