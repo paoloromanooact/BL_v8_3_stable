@@ -1,0 +1,7 @@
+run,exit,start,end,check_exit,check
+b8_G1_r0_L2_M0_none,0,16:51:21,16:51:51,0,"{""fake"": true, ""status"": ""completed"", ""stop"": ""all_draws""}"
+b8_G1_r0_L2_MQ_none,0,16:51:21,16:51:51,0,"{""fake"": true, ""status"": ""completed"", ""stop"": ""all_draws""}"
+b8_G1_r0_L3_M0_none,0,16:51:21,16:51:51,0,"{""fake"": true, ""status"": ""completed"", ""stop"": ""all_draws""}"
+b8_G1_r0_L3_MQ_none,0,16:51:21,16:51:51,0,"{""fake"": true, ""status"": ""completed"", ""stop"": ""all_draws""}"
+b5_G0_r0_L2_M0_none,0,16:51:51,16:52:21,0,"{""fake"": true, ""status"": ""completed"", ""stop"": ""all_draws""}"
+b5_G0_r0_L2_MQ_none,0,16:51:51,16:52:21,0,"{""fake"": true, ""status"": ""completed"", ""stop"": ""all_draws""}"

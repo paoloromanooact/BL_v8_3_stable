@@ -24,7 +24,9 @@ seed 36_405_000 + 1000 * generator index + response-rep, Gaussian noise; L3 fold
 --deadline YYYY-MM-DDTHH:MM (local time) is absolute and covers the fit: before each chain of the training fit the run
 stops (status deadline_in_fit, nothing scored) if the remaining time is shorter than the longest chain so far (the
 first chain needs --deadline-margin-min); in the SMC phase it stops at the first balanced prefix with less than
---deadline-margin-min minutes left. Fit and SMC seconds are recorded separately. Seeds: chain c 36_403_000 + 10 c; SMC estimate r of evaluated draw i
+--deadline-margin-min minutes left. Fit and SMC seconds are recorded separately. --stop-when-established N (27 Nov,
+weekend gate): stop at the first checkpoint with at least N draws where MCSE <= 0.1 and weights ESS >= 100, otherwise go
+on to the next checkpoint up to the budget; the fit and every contribution computed so far are kept in the same run. Seeds: chain c 36_403_000 + 10 c; SMC estimate r of evaluated draw i
 36_403_500 + 100_000 r + i. The repeated subset is every `repeat_every`-th thinned draw of each chain (position
 0, repeat_every, 2 repeat_every, ... within the chain).
 
@@ -156,6 +158,7 @@ def main():
     ap.add_argument("--response-rep", type=int, default=0)
     ap.add_argument("--deadline", help="absolute local time YYYY-MM-DDTHH:MM, covering the fit")
     ap.add_argument("--deadline-margin-min", type=float, default=10.0)
+    ap.add_argument("--stop-when-established", type=int, default=0, help="minimum draws for the early stop (0: off)")
     a = ap.parse_args()
     deadline = dtm.datetime.fromisoformat(a.deadline).timestamp() if a.deadline else math.inf
     left = lambda: deadline - time.time()                                       # noqa: E731
@@ -252,6 +255,9 @@ def main():
             cprows.append(dict(draws=n_done, score=sc, mcse=se, ess_weights=essw, hours=hours))
             pd.DataFrame([cprows[-1]]).to_csv(out / "CHECKPOINTS.csv", mode="a", header=not (out / "CHECKPOINTS.csv").exists(), index=False)
             print(cprows[-1], flush=True)
+            if (not last and a.stop_when_established and n_done >= a.stop_when_established and np.isfinite(se)
+                    and se <= MCSE_MAX and essw >= ESS_W_MIN):
+                stop, last = "established", True
         if last:
             status = "ok" if (np.isfinite(se) and se <= MCSE_MAX and essw >= ESS_W_MIN) else "score_not_established"
             break

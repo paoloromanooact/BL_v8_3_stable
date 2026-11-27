@@ -1,0 +1,16 @@
+2026-11-27 16:51:21 start; HEAD 2a56510eb2077f4c268fcecea2c43dd19f8a4bbc; driver deadline 2026-11-27T19:46; no new run after 2026-11-27T18:51
+2026-11-27 16:51:21 launch b8_G1_r0_L2_M0_none (running 1/4)
+2026-11-27 16:51:21 launch b8_G1_r0_L2_MQ_none (running 2/4)
+2026-11-27 16:51:21 launch b8_G1_r0_L3_M0_none (running 3/4)
+2026-11-27 16:51:21 launch b8_G1_r0_L3_MQ_none (running 4/4)
+2026-11-27 16:51:51 end b8_G1_r0_L2_M0_none exit 0; check exit 0
+2026-11-27 16:51:51 end b8_G1_r0_L2_MQ_none exit 0; check exit 0
+2026-11-27 16:51:51 end b8_G1_r0_L3_M0_none exit 0; check exit 0
+2026-11-27 16:51:51 end b8_G1_r0_L3_MQ_none exit 0; check exit 0
+2026-11-27 16:51:51 gate L2: READY {"kind": "L2", "ready": true}
+2026-11-27 16:51:51 gate L3: NOT READY {"kind": "L3", "ready": false}
+2026-11-27 16:51:51 launch b5_G0_r0_L2_M0_none (running 1/4)
+2026-11-27 16:51:51 launch b5_G0_r0_L2_MQ_none (running 2/4)
+2026-11-27 16:52:21 end b5_G0_r0_L2_M0_none exit 0; check exit 0
+2026-11-27 16:52:21 end b5_G0_r0_L2_MQ_none exit 0; check exit 0
+2026-11-27 16:52:21 queue completed; gates {'L2': True, 'L3': False}
