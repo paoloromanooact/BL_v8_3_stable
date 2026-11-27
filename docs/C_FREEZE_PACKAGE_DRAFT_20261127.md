@@ -8,10 +8,10 @@ codice non fa ancora, perché Codex possa decidere in una lettura. Nessun pixel 
 
 | Oggetto | Percorso | SHA-256 |
 |---|---|---|
-| Specifica (rev. 3 + §4bis, con §4bis.8) | docs/SFT_HMI_REPEATABILITY_PLAN_DRAFT.md | da64432ab9d3faea243142879016ec49574c48b54442f1ea50cadf5a62e40e41 |
+| Specifica (rev. 3 + §4bis, con §4bis.8) | docs/SFT_HMI_REPEATABILITY_PLAN_DRAFT.md | d32a9a5f53bf7f5c4aa478cacf41df8f1f393a344ebbbcdcbe959927135b7a17 |
 | Runner | scripts/sft_c_repeatability.py | 0f03ec8fd8f8f0a2a700dbd014eb6313941b767a1459969e90f29b230db807a1 |
 | Selftest del runner | scripts/sft_c_repeatability_selftest.py | 79f77fec6d4692b8df35cdcb86f55dc0e0bd9411b07895877812b26229518c69 |
-| Riconteggio indipendente | scripts/sft_c_repeatability_recount.py | 1d2fcafa43d2844964a400d43bc6cdc9f25b210d465fa2ec72339def277c333a |
+| Riconteggio indipendente | scripts/sft_c_repeatability_recount.py | 0d11490e5f1e9901089d92d8ca1dae3df2b2779e527b72d5c4cde7abe0f56914 |
 | Candidati (audit metadati) | reviews/C_REPEATABILITY_METADATA_CLOSURE_20261125/AUDIT/CANDIDATES.csv | 86449cc2cef35ecce94caebb48b3728f8f8f7bf6cdbc9ed310e4a8018ae3aa85 |
 | Geometria condivisa | scripts/sft_observed_pilot.py | dec3c4cea56e9c11760751fe050a424c02481d80b53aacc54657d9bcda972ffb |
 | Box locale | python/sharpbl/sft_local.py | 4598f0330a044421f4208832b804799400555c0a87792a20fea100109b83a647 |
@@ -51,7 +51,7 @@ selezionati; il loro SHA entra nell'INPUT_MANIFEST prima di ogni misura.
   git HEAD); la sovrascrittura è rifiutata.
 - **Riconteggio indipendente** (codice proprio): ogni chiave di ogni coppia, SUMMARY completo con scale per unità,
   bootstrap, terzili, denominatori, manifest ricalcolato, validità; prodotti riletti dai CSV.
-- **Esiti:** selftest del runner 38/38, riconteggio 42/42 (log in `reviews/C_FREEZE_ITEMS_20261127/`), comprese le
+- **Esiti:** selftest del runner 38/38, riconteggio 46/46 (42/42 prima dei due controlli Codex del 27 novembre: ricevuta solo per corsa valida, con il caso di una mappa presente ma illeggibile; provenienza META ↔ ricevuta e freeze_commit antenato del git_head del META; il primo giro dopo i controlli si è fermato per un TypeError nel test, log conservato) (log in `reviews/C_FREEZE_ITEMS_20261127/`), comprese le
   manomissioni rifiutate (riga tolta, denominatore, classe di terzile, media, bootstrap, validità dichiarata, CSV
   cambiato, file in più, terna aggiunta, conteggio per anno, numero di blocchi, gruppo QUALITY, μ). Il primo giro del
   selftest del runner era 37/38: la data di prova del confine CR 1690 era sbagliata di due giorni nel test (25 invece

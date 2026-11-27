@@ -157,9 +157,12 @@ e congelare.
       runner legge i FITS solo se: la ricevuta ha tutti i campi; specifica, runner, riconteggio e candidati hanno gli
       SHA della ricevuta; freeze_commit è antenato di HEAD e contiene questa specifica con lo stesso SHA; l'albero
       tracciato è pulito; il runner è uguale al suo blob in HEAD; `results/SFT_C_REPEATABILITY` non esiste. META porta
-      lo SHA della ricevuta. Il riconteggio `--check` richiede la stessa ricevuta (proprio SHA e candidati), il suo
-      SHA nel META e l'unicità dei file, e scrive `results/SFT_C_REPEATABILITY_RECOUNT/RECEIPT.json` solo se tutti i
-      controlli passano.
+      lo SHA della ricevuta. Il riconteggio `--check` richiede la stessa ricevuta (proprio SHA e candidati) e l'unicità
+      dei file; verifica che il META porti lo SHA della ricevuta, che gli SHA di specifica, runner e candidati registrati
+      nel META siano quelli della ricevuta e che freeze_commit sia antenato del commit della corsa registrato nel META
+      (git_head). Scrive `results/SFT_C_REPEATABILITY_RECOUNT/RECEIPT.json` solo se tutti i controlli passano **e la
+      corsa è valida** (run_valid vero, dichiarato e ricontato, §4bis.7): una corsa non valida riprodotta fedelmente
+      non riceve la ricevuta (Codex, 27 novembre).
 
 ## 5. Osservabili e differenze
 

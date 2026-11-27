@@ -812,10 +812,26 @@ def _sha(p):
     return hashlib.sha256(Path(p).read_bytes()).hexdigest()
 
 
-def check_products(out, cand, cand_path, read, paths_fn, n_boot=N_BOOT_DEFAULT, real=False, receipt_dir=None):
-    """Recount of the products WRITTEN to disk: exact file set, product hashes = META, candidates hash, then
-    own_assembly_check on the tables read back from CSV. A receipt is written only on the real path (real=True) and only
-    if every check passes; the selftest path is always partial."""
+def provenance_checks(meta, fz, freeze_sha, repo=ROOT):
+    """Checks (name, ok, detail) tying the run's META to the C freeze receipt (Codex, 27 Nov): META carries the receipt
+    hash; the spec, runner and candidates SHA recorded in META equal those of the receipt; the freeze commit is an
+    ancestor of (or equal to) the run commit recorded in META."""
+    import subprocess
+    out = [("META carries the freeze receipt hash", meta.get("freeze_receipt_sha256") == freeze_sha, "")]
+    for mk, fk in (("spec_sha256", "sha256"), ("runner_sha256", "runner_sha256"), ("candidates_sha256", "candidates_sha256")):
+        out.append((f"META {mk} = receipt {fk}", bool(meta.get(mk)) and meta.get(mk) == fz.get(fk), f"{str(meta.get(mk))[:12]} vs {str(fz.get(fk))[:12]}"))
+    fc, gh = str(fz.get("freeze_commit") or ""), str(meta.get("git_head") or "")
+    anc = bool(fc and gh) and subprocess.run(["git", "merge-base", "--is-ancestor", fc, gh], cwd=repo, capture_output=True).returncode == 0
+    out.append(("freeze commit ancestor of the run commit in META", anc, f"{fc[:10]} -> {gh[:10]}"))
+    return out
+
+
+def check_products(out, cand, cand_path, read, paths_fn, n_boot=N_BOOT_DEFAULT, real=False, receipt_dir=None, receipt=None):
+    """Recount of the products WRITTEN to disk: exact file set, product hashes = META, candidates hash, provenance
+    against the freeze receipt (receipt = (dict, sha); required on the real path), then own_assembly_check on the tables
+    read back from CSV, and finally the validity of the run (spec §4bis.7: a receipt only for a valid run, even when the
+    invalid run is reproduced faithfully). A receipt is written only on the real path (real=True) and only if every
+    check passes; the selftest path is always partial."""
     import json
     out = Path(out)
     checks = []
@@ -835,7 +851,13 @@ def check_products(out, cand, cand_path, read, paths_fn, n_boot=N_BOOT_DEFAULT, 
     rd = lambda n: pd.read_csv(out / n, low_memory=False, keep_default_na=True)          # noqa: E731
     prods = {k[:-4]: rd(k) for k in PRODUCT_FILES if k.endswith(".csv")}
     info = {k: meta.get(k) for k in INFO_KEYS}
+    if receipt is not None:
+        checks += provenance_checks(meta, *receipt)
+    elif real:
+        checks.append(("freeze receipt given (real path)", False, ""))
     checks += own_assembly_check(cand, read, paths_fn, prods, info, n_boot)
+    checks.append(("run valid (declared and recounted): a receipt only for a valid run", meta.get("run_valid") is True
+                   and all(c[1] for c in checks), f"declared {meta.get('run_valid')!r}"))
     good = all(c[1] for c in checks)
     if real and receipt_dir is not None:
         if Path(receipt_dir).exists():
@@ -886,15 +908,13 @@ def real_check():
         return "repeatability C recount: this file or the candidates differ from the receipt; --check refused"
     if not OUT.exists():
         return f"repeatability C recount: {OUT} missing"
-    meta = json.loads((OUT / "META.json").read_text())
-    if meta.get("freeze_receipt_sha256") != _sha(FREEZE):
-        return "repeatability C recount: META does not carry this freeze receipt"
     cand = pd.read_csv(CANDIDATES)
     sel, _, _ = own_selection(cand)
     dup = own_unique_files(FITS_BASE, sel, own_paths(FITS_BASE))
     if dup:
         return "repeatability C recount: record files not unique or missing: " + "; ".join(dup[:5])
-    checks, good = check_products(OUT, cand, CANDIDATES, own_reader(FITS_BASE), own_paths(FITS_BASE), real=True, receipt_dir=RECEIPT_DIR)
+    checks, good = check_products(OUT, cand, CANDIDATES, own_reader(FITS_BASE), own_paths(FITS_BASE), real=True, receipt_dir=RECEIPT_DIR,
+                                  receipt=(fz, _sha(FREEZE)))
     for c in checks:
         print(f"[{'OK' if c[1] else 'FALLITO'}] {c[0]} {str(c[2])[:200]}")
     print(f"recount: {sum(c[1] for c in checks)}/{len(checks)}; receipt {'written' if good else 'NOT written'}")
@@ -1063,6 +1083,48 @@ def selftest():
         (outp / "EXTRA.csv").write_text("x\n1\n")
         cw3, gw3 = check_products(outp, good, cpath, rd, paths, n_boot=50)
         ok("refused (products): an extra file in the product set", not gw3)
+        (outp / "EXTRA.csv").unlink()
+        # provenance against the freeze receipt (Codex, 27 Nov, point 2)
+        import json as _json
+        import subprocess as _sp
+        mw = _json.loads((outp / "META.json").read_text())
+        head = mw["git_head"]
+        parent = _sp.run(["git", "rev-parse", f"{head}~1"], cwd=ROOT, capture_output=True, text=True).stdout.strip()
+        fz = dict(sha256=mw["spec_sha256"], runner_sha256=mw["runner_sha256"], candidates_sha256=mw["candidates_sha256"], freeze_commit=parent,
+                  recount_sha256="r", not_blind="x")
+        good_p = provenance_checks(dict(mw, freeze_receipt_sha256="F"), fz, "F")
+        bad_p = {lab: provenance_checks({**mw, "freeze_receipt_sha256": "F", **m_}, {**fz, **f_}, "F") for lab, m_, f_ in
+                 (("META spec SHA differs from the receipt", dict(spec_sha256="0" * 64), {}),
+                  ("META runner SHA differs from the receipt", dict(runner_sha256="0" * 64), {}),
+                  ("freeze commit not an ancestor of the run commit", dict(git_head=parent), dict(freeze_commit=head)),
+                  ("META without the receipt hash", dict(freeze_receipt_sha256=None), {}))}
+        ok("provenance: META SHA of spec, runner, candidates = receipt and freeze commit (HEAD~1) ancestor of the run commit "
+           "-> pass; each mismatch refused", all(c[1] for c in good_p) and all(not all(c[1] for c in v) for v in bad_p.values()),
+           str({k: [c[0][:25] for c in v if not c[1]] for k, v in bad_p.items()}))
+        cw4, gw4 = check_products(outp, good, cpath, rd, paths, n_boot=50, receipt=(fz, "F"))
+        ok("refused (products): META without the receipt hash, even with every product recounted", not gw4
+           and [c[0] for c in cw4 if not c[1]][0] == "META carries the freeze receipt hash")
+        rdir = Path(tdr) / "RECEIPT_REAL"
+        cw5, gw5 = check_products(outp, good, cpath, rd, paths, n_boot=50, real=True, receipt_dir=rdir)
+        ok("real path without a freeze receipt: refused, no receipt written", not gw5 and not rdir.exists())
+        # validity (Codex, 27 Nov, point 1): a map present but unreadable -> read_error, the run invalid but reproduced
+        brk = paths(205, rows_c[4]["T_REC_a"])[0]
+        brk.write_bytes(b"not a FITS file" * 10)
+        pu, iu = CR.assemble(good, rd, paths, n_boot=50)
+        outu = Path(tdr) / "RUN_UNREADABLE"
+        CR.write_products(pu, iu, outu, cpath)
+        cu = own_assembly_check(good, rd, paths, pu, iu, n_boot=50)
+        mu_ = _json.loads((outu / "META.json").read_text())
+        rdir2 = Path(tdr) / "RECEIPT_INVALID"
+        fz2 = dict(fz, freeze_commit=parent)
+        (outu / "META.json").write_text(_json.dumps(dict(mu_, freeze_receipt_sha256="F")))      # META is not in the product hashes
+        cw6, gw6 = check_products(outu, good, cpath, rd, paths, n_boot=50, real=True, receipt_dir=rdir2, receipt=(fz2, "F"))
+        failed6 = [c[0] for c in cw6 if not c[1]]
+        ok("validity: a map present but unreadable -> read_error, run_valid false, every product reproduced faithfully, yet "
+           "refused with no receipt written (only the validity check fails)",
+           (pu["MEASUREMENTS"][pu["MEASUREMENTS"].HARPNUM == 205].status.str.startswith("read_error")).all() and not iu["run_valid"]
+           and iu["all_inputs_present"] and all(c[1] for c in cu) and not gw6 and not rdir2.exists()
+           and failed6 == ["run valid (declared and recounted): a receipt only for a valid run"], str(failed6))
     # summaries: weights after missing values and bootstrap, against the runner's functions
     rng = np.random.default_rng(5)
     n = 40
