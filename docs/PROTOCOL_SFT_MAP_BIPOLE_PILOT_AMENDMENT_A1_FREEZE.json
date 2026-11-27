@@ -1,0 +1,8 @@
+{
+  "sha256": "d48ef719ed0b4908323e46f3dfa883ed00a2ea6448411d1c41ff8deec8dac6ef",
+  "parent_sha256": "380b79829fbac870479acc02797ef245623b689c09af9ff9f595ac5a81b61d38",
+  "parent_receipt_sha256": "a5f289876fef388b86be17e813e2c3d8578bdb170cb51392e7eb40a8a3f9f849",
+  "sft_core_sha256": "053e622b1acde6540364d850561c3cc55afedab5f1803541965ffaae4538a554",
+  "freeze_commit": "9fa6b938d359bc529608e5443653b44de2862b6c",
+  "not_blind": "Non cieco rispetto alle prove sintetiche dell'upwind, del preflight e delle patch sintetiche del selftest (§0, §2bis): nessuna mappa osservata è stata letta per scrivere o decidere questo emendamento."
+}
