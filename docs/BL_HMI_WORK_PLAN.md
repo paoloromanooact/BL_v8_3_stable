@@ -1,7 +1,9 @@
-# Piano di lavoro BL–HMI — 27 novembre 2026
+# Piano di lavoro BL–HMI
 
-Testo concordato fra utente, Codex e Claude il 27 novembre 2026 (sera). Fotografia datata: il piano generale resta
-`docs/BL_WORK_PLAN.md`. Unica modifica rispetto al testo condiviso: la correzione degli SHA del manifesto del
+**Ultimo aggiornamento:** 27 novembre 2026, sera. Prima versione, concordata fra utente, Codex e Claude.
+
+File vivo: si aggiorna sempre questo file, con una riga qui sopra (data e motivo); le versioni precedenti restano nella
+storia di git. Il piano generale resta `docs/BL_WORK_PLAN.md`. Unica modifica rispetto al testo condiviso: la correzione degli SHA del manifesto del
 weekend, che era «da fare», risulta fatta (commit f9205ff, cartella `preflight_lf`).
 
 ## Obiettivo scientifico generale
