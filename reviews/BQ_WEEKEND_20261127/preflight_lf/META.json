@@ -1,0 +1,15 @@
+{
+  "git_head": "00355af49876b23aecc3178364866602a3f40bc7",
+  "inputs": "T3 metadata and generated G0/G1 responses",
+  "sources_sha256": {
+    "scripts/bq_cv_psi_smc.py": "40fa0a5b8f9bd3dd4346ddbdb9157bd1a39e3a1ae0d9eb518952dcca80d56920",
+    "python/sharpbl/bq_cv.py": "ba6d673e93ed7ee796362dfb84e1da8c2b0f0fd4cddb82da9bfca6ceb0af9fa7",
+    "scripts/bq_identifiability_pilot.py": "2066891094d75433906409a3d9c6cb7c6e3eaa5a991c2726ecca2c60d7723ff3",
+    "scripts/bq_woodbury_benchmark.py": "4c06f8851558e8e458c3c0cfd60dedc2b8325efada8c1677ce9edf9557df502c"
+  },
+  "products_sha256": {
+    "JOBS.csv": "14703bcd31770815d0fa27c8e23a55eb1623371bd7462dc3f9bac55c7fcb3287",
+    "MASKS_BY_HARP.csv": "8af13a08ee082a8d1bb2e0965be6609e5faaac7ca8f489b9d39198ca555cef4b"
+  },
+  "runs_started": 0
+}
